@@ -187,8 +187,11 @@ protected:
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
         ASSERT( pOldBmp );
 
-        // if( dwStyle & WS_BORDER )
-        //  DrawFrame(m_hWnd,dcMem, &rcWnd, _state);
+        // 所有坐标相对于本窗口
+        CRect rcw; GetWindowRect(&rcw);
+        rcw.OffsetRect(rcw.left, rcw.top);
+
+        DrawFrameBorder(dcMem, );
 
         _ASSERTE( _CrtCheckMemory( ) );
 
@@ -261,8 +264,11 @@ protected:
         rc.left = rcw.left;
         rc.top = rcw.bottom - bottom_height;
         pT->Draw(hdc, WP_FRAMEBOTTOM, frame_state, rc.left, rc.top, rc.Width(), 0);
+    }
 
-#error Work here!
+    void DrawCaption(HDC hdc, CRect& rcw) // frame state + system button state
+    {
+        // 1 calc caption area
     }
     
     void DrawSystemButton(HDC hdc, SystemButtonState& state, DWORD dwStyle)
@@ -324,6 +330,7 @@ protected:
     void DrawFrame(HWND hWnd, HDC hdc, const RECT* prc, ActiveState state)
     {
         ASSERT( hdc && prc );
+
 
 //        CComPtr<ISkinScheme>	pScheme;
   //      LRESULT hr = GetCurrentScheme(&pScheme);
