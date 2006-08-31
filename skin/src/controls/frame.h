@@ -17,20 +17,24 @@ protected:
         _Disable  = 3
     };
 
+    // TODO: 似乎应该缓存 border 宽度作为类成员
+    // 主要在 WM_NCCALCSIZE 时用到
     enum Metics
     {
         BorderThickness = 4,
     };
 
+    // 共 12 种SysButton, 每种 6 种状态
+    // tmschema.h 中只定义了4种，加入 0 程序中使用而已，5 表示窗口不处于active状态 
     struct SystemButtonState
     {
         enum StateT
         {
             hidden  = 0,
             normal	= 1,
-            hover	= 2,
-            down	= 3,
-            disable = 4,
+            hot	= 2,
+            pushed	= 3,
+            disabled = 4,
             inactive = 5
         };
         unsigned long _close	: 4;
@@ -40,12 +44,6 @@ protected:
         unsigned long _help		: 4;
 
         SystemButtonState() : _close(hidden), _max(hidden), _restore(hidden), _min(hidden), _help(hidden) {}
-        void initNormal()
-        {
-            _close = normal;
-            _min = normal;
-            _max = normal;
-        }
         void initFromWindow(DWORD dwStyle, bool fWinActivate)
         {
             // close button always exist
@@ -78,14 +76,14 @@ protected:
 
             if( hasmin() && !hasmax() )
             {
-                _max = disable;
+                _max = disabled;
             }
 
             if( !fWinActivate )
             {
                 if( hasclose() )
                     _close = inactive;
-                if( hasmax() && _max != disable )
+                if( hasmax() && _max != disabled )
                     _max = inactive;
                 if( hasrestore() )
                     _restore = inactive;
@@ -107,6 +105,7 @@ protected:
     {
         return WP_CAPTION;
         // TODO: WP_SMALLCAPTION
+        // TODO: remove GetPartType, no sense get PartType here
     }
 
     // 固定system button在 caption上的位置
@@ -172,8 +171,11 @@ protected:
     // 1 draw border
     // 2 draw caption, include system button
     // 3 include resize anchor
-    void DrawFrame(HDC hdc, CRect& rcw, CRect& rcc, DWORD dwStyle)
+    // 所有坐标相对于本窗口
+    void DrawFrame(HDC hdc, CRect& rcw, CRect& rcc, DWORD dwStyle, FRAMESTATES frame_state)
     {
+        _ASSERTE( _CrtCheckMemory( ) );
+
         CDC dc(hdc);
         // exclude the clienet area
         // ! The lower and right edges of the specified rectangle are not excluded from the clipping region.
@@ -182,43 +184,20 @@ protected:
         // memory dc
         HDC dcMem = ::CreateCompatibleDC(dc);
         ASSERT( dcMem );
-        HBITMAP bmpMemBg = ::CreateCompatibleBitmap(dc, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top);
+        HBITMAP bmpMemBg = ::CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
         ASSERT( bmpMemBg );
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
         ASSERT( pOldBmp );
 
-        // 所有坐标相对于本窗口
-        CRect rcw; GetWindowRect(&rcw);
-        rcw.OffsetRect(rcw.left, rcw.top);
+        DrawFrameBorder(dcMem, rcw, frame_state);
 
-        DrawFrameBorder(dcMem, );
-
-        _ASSERTE( _CrtCheckMemory( ) );
-
-        if( dwStyle & WS_DLGFRAME )
-        {
-         //   RECT rc = rcWnd; rc.bottom = CaptionHeight(m_hWnd);
-
-            // 计算 caption 的位置
-            // TODO: 可能要加上左边的异型区域的宽度
-         //   DrawTitleBar(m_hWnd, dcMem, &rc, _state);
-
-            // draw system button
-         //   SystemButtonState sbState;
-         //   sbState.initFromWindow( dwStyle, _state == _Active );
-         //   DrawSystemButton(m_hWnd, dcMem, sbState, _state );
-        }
-        else if( dwStyle & WS_BORDER )
-        {
-            TRACE("SkinFrmImpl Warning: Ttitle Bar 和 Border 必须同时设置，如果仅设置 WS_BORDER 会不正常的, 有时间会实现的. :( \n");
-            // !!! Ttitle Bar 和 Border 必须同时设置，如果仅设置 WS_BORDER 会不正常的 !!!
-            // TODO: 仅画出 top border 
-        }
-
-        _ASSERTE( _CrtCheckMemory( ) );
+        SystemButtonState sysbtn_state;
+        sysbtn_state.initFromWindow(dwStyle, frame_state == FS_ACTIVE);
+        CAPTIONSTATES caption_state = ((frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
+        DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
         // memory dc
-        ::BitBlt(dc, 0, 0, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, dcMem, rcWnd.left, rcWnd.top, SRCCOPY);
+        ::BitBlt(dc, 0, 0, rcw.Width(), rcw.Height(), dcMem, rcw.left, rcw.top, SRCCOPY);
         ::SelectObject(dcMem, pOldBmp);
         ::DeleteObject(bmpMemBg);
         ::DeleteDC(dcMem);
@@ -227,18 +206,8 @@ protected:
         ASSERT( ERROR != nRet );
     }
 
-/*
-    BEGIN_TM_PART_STATES(FRAME)
-        TM_STATE(1, FS, ACTIVE)
-        TM_STATE(2, FS, INACTIVE)
-    END_TM_PART_STATES()
-
-
-#define BEGIN_TM_PART_STATES(name)          enum name##STATES { name##StateFiller0,
-#define TM_STATE(val, prefix, name)         prefix##_##name = val, 
-#define END_TM_PART_STATES()                };
-    enum FRAMESTATES
-*/
+ 
+    // TODO: 是否需要 windows style 呢？
     void DrawFrameBorder(HDC hdc, CRect& rcw, FRAMESTATES frame_state)
     {
         // FS_INACTIVE FS_ACTIVE
@@ -247,7 +216,7 @@ protected:
 
         // 左右border宽度保持一致，可能下边高度会不一样
         // 1 Caption Height, Border Width        
-        CAPTIONSTATE caption_state = (frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE;
+        CAPTIONSTATES caption_state = (frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE;
         int caption_height = pT->GetSchemeHeight(WP_CAPTION, caption_state);
 
         int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, frame_state);
@@ -266,149 +235,69 @@ protected:
         pT->Draw(hdc, WP_FRAMEBOTTOM, frame_state, rc.left, rc.top, rc.Width(), 0);
     }
 
-    void DrawCaption(HDC hdc, CRect& rcw) // frame state + system button state
-    {
-        // 1 calc caption area
-    }
-    
-    void DrawSystemButton(HDC hdc, SystemButtonState& state, DWORD dwStyle)
+    void DrawCaption(HDC hdc, CRect& rcw, DWORD dwStyle, CAPTIONSTATES caption_state, SystemButtonState& sysbtn_state)
     {
         ASSERT( hdc );
         ControlT * pT = static_cast<ControlT*>(this);
+
+        pT->Draw(hdc, WP_CAPTION, caption_state, rcw.left, rcw.top);
+        DrawSysButton(hdc, rcw, sysbtn_state, dwStyle);
+    }
     
-        // 1 绘制 caption 右边的底图
-        std::string strCaptionRight("caption_right");
-        if( _Inactive == dwWinState )
-            strCaptionRight = "caption_right_inactive";
-
-        CRect rcw; GetWindowRect(&rcw);
-        rcw.OffsetRect( -rcw.left, -rcw.top );
-        CRect rcBmp = pT->GetSchemeRect(0, 0); // TODO:
-        int nSystemBtnWidth = CalcSystemButtonAreaWidth(hWnd);
-        Draw( hdc, strCaptionRight.c_str(), rcw.right - nSystemBtnWidth, rcw.top, nSystemBtnWidth, rcBmp.Height(),
-            rcBmp.Width() - nSystemBtnWidth, 0, nSystemBtnWidth, rcBmp.Height() );
-
-        // 2 draw buttons
+    void DrawSysButton(HDC hdc, CRect& rcw, SystemButtonState& sysbtn_state, DWORD dwStyle)
+    {
+        ASSERT( hdc );
+        ControlT * pT = static_cast<ControlT*>(this);
+        
+        // 1 SysButton 区域底图，如果没有可能会造成问题
+        // WP_SYSBUTTON 的意思是啥？ 能作为SysButton区域的底图吗？
         RECT rc;
         BOOL bRet = FALSE;
+        // use CalcSystemButtonAreaWidth
 
-        if( state.hasclose() )
+        // TODO: CalcXXXButtonRect 是否换成CalcButtonRect(int index) 会好一些呢？ index 重右到左的序号
+        // 2 Button 表面
+        if( sysbtn_state.hasclose() )
         {
-            rc = CalcCloseButtonRect(hWnd, &rc);
-            bRet = pScheme->Draw( hdc, state.close_string(), rc.left, rc.top );
+            rc = CalcCloseButtonRect();
+            bRet = pT->Draw(hdc, WP_SYSBUTTON, sysbtn_state._close, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
-        if( state.hasmax() )
+        if( sysbtn_state.hasmax() )
         {
-            rc = CalcMaxButtonRect(&rc);
-            bRet = pScheme->Draw( hdc, state.max_string(), rc.left, rc.top );
+            rc = CalcMaxButtonRect();
+            bRet = pT->Draw(hdc, WP_MAXBUTTON, sysbtn_state._max, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
-        if( state.hasrestore() )
+        if( sysbtn_state.hasrestore() )
         {
-            if( state.hasmin() )
-                rc = CalcMaxButtonRect(hWnd, &rc);
+            // TODO: 正确否？
+            if( sysbtn_state.hasmin() )
+                rc = CalcMaxButtonRect();
             else
-                rc = CalcMinButtonRect(hWnd, &rc);
-            bRet = pScheme->Draw( hdc, state.restore_string(), rc.left, rc.top );
+                rc = CalcMinButtonRect();
+            bRet = pT->Draw(hdc, WP_RESTOREBUTTON, sysbtn_state._restore, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
-        if( state.hasmin() )
+        if( sysbtn_state.hasmin() )
         {
-            GetCaptionMinRect(&rc);
-            bRet = pScheme->Draw( hdc, state.min_string(), rc.left, rc.top );
+            rc = CalcMinButtonRect();
+            bRet = pT->Draw(hdc, WP_MINBUTTON, sysbtn_state._min, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
-        // TODO: help button
+        if (sysbtn_state.hashelp())
+        {
+            rc = CalcMinButtonRect(); // TODO: HelpButtonRect
+            bRet = pT->Draw(hdc, WP_HELPBUTTON, sysbtn_state._help, rc.left, rc.top);
+            ATLASSERT( bRet );
+        }
     }
 
 
-    void DrawFrame(HWND hWnd, HDC hdc, const RECT* prc, ActiveState state)
-    {
-        ASSERT( hdc && prc );
-
-
-//        CComPtr<ISkinScheme>	pScheme;
-  //      LRESULT hr = GetCurrentScheme(&pScheme);
-    //    if (!SUCCEEDED(hr) || !pScheme)
-        {
-            return ;	
-        }
-
-#if 0
-        // 使用 GetNearestColor，为了在用户使用256色的情况下也能够绘制出正确的风格
-        // TODO: use drawing function to paint the frame
-        COLORREF crDark = ::GetNearestColor( hdc, pScheme->BorderDarkColor() );
-        COLORREF crLight = ::GetNearestColor( hdc, pScheme->BorderDarkColor() );
-        if( _rgn )
-        {
-            HPEN pen = CreatePen( PS_SOLID, 1, crDark );
-            HBRUSH br = CreateSolidBrush( crLight );
-            ASSERT( pen && br );
-
-            HGDIOBJ oldPen = ::SelectObject( hdc, pen ):
-            HGDIOBJ oldBrush = ::SelectObject( hdc, br );
-            ASSERT( oldPen && oldBrush );
-
-            // ::RoundRect(hdc, 
-        }
-        else
-        {
-        }
-#else
-        // FillRect(hdc, prc, (HBRUSH)GetStockObject(GRAY_BRUSH) );
-
-/*
-                    CRect rc = pScheme->ExtractRect("border_left");
-                    int PART_LEN  = rc.Height() / 3; // 分段绘制, 该值似乎应该取 border_left 的高度， border_bottom, 50 三者中的最小值
-                    const int bw = BorderWidth(hWnd);
-            
-                    // 1 left border 上半段-----------------------
-                    pScheme->Draw( hdc, "border_left",  prc->left, prc->top, bw, PART_LEN,
-                        0, 0, rc.Width(), PART_LEN );
-            
-                    // 2 下半段
-                    pScheme->Draw( hdc, "border_left", prc->left, prc->bottom - PART_LEN, bw, PART_LEN,
-                        0, rc.Height() - PART_LEN, rc.Width(), PART_LEN );
-            
-                    // 3 缩放中间部分
-                    pScheme->Draw( hdc, "border_left", prc->left, prc->top + PART_LEN, bw, prc->bottom-prc->top - 2 * PART_LEN, 
-                        0, PART_LEN, rc.Width(), rc.Height() - 2 * PART_LEN );
-            
-                    // right border--------------------------------
-                    rc = pScheme->ExtractRect("border_right");
-                    // 1上半段
-                    pScheme->Draw( hdc, "border_right",  prc->right-bw, prc->top, bw, PART_LEN,
-                        0, 0, rc.Width(), PART_LEN );
-            
-                    // 2 下半段
-                    pScheme->Draw( hdc, "border_right", prc->right-bw, prc->bottom - PART_LEN, bw, PART_LEN,
-                        0, rc.Height() - PART_LEN, rc.Width(), PART_LEN );
-            
-                    // 3 缩放中间部分
-                    pScheme->Draw( hdc, "border_right", prc->right-bw, prc->top + PART_LEN, bw, prc->bottom-prc->top - 2 * PART_LEN, 
-                        0, PART_LEN, rc.Width(), rc.Height() - 2 * PART_LEN );
-            
-                    // bottom border ------------------------------
-                    rc = pScheme->ExtractRect("border_bottom");
-                    const int bh = BorderHeight(hWnd);
-                    PART_LEN = rc.Width() / 3;
-                    // 1 left
-                    pScheme->Draw( hdc, "border_bottom", prc->left, prc->bottom - bh, PART_LEN, bh, 
-                        0, 0, PART_LEN, rc.Height() );
-                    // 2 right
-                    pScheme->Draw( hdc, "border_bottom", prc->right-PART_LEN, prc->bottom - bh, PART_LEN, bh, 
-                        rc.Width() - PART_LEN, 0, PART_LEN, rc.Height() );
-                    // 3 middle
-                    pScheme->Draw( hdc, "border_bottom", prc->left + PART_LEN, prc->bottom - bh, prc->right-prc->left - 2 * PART_LEN, bh, 
-                        PART_LEN, 0, rc.Width() - 2 * PART_LEN, rc.Height() );*/
-            
-#endif
-    }
 
     BEGIN_MSG_MAP_EX(SkinFrameImpl)
         MSG_WM_NCACTIVATE(OnNcActivate)
@@ -419,9 +308,16 @@ protected:
 
     BOOL OnNcActivate(BOOL bActive)
     {
-        _state = bActive ? _Active : _Inactive;
+        _frame_state = bActive ? FS_ACTIVE : FS_INACTIVE;
+
         CWindowDC dc(m_hWnd);
-        // Paint(m_hWnd, dc, TRUE, pState);
+        
+        CRect rcw, rcc;	
+        GetClientRect(&rcc);
+        GetWindowRect(&rcw);
+        rcw.OffsetRect(rcw.left, rcw.top);
+
+        DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
         return TRUE;
     }
 
@@ -591,10 +487,13 @@ protected:
     void OnNcPaint(HRGN)
     {
         CWindowDC dc(m_hWnd);
-        RECT rcWnd;	GetWindowRect(&rcWnd);
-        ::OffsetRect(&rcWnd, -rcWnd.left, -rcWnd.top);
 
-        dc.FillSolidRect(&rcWnd, RGB(0xff,0,0));
+        CRect rcw, rcc;	
+        GetClientRect(&rcc);
+        GetWindowRect(&rcw);
+        rcw.OffsetRect(rcw.left, rcw.top);
+
+        DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
     }
     void OnNcLButtonDown(UINT nHitTest, CPoint point)
     {
@@ -611,29 +510,28 @@ protected:
         }
         if( GetStyle() & WS_DLGFRAME )
         {
-            SystemButtonState sbState;
-            ActiveState _state = _state;
-            sbState.initFromWindow( GetStyle(), (_state == _Active) );
+            SystemButtonState sysbtn_state;
+            sysbtn_state.initFromWindow( GetStyle(), (_frame_state == FS_ACTIVE) );
             if( HTCLOSE == nHitTest )
-                sbState._close = SystemButtonState::down;
+                sysbtn_state._close = SystemButtonState::pushed;
             else if( HTMAXBUTTON == nHitTest )
             {
                 if( GetStyle() & WS_MAXIMIZE )
-                    sbState._restore = SystemButtonState::down;
+                    sysbtn_state._restore = SystemButtonState::pushed;
                 else
-                    sbState._max = SystemButtonState::down;
+                    sysbtn_state._max = SystemButtonState::pushed;
             }
             else if( HTMINBUTTON == nHitTest )
             {
                 if( GetStyle() & WS_MINIMIZE )
-                    sbState._restore = SystemButtonState::down;
+                    sysbtn_state._restore = SystemButtonState::pushed;
                 else
-                    sbState._min = SystemButtonState::down;
+                    sysbtn_state._min = SystemButtonState::pushed;
             }
 
             HDC hdc = ::GetWindowDC(m_hWnd);
-            // TODO: DrawSystemButton2( hWnd, hdc, sbState, _state );
-            DrawSystemButton( hdc, sbState, _state );
+            // TODO: DrawSystemButton2( hWnd, hdc, sysbtn_state, _state );
+            // DrawSysButton( hdc, sysbtn_state, _state );
             ::ReleaseDC(m_hWnd, hdc);
         }
         if( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest )
@@ -643,7 +541,7 @@ protected:
         }
     }
 private:
-    ActiveState	_state;
+    FRAMESTATES	_frame_state;
     UINT _anchorDown, _anchorHover;
 };
 
