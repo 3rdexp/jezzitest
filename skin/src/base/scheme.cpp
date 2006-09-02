@@ -195,6 +195,14 @@ bool scheme_holder::parse_scheme(const std::string & fname)
                                 split_vector_type SplitVec;
                                 boost::split( SplitVec, strrc, boost::is_any_of(", ") );
 
+                                // 有多个空格，应该是boost::spli的bug吧，改日看看boost文档
+                                if(SplitVec.size() > 4)
+                                {
+                                    for(split_vector_type::iterator i=SplitVec.begin(); i!=SplitVec.end(); i++)
+                                        if(i->empty())
+                                            i = SplitVec.erase(i);
+                                }
+
                                 if(SplitVec.size() == 4)
                                 {
                                     area.left = boost::lexical_cast<int>(SplitVec[0].c_str());
@@ -202,6 +210,8 @@ bool scheme_holder::parse_scheme(const std::string & fname)
                                     area.right = boost::lexical_cast<int>(SplitVec[2].c_str());
                                     area.bottom = boost::lexical_cast<int>(SplitVec[3].c_str());
                                 }
+                                else
+                                    ASSERT(false);
                             }
                             else
                             {

@@ -12,13 +12,14 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="../Debug"
+			IntermediateDirectory="../Debug/test"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="./"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_STLP_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -108,6 +109,9 @@
 	<References>
 	</References>
 	<Files>
+		<File
+			RelativePath="..\src\base\scheme.cpp">
+		</File>
 		<File
 			RelativePath=".\test.cpp">
 		</File>

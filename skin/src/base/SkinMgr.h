@@ -42,21 +42,11 @@ public:
 	STDMETHOD(InitControls)(HINSTANCE hInst, DWORD dwType);
 	STDMETHOD(UninitControls)(HINSTANCE hInst, DWORD dwType);
 
-	STDMETHOD(LoadTheme)(LPCSTR file)
-	{
-        bool f = false;
-        if (file && _holder.parse_scheme(file))
-        {
-            f = true;
-            _spCurrentScheme.Release();
-            GetScheme("default", &_spCurrentScheme);
-        }
-		return f ? S_OK : E_FAIL;
-	}
-
+	STDMETHOD(LoadTheme)(LPCSTR file);
 	STDMETHOD(GetScheme)(LPCSTR style, ISkinScheme ** ppScheme);
 	STDMETHOD(GetCurentScheme)(ISkinScheme ** ppScheme)
     {
+        ASSERT(_spCurrentScheme && ppScheme);
         return _spCurrentScheme.CopyTo(ppScheme);
     }
 
