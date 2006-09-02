@@ -65,6 +65,32 @@ STDMETHODIMP SkinMgr::UninitControls(HINSTANCE hInst, DWORD dwType)
 	return S_OK;
 }
 
+STDMETHODIMP SkinMgr::LoadTheme(LPCSTR file)
+{
+    ASSERT(file);
+
+    // 1 尝试绝对路径
+    char path[MAX_PATH];
+    lstrcpyn(path, file, MAX_PATH);
+    if (!PathFileExists(path))
+    {
+        // 相对路径
+        GetCurrentDirectory(MAX_PATH, path);
+        PathAppend(path, file);
+    }
+    
+    bool f = false;
+    if (file && _holder.parse_scheme(path))
+    {
+        f = true;
+        _spCurrentScheme.Release();
+        GetScheme("default", &_spCurrentScheme);
+
+        ASSERT(_spCurrentScheme);
+    }
+    return f ? S_OK : E_FAIL;
+}
+
 STDMETHODIMP SkinMgr::GetScheme(LPCSTR style, ISkinScheme ** ppScheme)
 {
     if (style && ppScheme)

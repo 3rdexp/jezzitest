@@ -372,6 +372,11 @@ public:
 	{
 		area_t area;
 		BOOL f = _psd->get(make_key(iClassId, iPartId, iStateId), area);
+        if (!f && iStateId)
+        {
+            ATLTRACE("iStateId change to zero\n");
+            f = _psd->get(make_key(iClassId, iPartId, 0), area);
+        }
 		ASSERT(f);
 		if (f && pRect)
 			*pRect = area;

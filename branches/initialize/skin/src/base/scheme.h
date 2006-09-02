@@ -61,7 +61,9 @@ public:
         return false;
     }
 
+#ifndef _DEBUG
 private:
+#endif
     map_type _map;
 };
 
@@ -103,7 +105,9 @@ public:
 
     bool parse_scheme(const std::string & fname);
 
+#ifndef _DEBUG
 private:
+#endif
     map_type _map;
     std::string _filename;
     boost::shared_ptr<CCacheDC> _spCache;

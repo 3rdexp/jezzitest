@@ -191,10 +191,17 @@ protected:
 
         DrawFrameBorder(dcMem, rcw, frame_state);
 
+#if 0
+        HDC dct = ::GetDC(0);
+        BitBlt(dct, 0, 0, rcw.Width(), rcw.Height(), dcMem, 0, 0, SRCCOPY);
+        ::ReleaseDC(0, dct);
+#endif
+
         SystemButtonState sysbtn_state;
         sysbtn_state.initFromWindow(dwStyle, frame_state == FS_ACTIVE);
         CAPTIONSTATES caption_state = ((frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
-        DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
+        // TODO:
+        // DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
         // memory dc
         ::BitBlt(dc, 0, 0, rcw.Width(), rcw.Height(), dcMem, rcw.left, rcw.top, SRCCOPY);
@@ -255,7 +262,9 @@ protected:
         BOOL bRet = FALSE;
         // use CalcSystemButtonAreaWidth
 
-        // TODO: CalcXXXButtonRect 是否换成CalcButtonRect(int index) 会好一些呢？ index 重右到左的序号
+        // TODO: CalcXXXButtonRect 是否换成CalcButtonRect(int index) 会好一些呢？ 
+        // index 重右到左的序号
+
         // 2 Button 表面
         if( sysbtn_state.hasclose() )
         {
@@ -315,7 +324,7 @@ protected:
         CRect rcw, rcc;	
         GetClientRect(&rcc);
         GetWindowRect(&rcw);
-        rcw.OffsetRect(rcw.left, rcw.top);
+        rcw.OffsetRect(-rcw.left, -rcw.top);
 
         DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
         return TRUE;
@@ -488,10 +497,15 @@ protected:
     {
         CWindowDC dc(m_hWnd);
 
-        CRect rcw, rcc;	
-        GetClientRect(&rcc);
+        CRect rcw, rcc;
+        
         GetWindowRect(&rcw);
-        rcw.OffsetRect(rcw.left, rcw.top);
+        GetClientRect(&rcc);
+
+        ClientToScreen(&rcc);
+        rcc.OffsetRect(-rcw.left, -rcw.top);
+        
+        rcw.OffsetRect(-rcw.left, -rcw.top);
 
         DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
     }
@@ -537,7 +551,8 @@ protected:
         if( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest )
         {
             SetMsgHandled(FALSE);
-            //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest), MAKELPARAM((x), (y)));
+            //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest), 
+             // MAKELPARAM((x), (y)));
         }
     }
 private:

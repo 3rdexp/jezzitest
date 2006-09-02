@@ -20,11 +20,11 @@ void test_scheme_data()
         {
             area_t ain;
             ain.hstep = 123;
-            sd.put(r, ain);
+            sd.add(r, ain);
         }
         else
         {
-            sd.put(r, r+1);
+            sd.add(r, r+1);
         }
     }
 
@@ -57,5 +57,34 @@ void test_scheme_holder()
 {
    scheme_holder sh;
    scheme_data & sd = sh.insert("default");
-   sd.put(1, 1);
+   sd.add(1, 1);
+}
+
+void test_scheme_parse()
+{
+    CoInitialize(0);
+    
+    scheme_holder sh;
+    sh.parse_scheme("..\\debug\\test.cfg");
+
+    for(scheme_holder::map_type::iterator i=sh._map.begin(); i!=sh._map.end(); ++i)
+    {
+        cout << i->first << "\n";
+        scheme_data & sd = i->second;
+        for(scheme_data::map_type::iterator j=sd._map.begin(); j!=sd._map.end(); ++j)
+        {
+            unsigned key = j->first;
+            cout << setw(8);
+            cout << (key >> 26);
+            cout << " " << ((key&0x3f00000) >> 20);
+            cout << " " << ((key & 0xf0000) >> 16);
+            cout << " " << (key & 0xFFFF);
+            area_t * pa = get<area_t>(&(j->second));
+            if (pa)
+                cout << " " << pa->left << " " << pa->top << " " << pa->right << " " << pa->bottom;
+            cout << '\n';
+        }
+    }
+    
+    CoUninitialize();
 }
