@@ -139,7 +139,7 @@ class SkinControlImpl : public BaseT
 public:
     int GetSchemeWidth(int iPartId, int iStateId = 0)
     {
-        return GetSchemeSize(iPartId, iStateId).cy;
+        return GetSchemeSize(iPartId, iStateId).cx;
     }
 
     int GetSchemeHeight(int iPartId, int iStateId = 0)

@@ -229,20 +229,30 @@ protected:
         int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, frame_state);
         int border_width = pT->GetSchemeWidth(WP_FRAMELEFT, frame_state);
 
-        // 2 Left, Right, Bottom
+        // 2 Left
         CRect rc(rcw.left, rcw.top + caption_height, rcw.right, rcw.bottom - bottom_height);
         pT->Draw(hdc, WP_FRAMELEFT, frame_state, rc.left, rc.top, 0, rc.Height());
 
+        // Right
         rc.left = rcw.right - border_width;
         rc.right = rcw.right;
         pT->Draw(hdc, WP_FRAMERIGHT, frame_state, rc.left, rc.top, 0, rc.Height());
 
+        // Bottom
         rc.left = rcw.left;
         rc.top = rcw.bottom - bottom_height;
+        rc.bottom = rcw.bottom;
         pT->Draw(hdc, WP_FRAMEBOTTOM, frame_state, rc.left, rc.top, rc.Width(), 0);
+
+#if 0
+        HDC dct = ::GetDC(0);
+        BitBlt(dct, 0, 0, rcw.Width() + 10, rcw.Height() + 10, hdc, 0, 0, SRCCOPY);
+        ::ReleaseDC(0, dct);
+#endif
     }
 
-    void DrawCaption(HDC hdc, CRect& rcw, DWORD dwStyle, CAPTIONSTATES caption_state, SystemButtonState& sysbtn_state)
+    void DrawCaption(HDC hdc, CRect& rcw, DWORD dwStyle, CAPTIONSTATES caption_state, 
+        SystemButtonState& sysbtn_state)
     {
         ASSERT( hdc );
         ControlT * pT = static_cast<ControlT*>(this);
@@ -397,7 +407,7 @@ protected:
         int border_height = BorderThickness;
 
         ControlT * pT = static_cast<ControlT*>(this);
-        CRect rc_caption = pT->GetSchemeRect(GetPartType());
+        CRect rc_caption = pT->GetSchemeRect(WP_CAPTION, _frame_state);
         if( rc_caption.PtInRect(point) )
         {
             CRect rcclose = CalcCloseButtonRect();
