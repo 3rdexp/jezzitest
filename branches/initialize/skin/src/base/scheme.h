@@ -65,6 +65,7 @@ public:
 private:
 #endif
     map_type _map;
+    scheme_data* _inherit;
 };
 
 class CCacheDC;

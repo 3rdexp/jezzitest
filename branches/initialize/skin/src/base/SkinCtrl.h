@@ -265,7 +265,7 @@ protected:
 
 private:
     // 得到缺省的 ISkinScheme，SkinControl对象创建后的第一个函数调用
-    virtual void Init()
+    void Init()
     {
         CComPtr<ISkinMgr> mgr;
         if (S_OK == GetSkinMgr(&mgr) && mgr)
@@ -365,7 +365,7 @@ public:
     private:
 
     // TODO: find out a way to unload dll from process memory
-    // 
+    // 如果还有hooked的窗口没有销毁
     // 实际没有啥用处，还是会导致崩溃
 	static void Recover()
 	{
