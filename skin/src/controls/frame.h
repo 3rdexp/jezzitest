@@ -227,14 +227,16 @@ protected:
         int caption_height = pT->GetSchemeHeight(WP_CAPTION, caption_state);
 
         int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, frame_state);
-        int border_width = pT->GetSchemeWidth(WP_FRAMELEFT, frame_state);
+        int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, frame_state);
+        int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, frame_state);
 
         // 2 Left
-        CRect rc(rcw.left, rcw.top + caption_height, rcw.right, rcw.bottom - bottom_height);
+        CRect rc(rcw.left, rcw.top + caption_height, 
+            rcw.left + border_left_width, rcw.bottom - bottom_height);
         pT->Draw(hdc, WP_FRAMELEFT, frame_state, rc.left, rc.top, 0, rc.Height());
 
         // Right
-        rc.left = rcw.right - border_width;
+        rc.left = rcw.right - border_right_width;
         rc.right = rcw.right;
         pT->Draw(hdc, WP_FRAMERIGHT, frame_state, rc.left, rc.top, 0, rc.Height());
 
