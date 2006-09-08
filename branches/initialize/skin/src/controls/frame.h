@@ -189,7 +189,7 @@ protected:
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
         ASSERT( pOldBmp );
 
-        DrawFrameBorder(dcMem, rcw, frame_state);
+        // DrawFrameBorder(dcMem, rcw, frame_state);
 
 #if 0
         HDC dct = ::GetDC(0);
@@ -201,7 +201,7 @@ protected:
         sysbtn_state.initFromWindow(dwStyle, frame_state == FS_ACTIVE);
         CAPTIONSTATES caption_state = ((frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
         // TODO:
-        // DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
+        DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
         // memory dc
         ::BitBlt(dc, 0, 0, rcw.Width(), rcw.Height(), dcMem, rcw.left, rcw.top, SRCCOPY);
@@ -259,8 +259,13 @@ protected:
         ASSERT( hdc );
         ControlT * pT = static_cast<ControlT*>(this);
 
-        pT->Draw(hdc, WP_CAPTION, caption_state, rcw.left, rcw.top);
-        DrawSysButton(hdc, rcw, sysbtn_state, dwStyle);
+        pT->Draw(hdc, WP_CAPTION, caption_state, rcw.left, rcw.top, rcw.Width(), 0);
+        // DrawSysButton(hdc, rcw, sysbtn_state, dwStyle);
+#if 1
+        HDC dct = ::GetDC(0);
+        BitBlt(dct, 0, 0, rcw.Width() + 10, rcw.Height() + 10, hdc, 0, 0, SRCCOPY);
+        ::ReleaseDC(0, dct);
+#endif
     }
     
     void DrawSysButton(HDC hdc, CRect& rcw, SystemButtonState& sysbtn_state, DWORD dwStyle)
@@ -338,7 +343,7 @@ protected:
         GetWindowRect(&rcw);
         rcw.OffsetRect(-rcw.left, -rcw.top);
 
-        DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
+        // DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
         return TRUE;
     }
 

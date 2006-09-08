@@ -137,4 +137,18 @@ HRESULT WINAPI GetSkinMgr(ISkinMgr ** pMgr)
 	return hr;
 }
 
+
+
+HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme)
+{
+    CComPtr<ISkinMgr> p;
+    GetSkinMgr(&p);
+
+    if (p)
+        return p->GetCurentScheme(ppScheme);
+
+    return E_FAIL;
+}
+
 } // namespace Skin
+

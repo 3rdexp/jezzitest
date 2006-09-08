@@ -40,7 +40,8 @@ public:
 	}
 
 	// ISkinScheme
-	STDMETHODIMP_(BOOL) Draw(HDC hdc, int iClassId, int iPartId, int iStateId, long dx, long dy, long dcx = 0, long dcy = 0, DWORD dwRop = SRCCOPY)
+	STDMETHODIMP_(BOOL) Draw(HDC hdc, int iClassId, int iPartId, int iStateId, 
+        long dx, long dy, long dcx = 0, long dcy = 0, DWORD dwRop = SRCCOPY)
 	{
 		ASSERT( hdc );
 
@@ -56,7 +57,8 @@ public:
 			if( 0 == dcy ) dcy = area.bottom - area.top;
 
 			
-			// TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, area.top, scx, scy, _spCache->TranslateColor());
+			// TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, 
+            // area.top, scx, scy, _spCache->TranslateColor());
 
 			if (area.hstep && !area.vstep)
 			{
@@ -68,13 +70,16 @@ public:
 				// -------------------
 				// 左
 				TransparentBlt2(hdc, dx, dy, area.hstep, dcy, 
-					_spCache->GetDC(), area.left, area.top, area.hstep, area.Height(), _spCache->TranslateColor());
+					_spCache->GetDC(), area.left, area.top, area.hstep, area.Height(), 
+                    _spCache->TranslateColor());
 				// 中
 				StretchBlt(hdc, dx + area.hstep, dy, dcx - 2 * area.hstep, 0, 
-					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() - 2 * area.hstep, 0, SRCCOPY);
+					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() 
+                    - 2 * area.hstep, 0, SRCCOPY);
 				// 右
 				TransparentBlt2(hdc, dx + dcx - area.hstep, dy, area.hstep, dcy, 
-					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, 0, _spCache->TranslateColor());
+					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, 0, 
+                    _spCache->TranslateColor());
 			}
 			else if (!area.hstep && area.vstep)
 			{
@@ -89,13 +94,16 @@ public:
 				// -------------------
 				// 上
 				TransparentBlt2(hdc, dx, dy, dcx, area.vstep, 
-					_spCache->GetDC(), area.left, area.top, area.Width(), area.vstep, _spCache->TranslateColor());
+					_spCache->GetDC(), area.left, area.top, area.Width(), area.vstep, 
+                    _spCache->TranslateColor());
 				// 中
 				StretchBlt(hdc, dx, dy + area.vstep, dcx, dy - 2 * area.vstep, 
-					_spCache->GetDC(), area.left, area.top + area.vstep, area.Width(), area.Height() - 2 * area.vstep, SRCCOPY);
+					_spCache->GetDC(), area.left, area.top + area.vstep, area.Width(), 
+                    area.Height() - 2 * area.vstep, SRCCOPY);
 				// 下
 				TransparentBlt2(hdc, dx, dy + dcy - area.vstep, dcx, area.vstep, 
-					_spCache->GetDC(), area.left, area.bottom - area.vstep, area.Width(), area.vstep, _spCache->TranslateColor());
+					_spCache->GetDC(), area.left, area.bottom - area.vstep, area.Width(), 
+                    area.vstep, _spCache->TranslateColor());
 			}
 			else if (area.hstep && area.vstep)
 			{
@@ -110,41 +118,55 @@ public:
 				// -------------------
 				// 左上角
 				TransparentBlt2(hdc, dx, dy, area.hstep, area.vstep, 
-					_spCache->GetDC(), area.left, area.top, area.hstep, area.vstep, _spCache->TranslateColor());
+					_spCache->GetDC(), area.left, area.top, area.hstep, area.vstep, 
+                    _spCache->TranslateColor());
 				// 上部中间
 				StretchBlt(hdc, dx + area.hstep, dy, dcx - 2 * area.hstep, area.vstep, 
-					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() - 2 * area.hstep, area.vstep, SRCCOPY);
+					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() 
+                    - 2 * area.hstep, area.vstep, SRCCOPY);
 				// 上部右边
 				TransparentBlt2(hdc, dx + dcx - area.hstep, dy, area.hstep, area.vstep, 
-					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, area.vstep, _spCache->TranslateColor());
+					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, 
+                    area.vstep, _spCache->TranslateColor());
 
 				// 中间部分 左边
 				StretchBlt(hdc, dx, dy + area.vstep, area.hstep, dcy - 2 * area.vstep, 
-					_spCache->GetDC(), area.left, area.top + area.vstep, area.hstep, area.Height() - 2 * area.vstep, SRCCOPY);
+					_spCache->GetDC(), area.left, area.top + area.vstep, area.hstep, 
+                    area.Height() - 2 * area.vstep, SRCCOPY);
 
 				// 中间部分 中部
-				StretchBlt(hdc, dx + area.hstep, dy + area.vstep, dcx - 2 * area.hstep, dcy - 2 * area.vstep, 
-					_spCache->GetDC(), area.left + area.hstep, area.top + area.vstep, area.Width() - 2 * area.hstep, area.Height() - 2 * area.vstep, SRCCOPY);
+				StretchBlt(hdc, dx + area.hstep, dy + area.vstep, dcx - 2 * area.hstep, 
+                    dcy - 2 * area.vstep, 
+					_spCache->GetDC(), area.left + area.hstep, area.top + area.vstep, 
+                    area.Width() - 2 * area.hstep, area.Height() - 2 * area.vstep, SRCCOPY);
 
 				// 中间部分 右边
-				StretchBlt(hdc, dx + dcx - area.hstep, dy + area.vstep, area.hstep, dcy - 2 * area.vstep, 
-					_spCache->GetDC(), area.right - area.hstep, area.top + area.vstep, area.hstep, area.Height() - 2 * area.vstep, SRCCOPY);
+				StretchBlt(hdc, dx + dcx - area.hstep, dy + area.vstep, area.hstep, 
+                    dcy - 2 * area.vstep, 
+					_spCache->GetDC(), area.right - area.hstep, area.top + area.vstep, 
+                    area.hstep, area.Height() - 2 * area.vstep, SRCCOPY);
 
 				// 下面部分 左边
 				TransparentBlt2(hdc, dx, dy + dcy - area.vstep, area.hstep, area.vstep, 
-					_spCache->GetDC(), area.left, area.top + area.Height() - area.vstep, area.hstep, area.vstep, _spCache->TranslateColor());
+					_spCache->GetDC(), area.left, area.top + area.Height() - area.vstep, 
+                    area.hstep, area.vstep, _spCache->TranslateColor());
 
 				// 下面部分 中间
-				StretchBlt(hdc, dx + area.hstep, dy + dcy - area.vstep, dcx - 2 * area.hstep, area.vstep,
-					_spCache->GetDC(), area.left + area.hstep, area.bottom - area.vstep, area.Width() - 2 * area.hstep, area.vstep, SRCCOPY);
+				StretchBlt(hdc, dx + area.hstep, dy + dcy - area.vstep, dcx - 2 * area.hstep, 
+                    area.vstep,
+					_spCache->GetDC(), area.left + area.hstep, area.bottom - area.vstep, 
+                    area.Width() - 2 * area.hstep, area.vstep, SRCCOPY);
 
 				// 下面部分 右边
-				TransparentBlt2(hdc, dx + dcx - area.hstep, dy + dcy - area.vstep, dcx - 2 * area.hstep, area.vstep, 
-					_spCache->GetDC(), area.left + area.hstep, area.bottom - area.vstep, area.right - area.hstep, area.vstep, _spCache->TranslateColor());
+				TransparentBlt2(hdc, dx + dcx - area.hstep, dy + dcy - area.vstep, dcx 
+                    - 2 * area.hstep, area.vstep, 
+					_spCache->GetDC(), area.left + area.hstep, area.bottom - area.vstep, 
+                    area.right - area.hstep, area.vstep, _spCache->TranslateColor());
 			}
 			else if (!area.hstep && !area.vstep)
 			{
-				f = ::StretchBlt(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, area.top, area.right-area.left, area.bottom-area.top, dwRop);
+				f = ::StretchBlt(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, 
+                    area.top, area.right-area.left, area.bottom-area.top, dwRop);
 				ASSERT(f);
 			}
 #if 0
@@ -158,7 +180,8 @@ public:
 
 	// source 部分参数: sx/sy 相对于本图片的左上角的坐标，scx/scy 尺寸
 	// d: dest s: source
-	STDMETHODIMP_(BOOL) Draw(HDC hdc, int iClassId, int iPartId, int iStateId, long dx, long dy, long dcx, long dcy, 
+	STDMETHODIMP_(BOOL) Draw(HDC hdc, int iClassId, int iPartId, int iStateId, long dx, 
+        long dy, long dcx, long dcy, 
 		long sx, long sy, long scx, long scy, DWORD dwRop = SRCCOPY)
 	{
 		ASSERT( hdc );
@@ -177,13 +200,15 @@ public:
 			area.left += sx;
 			area.top += sy;
 
-			f = ::StretchBlt(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, area.top, area.right-area.left, area.bottom-area.top, dwRop);
+			f = ::StretchBlt(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, 
+                area.top, area.right-area.left, area.bottom-area.top, dwRop);
 			ASSERT(f);
 		}
 		return f;
 	}
 
-	STDMETHODIMP_(BOOL) TransparentDraw(HDC hdc, int iClassId, int iPartId, int iStateId, long dx, long dy, long dcx, long dcy,
+	STDMETHODIMP_(BOOL) TransparentDraw(HDC hdc, int iClassId, int iPartId, int iStateId, 
+        long dx, long dy, long dcx, long dcy,
 		long sx, long sy, long scx, long scy)
 	{
 		ASSERT( hdc );
@@ -202,17 +227,21 @@ public:
 			area.left += sx;
 			area.top += sy;
 
-			f = TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, area.top, scx, scy, _spCache->TranslateColor());
+			f = TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, 
+                area.top, scx, scy, _spCache->TranslateColor());
 			ASSERT(f);
 		}
 		return f;
 	}
-	STDMETHODIMP_(BOOL) TransparentDraw(HDC hdc, int iClassId, int iPartId, int iStateId, const RECT* lprc)
+	STDMETHODIMP_(BOOL) TransparentDraw(HDC hdc, int iClassId, int iPartId, int iStateId, 
+        const RECT* lprc)
 	{
 		ASSERT( lprc );
-		return lprc && TransparentDraw(hdc, iPartId, iStateId, lprc->left, lprc->top, lprc->right-lprc->left, lprc->bottom-lprc->top );
+		return lprc && TransparentDraw(hdc, iPartId, iStateId, lprc->left, lprc->top, 
+            lprc->right-lprc->left, lprc->bottom-lprc->top );
 	}
-	STDMETHODIMP_(BOOL) TransparentDraw(HDC hdc, int iClassId, int iPartId, int iStateId, long dx, long dy, long dcx = 0, long dcy = 0)
+	STDMETHODIMP_(BOOL) TransparentDraw(HDC hdc, int iClassId, int iPartId, int iStateId,
+        long dx, long dy, long dcx = 0, long dcy = 0)
 	{
 		ASSERT( hdc );
 
@@ -227,7 +256,8 @@ public:
 			if( 0 == dcx ) dcx = area.right - area.left;
 			if( 0 == dcy ) dcy = area.bottom - area.top;
 
-			f = TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, area.top, area.right-area.left, area.bottom-area.top, _spCache->TranslateColor());
+			f = TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, 
+                area.top, area.right-area.left, area.bottom-area.top, _spCache->TranslateColor());
 			ASSERT(f);
 		}
 		return f;
@@ -235,7 +265,8 @@ public:
 
 
 	// 类似于 ExtractIcon
-	STDMETHODIMP_(BOOL) GetBitmap(int iClassId, int iPartId, int iStateId, int iPropId, HBITMAP *pBitmap)
+	STDMETHODIMP_(BOOL) GetBitmap(int iClassId, int iPartId, int iStateId, int iPropId, 
+        HBITMAP *pBitmap)
 	{
 		if (!_spCache)
 			return FALSE;
@@ -254,7 +285,8 @@ public:
 
 		int bitsPixel = ::GetDeviceCaps( dcTarget, BITSPIXEL );
 		int planes = ::GetDeviceCaps( dcTarget, PLANES );
-		HBITMAP bmpTarget = ::CreateBitmap( area.right - area.left, area.bottom-area.top, planes, bitsPixel, 0 );
+		HBITMAP bmpTarget = ::CreateBitmap( area.right - area.left, area.bottom-area.top, 
+            planes, bitsPixel, 0 );
 		ATLASSERT( bmpTarget );
 		if( !bmpTarget )
 		{
@@ -273,7 +305,8 @@ public:
 
 		// 2 just bitblt on target bitmap
 		int nRet = 0;
-		nRet = ::BitBlt(dcTarget, 0, 0, area.right-area.left, area.bottom-area.top, _spCache->GetDC(), area.left, area.top, SRCCOPY);
+		nRet = ::BitBlt(dcTarget, 0, 0, area.right-area.left, area.bottom-area.top, 
+            _spCache->GetDC(), area.left, area.top, SRCCOPY);
 		ATLASSERT( nRet );
 
 		// 3 release
@@ -290,7 +323,8 @@ public:
         CWindow wndchild(hwnd);
 
         // 直接使用纯色填充
-        HBRUSH br = (HBRUSH)wndparent.SendMessage(WM_CTLCOLORDLG, (WPARAM)hdc, (LPARAM)hwnd);
+        HBRUSH br = (HBRUSH)wndparent.SendMessage(WM_CTLCOLORDLG, (WPARAM)hdc, 
+            (LPARAM)hwnd);
         if (br)
             FillRect(hdc, prc, br);
 
@@ -302,13 +336,15 @@ public:
         // memory dc
         HDC dcMem = ::CreateCompatibleDC(hdc);
         ASSERT( dcMem );
-        HBITMAP bmpMemBg = ::CreateCompatibleBitmap(hdc, rcparent.Width(), rcparent.Height());
+        HBITMAP bmpMemBg = ::CreateCompatibleBitmap(hdc, rcparent.Width(), 
+            rcparent.Height());
         ASSERT( bmpMemBg );
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
         ASSERT( pOldBmp );
 
         // 1绘制再memdc 上面
-        LRESULT lRes = wndparent.SendMessage(WM_PRINTCLIENT, (WPARAM)dcMem, PRF_CLIENT | PRF_ERASEBKGND | PRF_CHECKVISIBLE);
+        LRESULT lRes = wndparent.SendMessage(WM_PRINTCLIENT, (WPARAM)dcMem, 
+            PRF_CLIENT | PRF_ERASEBKGND | PRF_CHECKVISIBLE);
 
         // memory dc
         //::BitBlt(hdc, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, dcMem, pt.x, pt.y, SRCCOPY);
@@ -319,15 +355,16 @@ public:
         return S_OK;
     }
 
-    STDMETHOD_(BOOL, IsThemeBackgroundPartiallyTransparent)(int iClassId, int iPartId, int iStateId)
+    STDMETHOD_(BOOL, IsThemeBackgroundPartiallyTransparent)(int iClassId, int iPartId, 
+        int iStateId)
     {
         if (iClassId == SKINCTL_BUTTON )
             return TRUE;
         return FALSE;
     }
     // 在非MemoryDC中，参数pClipRect非常有意义，在本Skin的实现中可以不使用
-    STDMETHOD(DrawBackground)(HDC hdc, int iClassId, int iPartId, int iStateId, const RECT *pRect, 
-        const RECT *pClipRect)
+    STDMETHOD(DrawBackground)(HDC hdc, int iClassId, int iPartId, int iStateId, 
+        const RECT *pRect, const RECT *pClipRect)
     {
         BOOL f = Draw( hdc, iClassId, iPartId, iStateId, pRect->left, pRect->top,
             pRect->right - pRect->left, pRect->bottom - pRect->top );
@@ -335,8 +372,8 @@ public:
     }
 
     // dwTextFlags, dwTextFlags2 的定义见 MSDN: DrawThemeText
-    STDMETHOD(DrawText)(HDC hdc, int iClassId, int iPartId, int iStateId, LPCSTR szText, DWORD dwTextFlags,
-        DWORD dwTextFlags2, const RECT *pRect)
+    STDMETHOD(DrawText)(HDC hdc, int iClassId, int iPartId, int iStateId, LPCSTR szText, 
+        DWORD dwTextFlags,DWORD dwTextFlags2, const RECT *pRect)
     {
         // TODO: logfont
 
@@ -352,7 +389,8 @@ public:
         return S_OK;
     }
 
-    STDMETHOD(DrawIcon)(HDC hdc, int iClassId, int iPartId, int iStateId, const RECT *pRect, HIMAGELIST himl, int iImageIndex)
+    STDMETHOD(DrawIcon)(HDC hdc, int iClassId, int iPartId, int iStateId, 
+        const RECT *pRect, HIMAGELIST himl, int iImageIndex)
     {
         return S_OK;
     }
@@ -364,7 +402,8 @@ public:
         return S_OK;
     }
 
-	STDMETHODIMP_(BOOL) GetColor(int iClassId, int iPartId, int iStateId, int iPropId, COLORREF *pColor)
+	STDMETHODIMP_(BOOL) GetColor(int iClassId, int iPartId, int iStateId, int iPropId, 
+        COLORREF *pColor)
 	{
 		return _psd->get(make_key(iClassId, iPartId, iStateId, iPropId), *pColor);
 	}
@@ -382,11 +421,13 @@ public:
 			*pRect = area;
 		return f;
 	}
-	STDMETHOD_(BOOL, GetFont)  (int iClassId, int iPartId, int iStateId, int iPropId, LOGFONT *pFont)
+	STDMETHOD_(BOOL, GetFont)  (int iClassId, int iPartId, int iStateId, int iPropId, 
+        LOGFONT *pFont)
 	{
 		return FALSE;
 	}
-	STDMETHOD_(BOOL, GetRegion)(int iClassId, int iPartId, int iStateId, int iPropId, HRGN *pRegion)
+	STDMETHOD_(BOOL, GetRegion)(int iClassId, int iPartId, int iStateId, int iPropId, 
+        HRGN *pRegion)
 	{
 		area_t area;
 		BOOL f = _psd->get(make_key(iClassId, iPartId, iStateId), area);
@@ -395,7 +436,8 @@ public:
 			HBITMAP bmp = _spCache->GetBitmap();
 			if( bmp )
 			{
-				HRGN rgn = BitmapToRegion( bmp, _spCache->TranslateColor(), _spCache->TranslateColor(), &area);
+				HRGN rgn = BitmapToRegion( bmp, _spCache->TranslateColor(), 
+                    _spCache->TranslateColor(), &area);
 				DeleteObject( bmp );
 				f = TRUE;
 				*pRegion = rgn;
