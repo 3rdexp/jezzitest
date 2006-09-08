@@ -2,5 +2,6 @@
 LIBRARY      "Skin"
 
 EXPORTS
-	GetSkinMgr Private
-	SkinFrameProc Private
+	GetSkinMgr				Private
+	SkinFrameProc			Private
+	GetCurrentScheme		Private

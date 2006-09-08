@@ -26,6 +26,7 @@ namespace Skin{
 // skincontrol_class_id 直接是整数，用在配置文件中，和程序执行中
 // skincontrol_flag 仅用在 SkinMgr::InitControls 中，可以一个参数表达多个control
 
+// TODO: 删除这些可憎的宏，直接写～～～～
 
 #ifndef CCI_DEF
 #define CCI_DEF(val, name) name = val,
@@ -373,15 +374,17 @@ DECLARE_INTERFACE_(ISkinScheme, IUnknown)
         const RECT* lprc) PURE;
 
     STDMETHOD(DrawParentBackground)(HWND hwnd, HDC hdc, RECT *prc) PURE;
-    STDMETHOD_(BOOL, IsThemeBackgroundPartiallyTransparent)(int iClassId, int iPartId, int iStateId) PURE;
+    STDMETHOD_(BOOL, IsThemeBackgroundPartiallyTransparent)(int iClassId, int iPartId, 
+        int iStateId) PURE;
     // 在非MemoryDC中，参数pClipRect非常有意义，在本Skin的实现中可以不使用
     STDMETHOD(DrawBackground)(HDC, int iClassId, int iPartId, int iStateId, const RECT *pRect, 
         const RECT *pClipRect) PURE;
 
-    STDMETHOD(DrawText)(HDC, int iClassId, int iPartId, int iStateId, LPCSTR szText, DWORD dwTextFlags,
-        DWORD dwTextFlags2, const RECT *pRect) PURE;
+    STDMETHOD(DrawText)(HDC, int iClassId, int iPartId, int iStateId, LPCSTR szText, 
+        DWORD dwTextFlags, DWORD dwTextFlags2, const RECT *pRect) PURE;
 
-    STDMETHOD(DrawIcon)(HDC, int iClassId, int iPartId, int iStateId, const RECT *pRect, HIMAGELIST himl, int iImageIndex) PURE;
+    STDMETHOD(DrawIcon)(HDC, int iClassId, int iPartId, int iStateId, const RECT *pRect, 
+        HIMAGELIST himl, int iImageIndex) PURE;
 
     // uEdge, uFlags, pContentRect 现在可以不使用
     STDMETHOD(DrawEdge)(HDC, int iClassId, int iPartId, int iStateId, 
@@ -397,12 +400,12 @@ DECLARE_INTERFACE_(ISkinScheme, IUnknown)
 
 
 HRESULT WINAPI CreatetDefaultSkinScheme(ISkinScheme** ppss);
-HRESULT WINAPI GetCurrentScheme(ISkinScheme** pScheme);
-
+HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme);
 
 
 
 /*
+  
   DllMain ProcessAttach
   {
 	1 读取一个设置(绑定的控件类型)，缺省对所有的控件实施Skin，如果设置不需要绑定不做任何操作
@@ -411,9 +414,6 @@ HRESULT WINAPI GetCurrentScheme(ISkinScheme** pScheme);
 	4 
   }
 
-  frame
-
-  class 
 */
 
 
@@ -429,8 +429,10 @@ HRESULT WINAPI HandleScrollCustomDraw(int wParam, LPNMHDR lParam);
 
 
 #ifndef SKIN_NO_NAMESPACE
-};
+}
 #endif
+
+
 
 // -----------------------------------------------------------
 #endif // !defined(_SKINITF_H_)
