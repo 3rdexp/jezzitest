@@ -73,12 +73,12 @@ public:
 					_spCache->GetDC(), area.left, area.top, area.hstep, area.Height(), 
                     _spCache->TranslateColor());
 				// ÖĞ
-				StretchBlt(hdc, dx + area.hstep, dy, dcx - 2 * area.hstep, 0, 
+				StretchBlt(hdc, dx + area.hstep, dy, dcx - 2 * area.hstep, dcy, 
 					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() 
-                    - 2 * area.hstep, 0, SRCCOPY);
+                    - 2 * area.hstep, area.Height(), SRCCOPY);
 				// ÓÒ
 				TransparentBlt2(hdc, dx + dcx - area.hstep, dy, area.hstep, dcy, 
-					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, 0, 
+					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, area.Height(), 
                     _spCache->TranslateColor());
 			}
 			else if (!area.hstep && area.vstep)
