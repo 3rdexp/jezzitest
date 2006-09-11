@@ -13,6 +13,8 @@
 namespace Skin{
 #endif
 
+// TODO: 设置一个开关
+#define DLLEXPORT   __declspec(dllexport)
 
 
 #ifndef ASSERT
@@ -400,7 +402,9 @@ DECLARE_INTERFACE_(ISkinScheme, IUnknown)
 
 
 HRESULT WINAPI CreatetDefaultSkinScheme(ISkinScheme** ppss);
-HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme);
+DLLEXPORT HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme);
+
+
 
 
 

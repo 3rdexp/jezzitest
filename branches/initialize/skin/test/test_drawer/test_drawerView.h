@@ -27,6 +27,9 @@ public:
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
         using namespace Skin;
+        // CComPtr<ISkinMgr> pm;
+        // GetSkinMgr(&pm);
+
         CComPtr<ISkinScheme> pss;
         GetCurrentScheme(&pss);
 
