@@ -40,6 +40,12 @@ public:
 
         pss->Draw(dc, 19, WP_CAPTION, 1, 10, 10, 300, 0);
 
+        pss->Draw(dc, 19, WP_MINBUTTON, 1, 10, 40);
+
+        pss->Draw(dc, 19, WP_MAXBUTTON, 1, 10, 60);
+
+        pss->Draw(dc, 19, WP_RESTOREBUTTON, 1, 10, 80);
+
 		return 0;
 	}
 };
