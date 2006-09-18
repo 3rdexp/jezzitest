@@ -260,8 +260,8 @@ protected:
         ControlT * pT = static_cast<ControlT*>(this);
 
         pT->Draw(hdc, WP_CAPTION, caption_state, rcw.left, rcw.top, rcw.Width(), 0);
-        // DrawSysButton(hdc, rcw, sysbtn_state, dwStyle);
-#if 1
+        DrawSysButton(hdc, rcw, sysbtn_state, dwStyle);
+#if 0
         HDC dct = ::GetDC(0);
         BitBlt(dct, 0, 0, rcw.Width() + 10, rcw.Height() + 10, hdc, 0, 0, SRCCOPY);
         ::ReleaseDC(0, dct);
@@ -286,7 +286,7 @@ protected:
         if( sysbtn_state.hasclose() )
         {
             rc = CalcCloseButtonRect();
-            bRet = pT->Draw(hdc, WP_SYSBUTTON, sysbtn_state._close, rc.left, rc.top);
+            bRet = pT->Draw(hdc, WP_CLOSEBUTTON, sysbtn_state._close, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
