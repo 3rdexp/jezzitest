@@ -108,55 +108,42 @@ protected:
         // TODO: remove GetPartType, no sense get PartType here
     }
 
-    // 固定system button在 caption上的位置
-    // TODO: 建立子元素 placement 的机制
-    RECT CalcCloseButtonRect()
+    // title    ?  _ []  X
+    //
+    // index:   3  2  1  0
+    RECT CalcSysButtonRect(int index)
     {
         ControlT * pT = static_cast<ControlT*>(this);
-        CSize z = pT->GetSchemeSize(WP_CLOSEBUTTON);
+        CSize z = pT->GetSchemeSize(WP_SYSBUTTON);
 
         CRect rcw;
         GetWindowRect(&rcw);
         rcw.OffsetRect(-rcw.left, -rcw.top);
 
-        rcw.right -= BorderThickness;
-        rcw.left = rcw.right - z.cx;
         rcw.top += BorderThickness;
         rcw.bottom = rcw.top + z.cy;
+
+        rcw.right = rcw.right - (index + 1) * BorderThickness - index * z.cx;
+        rcw.left = rcw.right - z.cx;
         return rcw;
+    }
+
+    // 固定system button在 caption上的位置
+    // TODO: 建立子元素 placement 的机制
+    // 现在先使用 CalcSysButtonRect(index) 函数
+    RECT CalcCloseButtonRect()
+    {
+        return CalcSysButtonRect(0);
     }
 
     RECT CalcMinButtonRect()
     {
-        // TODO: 逻辑还不对
-        ControlT * pT = static_cast<ControlT*>(this);
-        CSize z = pT->GetSchemeSize(WP_MINBUTTON);
-
-        CRect rcw;
-        GetWindowRect(&rcw);
-        rcw.OffsetRect(-rcw.left, -rcw.top);
-
-        rcw.right -= BorderThickness;
-        rcw.left = rcw.right - z.cx;
-        rcw.top += BorderThickness;
-        rcw.bottom = rcw.top + z.cy;
-        return rcw;
+        return CalcSysButtonRect(2);
     }
 
     RECT CalcMaxButtonRect()
     {
-        ControlT * pT = static_cast<ControlT*>(this);
-        CSize z = pT->GetSchemeSize(WP_MAXBUTTON);
-
-        CRect rcw;
-        GetWindowRect(&rcw);
-        rcw.OffsetRect(-rcw.left, -rcw.top);
-
-        rcw.right -= BorderThickness;
-        rcw.left = rcw.right - z.cx;
-        rcw.top += BorderThickness;
-        rcw.bottom = rcw.top + z.cy;
-        return rcw;
+        return CalcSysButtonRect(1);
     }
 
     int CalcSystemButtonAreaWidth()
@@ -177,7 +164,7 @@ protected:
         _ASSERTE( _CrtCheckMemory( ) );
 
         CDC dc(hdc);
-        // exclude the clienet area
+        // exclude the client area
         // ! The lower and right edges of the specified rectangle are not excluded from the clipping region.
         int nRet = ::ExcludeClipRect( dc, rcc.left, rcc.top, rcc.right, rcc.bottom );
 
