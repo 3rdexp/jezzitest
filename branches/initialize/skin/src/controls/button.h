@@ -9,7 +9,14 @@ template<class BaseT = CButton>
 struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 {
     enum { class_id = BUTTON };
+	SkinButton()
+	{
+		m_fMouseOver = 0;
+		m_fFocus	 = 0;
+		m_fPressed	 = 0;
 
+		m_hIcon		 = 0;
+	}
 	typedef SkinButton<BaseT> this_type;
 	typedef SkinControlImpl<SkinButton, BaseT> base_type;
 
