@@ -16,6 +16,7 @@ public:
 	}
 
 	BEGIN_MSG_MAP(CTest_drawerView)
+		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 	END_MSG_MAP()
 
@@ -23,7 +24,17 @@ public:
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-
+	CButton		_button;
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		RECT rc;
+		rc.left = 10;
+		rc.top = 180;
+		rc.right = 110;
+		rc.bottom = 210;
+		_button.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD);
+		return 0;
+	}
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
         using namespace Skin;
@@ -46,6 +57,9 @@ public:
 
         pss->Draw(dc, 19, WP_RESTOREBUTTON, 1, 10, 80);
 
+		pss->Draw(dc, 1, BP_PUSHBUTTON, 1, 10, 100, 100, 30);
+
+		pss->Draw(dc, 1, BP_PUSHBUTTON, 2, 10, 140, 100, 30);
 		return 0;
 	}
 };
