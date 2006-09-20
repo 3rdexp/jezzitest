@@ -108,6 +108,12 @@ protected:
         // TODO: remove GetPartType, no sense get PartType here
     }
 
+    int CaptionHeight()
+    {
+        ControlT * pT = static_cast<ControlT*>(this);
+        return pT->GetSchemeSize(WP_CAPTION, CS_ACTIVE).cy;
+    }
+
     // title    ?  _ []  X
     //
     // index:   3  2  1  0
@@ -266,55 +272,52 @@ protected:
         BOOL bRet = FALSE;
         // use CalcSystemButtonAreaWidth
 
-        // TODO: CalcXXXButtonRect 是否换成CalcButtonRect(int index) 会好一些呢？ 
+        // CalcXXXButtonRect 换成 CalcSysButtonRect(int index)，代码逻辑简单了很多
         // index 重右到左的序号
+
+        int count_sys_button = 0;
 
         // 2 Button 表面
         if( sysbtn_state.hasclose() )
         {
-            rc = CalcCloseButtonRect();
+            rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_CLOSEBUTTON, sysbtn_state._close, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
         if( sysbtn_state.hasmax() )
         {
-            rc = CalcMaxButtonRect();
+            rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_MAXBUTTON, sysbtn_state._max, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
         if( sysbtn_state.hasrestore() )
         {
-            // TODO: 正确否？
-            if( sysbtn_state.hasmin() )
-                rc = CalcMaxButtonRect();
-            else
-                rc = CalcMinButtonRect();
+            rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_RESTOREBUTTON, sysbtn_state._restore, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
         if( sysbtn_state.hasmin() )
         {
-            rc = CalcMinButtonRect();
+            rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_MINBUTTON, sysbtn_state._min, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
         if (sysbtn_state.hashelp())
         {
-            rc = CalcMinButtonRect(); // TODO: HelpButtonRect
+            rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_HELPBUTTON, sysbtn_state._help, rc.left, rc.top);
             ATLASSERT( bRet );
         }
     }
 
-
-
     BEGIN_MSG_MAP_EX(SkinFrameImpl)
         MSG_WM_NCACTIVATE(OnNcActivate)
         MSG_WM_NCPAINT(OnNcPaint)
+        MSG_WM_NCCALCSIZE(OnNcCalcSize)
         MSG_WM_NCHITTEST(OnNcHitTest)
         MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
     END_MSG_MAP()
@@ -364,7 +367,7 @@ protected:
     
     UINT OnNcHitTest(CPoint point) 
     {
-        // 所有的计算都是相对于本窗口的坐标,所以先全部转换成窗口坐标
+        // 所有的计算都是相对于本窗口的坐标,所以先转换
         CRect rcw, rcc;
         GetWindowRect(&rcw);
 
@@ -380,9 +383,12 @@ protected:
 #define _RSBOX 15 // resize 的范围 resize box
 
         DWORD dwStyle = GetStyle();
+        ControlT * pT = static_cast<ControlT*>(this);
+        CRect rc_caption = pT->GetSchemeRect(WP_CAPTION, _frame_state);
 
-        //if (point.y > CaptionHeight(hWnd) && point.y <= CaptionHeight(hWnd) + 20)
-        //return HTMENU;
+        if (GetMenu() && point.y > rc_caption.Height() 
+                && point.y <= rc_caption.Height() + 20) // TODO: menu height
+            return HTMENU;
 #if 1 // HTGROWBOX 没有用，使用 HTBOTTOMRIGHT
         // 优先对 HTGROWBOX 进行判断, 可能有部分 grow box 在客户区中
         if( dwStyle & WS_THICKFRAME )
@@ -400,8 +406,7 @@ protected:
         int border_width = BorderThickness;
         int border_height = BorderThickness;
 
-        ControlT * pT = static_cast<ControlT*>(this);
-        CRect rc_caption = pT->GetSchemeRect(WP_CAPTION, _frame_state);
+        
         if( rc_caption.PtInRect(point) )
         {
             CRect rcclose = CalcCloseButtonRect();
@@ -468,7 +473,7 @@ protected:
                 return HTBOTTOM;
         }
         return HTERROR;
-
+#undef _RSBOX
         //  HTBORDER In the border of a window that does not have a sizing border. 
         //  HTBOTTOM In the lower-horizontal border of a resizable window (the user can click the mouse to resize the window vertically). 
         //  HTBOTTOMLEFT In the lower-left corner of a border of a resizable window (the user can click the mouse to resize the window diagonally). 
@@ -564,7 +569,8 @@ private:
     UINT _anchorDown, _anchorHover;
 };
 
-class SkinFrame : public SkinControlImpl<SkinFrame, SkinFrameImpl<SkinFrame>, RegisterPolicy>
+class SkinFrame : public SkinControlImpl<SkinFrame, SkinFrameImpl<SkinFrame>, 
+            RegisterPolicy>
 {
 public:
     typedef SkinFrameImpl<SkinFrame> framebase_type;
@@ -585,3 +591,17 @@ LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 } // namespace Skin
+
+
+// 
+// 需要记录 placement 的元素：
+// menu, system buttons
+//
+//
+// part 相对于 parent window 的位置
+// CRect SkinScheme::GetPlacement(int part, CRect& rcparent);
+//
+// <area state="" placement="left, top, right, bottom" />
+// eg: placement="0, 0, -10, -10" 表示靠右上
+//     placement="10, 0, -10, 0"  表示靠左下
+// 
