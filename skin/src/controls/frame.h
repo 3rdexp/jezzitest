@@ -320,6 +320,7 @@ protected:
         MSG_WM_NCCALCSIZE(OnNcCalcSize)
         MSG_WM_NCHITTEST(OnNcHitTest)
         MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
+        MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
     END_MSG_MAP()
 
     BOOL OnNcActivate(BOOL bActive)
@@ -337,8 +338,9 @@ protected:
         return TRUE;
     }
 
-    void OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS FAR* lpncsp) 
+    BOOL OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam) 
     {
+        // TODO: the return value ºÜÖØÒª¡£¡£¡£¡£
         /*
         if bValidateClient is 1
         #1 Rect[0] is the proposed new client position
@@ -352,9 +354,10 @@ protected:
         for example copy only a relavent subset of the current client to the new
         place.
         */
+        NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
         RECT* pRect = &lpncsp->rgrc[0];
         if( GetStyle() & WS_DLGFRAME )
-            pRect->top += GetSchemeHeight(GetPartType()); // CaptionHeight(hWnd);
+            pRect->top += CaptionHeight();
 
         if( GetStyle() & WS_BORDER )
         {
@@ -362,6 +365,7 @@ protected:
             pRect->right -= BorderThickness; // BorderWidth(hWnd);
             pRect->bottom -= BorderThickness; // BorderHeight(hWnd);
         }
+        return TRUE;
     }
 
     
@@ -564,6 +568,33 @@ protected:
              // MAKELPARAM((x), (y)));
         }
     }
+    void OnNcLButtonUp(UINT nHitTest, CPoint point)
+    {
+        if (0 == _anchorDown)
+            return;
+
+        ControlT * pT = static_cast<ControlT*>(this);
+        pT->DefWindowProc();
+
+        if (HTMAXBUTTON == nHitTest && (GetStyle() & WS_MAXIMIZEBOX))
+        {
+            // ShowWindow(SW_MAXIMIZE);
+            if ( IsZoomed() )
+                SendMessage(WM_SYSCOMMAND, SC_RESTORE, -1 );
+            else
+                SendMessage(WM_SYSCOMMAND, SC_MAXIMIZE, -1 );
+        }
+        else if (HTMINBUTTON == nHitTest )
+        {
+            if ( IsIconic() )
+                SendMessage(WM_SYSCOMMAND, SC_RESTORE, -1 );
+            else
+                SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, -1 );
+        }
+        else if (HTCLOSE == nHitTest )
+            SendMessage(WM_SYSCOMMAND, SC_CLOSE, -1 );
+    }
+
 private:
     FRAMESTATES	_frame_state;
     UINT _anchorDown, _anchorHover;

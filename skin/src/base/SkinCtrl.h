@@ -195,12 +195,15 @@ public:
     {
         return _installer.Uninstall(hInst, derived_type::GetWndClassName());
     }
+
 protected:
     SkinControlImpl() : _enable(true) {}
 
     // BaseT 没有 virtual ~BaseT()
     // 能解决问题吗？ new derived; delete base*
     virtual ~SkinControlImpl() {} 
+
+public: // 需要被模版派生类访问
 	static WNDPROC GetDefaultProc() { return _installer.GetDefaultProc(); }
 
 	// 和 ATL::CWindowImplBaseT::GetWindowProc 类似
