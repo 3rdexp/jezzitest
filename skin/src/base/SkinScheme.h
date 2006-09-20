@@ -158,10 +158,10 @@ public:
                     area.Width() - 2 * area.hstep, area.vstep, SRCCOPY);
 
 				// 下面部分 右边
-				TransparentBlt2(hdc, dx + dcx - area.hstep, dy + dcy - area.vstep, dcx 
-                    - 2 * area.hstep, area.vstep, 
-					_spCache->GetDC(), area.left + area.hstep, area.bottom - area.vstep, 
-                    area.right - area.hstep, area.vstep, _spCache->TranslateColor());
+				TransparentBlt2(hdc, dx + dcx - area.hstep, dy + dcy - area.vstep,  
+                   area.hstep, area.vstep, 
+					_spCache->GetDC(), area.right - area.hstep, area.bottom - area.vstep, 
+                    area.hstep, area.vstep, _spCache->TranslateColor());
 			}
 			else if (!area.hstep && !area.vstep)
 			{
@@ -358,7 +358,7 @@ public:
     STDMETHOD_(BOOL, IsThemeBackgroundPartiallyTransparent)(int iClassId, int iPartId, 
         int iStateId)
     {
-        if (iClassId == SKINCTL_BUTTON )
+        if (iClassId == BUTTON ) // 把SKINCTL_BUTTON修改为BUTTON 需要确认 Jezz
             return TRUE;
         return FALSE;
     }
