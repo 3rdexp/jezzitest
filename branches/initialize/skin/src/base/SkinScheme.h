@@ -358,7 +358,7 @@ public:
     STDMETHOD_(BOOL, IsThemeBackgroundPartiallyTransparent)(int iClassId, int iPartId, 
         int iStateId)
     {
-        if (iClassId == BUTTON ) // 把SKINCTL_BUTTON修改为BUTTON 需要确认 Jezz
+        if (iClassId == BUTTON ) // 把SKINCTL_BUTTON修改为BUTTON 需要确认 Jezz -- Right，的确应该如此。几个enum 搞得有点晕啊
             return TRUE;
         return FALSE;
     }

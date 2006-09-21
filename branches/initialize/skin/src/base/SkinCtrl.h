@@ -28,6 +28,14 @@ struct Int2Type
 
 // see ../readme.txt
 
+// XXXPolicy SkinControlImpl 的模版参数
+// 窗口类如何被初始化
+// Concept: 
+//   bool Install(....); 
+//   bool UnInstall(...)
+//   WNDPROC GetDefaultProc()
+
+// 用于非系统window
 class RegisterPolicy
 {
 public:
@@ -71,6 +79,7 @@ private:
     WNDPROC _defaultproc;
 };
 
+// 系统的window, 如 button, edit 等
 class ClassPolicy
 {
 public:
@@ -114,15 +123,21 @@ private:
 };
 
 /*----------------------------------------------------------------------------//
-Concept
 
-<<ControlT>>
-  static LPCSTR ControlT::GetWndClassName();
-  class_id = 1; // ControlT::class_id
+ControlT: 实现该window的消息处理的模版参数
+    Concept:
+        static LPCSTR ControlT::GetWndClassName();
+        class_id = 1; // ControlT::class_id
 
-<<BaseT>>
-  HWND m_hWnd;
+BaseT: 可以是 CWindow, CButton, CXXXButton
+    Concept:
+        HWND m_hWnd;
 
+
+TODO: 
+外部可能需要访问 InstallPolicy，改变自己创建窗口的属性
+  当然也可hack
+更多的DrawXXX
 
 
 \\----------------------------------------------------------------------------*/
@@ -262,7 +277,7 @@ public: // 需要被模版派生类访问
 		}
 		return 0;
 	}
-    // common skin message procdure end
+    // common skin message procedure end
 
     
 
@@ -367,7 +382,7 @@ public:
 	}
     private:
 
-    // TODO: find out a way to unload dll from process memory
+    // TODO: find out the way to unload dll from process memory
     // 如果还有hooked的窗口没有销毁
     // 实际没有啥用处，还是会导致崩溃
 	static void Recover()
