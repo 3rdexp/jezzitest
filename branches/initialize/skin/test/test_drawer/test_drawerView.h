@@ -25,6 +25,7 @@ public:
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 	CButton		_button;
+	CButton		_check;
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		RECT rc;
@@ -32,7 +33,11 @@ public:
 		rc.top = 180;
 		rc.right = 110;
 		rc.bottom = 210;
-		_button.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD);
+		//_button.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD);
+		
+		rc.top = 220;
+		rc.bottom = 250;
+		//_check.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD | BS_CHECKBOX);
 		return 0;
 	}
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
