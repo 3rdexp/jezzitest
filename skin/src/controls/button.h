@@ -246,27 +246,26 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 	}
 
 	/********************************************************************
-	* 函  数：GetButtonTextFormat()									*
+	* 函  数：GetButtonTextFormat()										*
 	* 功  能：得到Button文字的对齐方式(用DrawText()输出时的格式）		*
 	* 参  数：lStyle 控件风格											*
 	* 返回值：用DrawText()输出时的格式									*
 	* 说  明: button上的字必须是一行									*
 	********************************************************************/
-	UINT GetButtonTextFormat(const LONG lStyle)
+	//////////////////////////////////////////////////////////////////////////
+	// 说明 对于Button的文字的格式,需要更加各种情况分析
+
+	UINT GetButtonTextFormat(const LONG lStyle )
 	{
-		UINT uFormat = DT_SINGLELINE;//button上的字必须是一行
+		
 
-		//x方向
-		if ( (lStyle & BS_CENTER)==BS_CENTER )//x方向，中
-			uFormat |= DT_CENTER;
-		else if ( (lStyle & BS_RIGHT)==BS_RIGHT )//x方向，右
-			uFormat |= DT_RIGHT;
-		else if ( (lStyle & BS_LEFT) == BS_LEFT )//x方向，左
-			uFormat |= DT_LEFT;
-		else//缺省，x中
-			uFormat |= DT_CENTER;
+		UINT uFormat = 0; // = DT_SINGLELINE;//button上的字必须是一行
+		
+		if ( (lStyle & BS_MULTILINE) != BS_MULTILINE )
+			uFormat = DT_SINGLELINE;
 
-		//y方向
+		// 1 对于Y方向的对齐方式,
+		//y方向 
 		if ( (lStyle & BS_VCENTER ) == BS_VCENTER )//y，中
 			uFormat |= DT_VCENTER;
 		else if ( (lStyle & BS_TOP)==BS_TOP )//y方向，上
@@ -275,9 +274,96 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 			uFormat |= DT_BOTTOM;
 		else//缺省，y中
 			uFormat |= DT_VCENTER;
+		
+		// 2 对于X方向的对齐方式,需要和Right Align Text 属性结合起来
+		//x方向
 
+		BOOL bLeftText = GetLeftTextFormat(lStyle);
+		BOOL bRightAlignText = GetRightAlignTextFormat();
+		
+		if ( bRightAlignText )
+		{
+			if ( (lStyle & BS_CENTER)==BS_CENTER )//x方向，中
+				uFormat |= DT_CENTER;
+			else if ( (lStyle & BS_RIGHT)==BS_RIGHT )//x方向，右
+				uFormat |= DT_RIGHT;
+			else if ( (lStyle & BS_LEFT) == BS_LEFT )//x方向，左
+				uFormat |= DT_CENTER;
+			else//缺省，x中
+				uFormat |= DT_RIGHT;
+		}
+		else
+		{
+			if ( (lStyle & BS_CENTER)==BS_CENTER )//x方向，中
+				uFormat |= DT_CENTER;
+			else if ( (lStyle & BS_RIGHT)==BS_RIGHT )//x方向，右
+				uFormat |= DT_RIGHT;
+			else if ( (lStyle & BS_LEFT) == BS_LEFT )//x方向，左
+				uFormat |= DT_LEFT;
+			else//缺省，x中
+			{
+				if ( m_nPart == BP_PUSHBUTTON )
+					uFormat |= DT_CENTER;
+				else
+					uFormat |= BS_LEFT;
+			}
+		}
+		
 		return uFormat;
 	}
+
+	/********************************************************************
+	* 函  数：GetVertAlignmentFormat()									*
+	* 功  能：得到Button的Vertical的对齐方式							*
+	* 参  数：lStyle 控件风格											*
+	* 返回值：计算Check,Radio前面的小图的位置用							*
+	********************************************************************/
+	UINT GetVertAlignmentFormat(const LONG lStyle)
+	{
+		//y方向
+		if ( (lStyle & BS_VCENTER ) == BS_VCENTER )//y，中
+			return DT_VCENTER;
+		else if ( (lStyle & BS_TOP)==BS_TOP )//y方向，上
+			return DT_TOP;
+		else if ( (lStyle & BS_BOTTOM)==BS_BOTTOM )//y方向，下
+			return  DT_BOTTOM;
+		else//缺省，y中
+			return  DT_VCENTER;
+	}
+
+	/********************************************************************
+	* 函  数：GetLeftTextFormat()									*
+	* 功  能：得到Check Radio的Left Text的对齐方式				*
+	* 参  数：lStyle 控件风格											*
+	* 返回值：计算Check,Radio前面的小图和文字是左对齐还是右对齐			*
+	********************************************************************/
+	BOOL GetLeftTextFormat(const LONG lStyle)
+	{
+		//y方向
+		if ( (lStyle & BS_LEFTTEXT ) == BS_LEFTTEXT )//y，中
+			return TRUE;
+		else
+			return  FALSE;
+	}
+
+	/********************************************************************
+	* 函  数：GetRightAlignTextFormat()									*
+	* 功  能：得到Right Align Text的对齐方式				*
+	* 参  数：lStyle 控件风格											*
+	* 返回值：计算Check,Radio前面的小图和文字是左对齐还是右对齐			*
+	********************************************************************/
+	BOOL GetRightAlignTextFormat( )
+	{
+		LONG lStyle = GetExStyle();
+		//y方向
+		if ( (lStyle & WS_EX_RIGHT ) == WS_EX_RIGHT )//y，中
+			return TRUE;
+		else
+			return  FALSE;
+	}
+
+	
+
 	/********************************************************************
 	* 函  数：GetButtonPart(HWND hWnd)									*
 	* 功  能：得到button的基本风格（group、check、radio、普通button)	*
@@ -306,6 +392,75 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 		//普通按钮
 		return BP_PUSHBUTTON;
+	}
+
+	void GetCheckImgRect(const CRect& rcClient, int nState,  CRect& rcImg, CRect& rcText)
+	{
+		const int nSpace = 4;
+		long lStyle = GetStyle();
+
+		int nCheckWidth =  GetSchemeWidth( m_nPart, nState );
+		int nCheckHeight = GetSchemeHeight( m_nPart, nState );
+
+		UINT nVertical = GetVertAlignmentFormat(lStyle);
+		//y方向
+
+		rcText.top = rcClient.top;
+		rcText.bottom = rcClient.bottom;
+
+		if ( nCheckHeight > rcClient.Height() )
+		{
+			rcImg.top = rcClient.top;
+			rcImg.bottom = rcClient.bottom;	
+		}
+		else
+		{
+			if ( nVertical ==  DT_VCENTER)//y，中
+			{
+				rcImg.top = rcClient.top + ( rcClient.Height() - nCheckHeight ) / 2;
+				rcImg.bottom = rcImg.top + nCheckHeight;
+			}
+			else if ( nVertical ==  DT_TOP )//y方向，上
+			{
+				rcImg.top = rcClient.top ;
+				rcImg.bottom = rcImg.top + nCheckHeight;
+			}
+			else if ( nVertical ==  DT_BOTTOM )//y方向，下
+			{
+				rcImg.top = rcClient.bottom - nCheckHeight;
+				rcImg.bottom = rcClient.bottom;
+			}
+		}
+		
+		// x 方向
+		BOOL bLeft = GetLeftTextFormat( lStyle );
+
+		if ( nCheckWidth > rcClient.Width() )
+		{
+			rcImg.left = rcClient.left;
+			rcImg.right = rcClient.right;
+
+			rcText.left = rcText.right = rcText.top = rcText.bottom = 0;
+		}
+		else
+		{
+			if ( !bLeft )
+			{
+				rcImg.left = rcClient.left;
+				rcImg.right = rcImg.left + nCheckWidth;
+
+				rcText.left = rcImg.right + nSpace;
+				rcText.right = rcClient.right;
+			}
+			else
+			{
+				rcImg.left = rcClient.right - nCheckWidth;
+				rcImg.right = rcClient.right ;
+
+				rcText.left = rcClient.left;
+				rcText.right = rcImg.left - nSpace;
+			}
+		}
 	}
 
 	BOOL StartTrackMouseLeave()
@@ -399,24 +554,22 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 	{
 		CRect rc;
 		GetClientRect(&rc);
-
+		
 		CMemoryDC memdc(dc, rc);
 		int nState = GetState();
 		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
 			_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 		
-		if (_scheme)
-            _scheme->DrawBackground(memdc, class_id, m_nPart, nState, &rc, NULL );
-
-		const int nLen = GetWindowTextLength();
-		TCHAR * szText = new TCHAR[nLen + 1];
-		int nTextLen = GetWindowText(szText, nLen + 1);
-
-        // icon / bitmap ( TODO: button should have bitmap itself
-		// text
-		
+		LONG lStyle = GetStyle();	
+	
         if (m_nPart == BP_PUSHBUTTON)
 		{
+			if (_scheme)
+				_scheme->DrawBackground(memdc, class_id, m_nPart, nState, &rc, NULL );
+
+			// icon / bitmap ( TODO: button should have bitmap itself
+			// text
+
 			// if exist icon
 			if (m_hIcon)
 			{
@@ -427,8 +580,24 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				rc.left = rc.left + szIcon.cx + ICON_LEFT; 
 			}
 		}
+		else if ( m_nPart == BP_CHECKBOX || m_nPart == BP_RADIOBUTTON )
+		{
+			// 1 计算前面[o]的位置和文字的位置
+			CRect rcImg;
+			CRect rcText;
+			GetCheckImgRect( rc, nState, rcImg, rcText );
+			
+			if (_scheme)
+				_scheme->DrawBackground(memdc, class_id, m_nPart, nState, &rcImg, NULL );
 
-		LONG lStyle = GetStyle();
+			rc = rcText;
+
+		}
+
+		const int nLen = GetWindowTextLength();
+		TCHAR * szText = new TCHAR[nLen + 1];
+		int nTextLen = GetWindowText(szText, nLen + 1);
+		
 		if (_scheme)
             _scheme->DrawText(memdc, class_id, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
 

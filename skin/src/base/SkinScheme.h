@@ -381,10 +381,12 @@ public:
         if (pRect && GetColor(iClassId, iPartId, iStateId, TMT_TEXTCOLOR, &cr))
         {
             RECT rc = *pRect;
-
+			
             int mode = SetBkMode(hdc, TRANSPARENT);
+			COLORREF clrOldText = ::SetTextColor( hdc, cr );
             ::DrawText(hdc, szText, -1, &rc, dwTextFlags);
             SetBkMode(hdc, mode);
+			::SetTextColor(hdc,clrOldText);
         }
         return S_OK;
     }

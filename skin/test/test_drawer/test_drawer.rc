@@ -109,9 +109,10 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About test_drawer...",              ID_APP_ABOUT
+        MENUITEM "&About test_drawer...",       ID_APP_ABOUT
     END
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -127,19 +128,29 @@ IDR_MAINFRAME           ICON                    "res\\test_drawer.ico"
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG  0, 0, 187, 102
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOGEX 0, 0, 351, 225
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
-    CTEXT           "test_drawer Application v1.0\n\n(c) Copyright 2006",IDC_STATIC,25,57,78,
-                    32
-    ICON            IDR_MAINFRAME,IDC_STATIC,55,26,18,20
-    GROUPBOX        "",IDC_STATIC,7,7,115,88
+    DEFPUSHBUTTON   "OK",IDOK,273,169,58,35
+    GROUPBOX        "",IDC_STATIC,7,18,81,158
+    CONTROL         "Check1",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,123,7,103,20
+    CONTROL         "Check2",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | WS_TABSTOP,123,25,122,22
+    CONTROL         "Check3",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,123,51,68,21
+    CONTROL         "Check4",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | BS_BOTTOM | 
+                    WS_TABSTOP,127,70,84,45,WS_EX_RIGHT
+    CONTROL         "Radio1",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,125,132,
+                    113,17
+    CONTROL         "Radio2",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON | 
+                    BS_LEFTTEXT,123,167,127,18
+    CONTROL         "Radio3",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON | 
+                    BS_LEFT,125,196,137,22,WS_EX_RIGHT
+    LTEXT           "Static",IDC_STATIC,17,67,72,37
 END
-
-
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -153,9 +164,9 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 180
+        RIGHTMARGIN, 344
         TOPMARGIN, 7
-        BOTTOMMARGIN, 95
+        BOTTOMMARGIN, 218
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -207,21 +218,21 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "test_drawer Module\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "test_drawer\0"
-            VALUE "LegalCopyright", "Copyright 2006\0"
-            VALUE "OriginalFilename", "test_drawer.exe\0"
-            VALUE "ProductName", "test_drawer Module\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "FileDescription", "test_drawer Module"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "test_drawer"
+            VALUE "LegalCopyright", "Copyright 2006"
+            VALUE "OriginalFilename", "test_drawer.exe"
+            VALUE "ProductName", "test_drawer Module"
+            VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x0409, 0x04B0
+        VALUE "Translation", 0x409, 1200
     END
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -230,7 +241,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDR_MAINFRAME	"test_drawer"
+    IDR_MAINFRAME           "test_drawer"
 END
 
 STRINGTABLE 
@@ -310,11 +321,16 @@ END
 STRINGTABLE 
 BEGIN
     ATL_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
+
 
 
 #ifndef APSTUDIO_INVOKED
@@ -326,3 +342,4 @@ CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\test_drawer.exe.manifest"
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+
