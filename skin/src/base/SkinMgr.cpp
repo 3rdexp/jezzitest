@@ -10,7 +10,8 @@
 #include "../controls/button.h"
 #include "../controls/frame.h"
 #include "../controls/dialog.h"
-
+#include "../controls/edit.h"
+#include "../controls/combobox.h"
 
 namespace Skin {
 
@@ -31,6 +32,24 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		bool f = ssbuton::Install(hInst);
 		if (f)
 			_installed_type |= SKINCTL_BUTTON;
+	}
+
+	if (!(_installed_type & SKINCTL_EDIT) && (dwType & SKINCTL_EDIT) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinEdit<CEdit> ssedit;
+		bool f = ssedit::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_EDIT;
+	}
+
+	if (!(_installed_type & SKINCTL_COMBOBOX) && (dwType & SKINCTL_COMBOBOX) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinComboBox<CComboBox> sscombobox;
+		bool f = sscombobox::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_COMBOBOX;
 	}
 
 	/*
