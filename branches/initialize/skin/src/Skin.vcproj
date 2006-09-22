@@ -213,7 +213,13 @@
 				RelativePath=".\controls\button.h">
 			</File>
 			<File
+				RelativePath=".\controls\combobox.h">
+			</File>
+			<File
 				RelativePath=".\controls\dialog.h">
+			</File>
+			<File
+				RelativePath=".\controls\edit.h">
 			</File>
 			<File
 				RelativePath=".\controls\frame.h">
