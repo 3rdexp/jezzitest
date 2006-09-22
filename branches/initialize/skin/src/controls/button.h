@@ -396,7 +396,6 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 	void GetCheckImgRect(const CRect& rcClient, int nState,  CRect& rcImg, CRect& rcText)
 	{
-		const int nSpace = 4;
 		long lStyle = GetStyle();
 
 		int nCheckWidth =  GetSchemeWidth( m_nPart, nState );
@@ -449,7 +448,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				rcImg.left = rcClient.left;
 				rcImg.right = rcImg.left + nCheckWidth;
 
-				rcText.left = rcImg.right + nSpace;
+				rcText.left = rcImg.right + ICON_LEFT;
 				rcText.right = rcClient.right;
 			}
 			else
@@ -458,7 +457,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				rcImg.right = rcClient.right ;
 
 				rcText.left = rcClient.left;
-				rcText.right = rcImg.left - nSpace;
+				rcText.right = rcImg.left - ICON_LEFT;
 			}
 		}
 	}
@@ -556,7 +555,9 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 		GetClientRect(&rc);
 		
 		CMemoryDC memdc(dc, rc);
+
 		int nState = GetState();
+
 		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
 			_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 		
