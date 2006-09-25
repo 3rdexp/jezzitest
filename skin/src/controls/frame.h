@@ -6,16 +6,32 @@
 
 namespace Skin {
 
+#ifndef MSG_WM_NCMOUSELEAVE
+
+#define MSG_WM_NCMOUSELEAVE(func) \
+    if (uMsg == WM_NCMOUSELEAVE) \
+    { \
+        SetMsgHandled(TRUE); \
+        func(); \
+        lResult = 0; \
+        if (IsMsgHandled()) \
+        return TRUE; \
+    }
+
+#endif
+
+
 template<class ControlT, class WindowT = CWindow>
 class SkinFrameImpl : public WindowT
 {
 protected:
-    enum ActiveState
-    {
-        _Active   = 1,
-        _Inactive = 2,
-        _Disable  = 3
-    };
+    // replace by _frame_state;
+//    enum ActiveState
+//    {
+//        _Active   = 1,
+//        _Inactive = 2,
+//        _Disable  = 3
+//    };
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
     // 主要在 WM_NCCALCSIZE 时用到
@@ -25,23 +41,23 @@ protected:
     };
 
     // 共 12 种SysButton, 每种 6 种状态
-    // tmschema.h 中只定义了4种，加入 0 程序中使用而已，5 表示窗口不处于active状态 
+    // tmschema.h 中只定义了4种，加入 0 程序中使用而已，5 表示窗口不处于active状态
     struct SystemButtonState
     {
         enum StateT
         {
             hidden  = 0,
-            normal	= 1,
-            hot	= 2,
-            pushed	= 3,
+            normal    = 1,
+            hot    = 2,
+            pushed    = 3,
             disabled = 4,
             inactive = 5
         };
-        unsigned long _close	: 4;
-        unsigned long _max		: 4;
-        unsigned long _restore	: 4;
-        unsigned long _min		: 4;
-        unsigned long _help		: 4;
+        unsigned long _close    : 4;
+        unsigned long _max        : 4;
+        unsigned long _restore    : 4;
+        unsigned long _min        : 4;
+        unsigned long _help        : 4;
 
         SystemButtonState() : _close(hidden), _max(hidden), _restore(hidden), _min(hidden), _help(hidden) {}
         void initFromWindow(DWORD dwStyle, bool fWinActivate)
@@ -52,53 +68,53 @@ protected:
             _max = hidden;
 
             // 窗口最小化了
-            if( dwStyle & WS_MINIMIZE )
+            if ( dwStyle & WS_MINIMIZE )
             {
                 _min = hidden;
                 _restore = normal;
             }
             else
             {
-                if( dwStyle & WS_MINIMIZEBOX )
+                if ( dwStyle & WS_MINIMIZEBOX )
                     _min = normal;
             }
 
             // 最大化了
-            if( dwStyle & WS_MAXIMIZE )
+            if ( dwStyle & WS_MAXIMIZE )
             {
                 _restore = normal;
             }
             else
             {
-                if( dwStyle & WS_MAXIMIZEBOX )
+                if ( dwStyle & WS_MAXIMIZEBOX )
                     _max = normal;
             }
 
-            if( hasmin() && !hasmax() )
+            if ( hasmin() && !hasmax() )
             {
                 _max = disabled;
             }
 
-            if( !fWinActivate )
+            if ( !fWinActivate )
             {
-                if( hasclose() )
+                if ( hasclose() )
                     _close = inactive;
-                if( hasmax() && _max != disabled )
+                if ( hasmax() && _max != disabled )
                     _max = inactive;
-                if( hasrestore() )
+                if ( hasrestore() )
                     _restore = inactive;
-                if( hasmin() )
+                if ( hasmin() )
                     _min = inactive;
-                if( hashelp() )
+                if ( hashelp() )
                     _help = inactive;
             }
         }
 
-        bool hasclose() const	{ return( _close != hidden ); }
-        bool hasmax() const		{ return( _max != hidden ); }
+        bool hasclose() const    { return( _close != hidden ); }
+        bool hasmax() const        { return( _max != hidden ); }
         bool hasrestore() const { return( _restore != hidden ); }
-        bool hasmin() const		{ return( _min != hidden ); }
-        bool hashelp() const	{ return( _help != hidden ); }
+        bool hasmin() const        { return( _min != hidden ); }
+        bool hashelp() const    { return( _help != hidden ); }
     }; // SystemButtonState
 
     int GetPartType()
@@ -165,7 +181,7 @@ protected:
     // 2 draw caption, include system button
     // 3 include resize anchor
     // 所有坐标相对于本窗口
-    void DrawFrame(HDC hdc, CRect& rcw, CRect& rcc, DWORD dwStyle, FRAMESTATES frame_state)
+    void DrawFrame(HDC hdc, CRect& rcw, CRect& rcc, DWORD dwStyle, FRAMESTATES _frame_state)
     {
         _ASSERTE( _CrtCheckMemory( ) );
 
@@ -182,7 +198,7 @@ protected:
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
         ASSERT( pOldBmp );
 
-        // DrawFrameBorder(dcMem, rcw, frame_state);
+        // DrawFrameBorder(dcMem, rcw, _frame_state);
 
 #if 0
         HDC dct = ::GetDC(0);
@@ -191,8 +207,8 @@ protected:
 #endif
 
         SystemButtonState sysbtn_state;
-        sysbtn_state.initFromWindow(dwStyle, frame_state == FS_ACTIVE);
-        CAPTIONSTATES caption_state = ((frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
+        sysbtn_state.initFromWindow(dwStyle, _frame_state == FS_ACTIVE);
+        CAPTIONSTATES caption_state = ((_frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
         // TODO:
         DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
@@ -206,38 +222,38 @@ protected:
         ASSERT( ERROR != nRet );
     }
 
- 
+
     // TODO: 是否需要 windows style 呢？
-    void DrawFrameBorder(HDC hdc, CRect& rcw, FRAMESTATES frame_state)
+    void DrawFrameBorder(HDC hdc, CRect& rcw, FRAMESTATES _frame_state)
     {
         // FS_INACTIVE FS_ACTIVE
         ASSERT( hdc );
         ControlT * pT = static_cast<ControlT*>(this);
 
         // 左右border宽度保持一致，可能下边高度会不一样
-        // 1 Caption Height, Border Width        
-        CAPTIONSTATES caption_state = (frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE;
+        // 1 Caption Height, Border Width
+        CAPTIONSTATES caption_state = (_frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE;
         int caption_height = pT->GetSchemeHeight(WP_CAPTION, caption_state);
 
-        int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, frame_state);
-        int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, frame_state);
-        int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, frame_state);
+        int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
+        int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
+        int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
 
         // 2 Left
-        CRect rc(rcw.left, rcw.top + caption_height, 
+        CRect rc(rcw.left, rcw.top + caption_height,
             rcw.left + border_left_width, rcw.bottom - bottom_height);
-        pT->Draw(hdc, WP_FRAMELEFT, frame_state, rc.left, rc.top, 0, rc.Height());
+        pT->Draw(hdc, WP_FRAMELEFT, _frame_state, rc.left, rc.top, 0, rc.Height());
 
         // Right
         rc.left = rcw.right - border_right_width;
         rc.right = rcw.right;
-        pT->Draw(hdc, WP_FRAMERIGHT, frame_state, rc.left, rc.top, 0, rc.Height());
+        pT->Draw(hdc, WP_FRAMERIGHT, _frame_state, rc.left, rc.top, 0, rc.Height());
 
         // Bottom
         rc.left = rcw.left;
         rc.top = rcw.bottom - bottom_height;
         rc.bottom = rcw.bottom;
-        pT->Draw(hdc, WP_FRAMEBOTTOM, frame_state, rc.left, rc.top, rc.Width(), 0);
+        pT->Draw(hdc, WP_FRAMEBOTTOM, _frame_state, rc.left, rc.top, rc.Width(), 0);
 
 #if 0
         HDC dct = ::GetDC(0);
@@ -246,7 +262,7 @@ protected:
 #endif
     }
 
-    void DrawCaption(HDC hdc, CRect& rcw, DWORD dwStyle, CAPTIONSTATES caption_state, 
+    void DrawCaption(HDC hdc, CRect& rcw, DWORD dwStyle, CAPTIONSTATES caption_state,
         SystemButtonState& sysbtn_state)
     {
         ASSERT( hdc );
@@ -260,12 +276,12 @@ protected:
         ::ReleaseDC(0, dct);
 #endif
     }
-    
+
     void DrawSysButton(HDC hdc, CRect& rcw, SystemButtonState& sysbtn_state, DWORD dwStyle)
     {
         ASSERT( hdc );
         ControlT * pT = static_cast<ControlT*>(this);
-        
+
         // 1 SysButton 区域底图，如果没有可能会造成问题
         // WP_SYSBUTTON 的意思是啥？ 能作为SysButton区域的底图吗？
         RECT rc;
@@ -278,28 +294,28 @@ protected:
         int count_sys_button = 0;
 
         // 2 Button 表面
-        if( sysbtn_state.hasclose() )
+        if ( sysbtn_state.hasclose() )
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_CLOSEBUTTON, sysbtn_state._close, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
-        if( sysbtn_state.hasmax() )
+        if ( sysbtn_state.hasmax() )
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_MAXBUTTON, sysbtn_state._max, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
-        if( sysbtn_state.hasrestore() )
+        if ( sysbtn_state.hasrestore() )
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_RESTOREBUTTON, sysbtn_state._restore, rc.left, rc.top);
             ATLASSERT( bRet );
         }
 
-        if( sysbtn_state.hasmin() )
+        if ( sysbtn_state.hasmin() )
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_MINBUTTON, sysbtn_state._min, rc.left, rc.top);
@@ -321,6 +337,9 @@ protected:
         MSG_WM_NCHITTEST(OnNcHitTest)
         MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
         MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
+        MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
+        MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
+        MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
     END_MSG_MAP()
 
     BOOL OnNcActivate(BOOL bActive)
@@ -328,8 +347,8 @@ protected:
         _frame_state = bActive ? FS_ACTIVE : FS_INACTIVE;
 
         CWindowDC dc(m_hWnd);
-        
-        CRect rcw, rcc;	
+
+        CRect rcw, rcc;
         GetClientRect(&rcc);
         GetWindowRect(&rcw);
         rcw.OffsetRect(-rcw.left, -rcw.top);
@@ -338,7 +357,7 @@ protected:
         return TRUE;
     }
 
-    BOOL OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam) 
+    BOOL OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam)
     {
         // TODO: the return value 很重要。。。。
         /*
@@ -356,10 +375,10 @@ protected:
         */
         NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
         RECT* pRect = &lpncsp->rgrc[0];
-        if( GetStyle() & WS_DLGFRAME )
+        if ( GetStyle() & WS_DLGFRAME )
             pRect->top += CaptionHeight();
 
-        if( GetStyle() & WS_BORDER )
+        if ( GetStyle() & WS_BORDER )
         {
             pRect->left += BorderThickness; // BorderWidth(hWnd);
             pRect->right -= BorderThickness; // BorderWidth(hWnd);
@@ -368,8 +387,8 @@ protected:
         return TRUE;
     }
 
-    
-    UINT OnNcHitTest(CPoint point) 
+
+    UINT OnNcHitTest(CPoint point)
     {
         // 所有的计算都是相对于本窗口的坐标,所以先转换
         CRect rcw, rcc;
@@ -390,119 +409,119 @@ protected:
         ControlT * pT = static_cast<ControlT*>(this);
         CRect rc_caption = pT->GetSchemeRect(WP_CAPTION, _frame_state);
 
-        if (GetMenu() && point.y > rc_caption.Height() 
+        if (GetMenu() && point.y > rc_caption.Height()
                 && point.y <= rc_caption.Height() + 20) // TODO: menu height
             return HTMENU;
 #if 1 // HTGROWBOX 没有用，使用 HTBOTTOMRIGHT
         // 优先对 HTGROWBOX 进行判断, 可能有部分 grow box 在客户区中
-        if( dwStyle & WS_THICKFRAME )
+        if ( dwStyle & WS_THICKFRAME )
         {
-            if( point.x > rcw.right - _RSBOX && point.y > rcw.bottom - _RSBOX )
+            if ( point.x > rcw.right - _RSBOX && point.y > rcw.bottom - _RSBOX )
                 return HTBOTTOMRIGHT;
         }
 #endif
 
         // client area
         rcc.DeflateRect( 2, 2 );// 把rcc缩小一些，鼠标响应会灵敏一些
-        if( rcc.PtInRect(point) )
+        if ( rcc.PtInRect(point) )
             return HTCLIENT;
 
         int border_width = BorderThickness;
         int border_height = BorderThickness;
 
-        
-        if( rc_caption.PtInRect(point) )
+
+        if ( rc_caption.PtInRect(point) )
         {
             CRect rcclose = CalcCloseButtonRect();
-            if( rcclose.PtInRect(point) )
+            if ( rcclose.PtInRect(point) )
                 return HTCLOSE;
-            if( WS_MINIMIZEBOX & dwStyle )
+            if ( WS_MINIMIZEBOX & dwStyle )
             {
                 CRect rcmin = CalcMinButtonRect();
-                if( rcmin.PtInRect( point ) )
+                if ( rcmin.PtInRect( point ) )
                     return HTMINBUTTON;
             }
-            if( WS_MAXIMIZEBOX & dwStyle )
+            if ( WS_MAXIMIZEBOX & dwStyle )
             {
                 CRect rcmax = CalcMaxButtonRect();
-                if( rcmax.PtInRect( point ) )
+                if ( rcmax.PtInRect( point ) )
                     return HTMAXBUTTON;
             }
 
             return HTCAPTION;
         }
 
-        if( !(dwStyle & WS_THICKFRAME) )
-            if( rcw.PtInRect(point) )
+        if ( !(dwStyle & WS_THICKFRAME) )
+            if ( rcw.PtInRect(point) )
                 return HTBORDER;
 
-        if( point.x < border_width ) // left
+        if ( point.x < border_width ) // left
         {
             // 优先判断角
-            if( point.y > rcw.bottom - _RSBOX )
+            if ( point.y > rcw.bottom - _RSBOX )
                 return HTBOTTOMLEFT;
 
-            if( point.y < _RSBOX )
+            if ( point.y < _RSBOX )
                 return HTTOPLEFT;
 
             return HTLEFT;
         }
-        if( point.x > rcc.right ) // right border
+        if ( point.x > rcc.right ) // right border
         {
-            if( point.y > rcw.bottom - _RSBOX )
+            if ( point.y > rcw.bottom - _RSBOX )
                 return HTBOTTOMRIGHT;
 
-            if( point.y < _RSBOX )
+            if ( point.y < _RSBOX )
                 return HTTOPRIGHT;
 
             return HTRIGHT;
         }
 
-        if( point.y < border_height ) // top border
+        if ( point.y < border_height ) // top border
         {
-            if( point.x < _RSBOX )
+            if ( point.x < _RSBOX )
                 return HTTOPLEFT;
-            if( point.x > rcw.right - _RSBOX )
+            if ( point.x > rcw.right - _RSBOX )
                 return HTTOPRIGHT;
             else
                 return HTTOP;
         }
-        if( point.y > rcc.bottom ) // bottom border
+        if ( point.y > rcc.bottom ) // bottom border
         {
-            if( point.x < _RSBOX )
+            if ( point.x < _RSBOX )
                 return HTBOTTOMLEFT;
-            if( point.x > rcw.right - _RSBOX )
+            if ( point.x > rcw.right - _RSBOX )
                 return HTBOTTOMRIGHT;
             else
                 return HTBOTTOM;
         }
         return HTERROR;
 #undef _RSBOX
-        //  HTBORDER In the border of a window that does not have a sizing border. 
-        //  HTBOTTOM In the lower-horizontal border of a resizable window (the user can click the mouse to resize the window vertically). 
-        //  HTBOTTOMLEFT In the lower-left corner of a border of a resizable window (the user can click the mouse to resize the window diagonally). 
-        //  HTBOTTOMRIGHT In the lower-right corner of a border of a resizable window (the user can click the mouse to resize the window diagonally). 
-        //  HTCAPTION In a title bar. 
-        //  HTCLIENT In a client area. 
-        //  HTCLOSE In a Close button. 
-        // HTERROR On the screen background or on a dividing line between windows (same as HTNOWHERE, except that the DefWindowProc function produces a system beep to indicate an error). 
-        // HTGROWBOX In a size box (same as HTSIZE). 
-        // HTHELP In a Help button. 
-        // HTHSCROLL In a horizontal scroll bar. 
-        //  HTLEFT In the left border of a resizable window (the user can click the mouse to resize the window horizontally). 
-        // HTMENU In a menu. 
-        //  HTMAXBUTTON In a Maximize button. 
-        //  HTMINBUTTON In a Minimize button. 
-        // HTNOWHERE On the screen background or on a dividing line between windows. 
-        // HTREDUCE In a Minimize button. 
-        //  HTRIGHT In the right border of a resizable window (the user can click the mouse to resize the window horizontally). 
-        // HTSIZE In a size box (same as HTGROWBOX). 
-        // HTSYSMENU In a window menu or in a Close button in a child window. 
-        //  HTTOP In the upper-horizontal border of a window. 
-        //  HTTOPLEFT In the upper-left corner of a window border. 
-        //  HTTOPRIGHT In the upper-right corner of a window border. 
-        // HTTRANSPARENT In a window currently covered by another window in the same thread (the message will be sent to underlying windows in the same thread until one of them returns a code that is not HTTRANSPARENT). 
-        // HTVSCROLL In the vertical scroll bar. 
+        //  HTBORDER In the border of a window that does not have a sizing border.
+        //  HTBOTTOM In the lower-horizontal border of a resizable window (the user can click the mouse to resize the window vertically).
+        //  HTBOTTOMLEFT In the lower-left corner of a border of a resizable window (the user can click the mouse to resize the window diagonally).
+        //  HTBOTTOMRIGHT In the lower-right corner of a border of a resizable window (the user can click the mouse to resize the window diagonally).
+        //  HTCAPTION In a title bar.
+        //  HTCLIENT In a client area.
+        //  HTCLOSE In a Close button.
+        // HTERROR On the screen background or on a dividing line between windows (same as HTNOWHERE, except that the DefWindowProc function produces a system beep to indicate an error).
+        // HTGROWBOX In a size box (same as HTSIZE).
+        // HTHELP In a Help button.
+        // HTHSCROLL In a horizontal scroll bar.
+        //  HTLEFT In the left border of a resizable window (the user can click the mouse to resize the window horizontally).
+        // HTMENU In a menu.
+        //  HTMAXBUTTON In a Maximize button.
+        //  HTMINBUTTON In a Minimize button.
+        // HTNOWHERE On the screen background or on a dividing line between windows.
+        // HTREDUCE In a Minimize button.
+        //  HTRIGHT In the right border of a resizable window (the user can click the mouse to resize the window horizontally).
+        // HTSIZE In a size box (same as HTGROWBOX).
+        // HTSYSMENU In a window menu or in a Close button in a child window.
+        //  HTTOP In the upper-horizontal border of a window.
+        //  HTTOPLEFT In the upper-left corner of a window border.
+        //  HTTOPRIGHT In the upper-right corner of a window border.
+        // HTTRANSPARENT In a window currently covered by another window in the same thread (the message will be sent to underlying windows in the same thread until one of them returns a code that is not HTTRANSPARENT).
+        // HTVSCROLL In the vertical scroll bar.
         // HTZOOM In a Maximize button.
     }
 
@@ -511,20 +530,84 @@ protected:
         CWindowDC dc(m_hWnd);
 
         CRect rcw, rcc;
-        
+
         GetWindowRect(&rcw);
         GetClientRect(&rcc);
 
         ClientToScreen(&rcc);
         rcc.OffsetRect(-rcw.left, -rcw.top);
-        
+
         rcw.OffsetRect(-rcw.left, -rcw.top);
 
         DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
     }
-    void OnNcLButtonDown(UINT nHitTest, CPoint point)
+
+    BOOL OnNcMouseMove(UINT nHitTest, CPoint point)
     {
         if( nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE )
+        {
+            if( _anchorDown && _anchorDown != nHitTest )
+                _anchorDown = 0;			
+
+            if( _anchorHover != nHitTest )
+                _anchorHover = nHitTest;
+
+            if( !_fTrackNcMouseLeave)
+            {
+                TRACKMOUSEEVENT tme;
+                tme.cbSize = sizeof(TRACKMOUSEEVENT);
+                tme.dwFlags = TME_NONCLIENT | TME_LEAVE;			
+                tme.hwndTrack = m_hWnd;
+                tme.dwHoverTime = HOVER_DEFAULT;
+                _TrackMouseEvent(&tme);
+                _fTrackNcMouseLeave = true;		
+            }
+        }		
+        else
+        {
+            return FALSE;
+        }
+
+        // 使用标志，简直是搬起石头砸自己的头
+        if( GetStyle() & WS_DLGFRAME ) // 是否有 TitleBar
+        {
+            SystemButtonState sbState;
+            DWORD dwStyle = GetStyle();
+            sbState.initFromWindow( dwStyle, (_frame_state == FS_ACTIVE) );
+            if( HTCLOSE == nHitTest )
+                sbState._close = SystemButtonState::hot;
+            else if( HTMAXBUTTON == nHitTest )
+            {
+                if( dwStyle & WS_MAXIMIZE )
+                    sbState._restore = SystemButtonState::hot;
+                else
+                    sbState._max = SystemButtonState::hot;
+            }
+            else if( HTMINBUTTON == nHitTest )
+            {
+                if( sbState._min != SystemButtonState::hidden )
+                    sbState._min = SystemButtonState::hot;
+            }
+
+            //CWindowDC dc(CWnd::FromHandle(hWnd));
+            //Paint( hWnd, dc, TRUE, pState );
+
+//            HDC hdc = ::GetWindowDC(hWnd);
+//            DrawSystemButton2( hWnd, hdc, sbState, _frame_state );
+//            ::ReleaseDC(hWnd, hdc);
+        }
+        
+        if( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest )
+        {
+            return FALSE;
+            //CallWindowProc(gDialogProc, hWnd, WM_NCMOUSEMOVE, (WPARAM)(UINT)(nHitTest), MAKELPARAM((x), (y)));
+        }
+        return TRUE;
+    }
+    
+    void OnNcLButtonDown(UINT nHitTest, CPoint point)
+    {
+        if ( nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE )
         {
             _anchorDown  = nHitTest;
             _anchorHover = nHitTest;
@@ -535,39 +618,40 @@ protected:
             _anchorDown  = 0;
             _anchorHover = 0;
         }
-        if( GetStyle() & WS_DLGFRAME )
+        if ( GetStyle() & WS_DLGFRAME )
         {
             SystemButtonState sysbtn_state;
             sysbtn_state.initFromWindow( GetStyle(), (_frame_state == FS_ACTIVE) );
-            if( HTCLOSE == nHitTest )
+            if ( HTCLOSE == nHitTest )
                 sysbtn_state._close = SystemButtonState::pushed;
-            else if( HTMAXBUTTON == nHitTest )
+            else if ( HTMAXBUTTON == nHitTest )
             {
-                if( GetStyle() & WS_MAXIMIZE )
+                if ( GetStyle() & WS_MAXIMIZE )
                     sysbtn_state._restore = SystemButtonState::pushed;
                 else
                     sysbtn_state._max = SystemButtonState::pushed;
             }
-            else if( HTMINBUTTON == nHitTest )
+            else if ( HTMINBUTTON == nHitTest )
             {
-                if( GetStyle() & WS_MINIMIZE )
+                if ( GetStyle() & WS_MINIMIZE )
                     sysbtn_state._restore = SystemButtonState::pushed;
                 else
                     sysbtn_state._min = SystemButtonState::pushed;
             }
 
             HDC hdc = ::GetWindowDC(m_hWnd);
-            // TODO: DrawSystemButton2( hWnd, hdc, sysbtn_state, _state );
-            // DrawSysButton( hdc, sysbtn_state, _state );
+            // TODO: DrawSystemButton2( hWnd, hdc, sysbtn_state, _frame_state );
+            // DrawSysButton( hdc, sysbtn_state, _frame_state );
             ::ReleaseDC(m_hWnd, hdc);
         }
-        if( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest )
+        if ( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest )
         {
             SetMsgHandled(FALSE);
-            //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest), 
+            //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest),
              // MAKELPARAM((x), (y)));
         }
     }
+    
     void OnNcLButtonUp(UINT nHitTest, CPoint point)
     {
         if (0 == _anchorDown)
@@ -595,12 +679,54 @@ protected:
             SendMessage(WM_SYSCOMMAND, SC_CLOSE, -1 );
     }
 
+    void OnNcMouseLeave()
+    {
+        _fTrackNcMouseLeave = false;
+        _anchorHover = 0;
+
+        SystemButtonState sbState;
+        sbState.initFromWindow(GetStyle(), (_frame_state == FS_ACTIVE));
+        sbState._close = SystemButtonState::normal;
+        {
+            if ( GetStyle() & WS_MAXIMIZE )
+                sbState._restore = SystemButtonState::normal;
+            else
+                sbState._max = SystemButtonState::normal;
+        }
+        {
+            if ( GetStyle() & WS_MINIMIZE )
+                sbState._restore = SystemButtonState::normal;
+            else
+                sbState._min = SystemButtonState::normal;
+        }
+
+        // HDC hdc = ::GetWindowDC(m_hWnd);
+        // DrawSystemButton2( hWnd, hdc, sbState, _frame_state );
+        // ::ReleaseDC(hWnd, hdc);
+    }
+
+    BOOL OnNcLButtonDblClk(UINT nHitTest, CPoint point)
+    {
+        if ( HTCAPTION == nHitTest )
+        {
+            HICON hIcon = (HICON)SendMessage(WM_GETICON, ICON_SMALL, 0);
+            CPoint pt = point;
+            ScreenToClient(&pt);
+            if ( hIcon && pt.x < 16 + 9 )
+            {
+                SendMessage( WM_SYSCOMMAND, SC_CLOSE, -1 );
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
 private:
-    FRAMESTATES	_frame_state;
+    FRAMESTATES    _frame_state;
     UINT _anchorDown, _anchorHover;
+    unsigned long _fTrackNcMouseLeave : 1;
 };
 
-class SkinFrame : public SkinControlImpl<SkinFrame, SkinFrameImpl<SkinFrame>, 
+class SkinFrame : public SkinControlImpl<SkinFrame, SkinFrameImpl<SkinFrame>,
             RegisterPolicy>
 {
 public:
@@ -624,7 +750,7 @@ LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 } // namespace Skin
 
 
-// 
+//
 // 需要记录 placement 的元素：
 // menu, system buttons
 //
@@ -635,4 +761,4 @@ LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // <area state="" placement="left, top, right, bottom" />
 // eg: placement="0, 0, -10, -10" 表示靠右上
 //     placement="10, 0, -10, 0"  表示靠左下
-// 
+//
