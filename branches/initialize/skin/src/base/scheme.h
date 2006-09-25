@@ -1,9 +1,7 @@
 #ifndef __SKIN__SCHEME_H__
 #define __SKIN__SCHEME_H__
 
-// namespace Windows {
-#include <windows.h>
-// } // Windows
+#include <wtypes.h>
 
 #include <hash_map>
 #include <map>
