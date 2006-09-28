@@ -358,10 +358,13 @@ public:
     STDMETHOD_(BOOL, IsThemeBackgroundPartiallyTransparent)(int iClassId, int iPartId, 
         int iStateId)
     {
-        if (iClassId == BUTTON ) // 把SKINCTL_BUTTON修改为BUTTON 需要确认 Jezz -- Right，的确应该如此。几个enum 搞得有点晕啊
+        // TODO: 从配置中读取一些信息来确定是否为透明控件
+
+        if (iClassId == BUTTON )
             return TRUE;
         return FALSE;
     }
+
     // 在非MemoryDC中，参数pClipRect非常有意义，在本Skin的实现中可以不使用
     STDMETHOD(DrawBackground)(HDC hdc, int iClassId, int iPartId, int iStateId, 
         const RECT *pRect, const RECT *pClipRect)
@@ -375,7 +378,7 @@ public:
     STDMETHOD(DrawText)(HDC hdc, int iClassId, int iPartId, int iStateId, LPCSTR szText, 
         DWORD dwTextFlags,DWORD dwTextFlags2, const RECT *pRect)
     {
-        // TODO: logfont
+        // TODO: use logfont
 
         COLORREF cr;
         if (pRect && GetColor(iClassId, iPartId, iStateId, TMT_TEXTCOLOR, &cr))
