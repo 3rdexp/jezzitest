@@ -91,8 +91,8 @@ public:
 
 	LRESULT OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		// TODO: add code to initialize document
-
+		CFileDialog fdlg(TRUE);
+        fdlg.DoModal();
 		return 0;
 	}
 
