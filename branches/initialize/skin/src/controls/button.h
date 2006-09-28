@@ -592,7 +592,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         //字体
         HFONT hOldFont = dc.SelectFont(GetCtrlFont(m_hWnd));
         CSize Extent;
-        if ( ! dc.GetTextExtent(sCaption,strlen(sCaption),&Extent))
+        if (!dc.GetTextExtent(sCaption, lstrlen(sCaption), &Extent))
             return;//得到字所占空间出错
 
         rect.top += Extent.cy/2;
@@ -667,7 +667,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         rcText.right = rcText.left+Extent.cx;
         rcText.bottom = rcText.top+Extent.cy;
 
-        dc.DrawText(sCaption,strlen(sCaption),rcText,DT_LEFT|DT_TOP|DT_SINGLELINE);
+        dc.DrawText(sCaption, lstrlen(sCaption),rcText,DT_LEFT|DT_TOP|DT_SINGLELINE);
 
         dc.SelectFont(hOldFont);
         dc.SelectPen(hOldPen);

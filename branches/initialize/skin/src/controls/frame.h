@@ -33,6 +33,9 @@ protected:
 //        _Disable  = 3
 //    };
 
+    // 注意：在 wm_nccalcsize 消息前就要初始化
+    SkinFrameImpl() : _frame_state(FS_ACTIVE) {}
+
     // TODO: 似乎应该缓存 border 宽度作为类成员
     // 主要在 WM_NCCALCSIZE 时用到
     enum Metics
@@ -334,7 +337,17 @@ protected:
         MSG_WM_NCACTIVATE(OnNcActivate)
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_NCCALCSIZE(OnNcCalcSize)
-        MSG_WM_NCHITTEST(OnNcHitTest)
+        // MSG_WM_NCHITTEST(OnNcHitTest)
+        if (uMsg == WM_NCHITTEST) 
+        {
+            SetMsgHandled(TRUE); 
+            lResult = (LRESULT)OnNcHitTest(CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))); 
+            if(IsMsgHandled()) 
+            {
+                ATLTRACE("nchit: %d\n", lResult);
+                return TRUE; 
+            }
+        }
         MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
         MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
         MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
@@ -380,9 +393,11 @@ protected:
 
         if ( GetStyle() & WS_BORDER )
         {
-            pRect->left += BorderThickness; // BorderWidth(hWnd);
-            pRect->right -= BorderThickness; // BorderWidth(hWnd);
-            pRect->bottom -= BorderThickness; // BorderHeight(hWnd);
+            ControlT * pT = static_cast<ControlT*>(this);
+
+            pRect->left += pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
+            pRect->right -= pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
+            pRect->bottom -= pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
         }
         return TRUE;
     }
@@ -400,16 +415,34 @@ protected:
         GetClientRect(&rcc);
         ClientToScreen(&rcc);
         rcc.OffsetRect( -rcw.left, -rcw.top );
-
         rcw.OffsetRect( -rcw.left, -rcw.top );
 
-#define _RSBOX 15 // resize 的范围 resize box
+        // 四个大块
+        // 1 border
+        // 2 caption
+        // 3 menu
+        // 4 client
 
         DWORD dwStyle = GetStyle();
         ControlT * pT = static_cast<ControlT*>(this);
+
+        if ( rcc.PtInRect(point) )
+            return HTCLIENT;
+
         CRect rc_caption = pT->GetSchemeRect(WP_CAPTION, _frame_state);
 
-        if (GetMenu() && point.y > rc_caption.Height()
+        int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);        
+        int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
+        int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
+        
+
+
+#define _RSBOX 15 // resize 的范围 resize box
+
+        
+        
+
+        if (GetMenu() && point.y >= rc_caption.Height()
                 && point.y <= rc_caption.Height() + 20) // TODO: menu height
             return HTMENU;
 #if 1 // HTGROWBOX 没有用，使用 HTBOTTOMRIGHT
@@ -421,14 +454,13 @@ protected:
         }
 #endif
 
+        // TODO: 缓存这些值
+        
+
         // client area
-        rcc.DeflateRect( 2, 2 );// 把rcc缩小一些，鼠标响应会灵敏一些
-        if ( rcc.PtInRect(point) )
-            return HTCLIENT;
-
-        int border_width = BorderThickness;
-        int border_height = BorderThickness;
-
+//        rcc.DeflateRect( 2, 2 );// 把rcc缩小一些，鼠标响应会灵敏一些
+//        if ( rcc.PtInRect(point) )
+//            return HTCLIENT;
 
         if ( rc_caption.PtInRect(point) )
         {
@@ -455,7 +487,7 @@ protected:
             if ( rcw.PtInRect(point) )
                 return HTBORDER;
 
-        if ( point.x < border_width ) // left
+        if ( point.x < rcc.left ) // left
         {
             // 优先判断角
             if ( point.y > rcw.bottom - _RSBOX )
@@ -466,7 +498,7 @@ protected:
 
             return HTLEFT;
         }
-        if ( point.x > rcc.right ) // right border
+        if ( point.x >= rcc.right ) // right border
         {
             if ( point.y > rcw.bottom - _RSBOX )
                 return HTBOTTOMRIGHT;
@@ -477,7 +509,7 @@ protected:
             return HTRIGHT;
         }
 
-        if ( point.y < border_height ) // top border
+        if ( point.y < bottom_height ) // top border
         {
             if ( point.x < _RSBOX )
                 return HTTOPLEFT;
@@ -486,7 +518,7 @@ protected:
             else
                 return HTTOP;
         }
-        if ( point.y > rcc.bottom ) // bottom border
+        if ( point.y >= rcc.bottom ) // bottom border
         {
             if ( point.x < _RSBOX )
                 return HTBOTTOMLEFT;
