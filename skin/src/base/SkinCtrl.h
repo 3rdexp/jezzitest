@@ -295,7 +295,7 @@ private:
 public:
 	static LRESULT ControlProc(handle hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-        ATLTRACE("HWND: 0x%08x msg: %d\n", hWnd, uMsg);
+        // ATLTRACE("HWND: 0x%08x msg: %d\n", hWnd, uMsg);
 		_ASSERTE( _CrtCheckMemory( ) );
 
 		BOOL bRet = FALSE;
