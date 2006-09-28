@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
+#include "resource.h"
 class CAboutDlg : public CDialogImpl<CAboutDlg>
 {
 public:
@@ -31,4 +31,5 @@ public:
 		EndDialog(wID);
 		return 0;
 	}
+	
 };

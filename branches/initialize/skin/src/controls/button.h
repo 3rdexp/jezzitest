@@ -5,6 +5,8 @@
 
 namespace Skin {
 
+#define GROUPBOX_TEXT_SPACE				7	//groupbox文字与左（右）边框距离
+
 template<class BaseT = CButton>
 struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 {
@@ -549,6 +551,128 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 		return 0;
 	}
 
+	static HFONT GetCtrlFont(HWND hwnd)
+	{
+		HFONT hFont;
+		//如果sendmessage得到的是NULL,则使用的是系统字体
+		if ( (hFont = (HFONT)::SendMessage(hwnd,WM_GETFONT,0,0))==NULL)
+			hFont = (HFONT)::GetStockObject(SYSTEM_FONT);
+
+		return hFont;
+	}
+
+	void DrawGroup(HDC hdc)
+	{
+		CDC dc;
+		dc.Attach(hdc);
+		CRect rect;//控件矩形
+		GetClientRect(&rect);
+
+		rect.bottom --;
+		rect.right --;
+		CPen pen;
+		pen.CreatePen(PS_SOLID,1,0xBFD0D0);//边框笔
+		HPEN hOldPen = dc.SelectPen(pen.m_hPen);
+
+		char sCaption[256];//控件文字
+		GetWindowText(sCaption,256);
+		if ( strlen(sCaption) == 0 )//没有文字，只画个边框
+		{
+			dc.MoveTo(rect.left,rect.top);
+			dc.LineTo(rect.right,rect.top);
+			dc.LineTo(rect.right,rect.bottom);
+			dc.LineTo(rect.left,rect.bottom);
+			dc.LineTo(rect.left,rect.top);
+
+			dc.SelectPen(hOldPen);
+			dc.Detach();
+			return;
+		}
+
+		//字体
+		HFONT hOldFont = dc.SelectFont(GetCtrlFont(m_hWnd));
+		CSize Extent;
+		if ( ! dc.GetTextExtent(sCaption,strlen(sCaption),&Extent))
+			return;//得到字所占空间出错
+
+		rect.top += Extent.cy/2;
+		CPoint ptText;//文字左上角位置
+		ptText.y = 0 ;//rect.top + Extent.cy/2;//y方向是不变的
+
+		LONG lStyle = GetWindowLong(GWL_STYLE);
+		//以下，GROUPBOX_TEXT_SPACE表示文字左边（右边）与控件左（右）的距离
+		if ( (lStyle & BS_CENTER) == BS_CENTER )//x方向，文字居中
+		{
+			ptText.x = rect.Width() / 2 - Extent.cx / 2;//文字左上角x坐标
+
+			if ( ptText.x > rect.left )//文字没有超过rect左边界
+			{
+				dc.MoveTo(ptText.x-1, rect.top);
+				dc.LineTo(rect.left,rect.top);
+				dc.LineTo(rect.left,rect.bottom);
+				dc.LineTo(rect.right,rect.bottom);
+				dc.LineTo(rect.right,rect.top);
+				//由于是居中，既然没超过左边界，那一定也没有超过右边界
+				dc.LineTo(ptText.x+Extent.cx,rect.top);
+			}
+			else//文字超过了左边界，左右边界从文字底下开始画
+			{
+				int nYTop = ptText.y+Extent.cy;
+				dc.MoveTo(rect.left,nYTop+1);
+				dc.LineTo(rect.left,rect.bottom);
+				dc.LineTo(rect.right,rect.bottom);
+				dc.LineTo(rect.right,nYTop);
+			}
+		}
+		else if ( (lStyle & BS_RIGHT)==BS_RIGHT )//x方向，文字右对齐
+		{
+			ptText.x = rect.right - GROUPBOX_TEXT_SPACE - Extent.cx;//文字左上角x坐标
+
+			//右对齐，保证右边的正常
+			dc.MoveTo(rect.right-GROUPBOX_TEXT_SPACE,rect.top);
+			dc.LineTo(rect.right,rect.top);
+			dc.LineTo(rect.right,rect.bottom);
+			dc.LineTo(rect.left,rect.bottom);
+
+			if ( ptText.x > rect.left )//文字左边没超过控件左边界
+			{
+				dc.LineTo(rect.left,rect.top);
+				dc.LineTo(ptText.x,rect.top);
+			}
+			else//文字左边超过了控件左边界
+				dc.LineTo(rect.left,ptText.y+Extent.cy);
+		}
+		else//x方向，文字左对齐（缺省）
+		{
+			ptText.x = rect.left + GROUPBOX_TEXT_SPACE;//文字左上角x坐标
+
+			//文字左对齐，保证左边正常画出来
+			dc.MoveTo(rect.left+GROUPBOX_TEXT_SPACE-1,rect.top);
+			dc.LineTo(rect.left,rect.top);
+			dc.LineTo(rect.left,rect.bottom);
+			dc.LineTo(rect.right,rect.bottom);
+
+			if ( ptText.x+Extent.cx < rect.right)//文字没超过控件右边界
+			{
+				dc.LineTo(rect.right,rect.top);
+				dc.LineTo(ptText.x + Extent.cx,rect.top);
+			}
+			else//文字超过控件右边界
+				dc.LineTo(rect.right,ptText.y+Extent.cy);
+		}
+
+		CRect rcText;//文字所在矩形
+		rcText.left = ptText.x;
+		rcText.top = ptText.y;
+		rcText.right = rcText.left+Extent.cx;
+		rcText.bottom = rcText.top+Extent.cy;
+
+		dc.DrawText(sCaption,strlen(sCaption),rcText,DT_LEFT|DT_TOP|DT_SINGLELINE);
+
+		dc.SelectFont(hOldFont);
+		dc.SelectPen(hOldPen);
+		dc.Detach();
+	}
 	LRESULT DoPaint(HDC dc)
 	{
 		CRect rc;
@@ -592,20 +716,26 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				_scheme->DrawBackground(memdc, class_id, m_nPart, nState, &rcImg, NULL );
 
 			rc = rcText;
-
+		}
+		else if ( m_nPart == BP_GROUPBOX )
+		{
+			DrawGroup(memdc);
+			return S_OK;
 		}
 
 		const int nLen = GetWindowTextLength();
 		TCHAR * szText = new TCHAR[nLen + 1];
 		int nTextLen = GetWindowText(szText, nLen + 1);
 		
+		HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
 		if (_scheme)
             _scheme->DrawText(memdc, class_id, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
 
 		_ASSERTE( _CrtCheckMemory( ) );
 		delete [] szText;
 		_ASSERTE( _CrtCheckMemory( ) );
-
+		
+		memdc.SelectFont(hOldFont);
 #if 0
 		HDC d = ::GetDC(0);
 		BitBlt(d, 0, 0, 100, 100, memdc, 0, 0, SRCCOPY);
