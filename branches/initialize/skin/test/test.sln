@@ -7,10 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleWnd", "..\examples\Si
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcproj", "{713D205D-B7DF-428A-9A68-3ECE1A63E2DA}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skin", "..\src\Skin.vcproj", "{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -33,10 +29,6 @@ Global
 		{9CC48A0E-C49D-4791-A32B-0294849AAC0D}.Debug.Build.0 = Debug|Win32
 		{9CC48A0E-C49D-4791-A32B-0294849AAC0D}.Release.ActiveCfg = Release|Win32
 		{9CC48A0E-C49D-4791-A32B-0294849AAC0D}.Release.Build.0 = Release|Win32
-		{713D205D-B7DF-428A-9A68-3ECE1A63E2DA}.Debug.ActiveCfg = Debug|Win32
-		{713D205D-B7DF-428A-9A68-3ECE1A63E2DA}.Debug.Build.0 = Debug|Win32
-		{713D205D-B7DF-428A-9A68-3ECE1A63E2DA}.Release.ActiveCfg = Release|Win32
-		{713D205D-B7DF-428A-9A68-3ECE1A63E2DA}.Release.Build.0 = Release|Win32
 		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}.Debug.ActiveCfg = Debug|Win32
 		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}.Debug.Build.0 = Debug|Win32
 		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}.Release.ActiveCfg = Release|Win32
