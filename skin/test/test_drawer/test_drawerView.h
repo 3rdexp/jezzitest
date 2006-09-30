@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "DlgButton.h"
 
 class CTest_drawerView : public CWindowImpl<CTest_drawerView>
 {
@@ -18,6 +19,9 @@ public:
 	BEGIN_MSG_MAP(CTest_drawerView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+
+		COMMAND_ID_HANDLER(1000, OnButton)
+
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -26,6 +30,7 @@ public:
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 	CButton		_button;
 	CButton		_check;
+	CFont font;
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		RECT rc;
@@ -33,8 +38,30 @@ public:
 		rc.top = 180;
 		rc.right = 110;
 		rc.bottom = 210;
-		//_button.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD);
+		_button.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD, 0, 1000);
 		
+		LOGFONT Font;
+		Font.lfHeight = 18; 
+		Font.lfWidth = 0; 
+		Font.lfEscapement = 0; 
+		Font.lfOrientation = 0; 
+		Font.lfWeight = 400; 
+		Font.lfItalic = 0; 
+		Font.lfUnderline = 0; 
+		Font.lfStrikeOut = 0; 
+		Font.lfCharSet = 0; 
+		Font.lfOutPrecision = 3; 
+		Font.lfClipPrecision = 2; 
+		Font.lfQuality = 1; 
+		Font.lfPitchAndFamily = 0; 
+		strcpy( Font.lfFaceName , "New Times" ); 
+
+
+		if( font.CreateFontIndirect( &Font ) )
+		{
+			_button.SetFont( font );
+		}
+
 		rc.top = 220;
 		rc.bottom = 250;
 		//_check.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD | BS_CHECKBOX);
@@ -67,4 +94,12 @@ public:
 		pss->Draw(dc, 1, BP_PUSHBUTTON, 2, 10, 140, 100, 30);
 		return 0;
 	}
+	
+	LRESULT OnButton(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	{
+		CDlgButton dlg;
+		dlg.DoModal();
+		return 0;
+	}
+	
 };

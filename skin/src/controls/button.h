@@ -696,7 +696,36 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             // icon / bitmap ( TODO: button should have bitmap itself
             // text
 
+			// 判断是否有系统的icon
+			HICON hIcon = (HICON)::SendMessage(m_hWnd, BM_GETIMAGE, IMAGE_ICON, 0L);
+			if ( hIcon )
+			{
+				SIZE szIcon = SizeIcon(hIcon);
+				int nIconX = (rc.right - rc.left - szIcon.cx) / 2;
+				int nIconY = (rc.bottom - rc.top - szIcon.cy) / 2;
+				BOOL bRet = DrawIconEx(memdc, nIconX, nIconY, hIcon, szIcon.cx, szIcon.cy, 0, NULL, DI_NORMAL);
+				return S_OK;
+			}
+
+			CBitmapHandle hBitmap = CBitmapHandle((HBITMAP)::SendMessage(m_hWnd, BM_GETIMAGE, IMAGE_BITMAP, 0L));
+			if ( hBitmap )
+			{
+				SIZE sz;
+				hBitmap.GetSize(sz);
+				int nX = (rc.right - rc.left - sz.cx) / 2;
+				int nY = (rc.bottom - rc.top - sz.cy) / 2;
+
+				CClientDC cdc(m_hWnd);
+				HDC hDC = ::CreateCompatibleDC(cdc.m_hDC);
+				HBITMAP pOldBitmapImage = (HBITMAP)SelectObject(hDC, hBitmap);
+				::BitBlt(memdc, nX, nY, sz.cx, sz.cy, hDC, 0, 0, SRCCOPY);
+				SelectObject(hDC, pOldBitmapImage);
+				::DeleteObject(hDC);
+				::ReleaseDC(m_hWnd, cdc);
+				return S_OK;
+			}
             // if exist icon
+			/*
             if (m_hIcon)
             {
                 SIZE szIcon = SizeIcon(m_hIcon);
@@ -705,6 +734,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
                 BOOL bRet = DrawIconEx(memdc, nIconX, nIconY, m_hIcon, szIcon.cx, szIcon.cy, 0, NULL, DI_NORMAL);
                 rc.left = rc.left + szIcon.cx + ICON_LEFT;
             }
+			*/
         }
         else if ( m_nPart == BP_CHECKBOX || m_nPart == BP_RADIOBUTTON )
         {
