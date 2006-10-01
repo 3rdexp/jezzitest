@@ -362,6 +362,10 @@ public:
 
         if (iClassId == BUTTON )
             return TRUE;
+
+		if (iClassId == PROGRESS )
+			return TRUE;
+
         return FALSE;
     }
 

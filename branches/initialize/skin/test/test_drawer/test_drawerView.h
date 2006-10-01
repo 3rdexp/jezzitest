@@ -19,7 +19,7 @@ public:
 	BEGIN_MSG_MAP(CTest_drawerView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
-
+		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		COMMAND_ID_HANDLER(1000, OnButton)
 
 	END_MSG_MAP()
@@ -64,9 +64,13 @@ public:
 
 		rc.top = 220;
 		rc.bottom = 250;
+
+		
 		//_check.Create(m_hWnd, &rc, "this is ", WS_VISIBLE | WS_CHILD | BS_CHECKBOX);
 		return 0;
 	}
+	
+		
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
         using namespace Skin;
@@ -95,6 +99,10 @@ public:
 		return 0;
 	}
 	
+	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return 0;
+	}
 	LRESULT OnButton(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
 		CDlgButton dlg;

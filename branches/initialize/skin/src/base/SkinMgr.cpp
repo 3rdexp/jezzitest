@@ -12,6 +12,10 @@
 #include "../controls/dialog.h"
 #include "../controls/edit.h"
 #include "../controls/combobox.h"
+#include "../controls/tab.h"
+#include "../controls/progress.h"
+#include "../controls/spin.h"
+#include "../controls/trackbar.h"
 
 namespace Skin {
 
@@ -50,6 +54,42 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		bool f = sscombobox::Install(hInst);
 		if (f)
 			_installed_type |= SKINCTL_COMBOBOX;
+	}
+
+	if (!(_installed_type & SKINCTL_TAB) && (dwType & SKINCTL_TAB) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinTabCtrl<CTabCtrl> sstab;
+		bool f = sstab::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_TAB;
+	}
+
+	if (!(_installed_type & SKINCTL_PROGRESS) && (dwType & SKINCTL_PROGRESS) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinProgressCtrl<CProgressBarCtrl> ssprogress;
+		bool f = ssprogress::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_PROGRESS;
+	}
+
+	if (!(_installed_type & SKINCTL_SPIN) && (dwType & SKINCTL_SPIN) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinUpDownCtrl<CUpDownCtrl> ssspin;
+		bool f = ssspin::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_SPIN;
+	}
+
+	if (!(_installed_type & SKINCTL_TRACKBAR) && (dwType & SKINCTL_TRACKBAR) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinTrackBarCtrl<CTrackBarCtrl> sstrackbar;
+		bool f = sstrackbar::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_TRACKBAR;
 	}
 
 	/*

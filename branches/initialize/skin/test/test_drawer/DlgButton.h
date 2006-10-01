@@ -12,6 +12,7 @@ public:
 	//}}AFX_DATA
 	CBitmap bmp;
 
+	CTabCtrl m_tab;
 	HICON m_hIcon;
 	CFont font;
 
@@ -19,6 +20,7 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnOk)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
+		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 	END_MSG_MAP()
 	
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -61,7 +63,30 @@ public:
 			m_Btn1.SetFont( font );
 		}
 
+		m_tab.Attach(GetDlgItem(IDC_TAB1));
+		m_tab.InsertItem(0, "tab1");
+		m_tab.InsertItem(1, "tab2");
+		m_tab.InsertItem(2, "tab3");
+
 		
+		CProgressBarCtrl progress;
+		progress.Attach(GetDlgItem(IDC_PROGRESS1));
+		progress.SetRange(0, 100);
+
+		SetTimer(1, 500, NULL);
+
+		return 0;
+	}
+
+	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		CProgressBarCtrl progress;
+		progress.Attach(GetDlgItem(IDC_PROGRESS1));
+		int nPos = progress.GetPos();
+		nPos ++;
+		if ( nPos > 100 )
+			nPos = 0;
+		progress.SetPos(nPos);
 		return 0;
 	}
 
