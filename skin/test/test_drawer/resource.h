@@ -5,7 +5,6 @@
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
 #define IDB_BITMAP1                     202
-#define IDD_DIALOG1                     203
 #define IDD_DLG_BUTTON                  203
 #define IDC_CHECK1                      1000
 #define IDC_CHECK2                      1001
@@ -21,6 +20,11 @@
 #define IDC_COMBO2                      1011
 #define IDC_BUTTON3                     1012
 #define IDC_BUTTON4                     1013
+#define IDC_TAB1                        1014
+#define IDC_PROGRESS1                   1015
+#define IDC_SPIN1                       1016
+#define IDC_SCROLLBAR1                  1018
+#define IDC_SLIDER1                     1019
 
 // Next default values for new objects
 // 
@@ -28,7 +32,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        204
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1014
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
