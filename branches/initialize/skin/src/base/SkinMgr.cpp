@@ -16,6 +16,7 @@
 #include "../controls/progress.h"
 #include "../controls/spin.h"
 #include "../controls/trackbar.h"
+#include "../controls//header.h"
 
 namespace Skin {
 
@@ -90,6 +91,15 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		bool f = sstrackbar::Install(hInst);
 		if (f)
 			_installed_type |= SKINCTL_TRACKBAR;
+	}
+
+	if (!(_installed_type & SKINCTL_HEADER) && (dwType & SKINCTL_HEADER) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinHeaderCtrl<CHeaderCtrl> ssheader;
+		bool f = ssheader::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_HEADER;
 	}
 
 	/*

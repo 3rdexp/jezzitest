@@ -23,8 +23,10 @@
 #define IDC_TAB1                        1014
 #define IDC_PROGRESS1                   1015
 #define IDC_SPIN1                       1016
-#define IDC_SCROLLBAR1                  1018
 #define IDC_SLIDER1                     1019
+#define IDC_SLIDER2                     1021
+#define IDC_SPIN2                       1022
+#define IDC_SCROLLBAR1                  1023
 
 // Next default values for new objects
 // 
@@ -32,7 +34,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        204
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1020
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
