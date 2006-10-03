@@ -366,6 +366,8 @@ public:
 		if (iClassId == PROGRESS )
 			return TRUE;
 
+		if (iClassId == TRACKBAR)
+			return  TRUE;
         return FALSE;
     }
 

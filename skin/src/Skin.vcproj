@@ -225,6 +225,9 @@
 				RelativePath=".\controls\frame.h">
 			</File>
 			<File
+				RelativePath=".\controls\header.h">
+			</File>
+			<File
 				RelativePath=".\controls\progress.h">
 			</File>
 			<File
