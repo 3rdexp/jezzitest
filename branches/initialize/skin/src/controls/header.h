@@ -27,6 +27,7 @@ namespace Skin {
 			MESSAGE_HANDLER(WM_LBUTTONUP,OnLbuttonUp)
 			MESSAGE_HANDLER(WM_LBUTTONDBLCLK,OnDbClick)
 			MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove)
+			MESSAGE_HANDLER(WM_MOUSELEAVE,OnMouseLeave)
 		END_MSG_MAP()
 
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -130,41 +131,74 @@ namespace Skin {
 			BOOL			bInItem	= m_bInItem;
 
 			bHandled = FALSE;
-			if(!m_bCapture)
-				return 0;
+			//if(!m_bCapture)
+			//	return 0;
 
-			if(::ChildWindowFromPoint(GetParent(), pt) != m_hWnd)
-			{
-				if(m_bInItem)
-					m_bInItem = FALSE;
-			}
-			else
+
 			{
 				HD_HITTESTINFO	testInfo= {0};
-
+				m_bInItem = FALSE;
 				testInfo.pt = pt;
 				if( SendMessage(m_hWnd, HDM_HITTEST, NULL,(LPARAM)&testInfo) == -1 )
 					return 0;
+				if ( m_bInItem )
+				{
+					if( testInfo.iItem != m_nItem )
+					{
+						int nOld = m_nItem;
+						m_nItem = testInfo.iItem;
+						RECT	Itemrc;
+						//更新
+						GetItemRect(nOld,&Itemrc);
+						InvalidateRect(&Itemrc,FALSE);
+					}
+				}
+				else
+					m_nItem = testInfo.iItem;
+
+				m_bInItem = TRUE;
+
+				/*
 				if(testInfo.iItem!=m_nItem)
 				{
 					m_bInItem = FALSE;
 				}
 				else
-					m_bInItem = TRUE;
+				*/
+				
 			}
 
-			if(m_bInItem!=bInItem)
+			//if(m_bInItem != bInItem)
 			{
 				RECT	Itemrc;
 
 				//更新
 				GetItemRect(m_nItem,&Itemrc);
 				InvalidateRect(&Itemrc,FALSE);
-				UpdateWindow();
+				//UpdateWindow();
 			}
+			TRACKMOUSEEVENT tme;
+			tme.cbSize = sizeof( tme );
+			tme.dwFlags = TME_LEAVE;
+			tme.hwndTrack = m_hWnd;
+			TrackMouseEvent( &tme );
 			return 0;
 		}
 
+		LRESULT OnMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if ( m_bInItem )
+			{
+				m_bInItem = FALSE;
+				int nOld = m_nItem;
+				m_nItem = -1;
+				RECT	Itemrc;
+				//更新
+				GetItemRect(nOld,&Itemrc);
+				InvalidateRect(&Itemrc,FALSE);
+			}
+			return 0;
+		}
 		LRESULT DoPaint(HDC dc)
 		{
 			CRect rc;
