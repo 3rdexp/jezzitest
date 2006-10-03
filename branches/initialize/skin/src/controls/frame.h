@@ -201,7 +201,7 @@ protected:
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
         ASSERT( pOldBmp );
 
-        // DrawFrameBorder(dcMem, rcw, _frame_state);
+        DrawFrameBorder(dcMem, rcw, _frame_state);
 
 #if 0
         HDC dct = ::GetDC(0);
@@ -348,11 +348,11 @@ protected:
                 return TRUE; 
             }
         }
-        MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
-        MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
-        MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
-        MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
-        MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
+        // MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
+        // MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
+        // MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
+        // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
+        // MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
     END_MSG_MAP()
 
     BOOL OnNcActivate(BOOL bActive)
@@ -362,17 +362,23 @@ protected:
         CWindowDC dc(m_hWnd);
 
         CRect rcw, rcc;
-        GetClientRect(&rcc);
         GetWindowRect(&rcw);
+        GetClientRect(&rcc);
+        ClientToScreen(&rcc);
+        rcc.OffsetRect(-rcw.left, -rcw.top);
         rcw.OffsetRect(-rcw.left, -rcw.top);
 
-        // DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
+
+        DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
         return TRUE;
     }
 
     BOOL OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam)
     {
         // TODO: the return value 很重要。。。。
+        // TODO: read <<Windows_Graphics_Programming;_Win32_GDI_and_DirectDraw_(2000)>>
+        //       find out which value should return!!!
+
         /*
         if bValidateClient is 1
         #1 Rect[0] is the proposed new client position
@@ -435,6 +441,61 @@ protected:
         int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
         int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
         
+        // left
+        if (point.x < bottom_height)
+        {
+            if (point.y < bottom_height)
+                return HTTOPLEFT;
+            else if (point.y > rcw.bottom - bottom_height)
+                return HTBOTTOMLEFT;
+            else 
+                return HTLEFT;
+        }
+
+        // right
+        else if (point.x >= rcw.right - border_right_width)
+        {
+            if (point.y < bottom_height)
+                return HTTOPRIGHT;
+            else if (point.y > rcw.bottom - bottom_height)
+                return HTBOTTOMRIGHT;
+            else 
+                return HTRIGHT;
+        }
+
+        // bottom
+        else if (point.y >= rcw.bottom - bottom_height)
+        {
+            return HTBOTTOM;
+        }
+
+        // top
+        else if(point.y < bottom_height)
+        {
+            return HTTOP;
+        }
+
+        // caption
+        rc_caption.DeflateRect(border_left_width, bottom_height, border_right_width, 0);
+        if (rc_caption.PtInRect(point))
+        {
+            // system button
+            int index = -1;
+            for (int i=0; i<4; i++)
+            {
+                CRect rc = CalcSysButtonRect(i);
+                if (rc.PtInRect(point))
+                    index = i;
+            }
+
+            if (index != -1)
+            {
+            }
+            return HTCAPTION;
+        }
+
+        // menu
+        return HTNOWHERE;
 
 
 #define _RSBOX 15 // resize 的范围 resize box
