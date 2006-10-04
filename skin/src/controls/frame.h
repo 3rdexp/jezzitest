@@ -475,8 +475,12 @@ protected:
             return HTTOP;
         }
 
+        rc_caption.right = rcw.right - border_right_width;
+        rc_caption.left = rcw.left + border_left_width;
+        rc_caption.top = rcw.top + bottom_height;
+
         // caption
-        rc_caption.DeflateRect(border_left_width, bottom_height, border_right_width, 0);
+        // rc_caption.DeflateRect(border_left_width, bottom_height, border_right_width, 0);
         if (rc_caption.PtInRect(point))
         {
             // system button
@@ -490,7 +494,23 @@ protected:
 
             if (index != -1)
             {
+                SystemButtonState sysbtn_state;
+                sysbtn_state.initFromWindow(dwStyle, _frame_state == FS_ACTIVE);
+
+                if (index == 0 && sysbtn_state.hasclose())
+                    return HTCLOSE;
+
+                if (index == 1 && sysbtn_state.hasrestore())
+                    return HTMAXBUTTON;
+
+                if ((index == 1 || index == 2) && sysbtn_state.hasmin())
+                    return HTMINBUTTON;
+
+                if ((index == 1 || index == 2 || index == 3) 
+                        && sysbtn_state.hashelp())
+                    return HTHELP;
             }
+
             return HTCAPTION;
         }
 
