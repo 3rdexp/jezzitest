@@ -17,6 +17,7 @@
 #include "../controls/spin.h"
 #include "../controls/trackbar.h"
 #include "../controls//header.h"
+#include "../controls/statusbar.h"
 
 namespace Skin {
 
@@ -101,7 +102,17 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_HEADER;
 	}
+    
+	if (!(_installed_type & SKINCTL_STATUS) && (dwType & SKINCTL_STATUS) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+		typedef SkinStatusBarCtrl<CStatusBarCtrl> ssstatusbar;
+		bool f = ssstatusbar::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_STATUS;
+	}
 
+	/*
     if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
     {       
         bool f = SkinDialog::Install(hInst);
@@ -109,7 +120,9 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_DIALOG;
     }
 
-	/*
+
+
+	
     if (!(_installed_type & SKINCTL_WINDOW) && (dwType & SKINCTL_WINDOW) )
     {
         bool f = SkinFrame::Install(hInst);

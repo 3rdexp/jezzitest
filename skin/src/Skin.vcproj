@@ -234,6 +234,9 @@
 				RelativePath=".\controls\spin.h">
 			</File>
 			<File
+				RelativePath=".\controls\statusbar.h">
+			</File>
+			<File
 				RelativePath=".\controls\tab.h">
 			</File>
 			<File
@@ -245,9 +248,6 @@
 			Filter="">
 			<File
 				RelativePath=".\skinitf.h">
-			</File>
-			<File
-				RelativePath=".\skinmsg.h">
 			</File>
 		</Filter>
 	</Files>

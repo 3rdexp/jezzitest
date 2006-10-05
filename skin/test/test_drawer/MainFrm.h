@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "StatusBarXP.h"
+
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler
 {
@@ -13,6 +15,8 @@ public:
 	CTest_drawerView m_view;
 
 	CCommandBarCtrl m_CmdBar;
+
+	CStatusBarXP m_wndStatusBar;
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
@@ -66,7 +70,39 @@ public:
 		AddSimpleReBarBand(hWndCmdBar);
 		AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
 
+		//CreateSimpleStatusBar();
+
+		// set status bar panes
 		CreateSimpleStatusBar();
+		m_wndStatusBar.SubclassWindow(m_hWndStatusBar);	
+		int arrPanes[] = { ID_DEFAULT_PANE, IDR_DATE, IDR_TIME };
+		m_wndStatusBar.SetPanes(arrPanes, sizeof(arrPanes) / sizeof(int), false);
+		// set the status bar pane icons
+		m_wndStatusBar.SetPaneIcon(ID_DEFAULT_PANE, AtlLoadIconImage(IDR_DEFAULT, LR_DEFAULTCOLOR));
+		m_wndStatusBar.SetPaneIcon(IDR_DATE, AtlLoadIconImage(IDR_DATE, LR_DEFAULTCOLOR));
+		m_wndStatusBar.SetPaneIcon(IDR_TIME, AtlLoadIconImage(IDR_TIME, LR_DEFAULTCOLOR));
+		int arrWidths[] = { 0, 90, 90 };
+		m_wndStatusBar.SetPaneWidths(arrWidths, sizeof(arrWidths) / sizeof(int));
+
+		CString str;	
+		str = _T("2nd Pane");
+		m_wndStatusBar.SetPaneText(IDR_DATE, str);	
+		str = _T("3rd Pane");
+		m_wndStatusBar.SetPaneText(IDR_TIME, str);
+
+		/*
+		// Create the multipane status bar and pass its handle to CUpdateUI.
+		m_hWndStatusBar = m_wndStatusBar.Create ( *this );
+		UIAddStatusBar ( m_hWndStatusBar );
+
+		// Create the status bar panes.
+		int anPanes[] = { ID_DEFAULT_PANE, IDR_DATE, IDR_TIME };
+
+		m_wndStatusBar.SetPanes ( anPanes, 3, false );
+
+		// Set the initial text for the clock status pane.
+		UISetText ( 1, _T("Running") );
+		*/
 
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
