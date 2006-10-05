@@ -18,6 +18,7 @@
 #include "../controls/trackbar.h"
 #include "../controls//header.h"
 #include "../controls/statusbar.h"
+#include "../controls/menu.h"
 
 namespace Skin {
 
@@ -111,6 +112,14 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_STATUS;
 	}
+
+    if (!(_installed_type & SKINCTL_MENU) && (dwType & SKINCTL_MENU) )
+    {
+        typedef SkinMenu<> skinmenu;
+        bool f = skinmenu::Install(hInst);
+        if (f)
+            _installed_type |= SKINCTL_MENU;
+    }
 
 	/*
     if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
