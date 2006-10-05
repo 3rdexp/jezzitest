@@ -8,7 +8,6 @@
 #define IDD_DLG_BUTTON                  203
 #define IDR_DATE                        205
 #define IDR_TIME                        206
-#define IDI_ICON1                       207
 #define IDR_DEFAULT                     207
 #define IDC_CHECK1                      1000
 #define IDC_CHECK2                      1001
@@ -31,6 +30,8 @@
 #define IDC_SLIDER2                     1021
 #define IDC_SPIN2                       1022
 #define IDC_SCROLLBAR1                  1023
+#define IDC_DATETIMEPICKER1             1024
+#define IDC_MONTHCALENDAR1              1025
 
 // Next default values for new objects
 // 
@@ -38,7 +39,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1024
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
