@@ -130,8 +130,6 @@ bool scheme_holder::parse_scheme(const std::string & fname)
 #endif
     }
 
-    // TODO: pCache AddRef
-
     // @@@@@@@@ style
     CComPtr<IXMLDOMNodeList> spStyleList;
     hr = spElement->selectNodes(L"//theme/style", &spStyleList);

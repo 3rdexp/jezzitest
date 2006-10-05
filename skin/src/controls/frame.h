@@ -171,11 +171,22 @@ protected:
         return CalcSysButtonRect(1);
     }
 
-    int CalcSystemButtonAreaWidth()
+    // 计算 menu bar 高度
+    // 1 MenuInfo
+    // 2 SystemMetrics TODO: from skin.cfg
+    int CalcMenuBarHeight()
     {
-        // TODO:
-        ASSERT(false);
-        return 0;
+        HMENU h = GetMenu();
+        ASSERT(h);
+        MENUINFO mi;
+        mi.cbSize = sizeof(MENUINFO);
+        mi.fMask = MIM_MAXHEIGHT;
+        GetMenuInfo(h, &mi);
+
+        if (0 == mi.cyMax)
+            return GetSystemMetrics(SM_CYMENU);
+        else
+            return mi.cyMax;
     }
 
 
@@ -289,7 +300,6 @@ protected:
         // WP_SYSBUTTON 的意思是啥？ 能作为SysButton区域的底图吗？
         RECT rc;
         BOOL bRet = FALSE;
-        // use CalcSystemButtonAreaWidth
 
         // CalcXXXButtonRect 换成 CalcSysButtonRect(int index)，代码逻辑简单了很多
         // index 重右到左的序号
@@ -397,6 +407,11 @@ protected:
         if ( GetStyle() & WS_DLGFRAME )
             pRect->top += CaptionHeight();
 
+        if (GetMenu())
+        {
+            pRect->top += CalcMenuBarHeight();
+        }
+
         if ( GetStyle() & WS_BORDER )
         {
             ControlT * pT = static_cast<ControlT*>(this);
@@ -440,10 +455,15 @@ protected:
         int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);        
         int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
         int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
+
+        BOOL can_resize = (WS_THICKFRAME & dwStyle);
         
         // left
         if (point.x < bottom_height)
         {
+            if (!can_resize)
+                return HTBORDER;
+
             if (point.y < bottom_height)
                 return HTTOPLEFT;
             else if (point.y > rcw.bottom - bottom_height)
@@ -455,6 +475,9 @@ protected:
         // right
         else if (point.x >= rcw.right - border_right_width)
         {
+            if (!can_resize)
+                return HTBORDER;
+
             if (point.y < bottom_height)
                 return HTTOPRIGHT;
             else if (point.y > rcw.bottom - bottom_height)
@@ -466,12 +489,18 @@ protected:
         // bottom
         else if (point.y >= rcw.bottom - bottom_height)
         {
+            if (!can_resize)
+                return HTBORDER;
+
             return HTBOTTOM;
         }
 
         // top
         else if(point.y < bottom_height)
         {
+            if (!can_resize)
+                return HTBORDER;
+
             return HTTOP;
         }
 
@@ -500,7 +529,7 @@ protected:
                 if (index == 0 && sysbtn_state.hasclose())
                     return HTCLOSE;
 
-                if (index == 1 && sysbtn_state.hasrestore())
+                if (index == 1 && (sysbtn_state.hasmax() || sysbtn_state.hasrestore()))
                     return HTMAXBUTTON;
 
                 if ((index == 1 || index == 2) && sysbtn_state.hasmin())
@@ -514,103 +543,18 @@ protected:
             return HTCAPTION;
         }
 
-        // menu
+        if (GetMenu())
+        {
+            int bar_height = CalcMenuBarHeight();
+            rc_caption.top = rc_caption.bottom;
+            rc_caption.bottom += bar_height;
+            if (rc_caption.PtInRect(point))
+                return HTMENU;
+        }
+
+        ASSERT(false);
         return HTNOWHERE;
-
-
-#define _RSBOX 15 // resize 的范围 resize box
-
-        
-        
-
-        if (GetMenu() && point.y >= rc_caption.Height()
-                && point.y <= rc_caption.Height() + 20) // TODO: menu height
-            return HTMENU;
-#if 1 // HTGROWBOX 没有用，使用 HTBOTTOMRIGHT
-        // 优先对 HTGROWBOX 进行判断, 可能有部分 grow box 在客户区中
-        if ( dwStyle & WS_THICKFRAME )
-        {
-            if ( point.x > rcw.right - _RSBOX && point.y > rcw.bottom - _RSBOX )
-                return HTBOTTOMRIGHT;
-        }
-#endif
-
-        // TODO: 缓存这些值
-        
-
-        // client area
-//        rcc.DeflateRect( 2, 2 );// 把rcc缩小一些，鼠标响应会灵敏一些
-//        if ( rcc.PtInRect(point) )
-//            return HTCLIENT;
-
-        if ( rc_caption.PtInRect(point) )
-        {
-            CRect rcclose = CalcCloseButtonRect();
-            if ( rcclose.PtInRect(point) )
-                return HTCLOSE;
-            if ( WS_MINIMIZEBOX & dwStyle )
-            {
-                CRect rcmin = CalcMinButtonRect();
-                if ( rcmin.PtInRect( point ) )
-                    return HTMINBUTTON;
-            }
-            if ( WS_MAXIMIZEBOX & dwStyle )
-            {
-                CRect rcmax = CalcMaxButtonRect();
-                if ( rcmax.PtInRect( point ) )
-                    return HTMAXBUTTON;
-            }
-
-            return HTCAPTION;
-        }
-
-        if ( !(dwStyle & WS_THICKFRAME) )
-            if ( rcw.PtInRect(point) )
-                return HTBORDER;
-
-        if ( point.x < rcc.left ) // left
-        {
-            // 优先判断角
-            if ( point.y > rcw.bottom - _RSBOX )
-                return HTBOTTOMLEFT;
-
-            if ( point.y < _RSBOX )
-                return HTTOPLEFT;
-
-            return HTLEFT;
-        }
-        if ( point.x >= rcc.right ) // right border
-        {
-            if ( point.y > rcw.bottom - _RSBOX )
-                return HTBOTTOMRIGHT;
-
-            if ( point.y < _RSBOX )
-                return HTTOPRIGHT;
-
-            return HTRIGHT;
-        }
-
-        if ( point.y < bottom_height ) // top border
-        {
-            if ( point.x < _RSBOX )
-                return HTTOPLEFT;
-            if ( point.x > rcw.right - _RSBOX )
-                return HTTOPRIGHT;
-            else
-                return HTTOP;
-        }
-        if ( point.y >= rcc.bottom ) // bottom border
-        {
-            if ( point.x < _RSBOX )
-                return HTBOTTOMLEFT;
-            if ( point.x > rcw.right - _RSBOX )
-                return HTBOTTOMRIGHT;
-            else
-                return HTBOTTOM;
-        }
-        return HTERROR;
-#undef _RSBOX
-        //  HTBORDER In the border of a window that does not have a sizing border.
+        // HTBORDER In the border of a window that does not have a sizing border.
         //  HTBOTTOM In the lower-horizontal border of a resizable window (the user can click the mouse to resize the window vertically).
         //  HTBOTTOMLEFT In the lower-left corner of a border of a resizable window (the user can click the mouse to resize the window diagonally).
         //  HTBOTTOMRIGHT In the lower-right corner of a border of a resizable window (the user can click the mouse to resize the window diagonally).
@@ -832,6 +776,77 @@ protected:
             }
         }
         return FALSE;
+    }
+
+    
+    LRESULT ReflectNotifications(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+    {
+        HWND hWndChild = NULL;
+
+        switch(uMsg)
+        {
+        case WM_COMMAND:
+            if(lParam != NULL)	// not from a menu
+                hWndChild = (HWND)lParam;
+            break;
+        case WM_NOTIFY:
+            hWndChild = ((LPNMHDR)lParam)->hwndFrom;
+            break;
+        case WM_PARENTNOTIFY:
+            switch(LOWORD(wParam))
+            {
+            case WM_CREATE:
+            case WM_DESTROY:
+                hWndChild = (HWND)lParam;
+                break;
+            default:
+                hWndChild = GetDlgItem(HIWORD(wParam));
+                break;
+            }
+            break;
+        case WM_DRAWITEM:
+            if(wParam)	// not from a menu
+                hWndChild = ((LPDRAWITEMSTRUCT)lParam)->hwndItem;
+            break;
+        case WM_MEASUREITEM:
+            if(wParam)	// not from a menu
+                hWndChild = GetDlgItem(((LPMEASUREITEMSTRUCT)lParam)->CtlID);
+            break;
+        case WM_COMPAREITEM:
+            if(wParam)	// not from a menu
+                hWndChild = GetDlgItem(((LPCOMPAREITEMSTRUCT)lParam)->CtlID);
+            break;
+        case WM_DELETEITEM:
+            if(wParam)	// not from a menu
+                hWndChild = GetDlgItem(((LPDELETEITEMSTRUCT)lParam)->CtlID);
+            break;
+        case WM_VKEYTOITEM:
+        case WM_CHARTOITEM:
+        case WM_HSCROLL:
+        case WM_VSCROLL:
+            hWndChild = (HWND)lParam;
+            break;
+        case WM_CTLCOLORBTN:
+        case WM_CTLCOLORDLG:
+        case WM_CTLCOLOREDIT:
+        case WM_CTLCOLORLISTBOX:
+        case WM_CTLCOLORMSGBOX:
+        case WM_CTLCOLORSCROLLBAR:
+        case WM_CTLCOLORSTATIC:
+            hWndChild = (HWND)lParam;
+            break;
+        default:
+            break;
+        }
+
+        if(hWndChild == NULL)
+        {
+            bHandled = FALSE;
+            return 1;
+        }
+
+        ATLASSERT(::IsWindow(hWndChild));
+        return ::SendMessage(hWndChild, OCM__BASE + uMsg, wParam, lParam);
     }
 private:
     FRAMESTATES    _frame_state;
