@@ -10,7 +10,6 @@ namespace Skin {
 		
 		SkinStatusBarCtrl()
 		{
-			
 		}
 		
 		typedef SkinStatusBarCtrl<BaseT> this_type;
@@ -21,6 +20,7 @@ namespace Skin {
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)	
 		END_MSG_MAP()
 
+		
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			CPaintDC dc(m_hWnd);
@@ -43,30 +43,37 @@ namespace Skin {
 			return hFont;
 		}
 
-		void STATUSBAR_DrawPart ( HDC hdc, int itemID, RECT& r)
+		void STATUSBAR_DrawPart ( HDC hdc, int itemID, RECT& r, BOOL bSimple)
 		{
 			UINT border = BDR_SUNKENOUTER;
 			int themePart = SP_PANE;
 
-			TRACE("part bound %ld,%ld - %ld,%ld\n", r.left, r.top, r.right, r.bottom);
+			//TRACE("part bound %ld,%ld - %ld,%ld\n", r.left, r.top, r.right, r.bottom);
 
-			TCHAR	szText[ 256 ] = {0};
+			TCHAR	szText[ 512 ] = {0};
 			int nType;
-			GetText( itemID, szText, &nType );
+			if ( bSimple )
+			{
+				GetText( itemID, szText, &nType );
+			}
+			else
+				GetText( itemID, szText, &nType );
 
+			// 绘制了背景图,所以不绘制了.
+			/*
 			if (nType & SBT_POPOUT)
 				border = BDR_RAISEDOUTER;
 			else if (nType & SBT_NOBORDERS)
 				border = 0;
 			
-			// 绘制了背景图,所以不绘制了.
-			// DrawEdge(hdc, &r, border, BF_RECT|BF_ADJUST);
 			
+			DrawEdge(hdc, &r, border, BF_RECT|BF_ADJUST);
+			*/
 			if (nType & SBT_OWNERDRAW) 
 			{
 				DRAWITEMSTRUCT dis;
 
-				dis.CtlID = GetWindowLongPtr( GWLP_ID );
+				dis.CtlID = (UINT) GetWindowLongPtr( GWLP_ID );
 				dis.itemID = itemID;
 				dis.hwndItem = m_hWnd;
 				dis.hDC = hdc;
@@ -76,7 +83,7 @@ namespace Skin {
 			}
 			else
 			{
-				HICON hIcon = GetIcon(itemID); 
+				HICON hIcon = GetIcon(bSimple ? -1 : itemID); 
 				if ( hIcon ) 
 				{
 					INT cy = r.bottom - r.top;
@@ -97,7 +104,7 @@ namespace Skin {
 
 			CRect rectPane;
 			BOOL bRet = GetRect( itemID, &rectPane );
-			if ( !bRet )
+			if ( !bRet && !bSimple )
 				return;
 
 			if ( rectPane.right < rectPane.left )
@@ -111,14 +118,19 @@ namespace Skin {
 			if ( _scheme )
 				_scheme->DrawBackground(hdc, class_id, nPart, nState, &rectPane, NULL);
 
-			STATUSBAR_DrawPart ( hdc, itemID, rectPane);
+			if ( bSimple )
+			{
+				GetClientRect( rectPane );
+				rectPane.left += 5;
+			}
+			STATUSBAR_DrawPart ( hdc, itemID, rectPane, bSimple);
 		}
 
 		void STATUSBAR_DrawSizeGrip (HDC hdc, LPRECT lpRect)
 		{
 			
 
-			TRACE("draw size grip %ld,%ld - %ld,%ld\n", lpRect->left, lpRect->top, lpRect->right, lpRect->bottom);
+			//TRACE("draw size grip %ld,%ld - %ld,%ld\n", lpRect->left, lpRect->top, lpRect->right, lpRect->bottom);
 
 			int nPart;
 			int nState;
@@ -223,7 +235,7 @@ namespace Skin {
 		}
 	
 	private:
-		
+
 	};
 
 }; // namespace 
