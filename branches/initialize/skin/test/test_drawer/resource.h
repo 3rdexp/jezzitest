@@ -6,6 +6,10 @@
 #define IDR_MAINFRAME                   128
 #define IDB_BITMAP1                     202
 #define IDD_DLG_BUTTON                  203
+#define IDR_DATE                        205
+#define IDR_TIME                        206
+#define IDI_ICON1                       207
+#define IDR_DEFAULT                     207
 #define IDC_CHECK1                      1000
 #define IDC_CHECK2                      1001
 #define IDC_CHECK3                      1002
@@ -32,7 +36,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        204
+#define _APS_NEXT_RESOURCE_VALUE        208
 #define _APS_NEXT_COMMAND_VALUE         32772
 #define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           101

@@ -30,6 +30,17 @@ IDB_BITMAP1             BITMAP                  "res\\bitmap1.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_DATE                ICON                    "res\\Date.ico"
+IDR_TIME                ICON                    "res\\Time.ico"
+IDR_DEFAULT             ICON                    "res\\Default.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Dialog
 //
 

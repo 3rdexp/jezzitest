@@ -166,6 +166,15 @@
 				RelativePath=".\resource.h">
 			</File>
 			<File
+				RelativePath="..\..\src\skinmsg.h">
+			</File>
+			<File
+				RelativePath=".\StatusBarXP.cpp">
+			</File>
+			<File
+				RelativePath=".\StatusBarXP.h">
+			</File>
+			<File
 				RelativePath=".\stdafx.h">
 			</File>
 			<File
@@ -179,6 +188,12 @@
 				RelativePath=".\res\bitmap1.bmp">
 			</File>
 			<File
+				RelativePath=".\res\Date.ico">
+			</File>
+			<File
+				RelativePath=".\res\Default.ico">
+			</File>
+			<File
 				RelativePath=".\res\test_drawer.exe.manifest">
 			</File>
 			<File
@@ -186,6 +201,9 @@
 			</File>
 			<File
 				RelativePath=".\test_drawer.rc">
+			</File>
+			<File
+				RelativePath=".\res\Time.ico">
 			</File>
 			<File
 				RelativePath=".\res\toolbar.bmp">
