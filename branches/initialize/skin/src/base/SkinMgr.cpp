@@ -102,6 +102,13 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 			_installed_type |= SKINCTL_HEADER;
 	}
 
+    if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
+    {       
+        bool f = SkinDialog::Install(hInst);
+        if (f)
+            _installed_type |= SKINCTL_DIALOG;
+    }
+
 	/*
     if (!(_installed_type & SKINCTL_WINDOW) && (dwType & SKINCTL_WINDOW) )
     {
@@ -109,12 +116,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
         if (f)
             _installed_type |= SKINCTL_WINDOW;
     }
-    if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
-    {       
-        bool f = SkinDialog::Install(hInst);
-        if (f)
-            _installed_type |= SKINCTL_DIALOG;
-    }
+    
 	*/
 	// value => type
 	// 1 => SkinButton

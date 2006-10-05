@@ -34,6 +34,7 @@ public:
 //        MESSAGE_HANDLER(BM_SETSTATE, OnStateChange)
 //        MSG_WM_CREATE(OnCreate)
         CHAIN_MSG_MAP(framebase_type)
+        REFLECT_NOTIFICATIONS()
     END_MSG_MAP()
 };
 
