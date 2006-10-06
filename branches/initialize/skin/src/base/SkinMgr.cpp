@@ -19,6 +19,7 @@
 #include "../controls//header.h"
 #include "../controls/statusbar.h"
 #include "../controls/menu.h"
+#include "../controls/toolbar.h"
 
 namespace Skin {
 
@@ -120,6 +121,14 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
         if (f)
             _installed_type |= SKINCTL_MENU;
     }
+
+	if (!(_installed_type & SKINCTL_TOOLBAR) && (dwType & SKINCTL_TOOLBAR) )
+	{
+		typedef SkinToolBarCtrl<CToolBarCtrl> skintoolbar;
+		bool f = skintoolbar::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_TOOLBAR;
+	}
 
 	/*
     if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
