@@ -151,6 +151,34 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest">
+			<File
+				RelativePath=".\res\bitmap1.bmp">
+			</File>
+			<File
+				RelativePath=".\res\Date.ico">
+			</File>
+			<File
+				RelativePath=".\res\Default.ico">
+			</File>
+			<File
+				RelativePath=".\res\test_drawer.exe.manifest">
+			</File>
+			<File
+				RelativePath=".\res\test_drawer.ico">
+			</File>
+			<File
+				RelativePath=".\test_drawer.rc">
+			</File>
+			<File
+				RelativePath=".\res\Time.ico">
+			</File>
+			<File
+				RelativePath=".\res\toolbar.bmp">
+			</File>
+		</Filter>
+		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
@@ -179,34 +207,6 @@
 			</File>
 			<File
 				RelativePath=".\test_drawerView.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest">
-			<File
-				RelativePath=".\res\bitmap1.bmp">
-			</File>
-			<File
-				RelativePath=".\res\Date.ico">
-			</File>
-			<File
-				RelativePath=".\res\Default.ico">
-			</File>
-			<File
-				RelativePath=".\res\test_drawer.exe.manifest">
-			</File>
-			<File
-				RelativePath=".\res\test_drawer.ico">
-			</File>
-			<File
-				RelativePath=".\test_drawer.rc">
-			</File>
-			<File
-				RelativePath=".\res\Time.ico">
-			</File>
-			<File
-				RelativePath=".\res\toolbar.bmp">
 			</File>
 		</Filter>
 	</Files>
