@@ -15,7 +15,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_drawer", "test_drawer\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kPad", "kPad_src\kPad.vcproj", "{0E6822B9-617F-4E6E-AC19-C256D2DEDD19}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 1
+		SccProjectUniqueName0 = kPad_src\\kPad.vcproj
+		SccProjectName0 = \u0022$/kPad\u0022,\u0020TPAAAAAA
+		SccLocalPath0 = kPad_src
+		SccProvider0 = MSSCCI:DynamSoft\u0020SourceAnyWhere\u00204
+	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
@@ -37,6 +48,10 @@ Global
 		{D19F974D-C131-466A-B341-130DABDCADF3}.Debug.Build.0 = Debug|Win32
 		{D19F974D-C131-466A-B341-130DABDCADF3}.Release.ActiveCfg = Release|Win32
 		{D19F974D-C131-466A-B341-130DABDCADF3}.Release.Build.0 = Release|Win32
+		{0E6822B9-617F-4E6E-AC19-C256D2DEDD19}.Debug.ActiveCfg = Debug|Win32
+		{0E6822B9-617F-4E6E-AC19-C256D2DEDD19}.Debug.Build.0 = Debug|Win32
+		{0E6822B9-617F-4E6E-AC19-C256D2DEDD19}.Release.ActiveCfg = Release|Win32
+		{0E6822B9-617F-4E6E-AC19-C256D2DEDD19}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
