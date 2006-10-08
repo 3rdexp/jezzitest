@@ -48,8 +48,11 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
+		if ( BP_USERBUTTON == m_nPart )
+			return DefWindowProc( WM_PAINT, wParam, lParam );
+
         CPaintDC dc(m_hWnd);
-        DoPaint(dc);
+        DoPaint( dc );
         return 0;
     }
 
@@ -674,17 +677,20 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         dc.Detach();
     }
     
-    LRESULT DoPaint(HDC dc)
+    LRESULT DoPaint( HDC dc )
     {
         CRect rc;
         GetClientRect(&rc);
+        
+		CMemoryDC memdc(dc, rc);
 
-        CMemoryDC memdc(dc, rc);
-
-        int nState = GetState();
-
-        if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
-            _scheme->DrawParentBackground(m_hWnd, memdc, &rc);
+		int nState = GetState();
+		
+		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
+			_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
+        
+		if ( BP_GROUPBOX == m_nPart )
+			BitBlt( memdc, 0, 0, rc.Width(), rc.Height(), dc, 0, 0, SRCCOPY);
 
         LONG lStyle = GetStyle();
 
@@ -735,6 +741,21 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
                 rc.left = rc.left + szIcon.cx + ICON_LEFT;
             }
 			*/
+
+			const int nLen = GetWindowTextLength();
+			TCHAR * szText = new TCHAR[nLen + 1];
+			int nTextLen = GetWindowText(szText, nLen + 1);
+
+			HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
+			if (_scheme)
+				_scheme->DrawText(memdc, class_id, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
+
+			_ASSERTE( _CrtCheckMemory( ) );
+			delete [] szText;
+			_ASSERTE( _CrtCheckMemory( ) );
+
+			memdc.SelectFont(hOldFont);
+
         }
         else if ( m_nPart == BP_CHECKBOX || m_nPart == BP_RADIOBUTTON )
         {
@@ -747,26 +768,28 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
                 _scheme->TransparentDraw(memdc, class_id, m_nPart, nState, rcImg.left, rcImg.top);
 
             rc = rcText;
+
+
+			const int nLen = GetWindowTextLength();
+			TCHAR * szText = new TCHAR[nLen + 1];
+			int nTextLen = GetWindowText(szText, nLen + 1);
+
+			HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
+			if (_scheme)
+				_scheme->DrawText(memdc, class_id, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
+
+			_ASSERTE( _CrtCheckMemory( ) );
+			delete [] szText;
+			_ASSERTE( _CrtCheckMemory( ) );
+
+			memdc.SelectFont(hOldFont);
+
         }
         else if ( m_nPart == BP_GROUPBOX )
         {
             DrawGroup(memdc);
-            return S_OK;
+			//DefWindowProc();
         }
-
-        const int nLen = GetWindowTextLength();
-        TCHAR * szText = new TCHAR[nLen + 1];
-        int nTextLen = GetWindowText(szText, nLen + 1);
-
-        HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
-        if (_scheme)
-            _scheme->DrawText(memdc, class_id, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
-
-        _ASSERTE( _CrtCheckMemory( ) );
-        delete [] szText;
-        _ASSERTE( _CrtCheckMemory( ) );
-
-        memdc.SelectFont(hOldFont);
 #if 0
         HDC d = ::GetDC(0);
         BitBlt(d, 0, 0, 100, 100, memdc, 0, 0, SRCCOPY);

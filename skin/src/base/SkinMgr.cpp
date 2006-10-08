@@ -20,7 +20,7 @@
 #include "../controls/statusbar.h"
 #include "../controls/menu.h"
 #include "../controls/toolbar.h"
-
+#include "../controls/rebar.h"
 namespace Skin {
 
 //	class CBitmapButton
@@ -128,6 +128,14 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		bool f = skintoolbar::Install(hInst);
 		if (f)
 			_installed_type |= SKINCTL_TOOLBAR;
+	}
+
+	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
+	{
+		typedef SkinReBarCtrl<CReBarCtrl> skinrebar;
+		bool f = skinrebar::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_REBAR;
 	}
 
 	/*
