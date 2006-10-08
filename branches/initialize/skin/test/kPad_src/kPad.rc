@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -27,7 +27,7 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -41,7 +41,7 @@ END
 // Menu
 //
 
-IDR_CONTEXTMENU MENU DISCARDABLE 
+IDR_CONTEXTMENU MENU 
 BEGIN
     POPUP "1"
     BEGIN
@@ -75,7 +75,7 @@ END
 // Bitmap
 //
 
-IDB_TRUETYPE_FONTTYPE   BITMAP  DISCARDABLE     "res\\font_tru.bmp"
+IDB_TRUETYPE_FONTTYPE   BITMAP                  "res\\font_tru.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -84,9 +84,9 @@ IDB_TRUETYPE_FONTTYPE   BITMAP  DISCARDABLE     "res\\font_tru.bmp"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\kPad.ICO"
-IDI_PINNED              ICON    DISCARDABLE     "res\\Pinned.ico"
-IDI_UNPINNED            ICON    DISCARDABLE     "res\\Unpinned.ico"
+IDR_MAINFRAME           ICON                    "res\\kPad.ICO"
+IDI_PINNED              ICON                    "res\\Pinned.ico"
+IDI_UNPINNED            ICON                    "res\\Unpinned.ico"
 #endif    // Russian resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -106,12 +106,12 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""atlres.h""\r\n"
     "\0"
@@ -125,7 +125,7 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+IDR_MAINFRAME MENU 
 BEGIN
     POPUP "&File"
     BEGIN
@@ -209,13 +209,22 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+IDR_FORMAT              BITMAP                  "res\\format.bmp"
+IDR_PRINTPREVIEWBAR     BITMAP                  "res\\printpre.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Dialog
 //
 
 IDD_COLOR DIALOGEX 0, 0, 95, 114
-STYLE DS_MODALFRAME | WS_POPUP
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP
 EXSTYLE WS_EX_TOOLWINDOW | WS_EX_CONTROLPARENT
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_LIST,7,70,71,36,LBS_OWNERDRAWFIXED | NOT WS_BORDER | 
                     WS_VSCROLL | WS_TABSTOP
@@ -223,8 +232,8 @@ BEGIN
                     WS_TABSTOP,35,17,50,30
 END
 
-IDD_FIND DIALOG DISCARDABLE  0, 0, 269, 61
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_FIND DIALOG  0, 0, 269, 61
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Find"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -244,8 +253,8 @@ BEGIN
     GROUPBOX        "&Direction",IDC_STATIC,110,30,91,25
 END
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 132, 146
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOG  0, 0, 132, 146
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About kPad"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -259,8 +268,8 @@ BEGIN
     CTEXT           "",IDC_WARNING,15,112,100,8
 END
 
-IDD_REPLACE DIALOG DISCARDABLE  0, 0, 269, 81
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_REPLACE DIALOG  0, 0, 269, 81
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Replace"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -280,10 +289,10 @@ BEGIN
     LTEXT           "Replace with:",IDC_STATIC_FIND2,10,23,44,8
 END
 
-IDD_OPTION DIALOG DISCARDABLE  0, 0, 302, 151
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_OPTION DIALOGEX 0, 0, 302, 151
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Option"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     COMBOBOX        IDC_COMBO_FONT,15,31,95,65,CBS_DROPDOWN | 
                     CBS_OWNERDRAWVARIABLE | CBS_SORT | CBS_HASSTRINGS | 
@@ -330,7 +339,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_COLOR, DIALOG
     BEGIN
@@ -377,19 +386,10 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Bitmap
-//
-
-IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
-IDR_FORMAT              BITMAP  DISCARDABLE     "res\\format.bmp"
-IDR_PRINTPREVIEWBAR     BITMAP  DISCARDABLE     "res\\printpre.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+IDR_MAINFRAME TOOLBAR  16, 15
 BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_OPEN
@@ -410,7 +410,7 @@ BEGIN
     BUTTON      ID_APP_ABOUT
 END
 
-IDR_FORMAT TOOLBAR DISCARDABLE  16, 15
+IDR_FORMAT TOOLBAR  16, 15
 BEGIN
     BUTTON      1
     SEPARATOR
@@ -428,7 +428,7 @@ BEGIN
     BUTTON      ID_FORMAT_RIGHT
 END
 
-IDR_PRINTPREVIEWBAR TOOLBAR DISCARDABLE  38, 15
+IDR_PRINTPREVIEWBAR TOOLBAR  38, 15
 BEGIN
     BUTTON      ID_FILE_PRINT
     SEPARATOR
@@ -443,7 +443,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MAINFRAME ACCELERATORS 
 BEGIN
     "B",            ID_FORMAT_BOLD,         VIRTKEY, CONTROL, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
@@ -469,7 +469,6 @@ BEGIN
 END
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -492,19 +491,15 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "konstantin@mail.primorye.ru\0"
-            VALUE "CompanyName", "Konstantin Boukreev\0"
-            VALUE "FileDescription", "kPad editor\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "kPad\0"
-            VALUE "LegalCopyright", "Copyright 2000\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OLESelfRegister", "\0"
-            VALUE "OriginalFilename", "kPad.exe\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "kPad Module\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "Comments", "konstantin@mail.primorye.ru"
+            VALUE "CompanyName", "Konstantin Boukreev"
+            VALUE "FileDescription", "kPad editor"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "kPad"
+            VALUE "LegalCopyright", "Copyright 2000"
+            VALUE "OriginalFilename", "kPad.exe"
+            VALUE "ProductName", "kPad Module"
+            VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -512,8 +507,6 @@ BEGIN
         VALUE "Translation", 0x409, 1200
     END
 END
-
-#endif    // !_MAC
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -534,12 +527,12 @@ END
 // String Table
 //
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "kPad"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -552,13 +545,13 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection\nErase"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
@@ -573,18 +566,18 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ATL_IDS_IDLEMESSAGE     "Ready"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
     ID_LANG_PANE            "English (United States)"
@@ -592,7 +585,7 @@ BEGIN
     ID_ROW_PANE             "Row:9999"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FILE_NEW_WINDOW      "Open a new window\nNew Window"
     ID_FORMAT_ITALIC        "Italic\nItalic"
@@ -605,12 +598,12 @@ BEGIN
     ID_FORMAT_HIGHLIGHT     "Highlight Color\nHighlight Color"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FORMAT_CNT           "Horiz Center\nHoriz Center"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FORMAT_FONT          "Font\nFont"
 END

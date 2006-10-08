@@ -231,6 +231,9 @@
 				RelativePath=".\controls\progress.h">
 			</File>
 			<File
+				RelativePath=".\controls\rebar.h">
+			</File>
+			<File
 				RelativePath=".\controls\spin.h">
 			</File>
 			<File
