@@ -368,6 +368,9 @@ public:
 
 		if (iClassId == TRACKBAR)
 			return  TRUE;
+
+		if (iClassId == TAB)
+			return  TRUE;
         return FALSE;
     }
 

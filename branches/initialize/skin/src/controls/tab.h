@@ -1,8 +1,6 @@
 #pragma once
 
 #include "../base/skinctrl.h"
-
-
 /*
 BEGIN_TM_CLASS_PARTS(TAB)
 TM_PART(1, TABP, TABITEM)
@@ -23,9 +21,10 @@ namespace Skin {
 	struct SkinTabCtrl : public SkinControlImpl<SkinTabCtrl, BaseT>
 	{
 		enum { class_id = TAB };
+
 		SkinTabCtrl()
 		{
-			m_nPart = TABP_TABITEM;
+			
 		}
 		typedef SkinTabCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinTabCtrl, BaseT> base_type;
@@ -52,16 +51,145 @@ namespace Skin {
 
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
-			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
+			//MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 		END_MSG_MAP()
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			CPaintDC dc(m_hWnd);
-			//DoPaint(dc);
+			TAB_Refresh(dc);
 			return 0;
 		}
 
+		static HFONT GetCtrlFont(HWND hwnd)
+		{
+			HFONT hFont;
+			//如果sendmessage得到的是NULL,则使用的是系统字体
+			if ( (hFont = (HFONT)::SendMessage(hwnd,WM_GETFONT,0,0))==NULL)
+				hFont = (HFONT)::GetStockObject(SYSTEM_FONT);
+
+			return hFont;
+		}
+		
+		void TAB_DrawItem( HDC  hdc, INT  iItem)
+		{
+			CRect rcItem;
+			BOOL bRet = GetItemRect( iItem, &rcItem );
+			if ( !bRet )
+				return;
+
+			//
+			int nState;
+			DWORD dwMask;
+			TCITEM tcItem;
+
+			BOOL bVert = FALSE;
+			if ( GetStyle() & TCS_VERTICAL )
+				bVert = TRUE;
+			
+			tcItem.mask = TCIF_STATE;
+			tcItem.dwState = 0;
+			GetItem(iItem, &tcItem);
+			
+			if ( !IsWindowEnabled() )
+				nState = bVert ? TTIS_DISABLED : TIS_DISABLED;
+			else if ( GetCurSel() == iItem )
+				nState = bVert ? TTIS_SELECTED : TIS_SELECTED;
+			else if ( tcItem.dwState & TCIS_HIGHLIGHTED )
+				nState = bVert ? TTIS_HOT : TIS_HOT;
+			else if ( GetCurFocus() == iItem )
+				nState = bVert ? TTIS_FOCUSED : TIS_FOCUSED;
+			else
+				nState = bVert ? TTIS_NORMAL : TIS_NORMAL;
+			
+			// draw item background
+			if ( _scheme )
+				_scheme->DrawBackground(hdc, class_id, bVert ? TABP_TOPTABITEM : TABP_TABITEM, nState, &rcItem, NULL );
+
+			// draw icon and text
+			TCHAR szText[256] = {0};
+			tcItem.mask = TCIF_TEXT;
+			tcItem.pszText = szText;
+			tcItem.cchTextMax = 256;
+			GetItem(iItem, &tcItem);
+
+			HFONT hOldFont = (HFONT)SelectObject(hdc, GetCtrlFont(m_hWnd));
+			if (_scheme)
+				_scheme->DrawText(hdc, class_id, bVert ? TABP_TOPTABITEM : TABP_TABITEM, nState, tcItem.pszText, DT_VCENTER | DT_SINGLELINE | DT_CENTER , 0, &rcItem);
+
+			SelectObject(hdc, hOldFont);
+
+		}	
+
+		void TAB_DrawBorder ( HDC hdc )
+		{
+			CRect rc;
+			GetClientRect(&rc);
+
+			BOOL bVert = FALSE;
+			if ( GetStyle() & TCS_VERTICAL )
+				bVert = TRUE;
+
+			if ( GetItemCount() > 0 )
+			{
+				CRect rcItem;
+				GetItemRect( 0, &rcItem );
+				if ( bVert )
+				{
+					rc.left += rcItem.right;
+				}
+				else
+				{
+					rc.top += rcItem.bottom;
+				}
+			}
+			
+			if ( _scheme )
+				_scheme->DrawBackground(hdc, class_id, TABP_PANE, TIS_NORMAL, &rc, NULL );
+			
+		}
+
+		LRESULT TAB_Refresh( HDC hdc )
+		{
+			CRect rc;
+			GetClientRect(&rc);
+
+			CMemoryDC memdc(hdc, rc);
+			
+			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, TABP_TABITEM, TIS_NORMAL))
+				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
+
+			int i = 0;
+			
+			if ( GetStyle() & TCS_BUTTONS )
+			{
+				for ( i = 0; i < GetItemCount(); i++ )
+					TAB_DrawItem ( memdc, i );
+			}
+			else
+			{
+				/* Draw all the non selected item first */
+				for (i = 0; i < GetItemCount(); i++)
+				{
+					if ( i != GetCurSel() )
+						TAB_DrawItem ( memdc, i );
+				}
+
+				/* Now, draw the border, draw it before the selected item
+				* since the selected item overwrites part of the border. */
+				TAB_DrawBorder ( memdc);
+
+				/* Then, draw the selected item */
+				TAB_DrawItem ( memdc, GetCurSel() );
+
+				/* If we haven't set the current focus yet, set it now.
+				* Only happens when we first paint the tab controls */
+				//if ( GetCurFocus()  == -1)
+				//	TAB_SetCurFocus( GetCurFocus() );
+			}
+			return 0;
+		}
+	
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			CRect rWindow, rClient;
@@ -116,7 +244,7 @@ namespace Skin {
 			return ETS_NORMAL;
 		}
 	private:
-		int m_nPart;
+		
 	};
 
 }; // namespace 

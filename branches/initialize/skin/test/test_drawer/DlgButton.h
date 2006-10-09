@@ -67,6 +67,9 @@ public:
 		m_tab.InsertItem(0, "tab1");
 		m_tab.InsertItem(1, "tab2");
 		m_tab.InsertItem(2, "tab3");
+		m_tab.InsertItem(3, "tab4");
+		m_tab.InsertItem(4, "tab5");
+		m_tab.InsertItem(5, "tab6");
 
 		
 		CProgressBarCtrl progress;
@@ -92,7 +95,12 @@ public:
 
 	LRESULT OnOk(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		EndDialog(IDOK);
+		//EndDialog(IDOK);
+		int nCount = m_tab.GetItemCount();
+		TCITEM item;
+		m_tab.GetItem( 0, &item);
+		RECT rc;
+		m_tab.GetItemRect ( 0, &rc );
 		return 0;
 	}
 
