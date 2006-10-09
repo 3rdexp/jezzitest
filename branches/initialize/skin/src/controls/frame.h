@@ -120,12 +120,6 @@ protected:
         bool hashelp() const    { return( _help != hidden ); }
     }; // SystemButtonState
 
-    int GetPartType()
-    {
-        return WP_CAPTION;
-        // TODO: WP_SMALLCAPTION
-        // TODO: remove GetPartType, no sense get PartType here
-    }
 
     int CaptionHeight()
     {
@@ -214,17 +208,36 @@ protected:
 
         DrawFrameBorder(dcMem, rcw, _frame_state);
 
+        SystemButtonState sysbtn_state;
+        sysbtn_state.initFromWindow(dwStyle, _frame_state == FS_ACTIVE);
+        CAPTIONSTATES caption_state = ((_frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
+        
+        DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
+
+        if (GetMenu())
+        {
+            ControlT * pT = static_cast<ControlT*>(this);
+
+            CAPTIONSTATES caption_state = (_frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE;
+            int caption_height = pT->GetSchemeHeight(WP_CAPTION, caption_state);
+
+            int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
+            int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
+            int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
+
+            CRect rc = rcw;
+            rc.top += caption_height;
+            rc.left += border_left_width;
+            rc.right -= border_right_width;
+            rc.bottom = rc.top + CalcMenuBarHeight();
+            DrawMenuBar(dcMem, rc);
+        }
+
 #if 0
         HDC dct = ::GetDC(0);
         BitBlt(dct, 0, 0, rcw.Width(), rcw.Height(), dcMem, 0, 0, SRCCOPY);
         ::ReleaseDC(0, dct);
 #endif
-
-        SystemButtonState sysbtn_state;
-        sysbtn_state.initFromWindow(dwStyle, _frame_state == FS_ACTIVE);
-        CAPTIONSTATES caption_state = ((_frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
-        // TODO:
-        DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
         // memory dc
         ::BitBlt(dc, 0, 0, rcw.Width(), rcw.Height(), dcMem, rcw.left, rcw.top, SRCCOPY);
@@ -234,6 +247,30 @@ protected:
 
         nRet = ::ExcludeClipRect( dc, 0, 0, 0, 0 );
         ASSERT( ERROR != nRet );
+    }
+
+    void DrawMenuBar(HDC hdc, CRect& rc)
+    {
+        HMENU hMenu = GetMenu();
+
+        // xp only
+        BOOL flat_menu = FALSE;
+        SystemParametersInfoW (SPI_GETFLATMENU, 0, &flat_menu, 0);
+
+        // font
+        // 
+        // FillRect(hdc, &rc, GetSysColorBrush(flat_menu ? COLOR_MENUBAR : COLOR_MENU) );
+        // CPen pen;
+        // pen.CreatePen(PS_SOLID, 1, 0x00cc00);
+        // ::SelectObject(hdc, pen);
+        HBRUSH br = CreateSolidBrush(0x00cc00);
+        FillRect(hdc, &rc, br);
+        DeleteObject(br);
+
+        MENUINFO mi;
+        mi.cbSize = sizeof(MENUINFO);
+        mi.fMask = MIM_MAXHEIGHT;
+        GetMenuInfo(hMenu, &mi);
     }
 
 
@@ -378,7 +415,6 @@ protected:
         rcc.OffsetRect(-rcw.left, -rcw.top);
         rcw.OffsetRect(-rcw.left, -rcw.top);
 
-
         DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
         return TRUE;
     }
@@ -402,6 +438,9 @@ protected:
         for example copy only a relavent subset of the current client to the new
         place.
         */
+#if 0
+        // if (!bCalcValidRects) DebugBreak();
+
         NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
         RECT* pRect = &lpncsp->rgrc[0];
         if ( GetStyle() & WS_DLGFRAME )
@@ -420,12 +459,107 @@ protected:
             pRect->right -= pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
             pRect->bottom -= pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
         }
-        return TRUE;
+        return WVR_ALIGNBOTTOM;
+#endif
+        NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
+        RECT* winRect = &lpncsp->rgrc[0];
+
+        RECT tmpRect = { 0, 0, 0, 0 };
+        LRESULT result = 0;
+        LONG cls_style = GetClassLong(m_hWnd, GCL_STYLE);
+        LONG style = GetWindowLong(GWL_STYLE );
+        LONG exStyle = GetWindowLong( GWL_EXSTYLE );
+
+        if (cls_style & CS_VREDRAW) result |= WVR_VREDRAW;
+        if (cls_style & CS_HREDRAW) result |= WVR_HREDRAW;
+
+        if (!IsIconic())
+        {
+            NC_AdjustRectOuter( &tmpRect, style, FALSE, exStyle );
+
+            winRect->left   -= tmpRect.left;
+            winRect->top    -= tmpRect.top;
+            winRect->right  -= tmpRect.right;
+            winRect->bottom -= tmpRect.bottom;
+
+            if (((style & (WS_CHILD | WS_POPUP)) != WS_CHILD) && GetMenu())
+            {
+                TRACE("Calling GetMenuBarHeight with hwnd %p, width %ld, at (%ld, %ld).\n",
+                    m_hWnd, winRect->right - winRect->left, -tmpRect.left, -tmpRect.top );
+
+                winRect->top += CalcMenuBarHeight();
+//                    MENU_GetMenuBarHeight( hwnd,
+//                    winRect->right - winRect->left,
+//                    -tmpRect.left, -tmpRect.top );
+            }
+
+            if( exStyle & WS_EX_CLIENTEDGE)
+                if( winRect->right - winRect->left > 2 * GetSystemMetrics(SM_CXEDGE) &&
+                    winRect->bottom - winRect->top > 2 * GetSystemMetrics(SM_CYEDGE))
+                    InflateRect( winRect, - GetSystemMetrics(SM_CXEDGE),
+                    - GetSystemMetrics(SM_CYEDGE));
+
+            if (style & WS_VSCROLL)
+                if( winRect->right - winRect->left >= GetSystemMetrics(SM_CXVSCROLL)){
+                    if((exStyle & WS_EX_LEFTSCROLLBAR) != 0)
+                        winRect->left  += GetSystemMetrics(SM_CXVSCROLL);
+                    else
+                        winRect->right -= GetSystemMetrics(SM_CXVSCROLL);
+                }
+
+                if (style & WS_HSCROLL)
+                    if( winRect->bottom - winRect->top > GetSystemMetrics(SM_CYHSCROLL))
+                        winRect->bottom -= GetSystemMetrics(SM_CYHSCROLL);
+
+                if (winRect->top > winRect->bottom)
+                    winRect->bottom = winRect->top;
+
+                if (winRect->left > winRect->right)
+                    winRect->right = winRect->left;
+        }
+        return result;
+    }
+
+    void NC_AdjustRectOuter (LPRECT rect, DWORD style, BOOL menu, DWORD exStyle)
+    {
+        int adjust;
+        if(style & WS_ICONIC) return;
+
+        if ((exStyle & (WS_EX_STATICEDGE|WS_EX_DLGMODALFRAME)) ==
+            WS_EX_STATICEDGE)
+        {
+            adjust = 1; /* for the outer frame always present */
+        }
+        else
+        {
+            adjust = 0;
+            if ((exStyle & WS_EX_DLGMODALFRAME) ||
+                (style & (WS_THICKFRAME|WS_DLGFRAME))) adjust = 2; /* outer */
+        }
+        if (style & WS_THICKFRAME)
+            adjust +=  ( GetSystemMetrics (SM_CXFRAME)
+            - GetSystemMetrics (SM_CXDLGFRAME)); /* The resize border */
+        if ((style & (WS_BORDER|WS_DLGFRAME)) ||
+            (exStyle & WS_EX_DLGMODALFRAME))
+            adjust++; /* The other border */
+
+        InflateRect (rect, adjust, adjust);
+
+        if ((style & WS_CAPTION) == WS_CAPTION)
+        {
+            if (exStyle & WS_EX_TOOLWINDOW)
+                rect->top -= GetSystemMetrics(SM_CYSMCAPTION);
+            else
+                rect->top -= GetSystemMetrics(SM_CYCAPTION);
+        }
+        if (menu) rect->top -= GetSystemMetrics(SM_CYMENU);
     }
 
 
     UINT OnNcHitTest(CPoint point)
     {
+        ControlT * pT1 = static_cast<ControlT*>(this);
+        return pT1->DefWindowProc();
         // 所有的计算都是相对于本窗口的坐标,所以先转换
         CRect rcw, rcc;
         GetWindowRect(&rcw);
