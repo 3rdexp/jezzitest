@@ -421,6 +421,8 @@ protected:
 
     BOOL OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam)
     {
+        ControlT * pT1 = static_cast<ControlT*>(this);
+        return pT1->DefWindowProc();
         // TODO: the return value 很重要。。。。
         // TODO: read <<Windows_Graphics_Programming;_Win32_GDI_and_DirectDraw_(2000)>>
         //       find out which value should return!!!
@@ -461,6 +463,8 @@ protected:
         }
         return WVR_ALIGNBOTTOM;
 #endif
+
+#if 0
         NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
         RECT* winRect = &lpncsp->rgrc[0];
 
@@ -518,6 +522,7 @@ protected:
                     winRect->right = winRect->left;
         }
         return result;
+#endif
     }
 
     void NC_AdjustRectOuter (LPRECT rect, DWORD style, BOOL menu, DWORD exStyle)
@@ -558,8 +563,6 @@ protected:
 
     UINT OnNcHitTest(CPoint point)
     {
-        ControlT * pT1 = static_cast<ControlT*>(this);
-        return pT1->DefWindowProc();
         // 所有的计算都是相对于本窗口的坐标,所以先转换
         CRect rcw, rcc;
         GetWindowRect(&rcw);
