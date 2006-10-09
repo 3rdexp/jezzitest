@@ -549,7 +549,7 @@ protected:
             rc_caption.top = rc_caption.bottom;
             rc_caption.bottom += bar_height;
             if (rc_caption.PtInRect(point))
-                return HTMENU;
+                return HTMENU; // TODO: 
         }
 
         ASSERT(false);

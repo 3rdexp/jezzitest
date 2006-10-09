@@ -255,6 +255,9 @@
 			<File
 				RelativePath=".\skinitf.h">
 			</File>
+			<File
+				RelativePath=".\skinmsg.h">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
