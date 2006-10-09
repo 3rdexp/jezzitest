@@ -176,6 +176,15 @@ public:
         return rc;
     }
 
+    COLORREF GetSchemeColor(int iPartId, int iStateId, int iPropId)
+    {
+        // GetColor(int iClassId, int iPartId, int iStateId, int iPropId, COLORREF *pColor)
+        COLORREF ret;
+        BOOL f = _scheme->GetColor(ControlT::class_id, iPartId, iStateId, iPropId, &ret);
+        ASSERT(f);
+        return ret;
+    }
+
     BOOL Draw(HDC hdc, int iPartId, int iState, long dx, long dy, long dcx = 0, 
         long dcy = 0, DWORD dwRop = SRCCOPY)
     {
