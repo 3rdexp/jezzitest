@@ -13,6 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skin", "..\src\Skin.vcproj"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_drawer", "test_drawer\test_drawer.vcproj", "{D19F974D-C131-466A-B341-130DABDCADF3}"
 	ProjectSection(ProjectDependencies) = postProject
+		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23} = {81ABF0EA-ED68-43CA-9A08-B3A009A46D23}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kPad", "kPad_src\kPad.vcproj", "{0E6822B9-617F-4E6E-AC19-C256D2DEDD19}"

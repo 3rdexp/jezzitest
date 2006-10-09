@@ -21,7 +21,7 @@ public:
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		COMMAND_ID_HANDLER(1000, OnButton)
-
+        MSG_WM_CONTEXTMENU(OnContextMenu)
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -109,5 +109,15 @@ public:
 		dlg.DoModal();
 		return 0;
 	}
-	
+
+    void OnContextMenu(HWND hWnd, CPoint point)
+    {
+        // CreatePopupMenu();
+        CMenu m;
+        m.LoadMenu(IDR_MAINFRAME);
+
+        CMenu s = m.GetSubMenu(0);
+        ATLTRACE("menu: %p\n", s.m_hMenu);
+        s.TrackPopupMenu(TPM_LEFTBUTTON|TPM_LEFTALIGN, point.x, point.y, hWnd);
+    }
 };
