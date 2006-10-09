@@ -7,6 +7,8 @@
 #include <atlctrls.h>
 #include <atldlgs.h>
 #include <atlctrlw.h>
+#include <atlmisc.h>
+#include <atlcrack.h>
 
 #include "resource.h"
 
