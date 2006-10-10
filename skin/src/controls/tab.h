@@ -137,10 +137,12 @@ namespace Skin {
 				if ( bVert )
 				{
 					rc.left += rcItem.right;
+					rc.left --;
 				}
 				else
 				{
 					rc.top += rcItem.bottom;
+					rc.top --;
 				}
 			}
 			
@@ -177,7 +179,7 @@ namespace Skin {
 
 				/* Now, draw the border, draw it before the selected item
 				* since the selected item overwrites part of the border. */
-				TAB_DrawBorder ( memdc);
+				TAB_DrawBorder ( memdc );
 
 				/* Then, draw the selected item */
 				TAB_DrawItem ( memdc, GetCurSel() );
