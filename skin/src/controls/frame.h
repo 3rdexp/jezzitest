@@ -71,53 +71,53 @@ protected:
             _max = hidden;
 
             // 窗口最小化了
-            if ( dwStyle & WS_MINIMIZE )
+            if (dwStyle & WS_MINIMIZE)
             {
                 _min = hidden;
                 _restore = normal;
             }
             else
             {
-                if ( dwStyle & WS_MINIMIZEBOX )
+                if (dwStyle & WS_MINIMIZEBOX)
                     _min = normal;
             }
 
             // 最大化了
-            if ( dwStyle & WS_MAXIMIZE )
+            if (dwStyle & WS_MAXIMIZE)
             {
                 _restore = normal;
             }
             else
             {
-                if ( dwStyle & WS_MAXIMIZEBOX )
+                if (dwStyle & WS_MAXIMIZEBOX)
                     _max = normal;
             }
 
-            if ( hasmin() && !hasmax() )
+            if (hasmin() && !hasmax())
             {
                 _max = disabled;
             }
 
-            if ( !fWinActivate )
+            if (!fWinActivate)
             {
-                if ( hasclose() )
+                if (hasclose())
                     _close = inactive;
-                if ( hasmax() && _max != disabled )
+                if (hasmax() && _max != disabled)
                     _max = inactive;
-                if ( hasrestore() )
+                if (hasrestore())
                     _restore = inactive;
-                if ( hasmin() )
+                if (hasmin())
                     _min = inactive;
-                if ( hashelp() )
+                if (hashelp())
                     _help = inactive;
             }
         }
 
-        bool hasclose() const    { return( _close != hidden ); }
-        bool hasmax() const        { return( _max != hidden ); }
-        bool hasrestore() const { return( _restore != hidden ); }
-        bool hasmin() const        { return( _min != hidden ); }
-        bool hashelp() const    { return( _help != hidden ); }
+        bool hasclose() const    { return(_close != hidden); }
+        bool hasmax() const        { return(_max != hidden); }
+        bool hasrestore() const { return(_restore != hidden); }
+        bool hasmin() const        { return(_min != hidden); }
+        bool hashelp() const    { return(_help != hidden); }
     }; // SystemButtonState
 
 
@@ -191,20 +191,20 @@ protected:
     // 所有坐标相对于本窗口
     void DrawFrame(HDC hdc, CRect& rcw, CRect& rcc, DWORD dwStyle, FRAMESTATES _frame_state)
     {
-        _ASSERTE( _CrtCheckMemory( ) );
+        _ASSERTE(_CrtCheckMemory());
 
         CDC dc(hdc);
         // exclude the client area
         // ! The lower and right edges of the specified rectangle are not excluded from the clipping region.
-        int nRet = ::ExcludeClipRect( dc, rcc.left, rcc.top, rcc.right, rcc.bottom );
+        int nRet = ::ExcludeClipRect(dc, rcc.left, rcc.top, rcc.right, rcc.bottom);
 
         // memory dc
         HDC dcMem = ::CreateCompatibleDC(dc);
-        ASSERT( dcMem );
+        ASSERT(dcMem);
         HBITMAP bmpMemBg = ::CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
-        ASSERT( bmpMemBg );
+        ASSERT(bmpMemBg);
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
-        ASSERT( pOldBmp );
+        ASSERT(pOldBmp);
 
         DrawFrameBorder(dcMem, rcw, _frame_state);
 
@@ -245,8 +245,8 @@ protected:
         ::DeleteObject(bmpMemBg);
         ::DeleteDC(dcMem);
 
-        nRet = ::ExcludeClipRect( dc, 0, 0, 0, 0 );
-        ASSERT( ERROR != nRet );
+        nRet = ::ExcludeClipRect(dc, 0, 0, 0, 0);
+        ASSERT(ERROR != nRet);
     }
 
     void DrawMenuBar(HDC hdc, CRect& rc)
@@ -259,7 +259,7 @@ protected:
 
         // font
         // 
-        // FillRect(hdc, &rc, GetSysColorBrush(flat_menu ? COLOR_MENUBAR : COLOR_MENU) );
+        // FillRect(hdc, &rc, GetSysColorBrush(flat_menu ? COLOR_MENUBAR : COLOR_MENU));
         // CPen pen;
         // pen.CreatePen(PS_SOLID, 1, 0x00cc00);
         // ::SelectObject(hdc, pen);
@@ -278,7 +278,7 @@ protected:
     void DrawFrameBorder(HDC hdc, CRect& rcw, FRAMESTATES _frame_state)
     {
         // FS_INACTIVE FS_ACTIVE
-        ASSERT( hdc );
+        ASSERT(hdc);
         ControlT * pT = static_cast<ControlT*>(this);
 
         // 左右border宽度保持一致，可能下边高度会不一样
@@ -316,7 +316,7 @@ protected:
     void DrawCaption(HDC hdc, CRect& rcw, DWORD dwStyle, CAPTIONSTATES caption_state,
         SystemButtonState& sysbtn_state)
     {
-        ASSERT( hdc );
+        ASSERT(hdc);
         ControlT * pT = static_cast<ControlT*>(this);
 
         pT->Draw(hdc, WP_CAPTION, caption_state, rcw.left, rcw.top, rcw.Width(), 0);
@@ -330,7 +330,7 @@ protected:
 
     void DrawSysButton(HDC hdc, CRect& rcw, SystemButtonState& sysbtn_state, DWORD dwStyle)
     {
-        ASSERT( hdc );
+        ASSERT(hdc);
         ControlT * pT = static_cast<ControlT*>(this);
 
         // 1 SysButton 区域底图，如果没有可能会造成问题
@@ -344,39 +344,39 @@ protected:
         int count_sys_button = 0;
 
         // 2 Button 表面
-        if ( sysbtn_state.hasclose() )
+        if (sysbtn_state.hasclose())
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_CLOSEBUTTON, sysbtn_state._close, rc.left, rc.top);
-            ATLASSERT( bRet );
+            ATLASSERT(bRet);
         }
 
-        if ( sysbtn_state.hasmax() )
+        if (sysbtn_state.hasmax())
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_MAXBUTTON, sysbtn_state._max, rc.left, rc.top);
-            ATLASSERT( bRet );
+            ATLASSERT(bRet);
         }
 
-        if ( sysbtn_state.hasrestore() )
+        if (sysbtn_state.hasrestore())
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_RESTOREBUTTON, sysbtn_state._restore, rc.left, rc.top);
-            ATLASSERT( bRet );
+            ATLASSERT(bRet);
         }
 
-        if ( sysbtn_state.hasmin() )
+        if (sysbtn_state.hasmin())
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_MINBUTTON, sysbtn_state._min, rc.left, rc.top);
-            ATLASSERT( bRet );
+            ATLASSERT(bRet);
         }
 
         if (sysbtn_state.hashelp())
         {
             rc = CalcSysButtonRect(count_sys_button++);
             bRet = pT->Draw(hdc, WP_HELPBUTTON, sysbtn_state._help, rc.left, rc.top);
-            ATLASSERT( bRet );
+            ATLASSERT(bRet);
         }
     }
 
@@ -384,7 +384,9 @@ protected:
         MSG_WM_NCACTIVATE(OnNcActivate)
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_NCCALCSIZE(OnNcCalcSize)
-        // MSG_WM_NCHITTEST(OnNcHitTest)
+#if 1
+        MSG_WM_NCHITTEST(OnNcHitTest)
+#else
         if (uMsg == WM_NCHITTEST) 
         {
             SetMsgHandled(TRUE); 
@@ -395,6 +397,7 @@ protected:
                 return TRUE; 
             }
         }
+#endif
         // MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
         // MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
         // MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
@@ -419,15 +422,15 @@ protected:
         return TRUE;
     }
 
-    BOOL OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam)
+    void TraceRect(const char* name, RECT* prc)
     {
-        ControlT * pT1 = static_cast<ControlT*>(this);
-        return pT1->DefWindowProc();
-        // TODO: the return value 很重要。。。。
-        // TODO: read <<Windows_Graphics_Programming;_Win32_GDI_and_DirectDraw_(2000)>>
-        //       find out which value should return!!!
+        TRACE("%s (%d,%d)-(%d,%d)\n", name, prc->left, prc->top, prc->right, prc->bottom);
+    }
 
+    LRESULT OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam)
+    {
         /*
+        // MSDN 2001 ------------------------------------------
         if bValidateClient is 1
         #1 Rect[0] is the proposed new client position
 
@@ -439,47 +442,121 @@ protected:
         left wil be copied but the graphics will be clipped, not resized. You can
         for example copy only a relavent subset of the current client to the new
         place.
+
+
+        // MSDN January 2006 --------------------------------------
+        Specifies an array of rectangles. 
+        The first contains the new coordinates of a window that has been moved or resized, 
+        that is, it is the proposed new window coordinates. 
+
+        The second contains the coordinates of the window before it was moved or resized. 
+
+        The third contains the coordinates of the window's client area before the window was 
+        moved or resized. If the window is a child window, the coordinates are relative to 
+        the client area of the parent window. If the window is a top-level window, the 
+        coordinates are relative to the screen origin. 
+
+        // TODO: read <<Windows_Graphics_Programming;_Win32_GDI_and_DirectDraw_(2000)>>
+        //       find out which value should return!!!
         */
-#if 0
-        // if (!bCalcValidRects) DebugBreak();
 
-        NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
-        RECT* pRect = &lpncsp->rgrc[0];
-        if ( GetStyle() & WS_DLGFRAME )
-            pRect->top += CaptionHeight();
+#if 1
+        NCCALCSIZE_PARAMS FAR* lpncsp_ = (NCCALCSIZE_PARAMS *)lParam;
+        CRect rc1 = lpncsp_->rgrc[0];
+        
+        ControlT * pT1 = static_cast<ControlT*>(this);
+        LRESULT ret = pT1->DefWindowProc();
+        CRect rc2 = lpncsp_->rgrc[0];
+        RECT & new_rcc = lpncsp_->rgrc[0];
+        
+    //    TraceRect("before", &rc1);
+    //    TraceRect("after ", &rc2);
+    //    TRACE("return %d\n", ret);
 
+        int c_top = CaptionHeight();
         if (GetMenu())
-        {
-            pRect->top += CalcMenuBarHeight();
-        }
+            c_top += CalcMenuBarHeight();
 
-        if ( GetStyle() & WS_BORDER )
+        int c_left = 0, c_right = 0, c_bottom = 0;
+
+        if (GetStyle() & WS_BORDER)
         {
             ControlT * pT = static_cast<ControlT*>(this);
 
-            pRect->left += pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
-            pRect->right -= pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
-            pRect->bottom -= pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
+            c_left = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
+            c_right = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
+            c_bottom = pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
         }
-        return WVR_ALIGNBOTTOM;
+
+     //   TRACE("l  : %d - %d\n", rc2.left, rc1.left + c_left);
+     //   TRACE("top: %d - %d\n", rc2.top, rc1.top + c_top);
+        
+     //   TRACE("r  : %d - %d\n", rc2.right, rc1.right - c_right);
+     //   TRACE("b  : %d - %d\n\n", rc2.bottom, rc1.bottom - c_bottom);
+
+        new_rcc.left = rc1.left + c_left;
+        new_rcc.top = rc1.top + c_top;
+        new_rcc.right = rc1.right - c_right;
+        new_rcc.bottom = rc1.bottom - c_bottom;
+
+        return ret;
+#else
+        // If wParam is FALSE, lParam points to a RECT structure. On entry, the structure contains 
+        // the proposed window rectangle for the window. On exit, the structure should contain the 
+        // screen coordinates of the corresponding window client area.
+        if (!bCalcValidRects)
+        {
+            NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
+            RECT& new_rcc = lpncsp->rgrc[0];
+            
+            CRect rcw;
+            GetWindowRect(&rcw);
+
+            new_rcc = rcw;
+
+            new_rcc.top = rcw.top + CaptionHeight();
+
+            if (GetMenu())
+            {
+                new_rcc.top += CalcMenuBarHeight();
+            }
+
+            if (GetStyle() & WS_BORDER)
+            {
+                ControlT * pT = static_cast<ControlT*>(this);
+
+                new_rcc.left += pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
+                new_rcc.right -= pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
+                new_rcc.bottom -= pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
+            }
+            return 0;
+        }
+        else
+        {
+            if (!IsIconic())
+            {
+                TRACE("wParam=%d IsIconic\n", bCalcValidRects);
+            }
+            return 0;
+        }
 #endif
 
-#if 0
+#if 0 // wine implement
         NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
         RECT* winRect = &lpncsp->rgrc[0];
 
         RECT tmpRect = { 0, 0, 0, 0 };
         LRESULT result = 0;
         LONG cls_style = GetClassLong(m_hWnd, GCL_STYLE);
-        LONG style = GetWindowLong(GWL_STYLE );
-        LONG exStyle = GetWindowLong( GWL_EXSTYLE );
+        LONG style = GetWindowLong(GWL_STYLE);
+        LONG exStyle = GetWindowLong(GWL_EXSTYLE);
 
         if (cls_style & CS_VREDRAW) result |= WVR_VREDRAW;
         if (cls_style & CS_HREDRAW) result |= WVR_HREDRAW;
 
         if (!IsIconic())
         {
-            NC_AdjustRectOuter( &tmpRect, style, FALSE, exStyle );
+            NC_AdjustRectOuter(&tmpRect, style, FALSE, exStyle);
 
             winRect->left   -= tmpRect.left;
             winRect->top    -= tmpRect.top;
@@ -489,22 +566,22 @@ protected:
             if (((style & (WS_CHILD | WS_POPUP)) != WS_CHILD) && GetMenu())
             {
                 TRACE("Calling GetMenuBarHeight with hwnd %p, width %ld, at (%ld, %ld).\n",
-                    m_hWnd, winRect->right - winRect->left, -tmpRect.left, -tmpRect.top );
+                    m_hWnd, winRect->right - winRect->left, -tmpRect.left, -tmpRect.top);
 
                 winRect->top += CalcMenuBarHeight();
-//                    MENU_GetMenuBarHeight( hwnd,
+//                    MENU_GetMenuBarHeight(hwnd,
 //                    winRect->right - winRect->left,
-//                    -tmpRect.left, -tmpRect.top );
+//                    -tmpRect.left, -tmpRect.top);
             }
 
-            if( exStyle & WS_EX_CLIENTEDGE)
-                if( winRect->right - winRect->left > 2 * GetSystemMetrics(SM_CXEDGE) &&
+            if(exStyle & WS_EX_CLIENTEDGE)
+                if(winRect->right - winRect->left > 2 * GetSystemMetrics(SM_CXEDGE) &&
                     winRect->bottom - winRect->top > 2 * GetSystemMetrics(SM_CYEDGE))
-                    InflateRect( winRect, - GetSystemMetrics(SM_CXEDGE),
+                    InflateRect(winRect, - GetSystemMetrics(SM_CXEDGE),
                     - GetSystemMetrics(SM_CYEDGE));
 
             if (style & WS_VSCROLL)
-                if( winRect->right - winRect->left >= GetSystemMetrics(SM_CXVSCROLL)){
+                if(winRect->right - winRect->left >= GetSystemMetrics(SM_CXVSCROLL)){
                     if((exStyle & WS_EX_LEFTSCROLLBAR) != 0)
                         winRect->left  += GetSystemMetrics(SM_CXVSCROLL);
                     else
@@ -512,7 +589,7 @@ protected:
                 }
 
                 if (style & WS_HSCROLL)
-                    if( winRect->bottom - winRect->top > GetSystemMetrics(SM_CYHSCROLL))
+                    if(winRect->bottom - winRect->top > GetSystemMetrics(SM_CYHSCROLL))
                         winRect->bottom -= GetSystemMetrics(SM_CYHSCROLL);
 
                 if (winRect->top > winRect->bottom)
@@ -542,7 +619,7 @@ protected:
                 (style & (WS_THICKFRAME|WS_DLGFRAME))) adjust = 2; /* outer */
         }
         if (style & WS_THICKFRAME)
-            adjust +=  ( GetSystemMetrics (SM_CXFRAME)
+            adjust +=  (GetSystemMetrics (SM_CXFRAME)
             - GetSystemMetrics (SM_CXDLGFRAME)); /* The resize border */
         if ((style & (WS_BORDER|WS_DLGFRAME)) ||
             (exStyle & WS_EX_DLGMODALFRAME))
@@ -572,8 +649,8 @@ protected:
 
         GetClientRect(&rcc);
         ClientToScreen(&rcc);
-        rcc.OffsetRect( -rcw.left, -rcw.top );
-        rcw.OffsetRect( -rcw.left, -rcw.top );
+        rcc.OffsetRect(-rcw.left, -rcw.top);
+        rcw.OffsetRect(-rcw.left, -rcw.top);
 
         // 四个大块
         // 1 border
@@ -584,7 +661,7 @@ protected:
         DWORD dwStyle = GetStyle();
         ControlT * pT = static_cast<ControlT*>(this);
 
-        if ( rcc.PtInRect(point) )
+        if (rcc.PtInRect(point))
             return HTCLIENT;
 
         CRect rc_caption = pT->GetSchemeRect(WP_CAPTION, _frame_state);
@@ -738,15 +815,15 @@ protected:
 
     BOOL OnNcMouseMove(UINT nHitTest, CPoint point)
     {
-        if( nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE )
+        if(nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE)
         {
-            if( _anchorDown && _anchorDown != nHitTest )
+            if(_anchorDown && _anchorDown != nHitTest)
                 _anchorDown = 0;			
 
-            if( _anchorHover != nHitTest )
+            if(_anchorHover != nHitTest)
                 _anchorHover = nHitTest;
 
-            if( !_fTrackNcMouseLeave)
+            if(!_fTrackNcMouseLeave)
             {
                 TRACKMOUSEEVENT tme;
                 tme.cbSize = sizeof(TRACKMOUSEEVENT);
@@ -763,35 +840,35 @@ protected:
         }
 
         // 使用标志，简直是搬起石头砸自己的头
-        if( GetStyle() & WS_DLGFRAME ) // 是否有 TitleBar
+        if(GetStyle() & WS_DLGFRAME) // 是否有 TitleBar
         {
             SystemButtonState sbState;
             DWORD dwStyle = GetStyle();
-            sbState.initFromWindow( dwStyle, (_frame_state == FS_ACTIVE) );
-            if( HTCLOSE == nHitTest )
+            sbState.initFromWindow(dwStyle, (_frame_state == FS_ACTIVE));
+            if(HTCLOSE == nHitTest)
                 sbState._close = SystemButtonState::hot;
-            else if( HTMAXBUTTON == nHitTest )
+            else if(HTMAXBUTTON == nHitTest)
             {
-                if( dwStyle & WS_MAXIMIZE )
+                if(dwStyle & WS_MAXIMIZE)
                     sbState._restore = SystemButtonState::hot;
                 else
                     sbState._max = SystemButtonState::hot;
             }
-            else if( HTMINBUTTON == nHitTest )
+            else if(HTMINBUTTON == nHitTest)
             {
-                if( sbState._min != SystemButtonState::hidden )
+                if(sbState._min != SystemButtonState::hidden)
                     sbState._min = SystemButtonState::hot;
             }
 
             //CWindowDC dc(CWnd::FromHandle(hWnd));
-            //Paint( hWnd, dc, TRUE, pState );
+            //Paint(hWnd, dc, TRUE, pState);
 
 //            HDC hdc = ::GetWindowDC(hWnd);
-//            DrawSystemButton2( hWnd, hdc, sbState, _frame_state );
+//            DrawSystemButton2(hWnd, hdc, sbState, _frame_state);
 //            ::ReleaseDC(hWnd, hdc);
         }
         
-        if( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest )
+        if(HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
         {
             return FALSE;
             //CallWindowProc(gDialogProc, hWnd, WM_NCMOUSEMOVE, (WPARAM)(UINT)(nHitTest), MAKELPARAM((x), (y)));
@@ -801,7 +878,7 @@ protected:
     
     void OnNcLButtonDown(UINT nHitTest, CPoint point)
     {
-        if ( nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE )
+        if (nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE)
         {
             _anchorDown  = nHitTest;
             _anchorHover = nHitTest;
@@ -812,33 +889,33 @@ protected:
             _anchorDown  = 0;
             _anchorHover = 0;
         }
-        if ( GetStyle() & WS_DLGFRAME )
+        if (GetStyle() & WS_DLGFRAME)
         {
             SystemButtonState sysbtn_state;
-            sysbtn_state.initFromWindow( GetStyle(), (_frame_state == FS_ACTIVE) );
-            if ( HTCLOSE == nHitTest )
+            sysbtn_state.initFromWindow(GetStyle(), (_frame_state == FS_ACTIVE));
+            if (HTCLOSE == nHitTest)
                 sysbtn_state._close = SystemButtonState::pushed;
-            else if ( HTMAXBUTTON == nHitTest )
+            else if (HTMAXBUTTON == nHitTest)
             {
-                if ( GetStyle() & WS_MAXIMIZE )
+                if (GetStyle() & WS_MAXIMIZE)
                     sysbtn_state._restore = SystemButtonState::pushed;
                 else
                     sysbtn_state._max = SystemButtonState::pushed;
             }
-            else if ( HTMINBUTTON == nHitTest )
+            else if (HTMINBUTTON == nHitTest)
             {
-                if ( GetStyle() & WS_MINIMIZE )
+                if (GetStyle() & WS_MINIMIZE)
                     sysbtn_state._restore = SystemButtonState::pushed;
                 else
                     sysbtn_state._min = SystemButtonState::pushed;
             }
 
             HDC hdc = ::GetWindowDC(m_hWnd);
-            // TODO: DrawSystemButton2( hWnd, hdc, sysbtn_state, _frame_state );
-            // DrawSysButton( hdc, sysbtn_state, _frame_state );
+            // TODO: DrawSystemButton2(hWnd, hdc, sysbtn_state, _frame_state);
+            // DrawSysButton(hdc, sysbtn_state, _frame_state);
             ::ReleaseDC(m_hWnd, hdc);
         }
-        if ( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest )
+        if (HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
         {
             SetMsgHandled(FALSE);
             //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest),
@@ -857,20 +934,20 @@ protected:
         if (HTMAXBUTTON == nHitTest && (GetStyle() & WS_MAXIMIZEBOX))
         {
             // ShowWindow(SW_MAXIMIZE);
-            if ( IsZoomed() )
-                SendMessage(WM_SYSCOMMAND, SC_RESTORE, -1 );
+            if (IsZoomed())
+                SendMessage(WM_SYSCOMMAND, SC_RESTORE, -1);
             else
-                SendMessage(WM_SYSCOMMAND, SC_MAXIMIZE, -1 );
+                SendMessage(WM_SYSCOMMAND, SC_MAXIMIZE, -1);
         }
-        else if (HTMINBUTTON == nHitTest )
+        else if (HTMINBUTTON == nHitTest)
         {
-            if ( IsIconic() )
-                SendMessage(WM_SYSCOMMAND, SC_RESTORE, -1 );
+            if (IsIconic())
+                SendMessage(WM_SYSCOMMAND, SC_RESTORE, -1);
             else
-                SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, -1 );
+                SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, -1);
         }
-        else if (HTCLOSE == nHitTest )
-            SendMessage(WM_SYSCOMMAND, SC_CLOSE, -1 );
+        else if (HTCLOSE == nHitTest)
+            SendMessage(WM_SYSCOMMAND, SC_CLOSE, -1);
     }
 
     void OnNcMouseLeave()
@@ -882,33 +959,33 @@ protected:
         sbState.initFromWindow(GetStyle(), (_frame_state == FS_ACTIVE));
         sbState._close = SystemButtonState::normal;
         {
-            if ( GetStyle() & WS_MAXIMIZE )
+            if (GetStyle() & WS_MAXIMIZE)
                 sbState._restore = SystemButtonState::normal;
             else
                 sbState._max = SystemButtonState::normal;
         }
         {
-            if ( GetStyle() & WS_MINIMIZE )
+            if (GetStyle() & WS_MINIMIZE)
                 sbState._restore = SystemButtonState::normal;
             else
                 sbState._min = SystemButtonState::normal;
         }
 
         // HDC hdc = ::GetWindowDC(m_hWnd);
-        // DrawSystemButton2( hWnd, hdc, sbState, _frame_state );
+        // DrawSystemButton2(hWnd, hdc, sbState, _frame_state);
         // ::ReleaseDC(hWnd, hdc);
     }
 
     BOOL OnNcLButtonDblClk(UINT nHitTest, CPoint point)
     {
-        if ( HTCAPTION == nHitTest )
+        if (HTCAPTION == nHitTest)
         {
             HICON hIcon = (HICON)SendMessage(WM_GETICON, ICON_SMALL, 0);
             CPoint pt = point;
             ScreenToClient(&pt);
-            if ( hIcon && pt.x < 16 + 9 )
+            if (hIcon && pt.x < 16 + 9)
             {
-                SendMessage( WM_SYSCOMMAND, SC_CLOSE, -1 );
+                SendMessage(WM_SYSCOMMAND, SC_CLOSE, -1);
                 return TRUE;
             }
         }
