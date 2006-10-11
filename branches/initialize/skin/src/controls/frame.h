@@ -34,7 +34,12 @@ protected:
 //    };
 
     // 注意：在 wm_nccalcsize 消息前就要初始化
-    SkinFrameImpl() : _frame_state(FS_ACTIVE) {}
+    SkinFrameImpl() 
+        : _frame_state(FS_ACTIVE)
+        , _fTrackNcMouseLeave(false) 
+        , _anchorDown(0)
+        , _anchorHover(0)
+    {}
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
     // 主要在 WM_NCCALCSIZE 时用到
@@ -130,26 +135,24 @@ protected:
     // title    ?  _ []  X
     //
     // index:   3  2  1  0
-    RECT CalcSysButtonRect(int index)
+    RECT CalcSysButtonRect(const CRect& rcw, int index)
     {
         ControlT * pT = static_cast<ControlT*>(this);
         CSize z = pT->GetSchemeSize(WP_SYSBUTTON);
 
-        CRect rcw;
-        GetWindowRect(&rcw);
-        rcw.OffsetRect(-rcw.left, -rcw.top);
+        CRect rc = rcw;
+        rc.top += BorderThickness;
+        rc.bottom = rc.top + z.cy;
 
-        rcw.top += BorderThickness;
-        rcw.bottom = rcw.top + z.cy;
-
-        rcw.right = rcw.right - (index + 1) * BorderThickness - index * z.cx;
-        rcw.left = rcw.right - z.cx;
-        return rcw;
+        rc.right = rc.right - (index + 1) * BorderThickness - index * z.cx;
+        rc.left = rc.right - z.cx;
+        return rc;
     }
 
     // 固定system button在 caption上的位置
     // TODO: 建立子元素 placement 的机制
     // 现在先使用 CalcSysButtonRect(index) 函数
+#if 0
     RECT CalcCloseButtonRect()
     {
         return CalcSysButtonRect(0);
@@ -164,6 +167,7 @@ protected:
     {
         return CalcSysButtonRect(1);
     }
+#endif
 
     // 计算 menu bar 高度
     // 1 MenuInfo
@@ -328,7 +332,7 @@ protected:
 #endif
     }
 
-    void DrawSysButton(HDC hdc, CRect& rcw, SystemButtonState& sysbtn_state, DWORD dwStyle)
+    void DrawSysButton(HDC hdc, const CRect& rcw, const SystemButtonState& sysbtn_state, DWORD dwStyle)
     {
         ASSERT(hdc);
         ControlT * pT = static_cast<ControlT*>(this);
@@ -346,45 +350,118 @@ protected:
         // 2 Button 表面
         if (sysbtn_state.hasclose())
         {
-            rc = CalcSysButtonRect(count_sys_button++);
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
             bRet = pT->Draw(hdc, WP_CLOSEBUTTON, sysbtn_state._close, rc.left, rc.top);
             ATLASSERT(bRet);
         }
 
         if (sysbtn_state.hasmax())
         {
-            rc = CalcSysButtonRect(count_sys_button++);
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
             bRet = pT->Draw(hdc, WP_MAXBUTTON, sysbtn_state._max, rc.left, rc.top);
             ATLASSERT(bRet);
         }
 
         if (sysbtn_state.hasrestore())
         {
-            rc = CalcSysButtonRect(count_sys_button++);
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
             bRet = pT->Draw(hdc, WP_RESTOREBUTTON, sysbtn_state._restore, rc.left, rc.top);
             ATLASSERT(bRet);
         }
 
         if (sysbtn_state.hasmin())
         {
-            rc = CalcSysButtonRect(count_sys_button++);
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
             bRet = pT->Draw(hdc, WP_MINBUTTON, sysbtn_state._min, rc.left, rc.top);
             ATLASSERT(bRet);
         }
 
         if (sysbtn_state.hashelp())
         {
-            rc = CalcSysButtonRect(count_sys_button++);
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
             bRet = pT->Draw(hdc, WP_HELPBUTTON, sysbtn_state._help, rc.left, rc.top);
             ATLASSERT(bRet);
         }
+    }
+
+    // 使用memory DC, 只绘制几个button部分
+    void EtchedSysButton(CDCHandle dc, const CRect& rcw, const SystemButtonState& sysbtn_state)
+    {
+        // 先把图绘制在 dcmem 上，然后再绘制到 dc 上
+        CDC dcmem;
+        dcmem.CreateCompatibleDC(dc);
+        CBitmap bmpbg;
+        bmpbg.CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
+        HBITMAP bmpold = dcmem.SelectBitmap(bmpbg);
+
+        ControlT * pT = static_cast<ControlT*>(this);
+
+        CRect rc;
+        BOOL bRet = FALSE;
+
+        // CalcXXXButtonRect 换成 CalcSysButtonRect(int index)，代码逻辑简单了很多
+        // index 重右到左的序号
+
+        int count_sys_button = 0;
+
+        // 2 Button 表面
+        if (sysbtn_state.hasclose())
+        {
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
+            bRet = pT->Draw(dcmem, WP_CLOSEBUTTON, sysbtn_state._close, rc.left, rc.top);
+            ATLASSERT(bRet);
+
+            dc.BitBlt(rc.left, rc.top, rc.Width(), rc.Height(), dcmem, rc.left, rc.top, SRCCOPY);
+        }
+
+        if (sysbtn_state.hasmax())
+        {
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
+            bRet = pT->Draw(dcmem, WP_MAXBUTTON, sysbtn_state._max, rc.left, rc.top);
+            ATLASSERT(bRet);
+
+            dc.BitBlt(rc.left, rc.top, rc.Width(), rc.Height(), dcmem, rc.left, rc.top, SRCCOPY);
+        }
+
+        if (sysbtn_state.hasrestore())
+        {
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
+            bRet = pT->Draw(dcmem, WP_RESTOREBUTTON, sysbtn_state._restore, rc.left, rc.top);
+            ATLASSERT(bRet);
+
+            dc.BitBlt(rc.left, rc.top, rc.Width(), rc.Height(), dcmem, rc.left, rc.top, SRCCOPY);
+        }
+
+        if (sysbtn_state.hasmin())
+        {
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
+            bRet = pT->Draw(dcmem, WP_MINBUTTON, sysbtn_state._min, rc.left, rc.top);
+            ATLASSERT(bRet);
+
+            dc.BitBlt(rc.left, rc.top, rc.Width(), rc.Height(), dcmem, rc.left, rc.top, SRCCOPY);
+        }
+
+        if (sysbtn_state.hashelp())
+        {
+            rc = CalcSysButtonRect(rcw, count_sys_button++);
+            bRet = pT->Draw(dcmem, WP_HELPBUTTON, sysbtn_state._help, rc.left, rc.top);
+            ATLASSERT(bRet);
+
+            dc.BitBlt(rc.left, rc.top, rc.Width(), rc.Height(), dcmem, rc.left, rc.top, SRCCOPY);
+        }
+
+        CWindowDC dct(0);
+        dct.BitBlt(0, 0, rcw.Width(), rcw.Height(), dcmem, 0, 0, SRCCOPY);
+
+        // 
+        dcmem.SelectBitmap(bmpold);
     }
 
     BEGIN_MSG_MAP_EX(SkinFrameImpl)
         MSG_WM_NCACTIVATE(OnNcActivate)
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_NCCALCSIZE(OnNcCalcSize)
-#if 1
+#if 0
         MSG_WM_NCHITTEST(OnNcHitTest)
 #else
         if (uMsg == WM_NCHITTEST) 
@@ -398,11 +475,11 @@ protected:
             }
         }
 #endif
-        // MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
-        // MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
-        // MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
-        // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
-        // MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
+        MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
+        MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
+        MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
+        MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
+        MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
     END_MSG_MAP()
 
     BOOL OnNcActivate(BOOL bActive)
@@ -730,7 +807,7 @@ protected:
             int index = -1;
             for (int i=0; i<4; i++)
             {
-                CRect rc = CalcSysButtonRect(i);
+                CRect rc = CalcSysButtonRect(rcw, i);
                 if (rc.PtInRect(point))
                     index = i;
             }
@@ -795,6 +872,7 @@ protected:
         // HTVSCROLL In the vertical scroll bar.
         // HTZOOM In a Maximize button.
     }
+    // TODO: Read http://www.codeproject.com/menu/newmenuxpstyle.asp
 
     void OnNcPaint(HRGN)
     {
@@ -860,12 +938,11 @@ protected:
                     sbState._min = SystemButtonState::hot;
             }
 
-            //CWindowDC dc(CWnd::FromHandle(hWnd));
-            //Paint(hWnd, dc, TRUE, pState);
-
-//            HDC hdc = ::GetWindowDC(hWnd);
-//            DrawSystemButton2(hWnd, hdc, sbState, _frame_state);
-//            ::ReleaseDC(hWnd, hdc);
+            CWindowDC dc(m_hWnd);
+            CRect rcw;
+            GetWindowRect(&rcw);
+            rcw.OffsetRect(-rcw.left, -rcw.top);
+            EtchedSysButton((HDC)dc, rcw, sbState);
         }
         
         if(HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
@@ -878,17 +955,19 @@ protected:
     
     void OnNcLButtonDown(UINT nHitTest, CPoint point)
     {
-        if (nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE)
+        if (nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON 
+            || nHitTest == HTCLOSE || nHitTest == HTHELP)
         {
             _anchorDown  = nHitTest;
             _anchorHover = nHitTest;
-            SetMsgHandled(FALSE);
+            
         }
         else
         {
             _anchorDown  = 0;
             _anchorHover = 0;
         }
+
         if (GetStyle() & WS_DLGFRAME)
         {
             SystemButtonState sysbtn_state;
@@ -910,10 +989,16 @@ protected:
                     sysbtn_state._min = SystemButtonState::pushed;
             }
 
-            HDC hdc = ::GetWindowDC(m_hWnd);
-            // TODO: DrawSystemButton2(hWnd, hdc, sysbtn_state, _frame_state);
-            // DrawSysButton(hdc, sysbtn_state, _frame_state);
-            ::ReleaseDC(m_hWnd, hdc);
+#if 1
+            CWindowDC dc(m_hWnd);
+            CRect rcw;
+            GetWindowRect(&rcw);
+            rcw.OffsetRect(-rcw.left, -rcw.top);
+#else
+            CWindowDC dc(0);
+            CRect rcw(0, 40, 200, 80);
+#endif
+            EtchedSysButton((HDC)dc, rcw, sysbtn_state);
         }
         if (HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
         {
@@ -971,9 +1056,11 @@ protected:
                 sbState._min = SystemButtonState::normal;
         }
 
-        // HDC hdc = ::GetWindowDC(m_hWnd);
-        // DrawSystemButton2(hWnd, hdc, sbState, _frame_state);
-        // ::ReleaseDC(hWnd, hdc);
+        CWindowDC dc(m_hWnd);
+        CRect rcw;
+        GetWindowRect(&rcw);
+        rcw.OffsetRect(-rcw.left, -rcw.top);
+        EtchedSysButton((HDC)dc, rcw, sbState);
     }
 
     BOOL OnNcLButtonDblClk(UINT nHitTest, CPoint point)
