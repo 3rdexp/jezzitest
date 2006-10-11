@@ -221,7 +221,10 @@ public:
     }
 
 protected:
-    SkinControlImpl() : _enable(true) {}
+    SkinControlImpl() 
+        : _enable(true) 
+        , m_pCurrentMsg(0)
+    {}
 
     // BaseT 没有 virtual ~BaseT()
     // 能解决问题吗？ new derived; delete base*
@@ -337,6 +340,7 @@ public:
 			if (p->_enable || uMsg == WMS_ENABLE)
 			{
 				bRet = p->ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
+                _ASSERTE(_CrtCheckMemory( ));
 
 				if (!bRet)
 				{
@@ -346,6 +350,7 @@ public:
 					// ATTENTION: this_type:: (maybe ProcessWindowMessage not virtual)
 					bRet = pd->this_type::ProcessWindowMessage(hWnd, uMsg, 
                         wParam, lParam, lRes, 0);
+                    _ASSERTE(_CrtCheckMemory( ));
 				}
 
 				if (!bRet)
@@ -359,6 +364,7 @@ public:
 						// ATTENTION: base_type:: (maybe ProcessWindowMessage not virtual)
 						bRet = pb->base_type::ProcessWindowMessage(hWnd, uMsg, 
                             wParam, lParam, lRes, 0);
+                        _ASSERTE(_CrtCheckMemory( ));
 					}
 				}
 			}
