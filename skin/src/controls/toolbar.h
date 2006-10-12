@@ -104,7 +104,7 @@ namespace Skin {
 			
 			HIMAGELIST m_hImageList = (HIMAGELIST)DefWindowProc (TB_GETIMAGELIST, 0, 0);
 			TBBUTTON tbbutton;
-			int nCount = DefWindowProc (TB_BUTTONCOUNT, 0, 0);
+			LRESULT nCount = DefWindowProc (TB_BUTTONCOUNT, 0, 0);
 			int nHotItem = GetHotItem();
 			
 			int OldMode = memdc.SetBkMode(TRANSPARENT);

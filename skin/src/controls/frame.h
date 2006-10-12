@@ -237,7 +237,7 @@ protected:
             DrawMenuBar(dcMem, rc);
         }
 
-#if 0
+#if 1
         HDC dct = ::GetDC(0);
         BitBlt(dct, 0, 0, rcw.Width(), rcw.Height(), dcMem, 0, 0, SRCCOPY);
         ::ReleaseDC(0, dct);
@@ -255,26 +255,83 @@ protected:
 
     void DrawMenuBar(HDC hdc, CRect& rc)
     {
-        HMENU hMenu = GetMenu();
+        CMenuHandle menu(GetMenu());
+        ASSERT(!menu.IsNull());
+
+        CDCHandle dc(hdc);
+        int r = dc.SaveDC();
 
         // xp only
         BOOL flat_menu = FALSE;
         SystemParametersInfoW (SPI_GETFLATMENU, 0, &flat_menu, 0);
 
         // font
-        // 
-        // FillRect(hdc, &rc, GetSysColorBrush(flat_menu ? COLOR_MENUBAR : COLOR_MENU));
-        // CPen pen;
-        // pen.CreatePen(PS_SOLID, 1, 0x00cc00);
-        // ::SelectObject(hdc, pen);
-        HBRUSH br = CreateSolidBrush(0x00cc00);
-        FillRect(hdc, &rc, br);
-        DeleteObject(br);
+        CFont fontMenu;
+        LOGFONT logFontMenu;
 
-        MENUINFO mi;
-        mi.cbSize = sizeof(MENUINFO);
-        mi.fMask = MIM_MAXHEIGHT;
-        GetMenuInfo(hMenu, &mi);
+        NONCLIENTMETRICS nm = {0};
+        nm.cbSize = sizeof (NONCLIENTMETRICS);
+        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, nm.cbSize, &nm, 0);
+        logFontMenu = nm.lfMenuFont;
+
+        fontMenu.CreateFontIndirect(&logFontMenu);
+        dc.SelectFont(fontMenu);
+
+        int c = menu.GetMenuItemCount();
+        MENUBARINFO barinfo = {0};
+        barinfo.cbSize = sizeof(MENUBARINFO);
+        
+        // TRACE("menu %p\n", menu.m_hMenu);
+        TraceRect("calc ", &rc);
+
+        // bar selft
+        ::GetMenuBarInfo(m_hWnd, OBJID_MENU, 0, &barinfo);
+        // TRACE("bar %p\n", barinfo.hMenu);
+        TraceRect("bar ", &barinfo.rcBar);
+        ControlT * pT = static_cast<ControlT*>(this);
+        COLORREF cr = pT->GetSchemeColor(WP_MENUBAR, 0, TMT_MENU);
+        CBrush br;
+
+        br.CreateSolidBrush(cr);
+        dc.FillRect(&rc, br);
+
+        CRect rcw;
+        GetWindowRect(&rcw);
+
+        // bar item
+        for (int i=1; i<=c; ++i)
+        {
+            ::GetMenuBarInfo(m_hWnd, OBJID_MENU, i, &barinfo);
+            // TRACE("item %p\n", barinfo.hMenu);
+            
+            OffsetRect(&barinfo.rcBar, -rcw.left, -rcw.top);
+            TraceRect("item ", &barinfo.rcBar);
+            // DrawMenuBarItem(dc, menu, i, 0);
+            char sz[0x16];
+            int n = menu.GetMenuString(i - 1, sz, 16, MF_BYPOSITION);
+            dc.DrawText(sz, n, &barinfo.rcBar, DT_LEFT);
+        }
+
+        // release
+        dc.RestoreDC(r);
+    }
+
+    void DrawMenuBarItem(CDCHandle dc, CMenuHandle menu, UINT nItemIndex, UINT nState)
+    {
+        CRect itemRect;
+        if (nItemIndex!=UINT(-1) && GetMenuItemRect(m_hWnd, menu, nItemIndex, &itemRect))
+        {
+            MENUITEMINFO menuInfo = {0};
+            menuInfo.cbSize = sizeof(menuInfo);
+            menuInfo.fMask = MIIM_DATA|MIIM_TYPE|MIIM_ID;
+            if (menu.GetMenuItemInfo(nItemIndex, TRUE, &menuInfo))
+            {
+                if(menuInfo.fType&MF_OWNERDRAW)
+                {
+                    DebugBreak();
+                }
+            }
+        }
     }
 
 
@@ -450,8 +507,8 @@ protected:
             dc.BitBlt(rc.left, rc.top, rc.Width(), rc.Height(), dcmem, rc.left, rc.top, SRCCOPY);
         }
 
-        CWindowDC dct(0);
-        dct.BitBlt(0, 0, rcw.Width(), rcw.Height(), dcmem, 0, 0, SRCCOPY);
+        // CWindowDC dct(0);
+        // dct.BitBlt(0, 0, rcw.Width(), rcw.Height(), dcmem, 0, 0, SRCCOPY);
 
         // 
         dcmem.SelectBitmap(bmpold);
@@ -1013,6 +1070,9 @@ protected:
         if (0 == _anchorDown)
             return;
 
+        SetMsgHandled(FALSE);
+        return;
+
         ControlT * pT = static_cast<ControlT*>(this);
         pT->DefWindowProc();
 
@@ -1032,7 +1092,7 @@ protected:
                 SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, -1);
         }
         else if (HTCLOSE == nHitTest)
-            SendMessage(WM_SYSCOMMAND, SC_CLOSE, -1);
+            PostMessage(WM_SYSCOMMAND, SC_CLOSE, -1);
     }
 
     void OnNcMouseLeave()

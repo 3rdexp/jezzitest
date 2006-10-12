@@ -80,7 +80,7 @@ namespace Skin {
 
 			//
 			int nState;
-			DWORD dwMask;
+			// DWORD dwMask;
 			TCITEM tcItem;
 
 			BOOL bVert = FALSE;
