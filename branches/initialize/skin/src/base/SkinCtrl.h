@@ -6,6 +6,9 @@
 // ------------------------------------------------------
 // We use UxTheme's Part, State Define
 #include <tmschema.h>
+
+// BEGIN_TM_CLASS_PARTS(WINDOW)
+#define WP_MENUBAR 38
 // ------------------------------------------------------
 
 #include "../skinmsg.h"
@@ -389,6 +392,8 @@ public:
             WNDPROC dw = GetDefaultProc();
             if (!dw)
                 dw = ::DefWindowProc;
+//            if (uMsg == WM_NCLBUTTONUP)
+//                __asm nop;
             lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
         }
 
