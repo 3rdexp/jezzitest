@@ -24,6 +24,15 @@ namespace Skin {
 		BOOL OnCreate(LPCREATESTRUCT)
 		{
 			m_nPart = EP_EDITTEXT;
+
+			TCHAR className[256];
+			GetClassName(GetParent(), className, sizeof(className));
+			if(lstrcmpi(className, "COMBOBOX") != 0) 
+			{ 
+				//Fix Combobox bug
+				InstallScrollBar();
+			}
+
 			SetMsgHandled(FALSE);
 			return TRUE;
 		}
