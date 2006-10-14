@@ -228,6 +228,9 @@
 				RelativePath=".\controls\header.h">
 			</File>
 			<File
+				RelativePath=".\controls\listview.h">
+			</File>
+			<File
 				RelativePath=".\controls\menu.h">
 			</File>
 			<File
@@ -235,6 +238,9 @@
 			</File>
 			<File
 				RelativePath=".\controls\rebar.h">
+			</File>
+			<File
+				RelativePath=".\controls\scrollbar.h">
 			</File>
 			<File
 				RelativePath=".\controls\spin.h">
@@ -260,6 +266,16 @@
 			</File>
 			<File
 				RelativePath=".\skinmsg.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="libscroll"
+			Filter="">
+			<File
+				RelativePath=".\lib\detours.lib">
+			</File>
+			<File
+				RelativePath=".\lib\libcoolsb.lib">
 			</File>
 		</Filter>
 	</Files>
