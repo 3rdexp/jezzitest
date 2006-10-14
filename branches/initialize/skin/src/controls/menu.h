@@ -191,12 +191,26 @@ public:
         MSG_WM_NCPAINT(OnNcPaint)
 //        MSG_WM_PRINT
 //        MSG_WM_PRINTCLIENT
-//        MSG_WM_PAINT(OnPaint)
+        MSG_WM_PAINT(OnPaint)
 //        MSG_WM_KEYDOWN
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
 //        MSG_WM_ERASEBKGND
+		MESSAGE_HANDLER(WM_DRAWITEM, OnDrawItem)
+		MESSAGE_HANDLER(WM_MEASUREITEM, OnMeasureItem)
     END_MSG_MAP()
+
+	LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		bHandled = FALSE;
+		return (LRESULT)TRUE;
+	}
+
+	LRESULT OnMeasureItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		bHandled = FALSE;
+		return (LRESULT)TRUE;
+	}
 
     void OnNcPaint(HRGN)
     {
@@ -246,9 +260,10 @@ public:
 
     void OnPaint(HDC)
     {
-        CPaintDC dc(m_hWnd);
+        //CPaintDC dc(m_hWnd);
         HMENU h = (HMENU)GetWindowLong(0);
         TRACE("longptr: %p m_hWnd:%p owner:%p\n", h, m_hWnd, ::GetWindow(m_hWnd, GW_OWNER));
+		DefWindowProc();
     }
 };
 
