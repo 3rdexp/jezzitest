@@ -12,6 +12,7 @@
 // ------------------------------------------------------
 
 #include "../skinmsg.h"
+#include "../libcoolsb/coolscroll.h"
 
 namespace Skin {
 
@@ -278,8 +279,39 @@ public: // 需要被模版派生类访问
 		return ::CallWindowProc(dw, m_hWnd, uMsg, wParam, lParam);
 	}
 
+	HRESULT InstallScrollBar()
+	{
+		BOOL f = InitializeCoolSB(m_hWnd);
+		ATLASSERT( f );
+		if( f )
+		{
+			RECT rc;
+			BOOL fScroll = FALSE;
+			if ( _scheme )
+				fScroll = _scheme->GetRect(SCROLLBAR, SBP_ARROWBTN, 1, &rc);
+
+			int nWidth = 0 ;
+			int nHeight = 0;
+
+			if ( fScroll )
+			{
+				nWidth = rc.right - rc.left;
+				nHeight = rc.bottom - rc.top;
+			}
+
+			f = CoolSB_SetStyle(m_hWnd, SB_BOTH, CSBS_NORMAL);
+			ATLASSERT( f );
+			f = CoolSB_SetSize(m_hWnd, SB_BOTH, nWidth > 0 ? nWidth : 15, nHeight > 0 ? nHeight : 15);
+			ATLASSERT( f );
+			f = CoolSB_SetMinThumbSize(m_hWnd, SB_BOTH, nWidth);
+			ATLASSERT( f );
+		}
+		return S_OK;
+	}
+
 	BEGIN_MSG_MAP(this_type)
 		MESSAGE_HANDLER(WMS_ENABLE, OnEnable)
+		NOTIFY_CODE_HANDLER(NM_COOLSB_CUSTOMDRAW, OnScrollCustomDraw)
 	END_MSG_MAP()
 
     // common skin message procdure
@@ -291,6 +323,11 @@ public: // 需要被模版派生类访问
 			Invalidate();
 		}
 		return 0;
+	}
+
+	LRESULT OnScrollCustomDraw( int wParam, LPNMHDR lParam, BOOL& bHandled)
+	{
+		return HandleCustomDraw(wParam, (NMCSBCUSTOMDRAW *)lParam);
 	}
     // common skin message procedure end
 
@@ -304,6 +341,7 @@ private:
         if (S_OK == GetSkinMgr(&mgr) && mgr)
             mgr->GetCurentScheme(&_scheme);
     }
+
 
 	static handle_map _handle_maps;
     static InstallPolicy _installer;
