@@ -20,6 +20,11 @@
 #include "../controls/statusbar.h"
 #include "../controls/menu.h"
 #include "../controls/toolbar.h"
+#include "../controls//listview.h"
+#include "../controls/scrollbar.h"
+
+#include "..\libcoolsb\coolscroll.h"
+#include "..\libcoolsb\coolsb_detours.h"
 
 
 namespace Skin {
@@ -130,6 +135,25 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_TOOLBAR;
 	}
+
+	if (!(_installed_type & SKINCTL_LISTVIEW) && (dwType & SKINCTL_LISTVIEW) )
+	{
+		typedef SkinListViewCtrl<CListViewCtrl> skinlistview;
+		bool f = skinlistview::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_LISTVIEW;
+	}
+
+	CoolSB_InitializeApp();
+	
+	if (!(_installed_type & SKINCTL_SCROLLBAR) && (dwType & SKINCTL_SCROLLBAR) )
+	{
+		typedef SkinScrollBar<CScrollBar> skinscroll;
+		bool f = skinscroll::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_SCROLLBAR;
+	}
+
 	/*
 	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
 	{
@@ -173,6 +197,8 @@ STDMETHODIMP SkinMgr::UninitControls(HINSTANCE hInst, DWORD dwType)
 //		typedef SkinButton<CButton> ssbuton;
 //		ssbuton::Uninstall(hInst);
 	}
+
+	CoolSB_UninitializeApp();
 	return S_OK;
 }
 
