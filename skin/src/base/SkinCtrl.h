@@ -380,7 +380,8 @@ public:
 
 			if (p->_enable || uMsg == WMS_ENABLE)
 			{
-				bRet = p->ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
+                // TRACE("1 %p %d, %p::%p\n", hWnd, uMsg, p, p->ProcessWindowMessage);
+                bRet = p->derived_type::ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
                 _ASSERTE(_CrtCheckMemory( ));
 
 				if (!bRet)
@@ -388,12 +389,16 @@ public:
 					// call SkinControlImpl
 					this_type * pd = static_cast<this_type *>(p);
 					ASSERT(pd);
+                    // TRACE("2 %p %d, %p::%p\n", hWnd, uMsg, pd, pd->ProcessWindowMessage);
 					// ATTENTION: this_type:: (maybe ProcessWindowMessage not virtual)
 					bRet = pd->this_type::ProcessWindowMessage(hWnd, uMsg, 
                         wParam, lParam, lRes, 0);
                     _ASSERTE(_CrtCheckMemory( ));
 				}
-
+#if 0
+                // ATTENTION: 设计时打算最后在这里直接调用 BaseT::ProcessWindowMessage 
+                // 省略了 CHAIN_MSG_MAP ，但是导致SkinFramexxx的消息执行会有两次
+                // SkinFrame 必须加上 CHAIN_MSG_MAP
 				if (!bRet)
 				{
                     // 使用了vc7的特性，如果BaseT==CWindowImpl等，需要再调用其处理过程
@@ -402,12 +407,14 @@ public:
 					{
 						base_type * pb = static_cast<base_type *>(p);
 						ASSERT(pb);
+                        TRACE("3 %p %d, %p::%p\n", hWnd, uMsg, pb, pb->ProcessWindowMessage);
 						// ATTENTION: base_type:: (maybe ProcessWindowMessage not virtual)
 						bRet = pb->base_type::ProcessWindowMessage(hWnd, uMsg, 
                             wParam, lParam, lRes, 0);
                         _ASSERTE(_CrtCheckMemory( ));
 					}
 				}
+#endif
 			}
 
 			if (uMsg == WM_NCDESTROY) //最后一个消息
@@ -430,9 +437,16 @@ public:
             WNDPROC dw = GetDefaultProc();
             if (!dw)
                 dw = ::DefWindowProc;
-//            if (uMsg == WM_NCLBUTTONUP)
-//                __asm nop;
+            if (uMsg == WM_NCLBUTTONUP)
+            {
+                TRACE("trace ControlProc::WM_NCLBUTTONUP WNDPROC = %p, ::DefWindowProc=%p\n", dw, ::DefWindowProc);
+            }
             lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
+            
+            if (uMsg == WM_NCLBUTTONUP)
+            {
+                TRACE("trace CallWindowProc::WM_NCLBUTTONUP ret=%d\n", lRes);
+            }
         }
 
 		_ASSERTE( _CrtCheckMemory( ) );
