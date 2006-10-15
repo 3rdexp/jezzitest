@@ -154,8 +154,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hWnd);
 			break;
 		default:
-			// return DefWindowProc(hWnd, message, wParam, lParam);
-            return SkinFrameProc(hWnd, message, wParam, lParam);
+			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
 	case WM_PAINT:

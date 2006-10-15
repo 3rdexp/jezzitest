@@ -261,7 +261,10 @@ public:
     void OnPaint(HDC)
     {
         //CPaintDC dc(m_hWnd);
+        // warning C4312: “类型转换” : 从“LONG”转换到更大的“HMENU”
+        #pragma warning(disable: 4312)
         HMENU h = (HMENU)GetWindowLong(0);
+        #pragma warning(default: 4312)
         TRACE("longptr: %p m_hWnd:%p owner:%p\n", h, m_hWnd, ::GetWindow(m_hWnd, GW_OWNER));
 		DefWindowProc();
     }
