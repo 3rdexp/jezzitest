@@ -23,9 +23,10 @@
 #include "../controls//listview.h"
 #include "../controls/scrollbar.h"
 
-#include "..\libcoolsb\coolscroll.h"
-#include "..\libcoolsb\coolsb_detours.h"
+#include "../libcoolsb/coolscroll.h"
+#include "../libcoolsb/coolsb_detours.h"
 
+#include <atlctrlx.h> // test only
 
 namespace Skin {
 
@@ -50,7 +51,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_EDIT) && (dwType & SKINCTL_EDIT) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinEdit<CEdit> ssedit;
 		bool f = ssedit::Install(hInst);
 		if (f)
@@ -59,7 +59,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_COMBOBOX) && (dwType & SKINCTL_COMBOBOX) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinComboBox<CComboBox> sscombobox;
 		bool f = sscombobox::Install(hInst);
 		if (f)
@@ -68,7 +67,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_TAB) && (dwType & SKINCTL_TAB) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinTabCtrl<CTabCtrl> sstab;
 		bool f = sstab::Install(hInst);
 		if (f)
@@ -77,7 +75,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_PROGRESS) && (dwType & SKINCTL_PROGRESS) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinProgressCtrl<CProgressBarCtrl> ssprogress;
 		bool f = ssprogress::Install(hInst);
 		if (f)
@@ -86,7 +83,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_SPIN) && (dwType & SKINCTL_SPIN) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinUpDownCtrl<CUpDownCtrl> ssspin;
 		bool f = ssspin::Install(hInst);
 		if (f)
@@ -95,7 +91,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_TRACKBAR) && (dwType & SKINCTL_TRACKBAR) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinTrackBarCtrl<CTrackBarCtrl> sstrackbar;
 		bool f = sstrackbar::Install(hInst);
 		if (f)
@@ -104,7 +99,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_HEADER) && (dwType & SKINCTL_HEADER) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinHeaderCtrl<CHeaderCtrl> ssheader;
 		bool f = ssheader::Install(hInst);
 		if (f)
@@ -113,7 +107,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
     
 	if (!(_installed_type & SKINCTL_STATUS) && (dwType & SKINCTL_STATUS) )
 	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
 		typedef SkinStatusBarCtrl<CStatusBarCtrl> ssstatusbar;
 		bool f = ssstatusbar::Install(hInst);
 		if (f)
@@ -162,6 +155,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_REBAR;
 	}
+    */
 
     if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
     {       
@@ -170,17 +164,13 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_DIALOG;
     }
 
-
-
-	
     if (!(_installed_type & SKINCTL_WINDOW) && (dwType & SKINCTL_WINDOW) )
     {
         bool f = SkinFrame::Install(hInst);
         if (f)
             _installed_type |= SKINCTL_WINDOW;
-    }
-    
-	*/
+    }    
+	
 	// value => type
 	// 1 => SkinButton
 	// 2 => SkinEdit

@@ -348,7 +348,7 @@ private:
 public:
 	static LRESULT ControlProc(handle hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-        // ATLTRACE("HWND: 0x%08x msg: %d\n", hWnd, uMsg);
+        // ATLTRACE("HWND: 0x%08x msg: %08x\n", hWnd, uMsg);
 		_ASSERTE( _CrtCheckMemory( ) );
 
 		BOOL bRet = FALSE;
@@ -369,6 +369,11 @@ public:
 
 		if (it->second)
 		{
+            if (uMsg == WM_SYSCOMMAND)
+            {
+                // DebugBreak();
+            }
+
             // 
             // ProcessWindowMessage 可能不是virtual的。需要调用每个类型的ProcessWindowMessage
             // 调用顺序是 SkinButton, SkinControlImpl, BaseT
@@ -437,15 +442,17 @@ public:
             WNDPROC dw = GetDefaultProc();
             if (!dw)
                 dw = ::DefWindowProc;
-            if (uMsg == WM_NCLBUTTONUP)
+
+            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
             {
-                TRACE("trace ControlProc::WM_NCLBUTTONUP WNDPROC = %p, ::DefWindowProc=%p\n", dw, ::DefWindowProc);
+                TRACE("trace before CallWindowProc::%08x ret=%d\n", uMsg, lRes);
             }
+            
             lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
             
-            if (uMsg == WM_NCLBUTTONUP)
+            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
             {
-                TRACE("trace CallWindowProc::WM_NCLBUTTONUP ret=%d\n", lRes);
+                TRACE("trace after CallWindowProc::%08x ret=%d\n", uMsg, lRes);
             }
         }
 
