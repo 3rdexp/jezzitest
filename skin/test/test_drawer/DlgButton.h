@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Winuser.h>
+#include <Windows.h>
+
 class CDlgButton : public CDialogImpl<CDlgButton>
 {
 public:
@@ -15,6 +18,8 @@ public:
 	CTabCtrl m_tab;
 	HICON m_hIcon;
 	CFont font;
+
+	CScrollBar scrollbar;
 
 	BEGIN_MSG_MAP(CDlgButton)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -76,6 +81,18 @@ public:
 		progress.Attach(GetDlgItem(IDC_PROGRESS1));
 		progress.SetRange(0, 100);
 
+		scrollbar.Attach( GetDlgItem(IDC_SCROLLBAR2) );
+		SCROLLINFO info;
+		info.cbSize = sizeof(SCROLLINFO);     
+		info.fMask = SIF_ALL;     
+		info.nMin = 0;     
+		info.nMax = 100; 
+		info.nPage = 10;     
+		info.nPos = 5;    
+		info.nTrackPos = 2; 
+		scrollbar.SetScrollInfo(&info);
+
+
 		SetTimer(1, 500, NULL);
 
 		return 0;
@@ -90,6 +107,7 @@ public:
 		if ( nPos > 100 )
 			nPos = 0;
 		progress.SetPos(nPos);
+
 		return 0;
 	}
 
@@ -101,6 +119,13 @@ public:
 		m_tab.GetItem( 0, &item);
 		RECT rc;
 		m_tab.GetItemRect ( 0, &rc );
+	
+		//scrollbar.Attach( GetDlgItem(IDC_SCROLLBAR2) );
+
+		SCROLLBARINFO  info;
+		info.cbSize = sizeof(info);
+		scrollbar.GetScrollBarInfo(&info);
+	
 		return 0;
 	}
 
