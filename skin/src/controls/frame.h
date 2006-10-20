@@ -37,9 +37,8 @@ protected:
     SkinFrameImpl() 
         : _frame_state(FS_ACTIVE)
         , _fTrackNcMouseLeave(false) 
-        , _anchorDown(0)
-        , _anchorHover(0)
-        , _hoverMenuItem(-1)
+        , _anchorDown(0) , _anchorHover(0)
+        , _hoverMenuItem(-1), _selectedMenuItem(-1)
     {}
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
@@ -239,8 +238,8 @@ protected:
         
         DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
-        if (GetMenu())
-            DrawMenuBar(dcMem, rcw);
+        if (HMENU m = GetMenu())
+            DrawMenuBar(dcMem, m, rcw, -1, MS_NORMAL);
 
 #if 0
         HDC dct = ::GetDC(0);
@@ -258,16 +257,16 @@ protected:
         ASSERT(ERROR != nRet);
     }
 
-    void DrawMenuBar(HDC hdc, CRect& rcw)
+    // TODO: 改变行为，让 EtchedMenuBar 调用
+    void DrawMenuBar(CDCHandle dc, CMenuHandle menu, const CRect& rcw, int iSpecialItem, MENUSTATES ms)
     {
+        ASSERT(!menu.IsNull());
+        ASSERT(!dc.IsNull());
+
         ControlT * pT = static_cast<ControlT*>(this);
 
         CRect rc = CalcMenuBarRect(rcw, _frame_state);
 
-        CMenuHandle menu(GetMenu());
-        ASSERT(!menu.IsNull());
-
-        CDCHandle dc(hdc);
         int r = dc.SaveDC();
 
         // xp only
@@ -295,23 +294,27 @@ protected:
         // TraceRect("calc: ", &rc);
         
         int c = menu.GetMenuItemCount();
-        MENUBARINFO barinfo = {1};
+        MENUBARINFO barinfo = {0};
         barinfo.cbSize = sizeof(MENUBARINFO);
 
-        GetMenuBarInfo(m_hWnd, OBJID_MENU, 0, &barinfo);
-        ASSERT(!barinfo.hwndMenu);
+        // GetMenuBarInfo(m_hWnd, OBJID_MENU, 0, &barinfo);
+        // ASSERT(!barinfo.hwndMenu);
+
+        CRect rcws; // rcw in screen
+        GetWindowRect(&rcws);
 
         // bar item
         for (int i=1; i<=c; ++i)
         {
             ::GetMenuBarInfo(m_hWnd, OBJID_MENU, i, &barinfo);
 
-            CRect rcws;
-            GetWindowRect(&rcws);
             OffsetRect(&barinfo.rcBar, -rcws.left, -rcws.top);
 
-            // TRACE("ncp item %d fFoucs %d", i, barinfo.fFocused);    TraceRect("",&barinfo.rcBar);
-            DrawMenuBarItem(dc, menu, barinfo.rcBar, i - 1, MS_NORMAL);
+            // TRACE("item %d fFoucs %d", i, barinfo.fFocused);    TraceRect("",&barinfo.rcBar);
+            MENUSTATES ms_real = MS_NORMAL;
+            if (i - 1 == iSpecialItem)
+                ms_real = ms;
+            DrawMenuBarItem(dc, menu, barinfo.rcBar, i - 1, ms_real);
         }
 
         // release
@@ -319,71 +322,62 @@ protected:
     }
 
     // 在 MemDC 中绘制 Bar，还包括 Menu 的状态: hover, click, leave
-    void EtchedMenuBar(CDCHandle dc, CMenuHandle menu, const CRect& rcw, int iSpecialItem, MENUSTATES ms)
+    void EtchedMenuBar(CDCHandle dc, const CMenuHandle menu, const CRect& rcw, int iSpecialItem, MENUSTATES ms)
     {
-        ControlT * pT = static_cast<ControlT*>(this);
-
-        CRect rcbar = CalcMenuBarRect(rcw, _frame_state);
-
-        // 先把图绘制在 dcm 上，然后再绘制到 dc 上
         CDC dcm;
         dcm.CreateCompatibleDC(dc);
 
+        int r = dcm.SaveDC();
+
+        CRect rcbar = CalcMenuBarRect(rcw, _frame_state);
+
         CBitmap bg;
-        bg.CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
+        bg.CreateCompatibleBitmap(dc, rcbar.Width(), rcbar.Height());
+        dcm.SelectBitmap(bg);
+
+        DrawMenuBar((HDC)dcm, menu, rcw, iSpecialItem, ms);
+        
+        dc.BitBlt(rcbar.left, rcbar.top, rcbar.Width(), rcbar.Height(), 
+            dcm, rcbar.left, rcbar.top, SRCCOPY);
+        dcm.RestoreDC(r);
+    }
+
+    // 创建MemoryDC, 计算nItemIndex所在位置，调用 DrawMenuBarItem 绘制
+    void EtchedMenuBarItem(CDCHandle dc, CMenuHandle menu, UINT nItemIndex, MENUSTATES ms)
+    {
+        
+
+        // bar item rect
+        CRect rcw;
+        GetWindowRect(&rcw);
+
+        MENUBARINFO barinfo = {0};
+        barinfo.cbSize = sizeof(MENUBARINFO);
+        ::GetMenuBarInfo(m_hWnd, OBJID_MENU, nItemIndex + 1, &barinfo);
+
+        OffsetRect(&barinfo.rcBar, -rcw.left, -rcw.top);
+        rcw = barinfo.rcBar;
+
+        // Memory DC
+        CDC dcm;
+        dcm.CreateCompatibleDC(dc);
 
         int r = dcm.SaveDC();
 
-        HBITMAP bmpold = dcm.SelectBitmap(bg);
+        CBitmap bg;
+        bg.CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
+        dcm.SelectBitmap(bg);
 
-        // xp only
-        BOOL flat_menu = FALSE;
-        SystemParametersInfoW(SPI_GETFLATMENU, 0, &flat_menu, 0);
+        rcw.OffsetRect(rcw.left, rcw.top);
+        DrawMenuBarItem((HDC)dcm, menu, rcw, nItemIndex, ms);
 
-        // font
-        CFont fontMenu;
-        LOGFONT logFontMenu;
+        dc.BitBlt(barinfo.rcBar.left, barinfo.rcBar.top, rcw.Width(), rcw.Height(), 
+            dcm, 0, 0, SRCCOPY);
 
-        NONCLIENTMETRICS nm = {0};
-        nm.cbSize = sizeof (NONCLIENTMETRICS);
-        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, nm.cbSize, &nm, 0);
-        logFontMenu = nm.lfMenuFont;
-
-        fontMenu.CreateFontIndirect(&logFontMenu);
-        dcm.SelectFont(fontMenu);
-
-        // bar background
-        COLORREF cr = pT->GetSchemeColor(WP_MENUBAR, 0, TMT_MENU);
-        CBrush br;
-
-        br.CreateSolidBrush(cr);
-        dcm.FillRect(&rcbar, br);
-
-        int c = menu.GetMenuItemCount();
-        MENUBARINFO barinfo = {0};
-        barinfo.cbSize = sizeof(MENUBARINFO);
-
-        for (int i=1; i<=c; ++i)
-        {
-            ::GetMenuBarInfo(m_hWnd, OBJID_MENU, i, &barinfo);
-
-            CRect rcws;
-            GetWindowRect(&rcws);
-            OffsetRect(&barinfo.rcBar, -rcws.left, -rcws.top);
-
-            // TRACE("item %d fFoucs %d", i, barinfo.fFocused);    TraceRect("",&barinfo.rcBar);
-            MENUSTATES ms_other = MS_NORMAL;
-            if (i - 1 == iSpecialItem)
-                ms_other = ms;
-            DrawMenuBarItem((HDC)dcm, menu, barinfo.rcBar, i - 1, ms_other);
-        }
-
-        dc.BitBlt(rcbar.left, rcbar.top, rcbar.Width(), rcbar.Height(), dcm, rcbar.left, rcbar.top, SRCCOPY);
-
-        dcm.SelectBitmap(bmpold);
+        dcm.RestoreDC(r);
     }
 
-    void DrawMenuBarItem(CDCHandle dc, CMenuHandle menu, CRect rcItem, UINT nItemIndex, MENUSTATES ms)
+    void DrawMenuBarItem(CDCHandle dc, CMenuHandle menu, const CRect& rcItem, UINT nItemIndex, MENUSTATES ms)
     {
         ASSERT(nItemIndex != UINT(-1));
         int sd = dc.SaveDC();
@@ -410,7 +404,7 @@ protected:
         char sz[0x16];
         int n = menu.GetMenuString(nItemIndex, sz, 16, MF_BYPOSITION);
         if (n)
-            dc.DrawText(sz, n, &rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            dc.DrawText(sz, n, (LPRECT)&rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         
         // TODO: ownerdraw
         if (false)
@@ -432,7 +426,7 @@ protected:
 
 
     // TODO: 是否需要 windows style 呢？
-    void DrawFrameBorder(HDC hdc, CRect& rcw, FRAMESTATES _frame_state)
+    void DrawFrameBorder(HDC hdc, const CRect& rcw, FRAMESTATES _frame_state)
     {
         // FS_INACTIVE FS_ACTIVE
         ASSERT(hdc);
@@ -633,6 +627,8 @@ protected:
         MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
         // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
         MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
+
+        MSG_WM_MENUSELECT(OnMenuSelect)
     END_MSG_MAP()
 
     BOOL OnNcActivate(BOOL bActive)
@@ -769,66 +765,6 @@ protected:
             }
             return 0;
         }
-#endif
-
-#if 0 // wine implement
-        NCCALCSIZE_PARAMS FAR* lpncsp = (NCCALCSIZE_PARAMS *)lParam;
-        RECT* winRect = &lpncsp->rgrc[0];
-
-        RECT tmpRect = { 0, 0, 0, 0 };
-        LRESULT result = 0;
-        LONG cls_style = GetClassLong(m_hWnd, GCL_STYLE);
-        LONG style = GetWindowLong(GWL_STYLE);
-        LONG exStyle = GetWindowLong(GWL_EXSTYLE);
-
-        if (cls_style & CS_VREDRAW) result |= WVR_VREDRAW;
-        if (cls_style & CS_HREDRAW) result |= WVR_HREDRAW;
-
-        if (!IsIconic())
-        {
-            NC_AdjustRectOuter(&tmpRect, style, FALSE, exStyle);
-
-            winRect->left   -= tmpRect.left;
-            winRect->top    -= tmpRect.top;
-            winRect->right  -= tmpRect.right;
-            winRect->bottom -= tmpRect.bottom;
-
-            if (((style & (WS_CHILD | WS_POPUP)) != WS_CHILD) && GetMenu())
-            {
-                TRACE("Calling GetMenuBarHeight with hwnd %p, width %ld, at (%ld, %ld).\n",
-                    m_hWnd, winRect->right - winRect->left, -tmpRect.left, -tmpRect.top);
-
-                winRect->top += CalcMenuBarHeight();
-//                    MENU_GetMenuBarHeight(hwnd,
-//                    winRect->right - winRect->left,
-//                    -tmpRect.left, -tmpRect.top);
-            }
-
-            if(exStyle & WS_EX_CLIENTEDGE)
-                if(winRect->right - winRect->left > 2 * GetSystemMetrics(SM_CXEDGE) &&
-                    winRect->bottom - winRect->top > 2 * GetSystemMetrics(SM_CYEDGE))
-                    InflateRect(winRect, - GetSystemMetrics(SM_CXEDGE),
-                    - GetSystemMetrics(SM_CYEDGE));
-
-            if (style & WS_VSCROLL)
-                if(winRect->right - winRect->left >= GetSystemMetrics(SM_CXVSCROLL)){
-                    if((exStyle & WS_EX_LEFTSCROLLBAR) != 0)
-                        winRect->left  += GetSystemMetrics(SM_CXVSCROLL);
-                    else
-                        winRect->right -= GetSystemMetrics(SM_CXVSCROLL);
-                }
-
-                if (style & WS_HSCROLL)
-                    if(winRect->bottom - winRect->top > GetSystemMetrics(SM_CYHSCROLL))
-                        winRect->bottom -= GetSystemMetrics(SM_CYHSCROLL);
-
-                if (winRect->top > winRect->bottom)
-                    winRect->bottom = winRect->top;
-
-                if (winRect->left > winRect->right)
-                    winRect->right = winRect->left;
-        }
-        return result;
 #endif
     }
 
@@ -1050,12 +986,9 @@ protected:
         {
             HMENU hm = GetMenu();
             _hoverMenuItem = ::MenuItemFromPoint(m_hWnd, hm, point);
-            CRect rcw;
-            GetWindowRect(&rcw);
-            rcw.OffsetRect(-rcw.left, -rcw.top);
-
+            
             CWindowDC dc(m_hWnd);
-            EtchedMenuBar((HDC)dc, hm, rcw, _hoverMenuItem, MS_SELECTED);
+            EtchedMenuBarItem((HDC)dc, hm, _hoverMenuItem, MS_SELECTED);
             return;
         }
         
@@ -1110,6 +1043,10 @@ protected:
 
             if (HTMENU == nHitTest)
             {
+                // sure ?
+                ControlT * pT = static_cast<ControlT*>(this);
+                pT->DefWindowProc();
+
                 HMENU hm = GetMenu();
                 int n = ::MenuItemFromPoint(m_hWnd, hm, point);
                 CRect rcw;
@@ -1251,6 +1188,77 @@ protected:
         }
     }
 
+    void OnMenuSelect(UINT nItem, UINT nFlag, HMENU menu)
+    {
+// alt, alt
+//    OnMenuSelect 0 90 005E047D
+//    OnMenuSelect 0 ffff 00000000
+
+//    OnMenuSelect 0 90 00E60499
+//    HWND: 0x00250258 msg: 00000121  WM_ENTERIDLE
+//    HWND: 0x00250258 msg: 00000215  WM_CAPTURECHANGED
+//    HWND: 0x00250258 msg: 0000011f  WM_MENUSELECT
+//    OnMenuSelect 0 ffff 00000000
+//    HWND: 0x00250258 msg: 00000212  WM_EXITMENULOOP
+//    HWND: 0x00250258 msg: 00000105  WM_SYSKEYUP
+
+// alt+F, alt
+//    OnMenuSelect 0 90 005E047D
+//    OnMenuSelect 105 80 010E049D
+//    OnMenuSelect 0 ffff 00000000
+
+//    HWND: 0x00250258 msg: 0000011f
+//    OnMenuSelect 105 80 01D3042F
+//    HWND: 0x002f037a msg: 0000000f
+//    HWND: 0x00250258 msg: 00000121
+//    HWND: 0x00250258 msg: 00000121
+//    HWND: 0x00250258 msg: 00000121
+//    HWND: 0x002f037a msg: 000001eb
+//    HWND: 0x002f037a msg: 000001e4
+//    HWND: 0x002f037a msg: 00000046
+//    HWND: 0x002f037a msg: 00000047
+//    HWND: 0x002f037a msg: 00000002
+//    HWND: 0x002f037a msg: 00000082
+//    HWND: 0x00250258 msg: 00000125
+//    HWND: 0x00250258 msg: 00000215
+//    HWND: 0x00250258 msg: 0000011f
+//    OnMenuSelect 0 ffff 00000000
+//    HWND: 0x00250258 msg: 00000212
+//    HWND: 0x00250258 msg: 00000086
+//    HWND: 0x00250258 msg: 00000006
+//    HWND: 0x00250258 msg: 0000001c
+//    HWND: 0x00250258 msg: 00000008
+//    HWND: 0x00250258 msg: 00000281
+//    HWND: 0x00250258 msg: 00000282
+
+
+// alt+H, alt
+//    OnMenuSelect 1 90 005E047D
+//    OnMenuSelect 104 80 010104DB
+//    OnMenuSelect 0 ffff 00000000
+
+        CRect rcw;
+        GetWindowRect(&rcw);
+        rcw.OffsetRect(-rcw.left, -rcw.top);
+
+        CWindowDC dc(m_hWnd);
+
+        if (nFlag == 0xFFFF)
+        {
+            // 
+            _selectedMenuItem = -1;
+        }
+        else if (nFlag & MF_HILITE)
+        {
+            // 
+            _selectedMenuItem = nItem;
+        }
+        
+        TRACE("OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
+        
+        // EtchedMenuBar((HDC)dc, menu, rcw, nItem, MS_NORMAL);
+    }
+
     
     LRESULT ReflectNotifications(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
@@ -1325,6 +1333,7 @@ private:
     FRAMESTATES    _frame_state;
     UINT _anchorDown, _anchorHover;
     UINT _hoverMenuItem; // 鼠标曾经在过的 menu bar 上
+    UINT _selectedMenuItem; // 曾经收到 WM_MENUSELECT 消息
     unsigned long _fTrackNcMouseLeave : 1;
 };
 
@@ -1364,3 +1373,71 @@ LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // eg: placement="0, 0, -10, -10" 表示靠右上
 //     placement="10, 0, -10, 0"  表示靠左下
 //
+
+// menu file
+//
+//    HWND: 0x0016051e msg: 0046 WM_WINDOWPOSCHANGING
+//    HWND: 0x0016051e msg: 0085 WM_NCPAINT
+//    HWND: 0x0016051e msg: 0014 WM_ERASEBKGND
+//    HWND: 0x0016051e msg: 0047 WM_WINDOWPOSCHANGED
+//    HWND: 0x0016051e msg: 001c WM_ACTIVATEAPP
+//    HWND: 0x0016051e msg: 0086 WM_NCACTIVATE
+//    HWND: 0x0016051e msg: 0006 WM_ACTIVATE
+//    HWND: 0x0016051e msg: 0281 WM_IME_SETCONTEXT WINVER>0x0400
+//    HWND: 0x0016051e msg: 0282 WM_IME_NOTIFY
+//    HWND: 0x0016051e msg: 0007 WM_SETFOCUS
+//    HWND: 0x0016051e msg: 0101 WM_KEYUP
+//    HWND: 0x0016051e msg: 0104 WM_SYSKEYDOWN
+//    HWND: 0x0016051e msg: 0104 WM_SYSKEYDOWN
+//    HWND: 0x0016051e msg: 0106 WM_SYSCHAR
+//    HWND: 0x0016051e msg: 0112 WM_SYSCOMMAND
+//    HWND: 0x0016051e msg: 0211      <-- menu start?
+//    HWND: 0x0016051e msg: 0020 WM_SETCURSOR
+//    HWND: 0x0016051e msg: 0116 WM_INITMENU
+//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
+//    HWND: 0x0016051e msg: 0117 WM_INITMENUPOPUP
+
+//    HWND: 0x000e0552 msg: 0081 
+//    HWND: 0x000e0552 msg: 0083
+//    HWND: 0x000e0552 msg: 0001
+//    HWND: 0x000e0552 msg: 0005 WM_SIZE
+//    HWND: 0x000e0552 msg: 0003 WM_MOVE
+//    HWND: 0x000e0552 msg: 01e2
+//    HWND: 0x000e0552 msg: 0046
+//    HWND: 0x000e0552 msg: 0083
+//    HWND: 0x000e0552 msg: 0047
+//    HWND: 0x000e0552 msg: 0005
+//    HWND: 0x000e0552 msg: 0046
+//    HWND: 0x000e0552 msg: 0085
+//    HWND: 0x000e0552 msg: 0014
+//    HWND: 0x000e0552 msg: 0047
+//    HWND: 0x000e0552 msg: 0003
+//    HWND: 0x000e0552 msg: 01e5
+//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
+//    HWND: 0x000e0552 msg: 0000000f
+//    longptr: 00000000 m_hWnd:000E0552 owner:0016051E
+
+//    HWND: 0x0016051e msg: 0121 WM_ENTERIDLE
+//    HWND: 0x0016051e msg: 0121
+//    HWND: 0x0016051e msg: 0121
+
+//    HWND: 0x000e0552 msg: 0100 WM_KEYFIRST
+//    HWND: 0x000e0552 msg: 01e4
+//    HWND: 0x000e0552 msg: 0046
+//    HWND: 0x000e0552 msg: 0047
+//    HWND: 0x000e0552 msg: 0002
+//    HWND: 0x000e0552 msg: 0082
+
+//    HWND: 0x0016051e msg: 0125 WM_UNINITMENUPOPUP
+//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
+//    HWND: 0x0016051e msg: 0121
+//    HWND: 0x0016051e msg: 0121
+//    HWND: 0x0016051e msg: 0215 WM_CAPTURECHANGED
+//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
+//    HWND: 0x0016051e msg: 0212 WM_EXITMENULOOP
+//    HWND: 0x0016051e msg: 0086
+//    HWND: 0x0016051e msg: 0006
+//    HWND: 0x0016051e msg: 001c
+//    HWND: 0x0016051e msg: 0008
+//    HWND: 0x0016051e msg: 0281
+//    HWND: 0x0016051e msg: 0282
