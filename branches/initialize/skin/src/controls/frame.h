@@ -273,18 +273,6 @@ protected:
         BOOL flat_menu = FALSE;
         SystemParametersInfoW(SPI_GETFLATMENU, 0, &flat_menu, 0);
 
-        // font
-        CFont fontMenu;
-        LOGFONT logFontMenu;
-
-        NONCLIENTMETRICS nm = {0};
-        nm.cbSize = sizeof (NONCLIENTMETRICS);
-        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, nm.cbSize, &nm, 0);
-        logFontMenu = nm.lfMenuFont;
-
-        fontMenu.CreateFontIndirect(&logFontMenu);
-        dc.SelectFont(fontMenu);
-
         // bar background
         COLORREF cr = pT->GetSchemeColor(WP_MENUBAR, 0, TMT_MENU);
         CBrush br;
@@ -345,8 +333,6 @@ protected:
     // 创建MemoryDC, 计算nItemIndex所在位置，调用 DrawMenuBarItem 绘制
     void EtchedMenuBarItem(CDCHandle dc, CMenuHandle menu, UINT nItemIndex, MENUSTATES ms)
     {
-        
-
         // bar item rect
         CRect rcw;
         GetWindowRect(&rcw);
@@ -368,8 +354,14 @@ protected:
         bg.CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
         dcm.SelectBitmap(bg);
 
-        rcw.OffsetRect(rcw.left, rcw.top);
+        rcw.OffsetRect(-rcw.left, -rcw.top);
         DrawMenuBarItem((HDC)dcm, menu, rcw, nItemIndex, ms);
+
+#if 0
+        HDC dct = ::GetDC(0);
+        BitBlt(dct, 0, 0, rcw.Width(), rcw.Height(), dcm, 0, 0, SRCCOPY);
+        ::ReleaseDC(0, dct);
+#endif
 
         dc.BitBlt(barinfo.rcBar.left, barinfo.rcBar.top, rcw.Width(), rcw.Height(), 
             dcm, 0, 0, SRCCOPY);
@@ -379,7 +371,9 @@ protected:
 
     void DrawMenuBarItem(CDCHandle dc, CMenuHandle menu, const CRect& rcItem, UINT nItemIndex, MENUSTATES ms)
     {
-        ASSERT(nItemIndex != UINT(-1));
+        TRACE("DrawMenuItem: %d %x\n", nItemIndex, ms);
+
+        ASSERT(nItemIndex >= 0);
         int sd = dc.SaveDC();
 
         dc.SetBkMode(TRANSPARENT);
@@ -398,6 +392,18 @@ protected:
          
             dc.Rectangle(rcItem);
         }
+
+        // font
+        CFont fontMenu;
+        LOGFONT logFontMenu;
+
+        NONCLIENTMETRICS nm = {0};
+        nm.cbSize = sizeof (NONCLIENTMETRICS);
+        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, nm.cbSize, &nm, 0);
+        logFontMenu = nm.lfMenuFont;
+
+        fontMenu.CreateFontIndirect(&logFontMenu);
+        dc.SelectFont(fontMenu);
 
         dc.SetTextColor(0); // 黑色字体, TODO:
 
@@ -985,10 +991,20 @@ protected:
         if (HTMENU == nHitTest)
         {
             HMENU hm = GetMenu();
-            _hoverMenuItem = ::MenuItemFromPoint(m_hWnd, hm, point);
+            int n = ::MenuItemFromPoint(m_hWnd, hm, point);
+            if (n != _hoverMenuItem)
+            {
+                CWindowDC dc(m_hWnd);
+
+                if (-1 != n)
+                    EtchedMenuBarItem((HDC)dc, hm, n, MS_SELECTED);
+
+                if (_hoverMenuItem != -1)
+                    EtchedMenuBarItem((HDC)dc, hm, _hoverMenuItem, MS_NORMAL);
+
+                _hoverMenuItem = n;
+            }
             
-            CWindowDC dc(m_hWnd);
-            EtchedMenuBarItem((HDC)dc, hm, _hoverMenuItem, MS_SELECTED);
             return;
         }
         
@@ -1048,13 +1064,12 @@ protected:
                 pT->DefWindowProc();
 
                 HMENU hm = GetMenu();
-                int n = ::MenuItemFromPoint(m_hWnd, hm, point);
-                CRect rcw;
-                GetWindowRect(&rcw);
-                rcw.OffsetRect(-rcw.left, -rcw.top);
-
-                CWindowDC dc(m_hWnd);
-                EtchedMenuBar((HDC)dc, hm, rcw, n, MS_DEMOTED);
+                _selectedMenuItem = ::MenuItemFromPoint(m_hWnd, hm, point);
+                if (-1 != _selectedMenuItem)
+                {
+                    CWindowDC dc(m_hWnd);
+                    EtchedMenuBarItem((HDC)dc, hm, _selectedMenuItem, MS_SELECTED);
+                }
                 return;
             }
         }
@@ -1154,12 +1169,9 @@ protected:
         if( -1 != _hoverMenuItem)
         {
             HMENU hm = GetMenu();
-            CRect rcw;
-            GetWindowRect(&rcw);
-            rcw.OffsetRect(-rcw.left, -rcw.top);
 
             CWindowDC dc(m_hWnd);
-            EtchedMenuBar((HDC)dc, hm, rcw, _hoverMenuItem, MS_NORMAL);
+            EtchedMenuBarItem((HDC)dc, hm, _hoverMenuItem, MS_NORMAL);
 
             _hoverMenuItem = -1;
         }
@@ -1237,15 +1249,12 @@ protected:
 //    OnMenuSelect 104 80 010104DB
 //    OnMenuSelect 0 ffff 00000000
 
-        CRect rcw;
-        GetWindowRect(&rcw);
-        rcw.OffsetRect(-rcw.left, -rcw.top);
 
-        CWindowDC dc(m_hWnd);
+        // CWindowDC dc(m_hWnd);
+        //EtchedMenuBarItem((HDC)dc. menu)
 
         if (nFlag == 0xFFFF)
         {
-            // 
             _selectedMenuItem = -1;
         }
         else if (nFlag & MF_HILITE)
@@ -1332,8 +1341,8 @@ protected:
 private:
     FRAMESTATES    _frame_state;
     UINT _anchorDown, _anchorHover;
-    UINT _hoverMenuItem; // 鼠标曾经在过的 menu bar 上
-    UINT _selectedMenuItem; // 曾经收到 WM_MENUSELECT 消息
+    UINT _hoverMenuItem;    // 鼠标曾经在过的 menu bar 上
+    UINT _selectedMenuItem; // 鼠标点击该 item 或者**曾经收到 WM_MENUSELECT 消息
     unsigned long _fTrackNcMouseLeave : 1;
 };
 
