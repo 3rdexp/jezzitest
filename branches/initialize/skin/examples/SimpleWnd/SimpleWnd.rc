@@ -1,57 +1,67 @@
-//Microsoft Visual C++ 生成的资源脚本。
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
-// 从 TEXTINCLUDE 2 资源生成。
+// Generated from the TEXTINCLUDE 2 resource.
 //
 #define APSTUDIO_HIDDEN_SYMBOLS
 #include "windows.h"
 #undef APSTUDIO_HIDDEN_SYMBOLS
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
+/////////////////////////////////////////////////////////////////////////////
+// 中文(中华人民共和国) resources
+
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-LANGUAGE 4, 2
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 #pragma code_page(936)
+#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 图标
+// Icon
 //
 
-// ID 值最低的图标放在最前面，以确保应用程序图标
-// 在所有系统中保持一致。
-
-IDI_SIMPLEWND       ICON         "SimpleWnd.ico"
-IDI_SMALL               ICON         "small.ico"
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_SIMPLEWND           ICON                    "SimpleWnd.ico"
+IDI_SMALL               ICON                    "small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 菜单
+// Menu
 //
 
 IDC_SIMPLEWND MENU 
 BEGIN
     POPUP "文件(&F)"
     BEGIN
-        MENUITEM "退出(&X)",                IDM_EXIT
+        MENUITEM "退出(&X)",                    IDM_EXIT
     END
     POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "关于(&A)...",           IDM_ABOUT
+        MENUITEM "关于(&A)...",                 IDM_ABOUT
+    END
+    POPUP "Test&1"
+    BEGIN
+        MENUITEM "1-Sub&1",                     ID_TEST1_1
+        MENUITEM "1-Sub&2",                     ID_TEST1_2
     END
 END
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 快捷键
+// Accelerator
 //
 
-IDC_SIMPLEWND ACCELERATORS
+IDC_SIMPLEWND ACCELERATORS 
 BEGIN
     "?",            IDM_ABOUT,              ASCII,  ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -60,16 +70,17 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 对话框
+// Dialog
 //
 
-IDD_ABOUTBOX DIALOG   22, 17, 230, 75
-STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOG  22, 17, 230, 75
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "关于"
 FONT 9, "System"
 BEGIN
     ICON            IDI_SIMPLEWND,IDC_MYICON,14,9,16,16
-    LTEXT           "SimpleWnd Version 1.0",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "SimpleWnd Version 1.0",IDC_STATIC,49,10,119,8,
+                    SS_NOPREFIX
     LTEXT           "Copyright (C) 2006",IDC_STATIC,49,20,119,8
     DEFPUSHBUTTON   "确定",IDOK,195,6,30,11,WS_GROUP
 END
@@ -80,12 +91,13 @@ END
 //
 // TEXTINCLUDE
 //
-1 TEXTINCLUDE  
+
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE  
+2 TEXTINCLUDE 
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
@@ -93,7 +105,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE  
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -101,18 +113,19 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
-// 字符串表
+// String Table
 //
 
-STRINGTABLE  
+STRINGTABLE 
 BEGIN
-   IDC_SIMPLEWND   "SIMPLEWND"
-   IDS_APP_TITLE       "SimpleWnd"
+    IDS_APP_TITLE           "SimpleWnd"
+    IDC_SIMPLEWND           "SIMPLEWND"
 END
 
-#endif
+#endif    // 中文(中华人民共和国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -120,9 +133,10 @@ END
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
-// 从 TEXTINCLUDE 3 资源生成。
+// Generated from the TEXTINCLUDE 3 resource.
 //
 
 
 /////////////////////////////////////////////////////////////////////////////
-#endif    // 不是 APSTUDIO_INVOKED
+#endif    // not APSTUDIO_INVOKED
+

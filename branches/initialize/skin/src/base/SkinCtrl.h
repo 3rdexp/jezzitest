@@ -7,8 +7,6 @@
 // We use UxTheme's Part, State Define
 #include <tmschema.h>
 
-// BEGIN_TM_CLASS_PARTS(WINDOW)
-#define WP_MENUBAR 38
 // ------------------------------------------------------
 
 #include "../skinmsg.h"
@@ -443,17 +441,17 @@ public:
             if (!dw)
                 dw = ::DefWindowProc;
 
-            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
-            {
-                TRACE("trace before CallWindowProc::%08x ret=%d\n", uMsg, lRes);
-            }
+//            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
+//            {
+//                TRACE("trace before CallWindowProc::%08x ret=%d\n", uMsg, lRes);
+//            }
             
             lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
             
-            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
-            {
-                TRACE("trace after CallWindowProc::%08x ret=%d\n", uMsg, lRes);
-            }
+//            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
+//            {
+//               TRACE("trace after CallWindowProc::%08x ret=%d\n", uMsg, lRes);
+//            }
         }
 
 		_ASSERTE( _CrtCheckMemory( ) );
