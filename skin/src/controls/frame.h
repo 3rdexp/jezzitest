@@ -20,6 +20,19 @@ namespace Skin {
 
 #endif
 
+// Menu 扩充的 part and property 
+// BEGIN_TM_CLASS_PARTS(WINDOW)
+#define WP_MENUBAR      WP_SMALLFRAMEBOTTOMSIZINGTEMPLATE + 1  // WP_MENU 已经被适用了
+
+// TMT_MENU             ? menu item background
+// TMT_MENUTEXT         The color of text drawn on a menu.
+// TMT_MENUHILIGHT      The color of highlight drawn on a menu item when the 
+//                      user moves the mouse over it.
+// TMT_MENUBAR          The color of the menu bar. 
+//                      ? bar background
+#define TMT_MENU_BORDER         TMT_MENUBAR + 1     // item border
+#define TMT_MENUHILIGHT_BORDER  TMT_MENUBAR + 2     // hilight border
+
 
 template<class ControlT, class WindowT = CWindow>
 class SkinFrameImpl : public WindowT
@@ -357,7 +370,7 @@ protected:
         rcw.OffsetRect(-rcw.left, -rcw.top);
         DrawMenuBarItem((HDC)dcm, menu, rcw, nItemIndex, ms);
 
-#if 0
+#if 1
         HDC dct = ::GetDC(0);
         BitBlt(dct, 0, 0, rcw.Width(), rcw.Height(), dcm, 0, 0, SRCCOPY);
         ::ReleaseDC(0, dct);
@@ -378,20 +391,21 @@ protected:
 
         dc.SetBkMode(TRANSPARENT);
 
-        // MS_NORMAL 状态使用bar的背景，没有边框
-        if (ms != MS_NORMAL)
-        {
-            // TODO: part: WP_MENUBAR, state: MS_DEMOTED, MS_NORMAL, MS_SELECTED
-            CPen penBorder;
-            penBorder.CreatePen(PS_SOLID, 1, RGB(10, 36, 106)); 
-            dc.SelectPen(penBorder);
+        ControlT * pT = static_cast<ControlT*>(this);
 
-            CBrush brHilight;
-            brHilight.CreateSolidBrush(RGB(182, 189, 210));
-            dc.SelectBrush(brHilight);
+        CPen penBorder;
+        // TODO: ? MS_NORMAL 状态使用bar的背景，没有边框
+        int iProp = ((ms == MS_NORMAL) ? TMT_MENU_BORDER : TMT_MENUHILIGHT_BORDER);
+        COLORREF cr = pT->GetSchemeColor(WP_MENUBAR, 0, iProp);
+        penBorder.CreatePen(PS_SOLID, 1, cr);
+        dc.SelectPen(penBorder);
+
+        iProp = ((ms == MS_NORMAL) ? TMT_MENU: TMT_MENUHILIGHT);
+        CBrush brHilight;
+        brHilight.CreateSolidBrush(pT->GetSchemeColor(WP_MENUBAR, 0, iProp));
+        dc.SelectBrush(brHilight);
          
-            dc.Rectangle(rcItem);
-        }
+        dc.Rectangle(rcItem);
 
         // font
         CFont fontMenu;
