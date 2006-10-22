@@ -31,7 +31,7 @@ namespace Skin {
 // TMT_MENUBAR          The color of the menu bar. 
 //                      ? bar background
 #define TMT_MENU_BORDER         TMT_MENUBAR + 1     // item border
-#define TMT_MENUHILIGHT_BORDER  TMT_MENUBAR + 2     // hilight border
+#define TMT_MENUBORDER_HILIGHT  TMT_MENUBAR + 2     // hilight border
 
 
 template<class ControlT, class WindowT = CWindow>
@@ -287,7 +287,7 @@ protected:
         SystemParametersInfoW(SPI_GETFLATMENU, 0, &flat_menu, 0);
 
         // bar background
-        COLORREF cr = pT->GetSchemeColor(WP_MENUBAR, 0, TMT_MENU);
+        COLORREF cr = pT->GetSchemeColor(WP_MENUBAR, 0, TMT_MENUBAR);
         CBrush br;
 
         br.CreateSolidBrush(cr);
@@ -352,7 +352,8 @@ protected:
 
         MENUBARINFO barinfo = {0};
         barinfo.cbSize = sizeof(MENUBARINFO);
-        ::GetMenuBarInfo(m_hWnd, OBJID_MENU, nItemIndex + 1, &barinfo);
+        BOOL b = ::GetMenuBarInfo(m_hWnd, OBJID_MENU, nItemIndex + 1, &barinfo);
+        ASSERT(b);
 
         OffsetRect(&barinfo.rcBar, -rcw.left, -rcw.top);
         rcw = barinfo.rcBar;
@@ -370,7 +371,7 @@ protected:
         rcw.OffsetRect(-rcw.left, -rcw.top);
         DrawMenuBarItem((HDC)dcm, menu, rcw, nItemIndex, ms);
 
-#if 1
+#if 0
         HDC dct = ::GetDC(0);
         BitBlt(dct, 0, 0, rcw.Width(), rcw.Height(), dcm, 0, 0, SRCCOPY);
         ::ReleaseDC(0, dct);
@@ -395,7 +396,7 @@ protected:
 
         CPen penBorder;
         // TODO: ? MS_NORMAL 状态使用bar的背景，没有边框
-        int iProp = ((ms == MS_NORMAL) ? TMT_MENU_BORDER : TMT_MENUHILIGHT_BORDER);
+        int iProp = ((ms == MS_NORMAL) ? TMT_MENU_BORDER : TMT_MENUBORDER_HILIGHT);
         COLORREF cr = pT->GetSchemeColor(WP_MENUBAR, 0, iProp);
         penBorder.CreatePen(PS_SOLID, 1, cr);
         dc.SelectPen(penBorder);
@@ -425,6 +426,8 @@ protected:
         int n = menu.GetMenuString(nItemIndex, sz, 16, MF_BYPOSITION);
         if (n)
             dc.DrawText(sz, n, (LPRECT)&rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        else
+            ASSERT(false);
         
         // TODO: ownerdraw
         if (false)
@@ -1018,8 +1021,12 @@ protected:
 
                 _hoverMenuItem = n;
             }
-            
-            return;
+        }
+        else if (_hoverMenuItem != -1)
+        {
+            CWindowDC dc(m_hWnd);
+            EtchedMenuBarItem((HDC)dc, GetMenu(), _hoverMenuItem, MS_NORMAL);
+            _hoverMenuItem = -1;
         }
         
         // 使用标志，简直是搬起石头砸自己的头
@@ -1216,72 +1223,33 @@ protected:
 
     void OnMenuSelect(UINT nItem, UINT nFlag, HMENU menu)
     {
-// alt, alt
-//    OnMenuSelect 0 90 005E047D
-//    OnMenuSelect 0 ffff 00000000
-
-//    OnMenuSelect 0 90 00E60499
-//    HWND: 0x00250258 msg: 00000121  WM_ENTERIDLE
-//    HWND: 0x00250258 msg: 00000215  WM_CAPTURECHANGED
-//    HWND: 0x00250258 msg: 0000011f  WM_MENUSELECT
-//    OnMenuSelect 0 ffff 00000000
-//    HWND: 0x00250258 msg: 00000212  WM_EXITMENULOOP
-//    HWND: 0x00250258 msg: 00000105  WM_SYSKEYUP
-
-// alt+F, alt
-//    OnMenuSelect 0 90 005E047D
-//    OnMenuSelect 105 80 010E049D
-//    OnMenuSelect 0 ffff 00000000
-
-//    HWND: 0x00250258 msg: 0000011f
-//    OnMenuSelect 105 80 01D3042F
-//    HWND: 0x002f037a msg: 0000000f
-//    HWND: 0x00250258 msg: 00000121
-//    HWND: 0x00250258 msg: 00000121
-//    HWND: 0x00250258 msg: 00000121
-//    HWND: 0x002f037a msg: 000001eb
-//    HWND: 0x002f037a msg: 000001e4
-//    HWND: 0x002f037a msg: 00000046
-//    HWND: 0x002f037a msg: 00000047
-//    HWND: 0x002f037a msg: 00000002
-//    HWND: 0x002f037a msg: 00000082
-//    HWND: 0x00250258 msg: 00000125
-//    HWND: 0x00250258 msg: 00000215
-//    HWND: 0x00250258 msg: 0000011f
-//    OnMenuSelect 0 ffff 00000000
-//    HWND: 0x00250258 msg: 00000212
-//    HWND: 0x00250258 msg: 00000086
-//    HWND: 0x00250258 msg: 00000006
-//    HWND: 0x00250258 msg: 0000001c
-//    HWND: 0x00250258 msg: 00000008
-//    HWND: 0x00250258 msg: 00000281
-//    HWND: 0x00250258 msg: 00000282
-
-
-// alt+H, alt
-//    OnMenuSelect 1 90 005E047D
-//    OnMenuSelect 104 80 010104DB
-//    OnMenuSelect 0 ffff 00000000
-
-
-        // CWindowDC dc(m_hWnd);
-        //EtchedMenuBarItem((HDC)dc. menu)
-
-        if (nFlag == 0xFFFF)
-        {
-            _selectedMenuItem = -1;
-        }
-        else if (nFlag & MF_HILITE)
-        {
-            // 
-            _selectedMenuItem = nItem;
-        }
+        // Why not use parameter menu? 
+        // menu maybe popupmenu or sysmenu
         
         TRACE("OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
-        
-        // EtchedMenuBar((HDC)dc, menu, rcw, nItem, MS_NORMAL);
-    }
 
+        HMENU hm = GetMenu();
+
+        if (nFlag == 0xFFFF && menu == 0 && _selectedMenuItem != -1)
+        {
+            CWindowDC dc(m_hWnd);            
+
+            EtchedMenuBarItem((HDC)dc, hm, _selectedMenuItem, MS_NORMAL);
+            _selectedMenuItem = -1;
+        }
+        
+        if (nFlag & MF_HILITE && menu == hm)
+        {
+            CWindowDC dc(m_hWnd);
+
+            if (_selectedMenuItem != -1)
+            {
+                EtchedMenuBarItem((HDC)dc, hm, _selectedMenuItem, MS_NORMAL);
+            }
+            _selectedMenuItem = nItem;
+            EtchedMenuBarItem((HDC)dc, hm, _selectedMenuItem, MS_DEMOTED);
+        }
+    }
     
     LRESULT ReflectNotifications(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
@@ -1396,71 +1364,3 @@ LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // eg: placement="0, 0, -10, -10" 表示靠右上
 //     placement="10, 0, -10, 0"  表示靠左下
 //
-
-// menu file
-//
-//    HWND: 0x0016051e msg: 0046 WM_WINDOWPOSCHANGING
-//    HWND: 0x0016051e msg: 0085 WM_NCPAINT
-//    HWND: 0x0016051e msg: 0014 WM_ERASEBKGND
-//    HWND: 0x0016051e msg: 0047 WM_WINDOWPOSCHANGED
-//    HWND: 0x0016051e msg: 001c WM_ACTIVATEAPP
-//    HWND: 0x0016051e msg: 0086 WM_NCACTIVATE
-//    HWND: 0x0016051e msg: 0006 WM_ACTIVATE
-//    HWND: 0x0016051e msg: 0281 WM_IME_SETCONTEXT WINVER>0x0400
-//    HWND: 0x0016051e msg: 0282 WM_IME_NOTIFY
-//    HWND: 0x0016051e msg: 0007 WM_SETFOCUS
-//    HWND: 0x0016051e msg: 0101 WM_KEYUP
-//    HWND: 0x0016051e msg: 0104 WM_SYSKEYDOWN
-//    HWND: 0x0016051e msg: 0104 WM_SYSKEYDOWN
-//    HWND: 0x0016051e msg: 0106 WM_SYSCHAR
-//    HWND: 0x0016051e msg: 0112 WM_SYSCOMMAND
-//    HWND: 0x0016051e msg: 0211      <-- menu start?
-//    HWND: 0x0016051e msg: 0020 WM_SETCURSOR
-//    HWND: 0x0016051e msg: 0116 WM_INITMENU
-//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
-//    HWND: 0x0016051e msg: 0117 WM_INITMENUPOPUP
-
-//    HWND: 0x000e0552 msg: 0081 
-//    HWND: 0x000e0552 msg: 0083
-//    HWND: 0x000e0552 msg: 0001
-//    HWND: 0x000e0552 msg: 0005 WM_SIZE
-//    HWND: 0x000e0552 msg: 0003 WM_MOVE
-//    HWND: 0x000e0552 msg: 01e2
-//    HWND: 0x000e0552 msg: 0046
-//    HWND: 0x000e0552 msg: 0083
-//    HWND: 0x000e0552 msg: 0047
-//    HWND: 0x000e0552 msg: 0005
-//    HWND: 0x000e0552 msg: 0046
-//    HWND: 0x000e0552 msg: 0085
-//    HWND: 0x000e0552 msg: 0014
-//    HWND: 0x000e0552 msg: 0047
-//    HWND: 0x000e0552 msg: 0003
-//    HWND: 0x000e0552 msg: 01e5
-//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
-//    HWND: 0x000e0552 msg: 0000000f
-//    longptr: 00000000 m_hWnd:000E0552 owner:0016051E
-
-//    HWND: 0x0016051e msg: 0121 WM_ENTERIDLE
-//    HWND: 0x0016051e msg: 0121
-//    HWND: 0x0016051e msg: 0121
-
-//    HWND: 0x000e0552 msg: 0100 WM_KEYFIRST
-//    HWND: 0x000e0552 msg: 01e4
-//    HWND: 0x000e0552 msg: 0046
-//    HWND: 0x000e0552 msg: 0047
-//    HWND: 0x000e0552 msg: 0002
-//    HWND: 0x000e0552 msg: 0082
-
-//    HWND: 0x0016051e msg: 0125 WM_UNINITMENUPOPUP
-//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
-//    HWND: 0x0016051e msg: 0121
-//    HWND: 0x0016051e msg: 0121
-//    HWND: 0x0016051e msg: 0215 WM_CAPTURECHANGED
-//    HWND: 0x0016051e msg: 011f WM_MENUSELECT
-//    HWND: 0x0016051e msg: 0212 WM_EXITMENULOOP
-//    HWND: 0x0016051e msg: 0086
-//    HWND: 0x0016051e msg: 0006
-//    HWND: 0x0016051e msg: 001c
-//    HWND: 0x0016051e msg: 0008
-//    HWND: 0x0016051e msg: 0281
-//    HWND: 0x0016051e msg: 0282

@@ -55,6 +55,21 @@ BEGIN
     END
 END
 
+IDR_MENU_POPUP MENU 
+BEGIN
+    POPUP "pop"
+    BEGIN
+        MENUITEM "POP&1",                       ID_POP_POP1
+        MENUITEM "POP&2",                       ID_POP_POP2
+        POPUP "POP&3"
+        BEGIN
+            MENUITEM "POP3_1",                      ID_POP3_POP3
+            MENUITEM "POP3_2",                      ID_POP3_POP4
+            MENUITEM "POP3_3",                      ID_POP3_POP5
+        END
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
