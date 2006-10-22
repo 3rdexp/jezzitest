@@ -3,10 +3,11 @@
 #include <hash_map>
 #include <crtdbg.h>
 #include <atlcrack.h>
+
 // ------------------------------------------------------
 // We use UxTheme's Part, State Define
 #include <tmschema.h>
-
+// ms-help://MS.MSDNQTR.2004JAN.1033/shellcc/platform/commctls/userex/topics/partsandstates.htm
 // ------------------------------------------------------
 
 #include "../skinmsg.h"
@@ -14,19 +15,6 @@
 
 namespace Skin {
 
-// TODO: place TypeHolder/Int2Type to anywhere
-template<typename T>
-struct TypeHolder
-{
-	typedef T type;
-};
-
-template<unsigned int Val, typename T>
-struct Int2Type
-{
-	enum { value = Val };
-	typedef T type;
-};
 
 // see ../readme.txt
 
@@ -367,11 +355,6 @@ public:
 
 		if (it->second)
 		{
-            if (uMsg == WM_SYSCOMMAND)
-            {
-                // DebugBreak();
-            }
-
             // 
             // ProcessWindowMessage 可能不是virtual的。需要调用每个类型的ProcessWindowMessage
             // 调用顺序是 SkinButton, SkinControlImpl, BaseT
@@ -383,7 +366,8 @@ public:
 
 			if (p->_enable || uMsg == WMS_ENABLE)
 			{
-                // TRACE("1 %p %d, %p::%p\n", hWnd, uMsg, p, p->ProcessWindowMessage);
+                if (uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+                    TRACE("+ %p %x, %p::%p\n", hWnd, uMsg, p, p->ProcessWindowMessage);
                 bRet = p->derived_type::ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
                 _ASSERTE(_CrtCheckMemory( ));
 
@@ -429,6 +413,7 @@ public:
 				rr->second->m_hWnd = 0; // for ~CWindowImplRoot ASSERT
 
 				_ASSERTE( _CrtCheckMemory( ) );
+                TRACE("* delete %p\n", hWnd);
 				delete rr->second;
 				_ASSERTE( _CrtCheckMemory( ) );
 				_handle_maps.erase(rr);
@@ -440,19 +425,11 @@ public:
             WNDPROC dw = GetDefaultProc();
             if (!dw)
                 dw = ::DefWindowProc;
-
-//            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
-//            {
-//                TRACE("trace before CallWindowProc::%08x ret=%d\n", uMsg, lRes);
-//            }
             
             lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
-            
-//            if (uMsg == WM_NCLBUTTONUP || uMsg == WM_SYSCOMMAND)
-//            {
-//               TRACE("trace after CallWindowProc::%08x ret=%d\n", uMsg, lRes);
-//            }
         }
+        if (uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+            TRACE("- %p %x\n", hWnd, uMsg);
 
 		_ASSERTE( _CrtCheckMemory( ) );
 		return lRes;

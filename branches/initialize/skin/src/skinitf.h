@@ -8,7 +8,7 @@
 
 #include <comdef.h>
 
-// ms-help://MS.MSDNQTR.2004JAN.1033/shellcc/platform/commctls/userex/topics/partsandstates.htm
+
 #ifndef SKIN_NO_NAMESPACE
 namespace Skin{
 #endif
@@ -122,11 +122,10 @@ BOOL WINAPI RemoveDialogSkin(HWND hWnd);
 struct ISkinMgr;
 struct ISkinDraw;
 struct ISkinScheme;
-// struct ISkinConfig; // Part + State => name
 
 // ------------------------------------------------------
-//1 负责控制那些类型的控件需要Skin
-//2 生成,导出缺省的ISkinScheme
+// 1 负责控制那些类型的控件需要Skin
+// 2 生成,导出缺省的ISkinScheme
 
 #undef  INTERFACE
 #define INTERFACE ISkinMgr
