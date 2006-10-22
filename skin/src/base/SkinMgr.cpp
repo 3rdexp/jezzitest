@@ -40,14 +40,14 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 
 	// TODO: 这样的代码就没有办法写得好看一点?
-	if (!(_installed_type & SKINCTL_BUTTON) && (dwType & SKINCTL_BUTTON) )
-	{
-		// typedef SkinButton<CBitmapButton> ssbuton;
-		typedef SkinButton<CButton> ssbuton;
-		bool f = ssbuton::Install(hInst);
-		if (f)
-			_installed_type |= SKINCTL_BUTTON;
-	}
+//	if (!(_installed_type & SKINCTL_BUTTON) && (dwType & SKINCTL_BUTTON) )
+//	{
+//		// typedef SkinButton<CBitmapButton> ssbuton;
+//		typedef SkinButton<CButton> ssbuton;
+//		bool f = ssbuton::Install(hInst);
+//		if (f)
+//			_installed_type |= SKINCTL_BUTTON;
+//	}
 
 	if (!(_installed_type & SKINCTL_EDIT) && (dwType & SKINCTL_EDIT) )
 	{
@@ -157,12 +157,12 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	}
     */
 
-    if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
-    {       
-        bool f = SkinDialog::Install(hInst);
-        if (f)
-            _installed_type |= SKINCTL_DIALOG;
-    }
+//    if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
+//    {       
+//        bool f = SkinDialog::Install(hInst);
+//        if (f)
+//            _installed_type |= SKINCTL_DIALOG;
+//    }
 
     if (!(_installed_type & SKINCTL_WINDOW) && (dwType & SKINCTL_WINDOW) )
     {
