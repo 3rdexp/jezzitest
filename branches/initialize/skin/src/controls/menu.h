@@ -191,14 +191,58 @@ public:
         MSG_WM_NCPAINT(OnNcPaint)
 //        MSG_WM_PRINT
 //        MSG_WM_PRINTCLIENT
-        MSG_WM_PAINT(OnPaint)
+//        MSG_WM_PAINT(OnPaint)
 //        MSG_WM_KEYDOWN
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
 //        MSG_WM_ERASEBKGND
-		MESSAGE_HANDLER(WM_DRAWITEM, OnDrawItem)
-		MESSAGE_HANDLER(WM_MEASUREITEM, OnMeasureItem)
+//		MESSAGE_HANDLER(WM_DRAWITEM, OnDrawItem)
+//		MESSAGE_HANDLER(WM_MEASUREITEM, OnMeasureItem)
+        MSG_WM_CREATE(OnCreate)
+        MSG_WM_NCCREATE(OnNcCreate)
     END_MSG_MAP()
+
+    // TODO: µÃµ½ HMENU !!!
+
+    LRESULT OnNcCreate(LPCREATESTRUCT lpcs)
+    {
+        TRACE("nc lpcs->lpCreateParams : %x hmenu: %p, hwndParent: %p\n", lpcs->lpCreateParams, lpcs->hMenu, lpcs->hwndParent);
+
+        if (lpcs->hMenu)
+        {
+            CMenuHandle mh(lpcs->hMenu);
+            int c = mh.GetMenuItemCount();
+            TRACE("  count: %d\n", c);
+            for (int i=0; i<c; ++i)
+            {
+                char sz[32] = {0};
+                mh.GetMenuString(i, sz, 32, MF_BYPOSITION);
+                TRACE("   %d %s\n", i, sz);
+            }
+        }
+        SetMsgHandled(FALSE);
+        return 0;
+    }
+
+    LRESULT OnCreate(LPCREATESTRUCT lpcs)
+    {
+        TRACE("lpcs->lpCreateParams : %x hmenu: %p, hwndParent: %p\n", lpcs->lpCreateParams, lpcs->hMenu, lpcs->hwndParent);
+
+        if (lpcs->hMenu)
+        {
+            CMenuHandle mh(lpcs->hMenu);
+            int c = mh.GetMenuItemCount();
+            TRACE("  count: %d\n", c);
+            for (int i=0; i<c; ++i)
+            {
+                char sz[32] = {0};
+                mh.GetMenuString(i, sz, 32, MF_BYPOSITION);
+                TRACE("   %d %s\n", i, sz);
+            }
+        }
+        SetMsgHandled(FALSE);
+        return 0;
+    }
 
 	LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{

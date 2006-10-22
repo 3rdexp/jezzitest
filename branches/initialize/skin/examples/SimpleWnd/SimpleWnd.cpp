@@ -141,6 +141,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) 
 	{
+    case WM_CONTEXTMENU:
+        {
+            HMENU hmp = LoadMenu(hInst, MAKEINTRESOURCE(IDR_MENU_POPUP));
+            HMENU hms = GetSubMenu(hmp, 0);
+            TrackPopupMenu(hms, TPM_LEFTALIGN, LOWORD(lParam), HIWORD(lParam), 0, hWnd, NULL);
+            DestroyMenu(hmp);
+        }
+        break;
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam); 
 		wmEvent = HIWORD(wParam); 
