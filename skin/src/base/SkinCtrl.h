@@ -3,7 +3,7 @@
 #include <hash_map>
 #include <crtdbg.h>
 #include <atlcrack.h>
-
+#include <boost/shared_ptr.hpp>
 // ------------------------------------------------------
 // We use UxTheme's Part, State Define
 #include <tmschema.h>
@@ -135,10 +135,13 @@ template<class ControlT, class BaseT, class InstallPolicy = ClassPolicy>
 class SkinControlImpl : public BaseT
 {
 	typedef HWND handle;
-	typedef ControlT derived_type;
+
+    typedef BaseT base_type;
 	typedef SkinControlImpl<ControlT, BaseT, InstallPolicy> this_type;
-	typedef BaseT base_type;
-	typedef typename std::hash_map<handle, derived_type *> handle_map;
+    typedef ControlT derived_type;
+	
+    typedef boost::shared_ptr<derived_type> mapvalue_type;
+    typedef std::hash_map<handle, boost::shared_ptr<ControlT> > handle_map;
 
     // Draw Helper, Scheme function proxy
 public:
@@ -213,12 +216,19 @@ public:
 protected:
     SkinControlImpl() 
         : _enable(true) 
-        , m_pCurrentMsg(0)
+        // , m_pCurrentMsg(0)
+        , depth_(0)
+#ifdef LOOP_DEBUG 
+        , indent(0)
+#endif  
     {}
 
     // BaseT 没有 virtual ~BaseT()
     // 能解决问题吗？ new derived; delete base*
-    virtual ~SkinControlImpl() {} 
+    virtual ~SkinControlImpl() 
+    {
+        TRACE("~ %p\n", this);
+    } 
 
 public: // 需要被模版派生类访问
 	static WNDPROC GetDefaultProc() { return _installer.GetDefaultProc(); }
@@ -229,12 +239,13 @@ public: // 需要被模版派生类访问
 
 	const _ATL_MSG* GetCurrentMessage() const
 	{
-		return m_pCurrentMsg;
+		return m_pCurrentMsg[depth_ - 1];
 	}
 
 	// "handled" management for cracked handlers
 	BOOL IsMsgHandled() const
 	{
+        _ASSERTE(_CrtCheckMemory( ));
 		const _ATL_MSG* pMsg = GetCurrentMessage();
 		ATLASSERT(pMsg != NULL);
 		ATLASSERT(pMsg->cbSize >= sizeof(_ATL_MSG));
@@ -242,6 +253,7 @@ public: // 需要被模版派生类访问
 	}
 	void SetMsgHandled(BOOL bHandled)
 	{
+        _ASSERTE(_CrtCheckMemory( ));
 		_ATL_MSG* pMsg = (_ATL_MSG*)GetCurrentMessage(); // override const
 		ATLASSERT(pMsg != NULL);
 		ATLASSERT(pMsg->cbSize >= sizeof(_ATL_MSG));
@@ -250,7 +262,7 @@ public: // 需要被模版派生类访问
 
 	LRESULT DefWindowProc()
 	{
-		const _ATL_MSG* pMsg = m_pCurrentMsg;
+		const _ATL_MSG* pMsg = GetCurrentMessage();
 		LRESULT lRes = 0;
 		if (pMsg != NULL)
 			lRes = DefWindowProc(pMsg->message, pMsg->wParam, pMsg->lParam);
@@ -300,7 +312,7 @@ public: // 需要被模版派生类访问
 		NOTIFY_CODE_HANDLER(NM_COOLSB_CUSTOMDRAW, OnScrollCustomDraw)
 	END_MSG_MAP()
 
-    // common skin message procdure
+    // common skin message procedure
 	LRESULT OnEnable(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		if( wParam != _enable )
@@ -329,7 +341,8 @@ private:
     }
 
 
-	static handle_map _handle_maps;
+    static std::hash_map<HWND, boost::shared_ptr<ControlT> > _handle_maps;
+	// static handle_map _handle_maps;
     static InstallPolicy _installer;
 public:
 	static LRESULT ControlProc(handle hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -339,8 +352,12 @@ public:
 
 		BOOL bRet = FALSE;
 		LRESULT lRes = 0;
+        boost::shared_ptr<derived_type> safeptr;
 
 		_ATL_MSG msg(hWnd, uMsg, wParam, lParam);
+#ifdef LOOP_DEBUG
+        int local_indent = 0;
+#endif
 
 		handle_map::const_iterator it = _handle_maps.lower_bound(hWnd);
 		if (it == _handle_maps.end()) // 第一次创建之
@@ -349,6 +366,8 @@ public:
 			derived_type * p = new derived_type;
 			p->m_hWnd = hWnd;
 			it = _handle_maps.insert( std::make_pair(hWnd, p) ).first;
+
+            TRACE("n ew: %p\n", p);
 
 			p->Init();
 		}
@@ -361,20 +380,27 @@ public:
             // BaseT 可以是 CWindowImpl 类型的类
             // 
 			// call SkinButton
-			derived_type * p = it->second;
-			p->m_pCurrentMsg = &msg;
+			safeptr = it->second;
+			safeptr->m_pCurrentMsg[safeptr->depth_++] = &msg;
 
-			if (p->_enable || uMsg == WMS_ENABLE)
+			if (safeptr->_enable || uMsg == WMS_ENABLE)
 			{
-                if (uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
-                    TRACE("+ %p %x, %p::%p\n", hWnd, uMsg, p, p->ProcessWindowMessage);
-                bRet = p->derived_type::ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
+#ifdef LOOP_DEBUG 
+                if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+                {
+                    local_indent = safeptr->indent ++;
+                    for(int i=0; i<local_indent; ++i)
+                        OutputDebugString(" ");
+                    TRACE("+ %p %04x %p   %p\n", hWnd, uMsg, safeptr.get(), &msg);
+                }
+#endif
+                bRet = safeptr->derived_type::ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
                 _ASSERTE(_CrtCheckMemory( ));
 
 				if (!bRet)
 				{
 					// call SkinControlImpl
-					this_type * pd = static_cast<this_type *>(p);
+					this_type * pd = static_cast<this_type *>(safeptr.get());
 					ASSERT(pd);
                     // TRACE("2 %p %d, %p::%p\n", hWnd, uMsg, pd, pd->ProcessWindowMessage);
 					// ATTENTION: this_type:: (maybe ProcessWindowMessage not virtual)
@@ -406,6 +432,15 @@ public:
 
 			if (uMsg == WM_NCDESTROY) //最后一个消息
 			{
+                // 
+                // safeptr->m_hWnd = 0;
+
+                TRACE("* before delete count: %d, %p\n", safeptr.use_count(), safeptr.get());
+
+                _handle_maps.erase(hWnd);
+
+                TRACE("* after delete count: %d\n", safeptr.use_count());
+#if 0
 				// TODO: function this
 				handle_map::iterator rr = _handle_maps.lower_bound(hWnd);
 				ASSERT(rr != _handle_maps.end());
@@ -414,9 +449,12 @@ public:
 
 				_ASSERTE( _CrtCheckMemory( ) );
                 TRACE("* delete %p\n", hWnd);
-				delete rr->second;
-				_ASSERTE( _CrtCheckMemory( ) );
+
+                safeptr.reset(rr->second); // delay delete
+				
+                _ASSERTE( _CrtCheckMemory( ) );
 				_handle_maps.erase(rr);
+#endif
 			}
 		}
 
@@ -428,14 +466,30 @@ public:
             
             lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
         }
-        if (uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
-            TRACE("- %p %x\n", hWnd, uMsg);
+
+        -- safeptr->depth_;
+
+#ifdef LOOP_DEBUG 
+        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+        {
+            derived_type* p = safeptr.get();
+            
+            -- p->indent;
+
+            for(int i=0; i<p->indent; ++i)
+                OutputDebugString(" ");
+            
+
+            TRACE("- %p %04x %p   %p\n", hWnd, uMsg, p, &msg);
+        }
+#endif
 
 		_ASSERTE( _CrtCheckMemory( ) );
 		return lRes;
 	}
-    private:
 
+#if 0
+private:
     // TODO: find out the way to unload dll from process memory
     // 如果还有hooked的窗口没有销毁
     // 实际没有啥用处，还是会导致崩溃
@@ -454,18 +508,24 @@ public:
 			it = _handle_maps.erase(it);
 		}
 	}
+#endif
+
 protected:
-	const _ATL_MSG * m_pCurrentMsg;
+	const _ATL_MSG * m_pCurrentMsg[6];
+    int depth_;
 	CComPtr<ISkinScheme> _scheme;
 
 	unsigned _enable : 1;
+#ifdef LOOP_DEBUG 
+    int indent;
+#endif    
 };
 
 template<class ControlT, class BaseT, class InstallPolicy>
 InstallPolicy SkinControlImpl<ControlT, BaseT, InstallPolicy>::_installer;
 
 template<class ControlT, class BaseT, class InstallPolicy>
-std::hash_map<HWND, typename SkinControlImpl<ControlT, BaseT, InstallPolicy>::derived_type * > 
+std::hash_map<HWND, boost::shared_ptr<ControlT>  >
 SkinControlImpl<ControlT, BaseT, InstallPolicy>::_handle_maps;
 
 } // namespace Skin
