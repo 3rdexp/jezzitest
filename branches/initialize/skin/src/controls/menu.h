@@ -53,13 +53,13 @@ public:
         MSG_WM_PAINT(OnPaint)
 //        MSG_WM_PRINT()
 //        MSG_WM_PRINTCLIENT()
-//        if (uMsg == 0x1e5)
-//        {
-//            SetMsgHandled(TRUE);
-//            lResult = OnXXX(wParam);
-//            if (IsMsgHandled())
-//                return TRUE;
-//        }
+        if (uMsg == 0x1e5)
+        {
+            SetMsgHandled(TRUE);
+            lResult = OnXXX(wParam);
+            if (IsMsgHandled())
+                return TRUE;
+        }
 //        MSG_WM_KEYDOWN
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
@@ -179,8 +179,8 @@ public:
         // MN_1: 08F703F1
         // MN_2: 0036003E
         // MN_5: 00000080
-        for(int i=1; i<6; i++)
-            TRACE("MN_%d: %p\n", i, SendMessage(i + 0x01E0, 0, 0));
+//        for(int i=1; i<6; i++)
+//            TRACE("MN_%d: %p\n", i, SendMessage(i + 0x01E0, 0, 0));
 
         CPaintDC dc(m_hWnd);
 
