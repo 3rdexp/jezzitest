@@ -46,21 +46,26 @@ public:
     typedef SkinMenu<BaseT> this_type;
     typedef SkinControlImpl<SkinMenu, BaseT> base_type;
 
-    SkinMenu() : _f(true) {}
+    SkinMenu() :
+        m_nUpdateItem(-1)
+    {}
 
     BEGIN_MSG_MAP(this_type)
+        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) 
+                && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+            TRACE("Menu: %08x %08x %08x\n", uMsg, wParam, lParam);
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_PAINT(OnPaint)
 //        MSG_WM_PRINT()
 //        MSG_WM_PRINTCLIENT()
-        if (uMsg == 0x1e5)
+        if (uMsg == MN_SELECTITEM)
         {
             SetMsgHandled(TRUE);
-            lResult = OnXXX(wParam);
+            lResult = OnSelectItem((int)wParam);
             if (IsMsgHandled())
                 return TRUE;
         }
-//        MSG_WM_KEYDOWN
+        // MSG_WM_KEYDOWN(OnKeyDown)
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
 //        MSG_WM_ERASEBKGND
@@ -71,17 +76,19 @@ public:
 private:
     HMENU GetHMenu()
     {
-        return SendMessage(MN_GETHMENU, 0, 0);
+        return (HMENU)SendMessage(MN_GETHMENU, 0, 0);
     }
 
     SIZE GetSizeWindow()
     {
-        return SendMessage(MN_SIZEWINDOW, 0, 0);
+        DWORD dwSize = (DWORD)SendMessage(MN_SIZEWINDOW, 0, 0);
+        SIZE sizeRet = { GET_X_LPARAM(dwSize), GET_Y_LPARAM(dwSize) };
+        return sizeRet;
     }
 
     int GetSelectItem()
     {
-        return SendMessage(MN_SELECTITEM, 0, 0);
+        return (int)SendMessage(MN_SELECTITEM, 0, 0);
     }
 
 public:
@@ -223,24 +230,90 @@ public:
         dcm.SelectBitmap(oldbmp);
     }
 
-    LRESULT OnXXX(int nUpdateItem)
+    // func((TCHAR)wParam, (UINT)lParam & 0xFFFF, (UINT)((lParam & 0xFFFF0000) >> 16));
+    void OnKeyDown(TCHAR, UINT, UINT)
     {
+        int s1 = GetSelectItem();
+        DefWindowProc();
+        if (!::IsWindow(m_hWnd))
+            return;
+        int s2 = GetSelectItem();
+
+        TRACE("OnKeyDown: %d %d\n", s1, s2);
+
+        return;
+        if (s1 != -1 || s2 != -1)
+        {
+            CMenuHandle hm = GetHMenu();
+            int c = hm.GetMenuItemCount();
+
+            CRect rcc;
+            GetClientRect(&rcc);
+
+            int h = rcc.Height() / c;
+
+            if (s1 != -1)
+            {
+                rcc.top = h * s1;
+                rcc.bottom = rcc.top + h;
+
+                InvalidateRect(&rcc);
+            }
+
+            if (s2 != -1)
+            {
+                rcc.top = h * s2;
+                rcc.bottom = rcc.top + h;
+
+                InvalidateRect(&rcc);
+            }
+        }
+    }
+
+    LRESULT OnSelectItem(int nUpdateItem)
+    {
+        TRACE("OnMenuSelect: %d\n", nUpdateItem);
         SetRedraw(FALSE);
         LRESULT lr = DefWindowProc();
         SetRedraw(TRUE);
 
-        InvalidateRect(NULL);
-        // UpdateWindow();
+        if (m_nUpdateItem != nUpdateItem)
+        {
+            CMenuHandle hm = GetHMenu();
+            if (!hm.IsNull())
+            {
+                // SIZE size_menu = GetSizeWindow();
 
-        if (!_f)
-            UpdateWindow();
+                int c = hm.GetMenuItemCount();
+                CRect rcc;
+                GetClientRect(&rcc);
 
-        _f = false;
-        TRACE("Leve xxx\n");
+                int h = rcc.Height() / c;
 
+                // new item
+                if (nUpdateItem != -1)
+                {
+                    rcc.top = h * nUpdateItem;
+                    rcc.bottom = rcc.top + h;
+
+                    InvalidateRect(&rcc);
+                }
+
+                if (-1 != m_nUpdateItem) // old item
+                {
+                    rcc.top = h * m_nUpdateItem;
+                    rcc.bottom = rcc.top + h;
+
+                    InvalidateRect(&rcc);
+                }
+                
+                m_nUpdateItem = nUpdateItem;
+            }
+        }
         return lr;
     }
-    bool _f;
+private:
+    int m_nUpdateItem;
 };
 
 }; // namespace 
