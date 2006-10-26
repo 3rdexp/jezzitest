@@ -140,7 +140,6 @@ class SkinControlImpl : public BaseT
 	typedef SkinControlImpl<ControlT, BaseT, InstallPolicy> this_type;
     typedef ControlT derived_type;
 	
-    typedef boost::shared_ptr<derived_type> mapvalue_type;
     typedef std::hash_map<handle, boost::shared_ptr<ControlT> > handle_map;
 
     // Draw Helper, Scheme function proxy
@@ -435,11 +434,11 @@ public:
                 // 
                 // safeptr->m_hWnd = 0;
 
-                TRACE("* before delete count: %d, %p\n", safeptr.use_count(), safeptr.get());
+                // TRACE("* before delete count: %d, %p\n", safeptr.use_count(), safeptr.get());
 
                 _handle_maps.erase(hWnd);
 
-                TRACE("* after delete count: %d\n", safeptr.use_count());
+                // TRACE("* after delete count: %d\n", safeptr.use_count());
 #if 0
 				// TODO: function this
 				handle_map::iterator rr = _handle_maps.lower_bound(hWnd);

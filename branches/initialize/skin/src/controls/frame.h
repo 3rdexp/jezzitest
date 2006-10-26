@@ -385,7 +385,7 @@ protected:
 
     void DrawMenuBarItem(CDCHandle dc, CMenuHandle menu, const CRect& rcItem, UINT nItemIndex, MENUSTATES ms)
     {
-        TRACE("DrawMenuItem: %d %x\n", nItemIndex, ms);
+        // TRACE("DrawMenuItem: %d %x\n", nItemIndex, ms);
 
         ASSERT(nItemIndex >= 0);
         int sd = dc.SaveDC();
@@ -784,7 +784,7 @@ protected:
         {
             if (!IsIconic())
             {
-                TRACE("wParam=%d IsIconic\n", bCalcValidRects);
+                TRACE("Attention: wParam=%d IsIconic\n", bCalcValidRects);
             }
             return 0;
         }
@@ -1226,7 +1226,7 @@ protected:
         // Why not use parameter menu? 
         // menu maybe popupmenu or sysmenu
         
-        TRACE("OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
+        // TRACE("OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
 
         HMENU hm = GetMenu();
 
