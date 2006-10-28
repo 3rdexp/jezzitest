@@ -33,6 +33,9 @@ namespace Skin {
 
 #endif
 
+extern long FindItemIDThatOwnsThisMenu (HMENU hMenuOwned,HWND* phwndOwner,
+                                 BOOL* pfPopup,BOOL *pfSysMenu);
+
 template<class BaseT = CWindow>
 class SkinMenu : public SkinControlImpl<SkinMenu, BaseT>
 {
@@ -46,8 +49,9 @@ public:
     typedef SkinMenu<BaseT> this_type;
     typedef SkinControlImpl<SkinMenu, BaseT> base_type;
 
-    SkinMenu() :
-        m_nUpdateItem(-1)
+    SkinMenu()
+        : m_nUpdateItem(-1)
+        , m_hWndOwner(0)
     {}
 
     BEGIN_MSG_MAP(this_type)
@@ -92,6 +96,7 @@ private:
     }
 
 public:
+#if 0
     LRESULT OnNcCreate(LPCREATESTRUCT lpcs)
     {
         TRACE("nc lpcs->lpCreateParams : %x hmenu: %p, hwndParent: %p\n", lpcs->lpCreateParams, lpcs->hMenu, lpcs->hwndParent);
@@ -134,6 +139,7 @@ public:
         TRACE("MN_GETHMENU: %p\n", r);
         return 0;
     }
+#endif
 
     void OnNcPaint(HRGN)
     {
@@ -183,12 +189,6 @@ public:
 
     void OnPaint(HDC)
     {
-        // MN_1: 08F703F1
-        // MN_2: 0036003E
-        // MN_5: 00000080
-//        for(int i=1; i<6; i++)
-//            TRACE("MN_%d: %p\n", i, SendMessage(i + 0x01E0, 0, 0));
-
         CPaintDC dc(m_hWnd);
 
         CRect rcc;
@@ -312,8 +312,10 @@ public:
         }
         return lr;
     }
+    
 private:
     int m_nUpdateItem;
+    HWND m_hWndOwner;
 };
 
 }; // namespace 
