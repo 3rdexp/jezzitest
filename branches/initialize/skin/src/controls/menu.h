@@ -2,6 +2,8 @@
 
 #include "../base/skinctrl.h"
 
+extern long FindItemIDThatOwnsThisMenu (HMENU hMenuOwned,HWND* phwndOwner,
+                                        BOOL* pfPopup,BOOL *pfSysMenu);
 
 namespace Skin {
 
@@ -22,6 +24,8 @@ namespace Skin {
 
 #ifndef MN_SETHMENU
 
+// copy from windows\media\avi\inc.16\windows.inc(1500)
+
 #define MN_SETHMENU              0x01E0
 #define MN_GETHMENU              0x01E1
 #define MN_SIZEWINDOW            0x01E2
@@ -30,11 +34,15 @@ namespace Skin {
 #define MN_SELECTITEM            0x01E5
 #define MN_CANCELMENUS           0x01E6
 #define MN_SELECTFIRSTVALIDITEM  0x01E7
-
+//;MN_GETPPOPUPMENU       = 01EAh ;Win32
+//;MN_FINDMENUWINDOWFROMPOINT = 01EBh ;Win32
+//;MN_SHOWPOPUPWINDOW     = 01ECh ;Win32
+//;MN_BUTTONDOWN          = 01EDh ;Win32
+//;MN_MOUSEMOVE           = 01EEh ;Win32
+//;MN_BUTTONUP            = 01EFh ;Win32
+//;MN_SETTIMERTOOPENHIERARCHY = 01F0 ;Win32
 #endif
 
-extern long FindItemIDThatOwnsThisMenu (HMENU hMenuOwned,HWND* phwndOwner,
-                                 BOOL* pfPopup,BOOL *pfSysMenu);
 
 template<class BaseT = CWindow>
 class SkinMenu : public SkinControlImpl<SkinMenu, BaseT>
@@ -51,15 +59,16 @@ public:
 
     SkinMenu()
         : m_nUpdateItem(-1)
-        , m_hWndOwner(0)
+        , m_nSelectedItem(-1)
+        // , m_hWndOwner(0)
     {}
 
     BEGIN_MSG_MAP(this_type)
         if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) 
                 && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
             TRACE("Menu: %08x %08x %08x\n", uMsg, wParam, lParam);
-        MSG_WM_NCPAINT(OnNcPaint)
-        MSG_WM_PAINT(OnPaint)
+//        MSG_WM_NCPAINT(OnNcPaint)
+//        MSG_WM_PAINT(OnPaint)
 //        MSG_WM_PRINT()
 //        MSG_WM_PRINTCLIENT()
         if (uMsg == MN_SELECTITEM)
@@ -69,14 +78,13 @@ public:
             if (IsMsgHandled())
                 return TRUE;
         }
-        // MSG_WM_KEYDOWN(OnKeyDown)
+        MSG_WM_KEYDOWN(OnKeyDown)
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
 //        MSG_WM_ERASEBKGND
 //        MSG_WM_CREATE(OnCreate)
     END_MSG_MAP()
 
-    // TODO: µÃµ½ HMENU !!!
 private:
     HMENU GetHMenu()
     {
@@ -88,11 +96,6 @@ private:
         DWORD dwSize = (DWORD)SendMessage(MN_SIZEWINDOW, 0, 0);
         SIZE sizeRet = { GET_X_LPARAM(dwSize), GET_Y_LPARAM(dwSize) };
         return sizeRet;
-    }
-
-    int GetSelectItem()
-    {
-        return (int)SendMessage(MN_SELECTITEM, 0, 0);
     }
 
 public:
@@ -116,27 +119,10 @@ public:
         SetMsgHandled(FALSE);
         return 0;
     }
-
     LRESULT OnCreate(LPCREATESTRUCT lpcs)
     {
-        TRACE("lpcs->lpCreateParams : %x hmenu: %p, hwndParent: %p\n", lpcs->lpCreateParams, lpcs->hMenu, lpcs->hwndParent);
-
-        if (lpcs->hMenu)
-        {
-            CMenuHandle mh(lpcs->hMenu);
-            int c = mh.GetMenuItemCount();
-            TRACE("  count: %d\n", c);
-            for (int i=0; i<c; ++i)
-            {
-                char sz[32] = {0};
-                mh.GetMenuString(i, sz, 32, MF_BYPOSITION);
-                TRACE("   %d %s\n", i, sz);
-            }
-        }
         SetMsgHandled(FALSE);
-
-        LRESULT r = SendMessage(0x01E0, 0, 0);
-        TRACE("MN_GETHMENU: %p\n", r);
+        m_hMenu = GetHMenu(); // ! NOT WORKED
         return 0;
     }
 #endif
@@ -233,15 +219,14 @@ public:
     // func((TCHAR)wParam, (UINT)lParam & 0xFFFF, (UINT)((lParam & 0xFFFF0000) >> 16));
     void OnKeyDown(TCHAR, UINT, UINT)
     {
-        int s1 = GetSelectItem();
-        DefWindowProc();
-        if (!::IsWindow(m_hWnd))
-            return;
-        int s2 = GetSelectItem();
-
-        TRACE("OnKeyDown: %d %d\n", s1, s2);
-
+        // TODO:
+        // 0 call DefWindowProc
+        // 1 GetCurSelectedItem
+        // 2 update the item
+        SetMsgHandled(FALSE);
         return;
+        
+#if 0
         if (s1 != -1 || s2 != -1)
         {
             CMenuHandle hm = GetHMenu();
@@ -268,54 +253,69 @@ public:
                 InvalidateRect(&rcc);
             }
         }
+#endif
     }
 
     LRESULT OnSelectItem(int nUpdateItem)
     {
-        TRACE("OnMenuSelect: %d\n", nUpdateItem);
-        SetRedraw(FALSE);
-        LRESULT lr = DefWindowProc();
-        SetRedraw(TRUE);
-
         if (m_nUpdateItem != nUpdateItem)
         {
-            CMenuHandle hm = GetHMenu();
-            if (!hm.IsNull())
-            {
-                // SIZE size_menu = GetSizeWindow();
+            // new item
+            if (nUpdateItem != -1)
+                InvalidItem(nUpdateItem);
 
-                int c = hm.GetMenuItemCount();
-                CRect rcc;
-                GetClientRect(&rcc);
-
-                int h = rcc.Height() / c;
-
-                // new item
-                if (nUpdateItem != -1)
-                {
-                    rcc.top = h * nUpdateItem;
-                    rcc.bottom = rcc.top + h;
-
-                    InvalidateRect(&rcc);
-                }
-
-                if (-1 != m_nUpdateItem) // old item
-                {
-                    rcc.top = h * m_nUpdateItem;
-                    rcc.bottom = rcc.top + h;
-
-                    InvalidateRect(&rcc);
-                }
-                
-                m_nUpdateItem = nUpdateItem;
-            }
+            if (-1 != m_nUpdateItem) // old item
+                InvalidItem(m_nUpdateItem);
+            
+            m_nUpdateItem = nUpdateItem;
         }
-        return lr;
+        return 0;
+    }
+
+private:
+    int GetCurSelectedItem()
+    {
+        int cItems = GetMenuItemCount (hMenu);
+        int i;
+        MENUITEMINFO mii;
+        mii.cbSize = sizeof(MENUITEMINFO);
+        for (i=0;i<cItems;i++)
+        {
+            ::GetMenuItemInfo(GetHMenu(), i, TRUE, &mii);
+            if (mii.fState & MFS_HILITE)
+                return i;
+        }
+        return -1;
+    }
+
+    void InvalidItem(int idItem)
+    {
+        // TODO: fPopup =0 & fSysMenu = 0
+        HWND m_hWndOwner = 0;
+        
+        BOOL fPopup, fSysMenu;
+        ::FindItemIDThatOwnsThisMenu(GetHMenu(), &m_hWndOwner, &fPopup, &fSysMenu);
+        TRACE("%d-%d\n", fPopup, fSysMenu);
+
+        ASSERT(m_hWndOwner);
+        // ASSERT(fPopup || fSysMenu); // other menu ?
+        LONG objid = fPopup ? OBJID_MENU : OBJID_SYSMENU;
+        MENUBARINFO barinfo = {0};
+        barinfo.cbSize = sizeof(MENUBARINFO);
+        int r = GetMenuBarInfo(m_hWndOwner, objid, idItem + 1, &barinfo);
+        ASSERT(r);
+
+         TRACE("focus: %d (%d %d %d %d)", barinfo.fFocused, 
+            barinfo.rcBar.left, barinfo.rcBar.top, barinfo.rcBar.right, barinfo.rcBar.bottom);
+
+        ScreenToClient(&barinfo.rcBar);
+        InvalidateRect(&barinfo.rcBar);
     }
     
 private:
     int m_nUpdateItem;
-    HWND m_hWndOwner;
+    int m_nSelectedItem;
+    // HWND m_hWndOwner;
 };
 
 }; // namespace 
