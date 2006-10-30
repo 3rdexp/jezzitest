@@ -32,9 +32,12 @@ long FindItemIDThatOwnsThisMenu (HMENU hMenuOwned,HWND* phwndOwner,
     *pfSysMenu = FALSE;
     *phwndOwner = NULL;
 
+    GuiThreadInfo.cbSize = sizeof(GUITHREADINFO);
+    GuiThreadInfo.flags = 0;
     GetGUIThreadInfo (NULL,&GuiThreadInfo);
 
     // check if it is from the sys menu first
+    mbi.cbSize = sizeof(MENUBARINFO);
     GetMenuBarInfo(GuiThreadInfo.hwndActive, OBJID_SYSMENU, 0, &mbi);
     hMenu = mbi.hMenu;
 
