@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="Skin"
 	ProjectGUID="{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}"
+	RootNamespace="Skin"
 	Keyword="AtlProj">
 	<Platforms>
 		<Platform
@@ -12,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../Debug"
+			OutputDirectory="..\Debug"
 			IntermediateDirectory="../Debug/Skin"
 			ConfigurationType="2"
 			UseOfATL="1"
@@ -54,7 +55,10 @@
 				InterfaceIdentifierFileName="Skin_i.c"
 				ProxyFileName="Skin_p.c"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="copy to examples"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\examples\mfc\bin
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
