@@ -42,6 +42,10 @@ IDC_SIMPLEWND MENU
 BEGIN
     POPUP "ÎÄ¼þ(&F)"
     BEGIN
+        MENUITEM "dir1",                        ID_32779
+        MENUITEM "dir2",                        ID_32780
+        MENUITEM "dir3",                        ID_32781
+        MENUITEM "dir4",                        ID_32782
         MENUITEM "ÍË³ö(&X)",                    IDM_EXIT
     END
     POPUP "°ïÖú(&H)"
