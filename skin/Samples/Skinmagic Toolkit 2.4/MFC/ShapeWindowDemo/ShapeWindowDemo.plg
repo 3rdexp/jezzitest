@@ -1,0 +1,48 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: ShapeWindowDemo - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x804 /fo"Debug/ShapeWindowDemo.res" /d "_DEBUG" "C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\ShapeWindowDemo\ShapeWindowDemo.rc"" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPC6.tmp" with contents
+[
+/nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Debug/ShapeWindowDemo.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\ShapeWindowDemo\ShapeWindowDemo.cpp"
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\ShapeWindowDemo\ShapeWindowDemoDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPC6.tmp" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPC7.tmp" with contents
+[
+/nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Debug/ShapeWindowDemo.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\ShapeWindowDemo\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPC7.tmp" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPC8.tmp" with contents
+[
+..\..\..\lib\SkinMagic.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/ShapeWindowdemo.pdb" /debug /machine:I386 /out:"..\..\..\bin\ShapeWindowdemo.exe" /pdbtype:sept 
+".\Debug\ShapeWindowDemo.obj"
+".\Debug\ShapeWindowDemoDlg.obj"
+".\Debug\StdAfx.obj"
+".\Debug\ShapeWindowDemo.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPC8.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+ShapeWindowDemo.cpp
+ShapeWindowDemoDlg.cpp
+Generating Code...
+Linking...
+
+
+
+<h3>Results</h3>
+ShapeWindowdemo.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

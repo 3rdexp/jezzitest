@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Player", "Player.vcproj", "{AB34EB5D-E9B7-44AD-B0F7-B9915D12F2CA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+		TRelease = TRelease
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{AB34EB5D-E9B7-44AD-B0F7-B9915D12F2CA}.Debug.ActiveCfg = Debug|Win32
+		{AB34EB5D-E9B7-44AD-B0F7-B9915D12F2CA}.Debug.Build.0 = Debug|Win32
+		{AB34EB5D-E9B7-44AD-B0F7-B9915D12F2CA}.Release.ActiveCfg = Release|Win32
+		{AB34EB5D-E9B7-44AD-B0F7-B9915D12F2CA}.Release.Build.0 = Release|Win32
+		{AB34EB5D-E9B7-44AD-B0F7-B9915D12F2CA}.TRelease.ActiveCfg = TRelease|Win32
+		{AB34EB5D-E9B7-44AD-B0F7-B9915D12F2CA}.TRelease.Build.0 = TRelease|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

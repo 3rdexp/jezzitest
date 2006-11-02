@@ -1,0 +1,30 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: MDIDemo - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\XULIN~1.MAS\LOCALS~1\Temp\RSPD.tmp" with contents
+[
+..\..\..\lib\SkinMagicTrial.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/MDIDemo.pdb" /machine:I386 /out:"..\..\..\bin\MDIDemo.exe" 
+.\Release\ChildFrm.obj
+.\Release\MainFrm.obj
+.\Release\MDIDemo.obj
+.\Release\MDIDemoDoc.obj
+.\Release\MDIDemoView.obj
+.\Release\StdAfx.obj
+.\Release\MDIDemo.res
+]
+Creating command line "link.exe @C:\DOCUME~1\XULIN~1.MAS\LOCALS~1\Temp\RSPD.tmp"
+<h3>Output Window</h3>
+Linking...
+
+
+
+<h3>Results</h3>
+MDIDemo.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: Player - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x804 /fo"Release/Player.res" /d "NDEBUG" /d "_AFXDLL" "C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\Player\Player.rc"" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPCD.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /I "../../../include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/Player.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\Player\bitmapslider.cpp"
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\Player\Player.cpp"
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\Player\PlayerDlg.cpp"
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\Player\VideoWnd.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPCD.tmp" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPCE.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /I "../../../include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/Player.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\Player\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPCE.tmp" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPCF.tmp" with contents
+[
+..\..\..\lib\SkinMagic.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/Player.pdb" /machine:I386 /out:"..\..\..\bin\Player.exe" 
+".\Release\bitmapslider.obj"
+".\Release\Player.obj"
+".\Release\PlayerDlg.obj"
+".\Release\StdAfx.obj"
+".\Release\VideoWnd.obj"
+".\Release\Player.res"
+"..\..\..\Lib\SkinMagic.lib"
+]
+Creating command line "link.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSPCF.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+bitmapslider.cpp
+Player.cpp
+PlayerDlg.cpp
+VideoWnd.cpp
+Generating Code...
+Linking...
+
+
+
+<h3>Results</h3>
+Player.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
