@@ -1,0 +1,57 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: MFCControls - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x804 /fo"Release/MFCControls.res" /d "NDEBUG" /d "_AFXDLL" "C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\MFCControls\MFCControls.rc"" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSP5E.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Release/" /Fp"Release/MFCControls.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\About\AboutDlg.cpp"
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\About\hyperlink.cpp"
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\MFCControls\MFCControls.cpp"
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\MFCControls\MFCControlsDlg.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSP5E.tmp" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSP5F.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Release/" /Fp"Release/MFCControls.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Program Files\Appspeed\SkinMagic Toolkit Standard Edition 2.4\Samples\MFC\MFCControls\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSP5F.tmp" 
+Creating temporary file "C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSP60.tmp" with contents
+[
+..\..\..\lib\SkinMagic.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/MFCControls.pdb" /machine:I386 /out:"..\..\..\bin\MFCControls.exe" 
+".\Release\AboutDlg.obj"
+".\Release\hyperlink.obj"
+".\Release\MFCControls.obj"
+".\Release\MFCControlsDlg.obj"
+".\Release\StdAfx.obj"
+".\Release\MFCControls.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\WANGJI~1\LOCALS~1\Temp\RSP60.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+AboutDlg.cpp
+hyperlink.cpp
+MFCControls.cpp
+MFCControlsDlg.cpp
+Generating Code...
+Linking...
+Creating command line "bscmake.exe /nologo /o"Release/MFCControls.bsc"  ".\Release\StdAfx.sbr" ".\Release\AboutDlg.sbr" ".\Release\hyperlink.sbr" ".\Release\MFCControls.sbr" ".\Release\MFCControlsDlg.sbr""
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+MFCControls.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
