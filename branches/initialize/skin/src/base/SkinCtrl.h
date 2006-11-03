@@ -215,7 +215,7 @@ public:
 protected:
     SkinControlImpl() 
         : _enable(true) 
-        // , m_pCurrentMsg(0)
+        , m_pCurrentMsg(0)
         , depth_(0)
 #ifdef LOOP_DEBUG 
         , indent(0)
@@ -238,7 +238,7 @@ public: // 需要被模版派生类访问
 
 	const _ATL_MSG* GetCurrentMessage() const
 	{
-		return m_pCurrentMsg[depth_ - 1];
+		return m_pCurrentMsg;
 	}
 
 	// "handled" management for cracked handlers
@@ -354,9 +354,6 @@ public:
         boost::shared_ptr<derived_type> safeptr;
 
 		_ATL_MSG msg(hWnd, uMsg, wParam, lParam);
-#ifdef LOOP_DEBUG
-        int local_indent = 0;
-#endif
 
 		handle_map::const_iterator it = _handle_maps.lower_bound(hWnd);
 		if (it == _handle_maps.end()) // 第一次创建之
@@ -380,19 +377,14 @@ public:
             // 
 			// call SkinButton
 			safeptr = it->second;
-			safeptr->m_pCurrentMsg[safeptr->depth_++] = &msg;
+
+            // safeptr->m_pCurrentMsg[safeptr->depth_++] = &msg;
+            // 不用这个方法了，下面的更正确
+            const _ATL_MSG* pOldMsg = safeptr->m_pCurrentMsg;
+            safeptr->m_pCurrentMsg = &msg;
 
 			if (safeptr->_enable || uMsg == WMS_ENABLE)
 			{
-#ifdef LOOP_DEBUG 
-                if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-                {
-                    local_indent = safeptr->indent ++;
-                    for(int i=0; i<local_indent; ++i)
-                        OutputDebugString(" ");
-                    TRACE("+ %p %04x %p   %p\n", hWnd, uMsg, safeptr.get(), &msg);
-                }
-#endif
                 bRet = safeptr->derived_type::ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
                 _ASSERTE(_CrtCheckMemory( ));
 
@@ -428,6 +420,7 @@ public:
 				}
 #endif
 			}
+            safeptr->m_pCurrentMsg = pOldMsg;
 
 			if (uMsg == WM_NCDESTROY) //最后一个消息
 			{
@@ -510,7 +503,7 @@ private:
 #endif
 
 protected:
-	const _ATL_MSG * m_pCurrentMsg[6];
+	const _ATL_MSG * m_pCurrentMsg;
     int depth_;
 	CComPtr<ISkinScheme> _scheme;
 
