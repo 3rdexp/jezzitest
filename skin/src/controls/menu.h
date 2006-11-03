@@ -43,6 +43,8 @@ namespace Skin {
 //;MN_SETTIMERTOOPENHIERARCHY = 01F0 ;Win32
 #endif
 
+// 1 要让系统处理，MN_SELECTITEM,不然会死得很难看
+// GetCurrentSelectedIndex
 
 template<class BaseT = CWindow>
 class SkinMenu : public SkinControlImpl<SkinMenu, BaseT>
@@ -60,15 +62,24 @@ public:
     SkinMenu()
         : m_nUpdateItem(-1)
         , m_nSelectedItem(-1)
-        // , m_hWndOwner(0)
+        , m_fSysMenu(FALSE)
+        , m_fPopup(FALSE)
     {}
 
     BEGIN_MSG_MAP(this_type)
-        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) 
-                && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-            TRACE("Menu: %08x %08x %08x\n", uMsg, wParam, lParam);
-//        MSG_WM_NCPAINT(OnNcPaint)
-//        MSG_WM_PAINT(OnPaint)
+        ATLASSERT(::IsWindow(m_hWnd));
+        //if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) 
+        //        && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+        //    TRACE("Menu: %p %08x %08x %08x\n", m_hWnd, uMsg, wParam, lParam);
+
+        // WM_PAINT 似乎是第一个设置了 HMENU 后的消息，还有一个更早的 MN_SIZEWINDOW，没有测试过
+//        if (uMsg == WM_PAINT && m_menu.IsNull())
+//        {
+//            m_menu = GetHMenu();
+//        }
+        
+        MSG_WM_NCPAINT(OnNcPaint)
+        MSG_WM_PAINT(OnPaint)
 //        MSG_WM_PRINT()
 //        MSG_WM_PRINTCLIENT()
         if (uMsg == MN_SELECTITEM)
@@ -78,6 +89,7 @@ public:
             if (IsMsgHandled())
                 return TRUE;
         }
+        
         MSG_WM_KEYDOWN(OnKeyDown)
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
@@ -99,34 +111,6 @@ private:
     }
 
 public:
-#if 0
-    LRESULT OnNcCreate(LPCREATESTRUCT lpcs)
-    {
-        TRACE("nc lpcs->lpCreateParams : %x hmenu: %p, hwndParent: %p\n", lpcs->lpCreateParams, lpcs->hMenu, lpcs->hwndParent);
-
-        if (lpcs->hMenu)
-        {
-            CMenuHandle mh(lpcs->hMenu);
-            int c = mh.GetMenuItemCount();
-            TRACE("  count: %d\n", c);
-            for (int i=0; i<c; ++i)
-            {
-                char sz[32] = {0};
-                mh.GetMenuString(i, sz, 32, MF_BYPOSITION);
-                TRACE("   %d %s\n", i, sz);
-            }
-        }
-        SetMsgHandled(FALSE);
-        return 0;
-    }
-    LRESULT OnCreate(LPCREATESTRUCT lpcs)
-    {
-        SetMsgHandled(FALSE);
-        m_hMenu = GetHMenu(); // ! NOT WORKED
-        return 0;
-    }
-#endif
-
     void OnNcPaint(HRGN)
     {
         CRect rcw, rcc;
@@ -216,48 +200,37 @@ public:
         dcm.SelectBitmap(oldbmp);
     }
 
-    // func((TCHAR)wParam, (UINT)lParam & 0xFFFF, (UINT)((lParam & 0xFFFF0000) >> 16));
+    
     void OnKeyDown(TCHAR, UINT, UINT)
     {
-        // TODO:
-        // 0 call DefWindowProc
-        // 1 GetCurSelectedItem
-        // 2 update the item
-        SetMsgHandled(FALSE);
-        return;
+        ATLASSERT(::IsWindow(m_hWnd));
+        DefWindowProc();
+
+        if (m_menu.IsNull())
+            m_menu = GetHMenu();
         
-#if 0
-        if (s1 != -1 || s2 != -1)
+        int nUpdateItem = GetCurrentSelectedIndex();
+        if (m_nUpdateItem != nUpdateItem)
         {
-            CMenuHandle hm = GetHMenu();
-            int c = hm.GetMenuItemCount();
+            // new item
+            if (nUpdateItem != -1)
+                InvalidItem(nUpdateItem);
 
-            CRect rcc;
-            GetClientRect(&rcc);
+            if (-1 != m_nUpdateItem) // old item
+                InvalidItem(m_nUpdateItem);
 
-            int h = rcc.Height() / c;
-
-            if (s1 != -1)
-            {
-                rcc.top = h * s1;
-                rcc.bottom = rcc.top + h;
-
-                InvalidateRect(&rcc);
-            }
-
-            if (s2 != -1)
-            {
-                rcc.top = h * s2;
-                rcc.bottom = rcc.top + h;
-
-                InvalidateRect(&rcc);
-            }
+            m_nUpdateItem = nUpdateItem;
         }
-#endif
+
+        return;
     }
 
     LRESULT OnSelectItem(int nUpdateItem)
     {
+        ATLASSERT(::IsWindow(m_hWnd));
+        if (m_menu.IsNull())
+            m_menu = GetHMenu();
+
         if (m_nUpdateItem != nUpdateItem)
         {
             // new item
@@ -269,19 +242,20 @@ public:
             
             m_nUpdateItem = nUpdateItem;
         }
+        SetMsgHandled(FALSE);
         return 0;
     }
 
 private:
-    int GetCurSelectedItem()
+    int GetCurrentSelectedIndex() const
     {
-        int cItems = GetMenuItemCount (hMenu);
+        int cItems = m_menu.GetMenuItemCount();
         int i;
-        MENUITEMINFO mii;
-        mii.cbSize = sizeof(MENUITEMINFO);
+        CMenuItemInfo mii;
+        mii.fMask = MIIM_STATE;
         for (i=0;i<cItems;i++)
         {
-            ::GetMenuItemInfo(GetHMenu(), i, TRUE, &mii);
+            m_menu.GetMenuItemInfo(i, TRUE, &mii);
             if (mii.fState & MFS_HILITE)
                 return i;
         }
@@ -290,32 +264,20 @@ private:
 
     void InvalidItem(int idItem)
     {
-        // TODO: fPopup =0 & fSysMenu = 0
-        HWND m_hWndOwner = 0;
+        TRACE("** %d\n", idItem);
         
-        BOOL fPopup, fSysMenu;
-        ::FindItemIDThatOwnsThisMenu(GetHMenu(), &m_hWndOwner, &fPopup, &fSysMenu);
-        TRACE("%d-%d\n", fPopup, fSysMenu);
-
-        ASSERT(m_hWndOwner);
-        // ASSERT(fPopup || fSysMenu); // other menu ?
-        LONG objid = fPopup ? OBJID_MENU : OBJID_SYSMENU;
-        MENUBARINFO barinfo = {0};
-        barinfo.cbSize = sizeof(MENUBARINFO);
-        int r = GetMenuBarInfo(m_hWndOwner, objid, idItem + 1, &barinfo);
-        ASSERT(r);
-
-         TRACE("focus: %d (%d %d %d %d)", barinfo.fFocused, 
-            barinfo.rcBar.left, barinfo.rcBar.top, barinfo.rcBar.right, barinfo.rcBar.bottom);
-
-        ScreenToClient(&barinfo.rcBar);
-        InvalidateRect(&barinfo.rcBar);
+        CRect rc;
+        BOOL r = m_menu.GetMenuItemRect(NULL, idItem, &rc);
+        ScreenToClient(&rc);
+        InvalidateRect(&rc);
     }
     
 private:
     int m_nUpdateItem;
     int m_nSelectedItem;
-    // HWND m_hWndOwner;
+    CMenuHandle m_menu;
+    BOOL m_fSysMenu;
+    BOOL m_fPopup;
 };
 
 }; // namespace 
