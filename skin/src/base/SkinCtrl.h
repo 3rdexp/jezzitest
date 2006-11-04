@@ -425,28 +425,13 @@ public:
 			if (uMsg == WM_NCDESTROY) //最后一个消息
 			{
                 // 
-                // safeptr->m_hWnd = 0;
+                safeptr->m_hWnd = 0;
 
                 // TRACE("* before delete count: %d, %p\n", safeptr.use_count(), safeptr.get());
 
                 _handle_maps.erase(hWnd);
 
                 // TRACE("* after delete count: %d\n", safeptr.use_count());
-#if 0
-				// TODO: function this
-				handle_map::iterator rr = _handle_maps.lower_bound(hWnd);
-				ASSERT(rr != _handle_maps.end());
-
-				rr->second->m_hWnd = 0; // for ~CWindowImplRoot ASSERT
-
-				_ASSERTE( _CrtCheckMemory( ) );
-                TRACE("* delete %p\n", hWnd);
-
-                safeptr.reset(rr->second); // delay delete
-				
-                _ASSERTE( _CrtCheckMemory( ) );
-				_handle_maps.erase(rr);
-#endif
 			}
 		}
 
