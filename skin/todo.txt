@@ -1,0 +1,14 @@
+
+Frame:
+ Region, SetWindowRgn 
+ MenuBar
+ SystemButton restore state and ...
+
+Menu:
+ Keyboard support
+ Read from config file
+
+
+Misc:
+ ISkinScheme::对 char* 类型的支持
+ 为Skin起个好名字
