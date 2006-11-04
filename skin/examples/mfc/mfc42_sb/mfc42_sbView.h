@@ -2,8 +2,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_MFC42_SBVIEW_H__3A9A1BF6_6993_4956_BC94_479593F94F48__INCLUDED_)
-#define AFX_MFC42_SBVIEW_H__3A9A1BF6_6993_4956_BC94_479593F94F48__INCLUDED_
+#if !defined(AFX_MFC42_SBVIEW_H__28E86EC3_7742_432B_8124_E5D2CA8A8DBA__INCLUDED_)
+#define AFX_MFC42_SBVIEW_H__28E86EC3_7742_432B_8124_E5D2CA8A8DBA__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -64,4 +64,4 @@ inline CMfc42_sbDoc* CMfc42_sbView::GetDocument()
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_MFC42_SBVIEW_H__3A9A1BF6_6993_4956_BC94_479593F94F48__INCLUDED_)
+#endif // !defined(AFX_MFC42_SBVIEW_H__28E86EC3_7742_432B_8124_E5D2CA8A8DBA__INCLUDED_)

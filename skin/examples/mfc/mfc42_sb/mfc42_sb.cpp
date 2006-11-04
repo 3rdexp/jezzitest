@@ -8,8 +8,6 @@
 #include "mfc42_sbDoc.h"
 #include "mfc42_sbView.h"
 
-#include "../../common/skinlib.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -67,9 +65,9 @@ BOOL CMfc42_sbApp::InitInstance()
 	// Change the registry key under which our settings are stored.
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization.
-//	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
-//	LoadStdProfileSettings();  // Load standard INI file options (including MRU)
+	LoadStdProfileSettings();  // Load standard INI file options (including MRU)
 
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views.
@@ -89,9 +87,6 @@ BOOL CMfc42_sbApp::InitInstance()
 	// Dispatch commands specified on the command line
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
-
-	// 
-	LoadSkinDll();
 
 	// The one and only window has been initialized, so show and update it.
 	m_pMainWnd->ShowWindow(SW_SHOW);
