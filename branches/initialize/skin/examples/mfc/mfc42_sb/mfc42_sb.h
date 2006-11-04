@@ -1,8 +1,8 @@
 // mfc42_sb.h : main header file for the MFC42_SB application
 //
 
-#if !defined(AFX_MFC42_SB_H__797898EB_926A_40D2_82BC_E12D5C59AB0A__INCLUDED_)
-#define AFX_MFC42_SB_H__797898EB_926A_40D2_82BC_E12D5C59AB0A__INCLUDED_
+#if !defined(AFX_MFC42_SB_H__9966F754_5C8E_4923_90DB_84E8B05714D7__INCLUDED_)
+#define AFX_MFC42_SB_H__9966F754_5C8E_4923_90DB_84E8B05714D7__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -46,4 +46,4 @@ public:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_MFC42_SB_H__797898EB_926A_40D2_82BC_E12D5C59AB0A__INCLUDED_)
+#endif // !defined(AFX_MFC42_SB_H__9966F754_5C8E_4923_90DB_84E8B05714D7__INCLUDED_)
