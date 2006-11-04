@@ -206,20 +206,23 @@ public:
         ATLASSERT(::IsWindow(m_hWnd));
         DefWindowProc();
 
-        if (m_menu.IsNull())
+        if (m_menu.IsNull() && m_hWnd)
             m_menu = GetHMenu();
         
-        int nUpdateItem = GetCurrentSelectedIndex();
-        if (m_nUpdateItem != nUpdateItem)
+        if (m_hWnd) // 防止窗口已经被销毁
         {
-            // new item
-            if (nUpdateItem != -1)
-                InvalidItem(nUpdateItem);
+            int nUpdateItem = GetCurrentSelectedIndex();
+            if (m_nUpdateItem != nUpdateItem)
+            {
+                // new item
+                if (nUpdateItem != -1)
+                    InvalidItem(nUpdateItem);
 
-            if (-1 != m_nUpdateItem) // old item
-                InvalidItem(m_nUpdateItem);
+                if (-1 != m_nUpdateItem) // old item
+                    InvalidItem(m_nUpdateItem);
 
-            m_nUpdateItem = nUpdateItem;
+                m_nUpdateItem = nUpdateItem;
+            }
         }
 
         return;

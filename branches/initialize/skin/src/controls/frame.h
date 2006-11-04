@@ -1226,7 +1226,7 @@ protected:
         // Why not use parameter menu? 
         // menu maybe popupmenu or sysmenu
         
-        // TRACE("OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
+        TRACE("Frame::OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
 
         HMENU hm = GetMenu();
 
