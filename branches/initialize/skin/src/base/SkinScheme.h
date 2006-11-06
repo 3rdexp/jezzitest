@@ -347,7 +347,8 @@ public:
             PRF_CLIENT | PRF_ERASEBKGND | PRF_CHECKVISIBLE);
 
         // memory dc
-        //::BitBlt(hdc, prc->left, prc->top, prc->right - prc->left, prc->bottom - prc->top, dcMem, pt.x, pt.y, SRCCOPY);
+        // ::BitBlt(hdc, prc->left, prc->top, prc->right - prc->left, 
+        //      prc->bottom - prc->top, dcMem, pt.x, pt.y, SRCCOPY);
         ::SelectObject(dcMem, pOldBmp);
         ::DeleteObject(bmpMemBg);
         ::DeleteDC(dcMem);
@@ -452,7 +453,6 @@ public:
 			{
 				HRGN rgn = BitmapToRegion( bmp, _spCache->TranslateColor(), 
                     _spCache->TranslateColor(), &area);
-				DeleteObject( bmp );
 				f = TRUE;
 				*pRegion = rgn;
 			}

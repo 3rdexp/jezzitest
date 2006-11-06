@@ -17,7 +17,6 @@ namespace Skin {
         if (IsMsgHandled()) \
         return TRUE; \
     }
-
 #endif
 
 // Menu 扩充的 part and property 
@@ -628,8 +627,16 @@ protected:
     }
 
     BEGIN_MSG_MAP_EX(SkinFrameImpl)
+        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+            && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+            ATLTRACE("%04x frame\n", uMsg);
+    if (uMsg == WM_COMMAND)
+        __asm nop;
         MSG_WM_NCACTIVATE(OnNcActivate)
         MSG_WM_NCPAINT(OnNcPaint)
+        MSG_WM_CREATE(OnCreate)
+        MSG_WM_DESTROY(OnDestroy)
+        MSG_WM_SIZE(OnSize)
         MSG_WM_NCCALCSIZE(OnNcCalcSize)
 #if 1
         MSG_WM_NCHITTEST(OnNcHitTest)
@@ -962,6 +969,94 @@ protected:
         // HTZOOM In a Maximize button.
     }
     // TODO: Read http://www.codeproject.com/menu/newmenuxpstyle.asp
+    BOOL OnCreate(LPCREATESTRUCT)
+    {
+        SetMsgHandled(FALSE);
+
+        ControlT * pT = static_cast<ControlT*>(this);
+        _rgn = pT->GetSchemeRegion(0, 0);
+        ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
+        
+        return 0;
+    }
+
+    void OnDestroy()
+    {
+        if (_rgn)
+            DeleteObject(_rgn);
+        
+        HRGN hrgnPrev = ::CreateRectRgn(0, 0, 0, 0);
+        ::GetWindowRgn(m_hWnd, hrgnPrev);
+        int nRet = ::DeleteObject(hrgnPrev);
+        ASSERT(nRet);
+    }
+
+//    void SetWindowRgnEx(HRGN hRgn)
+//    {
+//        ASSERT( ::IsWindow(m_hWnd) );
+//
+//        int nRet = 0;
+//
+//        // delete previous region object
+//        HRGN hrgnPrev = ::CreateRectRgn(0, 0, 0, 0);
+//        ::GetWindowRgn(m_hWnd, hrgnPrev);
+//        nRet = ::DeleteObject(hrgnPrev);
+//        ASSERT( nRet );
+//
+//        if( hRgn )
+//        {
+////            RECT rc; ::GetWindowRect(m_hWnd, &rc);
+////            OffsetRect(&rc, -rc.left, -rc.top);
+////
+////            ::SetWindowPos(m_hWnd, NULL, 0, 0, rc.right-rc.left, rc.bottom-rc.top, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE);
+//        }
+//
+//        return ::SetWindowRgn( m_hWnd, hRgn, TRUE );
+//    }
+//
+//    HRGN ResizeRegion()
+//    {
+//        if(_rgn)
+//        {
+//            RECT rc; GetWindowRect(&rc);
+//            OffsetRect(&rc, -rc.left, -rc.top);
+//            SIZE sz = {rc.right, rc.bottom};
+//
+//            _rgn = SkinScheme::RegulateRegion( _rgnSource, &sz );
+//        }
+//        return _rgn;
+//    }
+
+    void OnSize(UINT nType, CSize)
+    {
+        SetMsgHandled(FALSE);
+        if(SIZE_MAXIMIZED == nType && _rgn)
+        {
+            // SetWindowRgn(0);
+            // 填充边角
+            SetWindowRgn(NULL);
+        }
+        else if(_rgn)
+        {
+            CRect rcw;
+            GetWindowRect(&rcw);
+
+            ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
+            HRGN rgn_new = RegulateRegion(_rgn, &rcw.Size());
+            ASSERT(OBJ_REGION == ::GetObjectType(rgn_new));
+            
+            // delete previous region object
+            HRGN hrgnPrev = ::CreateRectRgn(0, 0, 0, 0);
+            ::GetWindowRgn(m_hWnd, hrgnPrev);
+            int nRet = ::DeleteObject(hrgnPrev);
+            ASSERT(nRet);
+
+            SetWindowRgn(rgn_new, FALSE);
+        }
+        // TODO: 没有绘制正确
+        // TODO: 没有得到正确的Region in OnCreate
+        RedrawWindow();
+    }
 
     void OnNcPaint(HRGN)
     {
@@ -1326,6 +1421,7 @@ private:
     UINT _hoverMenuItem;    // 鼠标曾经在过的 menu bar 上
     UINT _selectedMenuItem; // 鼠标点击该 item 或者**曾经收到 WM_MENUSELECT 消息
     unsigned long _fTrackNcMouseLeave : 1;
+    HRGN _rgn;
 };
 
 class SkinFrame : public SkinControlImpl<SkinFrame, SkinFrameImpl<SkinFrame>,

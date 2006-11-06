@@ -68,7 +68,7 @@ public:
 
     BEGIN_MSG_MAP(this_type)
         ATLASSERT(::IsWindow(m_hWnd));
-        //if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) 
+        //if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
         //        && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
         //    TRACE("Menu: %p %08x %08x %08x\n", m_hWnd, uMsg, wParam, lParam);
 
@@ -77,7 +77,7 @@ public:
 //        {
 //            m_menu = GetHMenu();
 //        }
-        
+
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_PAINT(OnPaint)
 //        MSG_WM_PRINT()
@@ -89,7 +89,7 @@ public:
             if (IsMsgHandled())
                 return TRUE;
         }
-        
+
         MSG_WM_KEYDOWN(OnKeyDown)
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
@@ -148,7 +148,7 @@ public:
         dc.ExcludeClipRect(&rcc);
 
         ::BitBlt(dc, 0, 0, rcw.Width(), rcw.Height(), dcMem, rcw.left, rcw.top, SRCCOPY);
-        
+
         dc.RestoreDC(n);
 
         // memory dc
@@ -183,8 +183,10 @@ public:
         dcw.FillSolidRect(rcc, RGB(0xff, 0, 0));
 
         // TransBlt dcm to dcw
-        dcw.TransparentBlt(0, 0, rcc.Width(), rcc.Height(), dcm, 0, 0, 
-            rcc.Width(), rcc.Height(), RGB(212, 208, 200));
+        dcw.TransparentBlt(0, 0, rcc.Width(), rcc.Height(), dcm, 0, 0,
+            rcc.Width(), rcc.Height(), 
+            GetSysColor(COLOR_MENU) // RGB(212, 208, 200)
+            );
 
 #if 0
         HDC dct = ::GetDC(0);
@@ -200,7 +202,7 @@ public:
         dcm.SelectBitmap(oldbmp);
     }
 
-    
+
     void OnKeyDown(TCHAR, UINT, UINT)
     {
         ATLASSERT(::IsWindow(m_hWnd));
@@ -208,7 +210,7 @@ public:
 
         if (m_menu.IsNull() && m_hWnd)
             m_menu = GetHMenu();
-        
+
         if (m_hWnd) // 防止窗口已经被销毁
         {
             int nUpdateItem = GetCurrentSelectedIndex();
@@ -240,9 +242,10 @@ public:
             if (nUpdateItem != -1)
                 InvalidItem(nUpdateItem);
 
-            if (-1 != m_nUpdateItem) // old item
+            // old item
+            if (-1 != m_nUpdateItem)
                 InvalidItem(m_nUpdateItem);
-            
+
             m_nUpdateItem = nUpdateItem;
         }
         SetMsgHandled(FALSE);
@@ -267,14 +270,12 @@ private:
 
     void InvalidItem(int idItem)
     {
-        TRACE("** %d\n", idItem);
-        
         CRect rc;
         BOOL r = m_menu.GetMenuItemRect(NULL, idItem, &rc);
         ScreenToClient(&rc);
         InvalidateRect(&rc);
     }
-    
+
 private:
     int m_nUpdateItem;
     int m_nSelectedItem;
@@ -283,4 +284,4 @@ private:
     BOOL m_fPopup;
 };
 
-}; // namespace 
+}; // namespace

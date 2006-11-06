@@ -9,9 +9,9 @@
 
 #include "../controls/menu.h"
 #include "../controls/frame.h"
+#include "../controls/dialog.h"
 #if 0
 #include "../controls/button.h"
-#include "../controls/dialog.h"
 #include "../controls/edit.h"
 #include "../controls/combobox.h"
 #include "../controls/tab.h"
@@ -158,12 +158,12 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	}
     */
 
-//    if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
-//    {       
-//        bool f = SkinDialog::Install(hInst);
-//        if (f)
-//            _installed_type |= SKINCTL_DIALOG;
-//    }
+    if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
+    {       
+        bool f = SkinDialog::Install(hInst);
+        if (f)
+            _installed_type |= SKINCTL_DIALOG;
+    }
 
     if (!(_installed_type & SKINCTL_WINDOW) && (dwType & SKINCTL_WINDOW) )
     {
