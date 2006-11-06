@@ -1,0 +1,7 @@
+
+LIBRARY      "Skin"
+
+EXPORTS
+;	GetSkinMgr				Private
+	SkinFrameProc			Private
+;	GetCurrentScheme		Private
