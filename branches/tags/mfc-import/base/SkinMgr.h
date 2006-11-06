@@ -16,7 +16,9 @@
 
 namespace Skin {
 
-class ATL_NO_VTABLE SkinMgr : public CComObjectRoot
+using ATL::CComPtr;
+
+class ATL_NO_VTABLE SkinMgr : public ATL::CComObjectRoot
 	, public ISkinMgr
 {
 public:
@@ -69,7 +71,7 @@ private:
 	unsigned _installed_type;
 };
 
-__declspec(selectany) CComObjectGlobal<SkinMgr> * gpMgr = 0;
+__declspec(selectany) ATL::CComObjectGlobal<SkinMgr> * gpMgr = 0;
 
 
 }; // namespace Skin

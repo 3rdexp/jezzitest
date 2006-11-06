@@ -113,20 +113,20 @@ private:
 public:
     void OnNcPaint(HRGN)
     {
-        CRect rcw, rcc;
+        WTL::CRect rcw, rcc;
         GetWindowRect(&rcw);
         GetClientRect(&rcc);
         ClientToScreen(&rcc);
         rcc.OffsetRect(-rcw.left, -rcw.top);
         rcw.OffsetRect(-rcw.left, -rcw.top);
 
-        CWindowDC dc(m_hWnd);
+        WTL::CWindowDC dc(m_hWnd);
 
-//        CRect rcclip;
+//        WTL::CRect rcclip;
 //        dc.GetClipBox(&rcclip);
 
         // memory dc
-        CDC dcMem;
+        WTL::CDC dcMem;
         dcMem.CreateCompatibleDC(dc);
         ASSERT( dcMem );
         HBITMAP bmpMemBg = ::CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
@@ -136,7 +136,7 @@ public:
 
         // dcMem.FillSolidRect(&rcw, 0x0000ff00);
 
-        CPen pen;
+        WTL::CPen pen;
         pen.CreatePen(PS_SOLID, 1, GetSchemeColor(0, 0, TMT_MENU));
         HPEN old_pen = dcMem.SelectPen(pen);
         dcMem.Rectangle(rcw);
@@ -159,23 +159,23 @@ public:
 
     void OnPaint(HDC)
     {
-        CPaintDC dc(m_hWnd);
+        WTL::CPaintDC dc(m_hWnd);
 
-        CRect rcc;
+        WTL::CRect rcc;
         GetClientRect(rcc);
 
-        CDC dcm;
+        WTL::CDC dcm;
         dcm.CreateCompatibleDC(dc);
-        CBitmap bg;
+        WTL::CBitmap bg;
         bg.CreateCompatibleBitmap(dc, rcc.Width(), rcc.Height());
         HBITMAP oldbmp = dcm.SelectBitmap(bg);
 
         DefWindowProc(WM_ERASEBKGND, (WPARAM)(HDC)dcm, 0); // TODO: ??
         DefWindowProc(WM_PRINTCLIENT, (WPARAM)(HDC)dcm, PRF_ERASEBKGND | PRF_CLIENT);
 
-        CDC dcw;
+        WTL::CDC dcw;
         dcw.CreateCompatibleDC(dc);
-        CBitmap bgw;
+        WTL::CBitmap bgw;
         bgw.CreateCompatibleBitmap(dc, rcc.Width(), rcc.Height());
         HBITMAP oldbmpw = dcw.SelectBitmap(bgw);
 
@@ -257,7 +257,7 @@ private:
     {
         int cItems = m_menu.GetMenuItemCount();
         int i;
-        CMenuItemInfo mii;
+        WTL::CMenuItemInfo mii;
         mii.fMask = MIIM_STATE;
         for (i=0;i<cItems;i++)
         {
@@ -270,7 +270,7 @@ private:
 
     void InvalidItem(int idItem)
     {
-        CRect rc;
+        WTL::CRect rc;
         BOOL r = m_menu.GetMenuItemRect(NULL, idItem, &rc);
         ScreenToClient(&rc);
         InvalidateRect(&rc);
@@ -279,7 +279,7 @@ private:
 private:
     int m_nUpdateItem;
     int m_nSelectedItem;
-    CMenuHandle m_menu;
+    WTL::CMenuHandle m_menu;
     BOOL m_fSysMenu;
     BOOL m_fPopup;
 };

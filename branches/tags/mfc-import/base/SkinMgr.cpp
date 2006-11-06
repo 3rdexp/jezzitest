@@ -7,11 +7,23 @@
 #include "SkinScheme.h"
 #include "SkinMgr.h"
 
+
+
 #include "../controls/menu.h"
 #include "../controls/frame.h"
 #include "../controls/dialog.h"
+
+#ifndef __IStream_INTERFACE_DEFINED__
+ #error ddddddd
+#endif
+
 #if 0
+#include <commctrl.h>
+using ::ImageList_Read;
+#include <atlctrls.h>
+
 #include "../controls/button.h"
+
 #include "../controls/edit.h"
 #include "../controls/combobox.h"
 #include "../controls/tab.h"
@@ -27,7 +39,7 @@
 #include "../libcoolsb/coolsb_detours.h"
 #endif
 
-#include <atlctrlx.h> // test only
+
 
 namespace Skin {
 
@@ -41,18 +53,18 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 
 	// TODO: 这样的代码就没有办法写得好看一点?
-//	if (!(_installed_type & SKINCTL_BUTTON) && (dwType & SKINCTL_BUTTON) )
-//	{
-//		// typedef SkinButton<CBitmapButton> ssbuton;
-//		typedef SkinButton<CButton> ssbuton;
-//		bool f = ssbuton::Install(hInst);
-//		if (f)
-//			_installed_type |= SKINCTL_BUTTON;
-//	}
-//
+	if (!(_installed_type & SKINCTL_BUTTON) && (dwType & SKINCTL_BUTTON) )
+	{
+		// typedef SkinButton<CBitmapButton> ssbuton;
+        typedef SkinButton<WTL::CButton> ssbuton;
+		bool f = ssbuton::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_BUTTON;
+	}
+
 //	if (!(_installed_type & SKINCTL_EDIT) && (dwType & SKINCTL_EDIT) )
 //	{
-//		typedef SkinEdit<CEdit> ssedit;
+//		typedef SkinEdit<WTLCEdit> ssedit;
 //		bool f = ssedit::Install(hInst);
 //		if (f)
 //			_installed_type |= SKINCTL_EDIT;
@@ -60,7 +72,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 //
 //	if (!(_installed_type & SKINCTL_COMBOBOX) && (dwType & SKINCTL_COMBOBOX) )
 //	{
-//		typedef SkinComboBox<CComboBox> sscombobox;
+//		typedef SkinComboBox<WTL::CComboBox> sscombobox;
 //		bool f = sscombobox::Install(hInst);
 //		if (f)
 //			_installed_type |= SKINCTL_COMBOBOX;
@@ -68,7 +80,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 //
 //	if (!(_installed_type & SKINCTL_TAB) && (dwType & SKINCTL_TAB) )
 //	{
-//		typedef SkinTabCtrl<CTabCtrl> sstab;
+//		typedef SkinTabCtrl<WTL::CTabCtrl> sstab;
 //		bool f = sstab::Install(hInst);
 //		if (f)
 //			_installed_type |= SKINCTL_TAB;
@@ -226,8 +238,8 @@ STDMETHODIMP SkinMgr::GetScheme(LPCSTR style, ISkinScheme ** ppScheme)
         const scheme_data * psd = _holder.get(style);
         if (psd)
         {
-            CComObject<SkinScheme> * pss = 0;
-            CComObject<SkinScheme>::CreateInstance(&pss);
+            ATL::CComObject<SkinScheme> * pss = 0;
+            ATL::CComObject<SkinScheme>::CreateInstance(&pss);
             pss->SetSchemeData(psd, _holder.get_cache());
 
             return pss->QueryInterface(IID_ISkinScheme, (void**)ppScheme);
@@ -240,7 +252,7 @@ HRESULT WINAPI GetSkinMgr(ISkinMgr ** pMgr)
 {
 #if 0
 	CComObject<SkinMgr> * p;
-	HRESULT hr = CComObject<SkinMgr>::CreateInstance(&p);
+	HRESULT hr = ATL::CComObject<SkinMgr>::CreateInstance(&p);
 	if (SUCCEEDED(hr))
 	{
 		p->QueryInterface(IID_ISkinMgr, (void**)pMgr);
@@ -257,7 +269,7 @@ HRESULT WINAPI GetSkinMgr(ISkinMgr ** pMgr)
 #else
 	HRESULT hr = E_OUTOFMEMORY;
 	if (!gpMgr)
-		gpMgr = new CComObjectGlobal<SkinMgr>();
+        gpMgr = new ATL::CComObjectGlobal<SkinMgr>();
 
     if (gpMgr)
 		hr = gpMgr->QueryInterface(IID_ISkinMgr, (void**)pMgr);
