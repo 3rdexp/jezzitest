@@ -20,7 +20,7 @@ public:
 		if( _hdc )
 			DeleteDC( _hdc );
 	}
-	void SetBitmap(HBITMAP bmp, COLORREF trans = 0xff000000)
+	void SetBitmap(HBITMAP bmp, COLORREF trans)
 	{
 		Release();
 		if( 0 == bmp )

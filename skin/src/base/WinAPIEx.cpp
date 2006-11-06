@@ -318,8 +318,8 @@ HRGN WINAPI RegulateRegion(HRGN hrgn, const SIZE* pszDest)
 	ASSERT( nRet );
 
 	// 不应该释放哟
-	nRet = DeleteObject( hrgn );
-	ASSERT( nRet );
+	// nRet = DeleteObject( hrgn );
+	// ASSERT( nRet );
 
 	return hrgnDiff;
 }

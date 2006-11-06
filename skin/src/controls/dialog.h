@@ -19,6 +19,9 @@ public:
     typedef SkinFrameImpl<SkinDialog> framebase_type;
 
     BEGIN_MSG_MAP(this_type)
+        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+            && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+            ATLTRACE("%04x Dialog\n", uMsg);
 //        MESSAGE_HANDLER(WM_PAINT, OnPaint)
 //        MESSAGE_HANDLER(WM_KILLFOCUS, OnFocus)
 //        MESSAGE_HANDLER(WM_SETFOCUS, OnFocus)
@@ -34,7 +37,7 @@ public:
 //        MESSAGE_HANDLER(BM_SETSTATE, OnStateChange)
 //        MSG_WM_CREATE(OnCreate)
         CHAIN_MSG_MAP(framebase_type)
-        REFLECT_NOTIFICATIONS()
+        // REFLECT_NOTIFICATIONS()
     END_MSG_MAP()
 };
 

@@ -177,6 +177,14 @@ public:
         return ret;
     }
 
+    HRGN GetSchemeRegion(int iPartId, int iStateId)
+    {
+        HRGN rgn = 0;
+        BOOL f = _scheme->GetRegion(ControlT::class_id, iPartId, iStateId, 0, &rgn);
+        ASSERT(f);
+        return rgn;
+    }
+
     BOOL Draw(HDC hdc, int iPartId, int iState, long dx, long dy, long dcx = 0, 
         long dcy = 0, DWORD dwRop = SRCCOPY)
     {
@@ -196,8 +204,7 @@ public:
         long dx, long dy, long dcx, long dcy,long sx, long sy, long scx, long scy) PURE;
     STDMETHOD_(BOOL, TransparentDraw)(HDC hdc, int iClassId, int iPartId, int iStateId, 
         const RECT* lprc) PURE;
-
-    ... GetColor ...
+    
 #endif
 
 public:
@@ -216,7 +223,6 @@ protected:
     SkinControlImpl() 
         : _enable(true) 
         , m_pCurrentMsg(0)
-        , depth_(0)
 #ifdef LOOP_DEBUG 
         , indent(0)
 #endif  
@@ -226,7 +232,7 @@ protected:
     // 能解决问题吗？ new derived; delete base*
     virtual ~SkinControlImpl() 
     {
-        TRACE("~ %p\n", this);
+        // TRACE("~ %p\n", this);
     } 
 
 public: // 需要被模版派生类访问
@@ -328,8 +334,6 @@ public: // 需要被模版派生类访问
 	}
     // common skin message procedure end
 
-    
-
 private:
     // 得到缺省的 ISkinScheme，SkinControl对象创建后的第一个函数调用
     void Init()
@@ -339,14 +343,14 @@ private:
             mgr->GetCurentScheme(&_scheme);
     }
 
-
     static std::hash_map<HWND, boost::shared_ptr<ControlT> > _handle_maps;
-	// static handle_map _handle_maps;
     static InstallPolicy _installer;
 public:
 	static LRESULT ControlProc(handle hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-        // ATLTRACE("HWND: 0x%08x msg: %08x\n", hWnd, uMsg);
+        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+                    && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+            ATLTRACE("%04x SkinCtrl\n", uMsg);
 		_ASSERTE( _CrtCheckMemory( ) );
 
 		BOOL bRet = FALSE;
@@ -363,7 +367,7 @@ public:
 			p->m_hWnd = hWnd;
 			it = _handle_maps.insert( std::make_pair(hWnd, p) ).first;
 
-            TRACE("n ew: %p\n", p);
+            // TRACE("n ew: %p\n", p);
 
 			p->Init();
 		}
@@ -424,14 +428,11 @@ public:
 
 			if (uMsg == WM_NCDESTROY) //最后一个消息
 			{
-                // 
+                // 清零，防止以后的过程再操作m_hWnd
+                // 如： Menu::WM_KEYDOWN
                 safeptr->m_hWnd = 0;
 
-                // TRACE("* before delete count: %d, %p\n", safeptr.use_count(), safeptr.get());
-
                 _handle_maps.erase(hWnd);
-
-                // TRACE("* after delete count: %d\n", safeptr.use_count());
 			}
 		}
 
@@ -443,23 +444,6 @@ public:
             
             lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
         }
-
-        -- safeptr->depth_;
-
-#ifdef LOOP_DEBUG 
-        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST) && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-        {
-            derived_type* p = safeptr.get();
-            
-            -- p->indent;
-
-            for(int i=0; i<p->indent; ++i)
-                OutputDebugString(" ");
-            
-
-            TRACE("- %p %04x %p   %p\n", hWnd, uMsg, p, &msg);
-        }
-#endif
 
 		_ASSERTE( _CrtCheckMemory( ) );
 		return lRes;
@@ -489,7 +473,6 @@ private:
 
 protected:
 	const _ATL_MSG * m_pCurrentMsg;
-    int depth_;
 	CComPtr<ISkinScheme> _scheme;
 
 	unsigned _enable : 1;
