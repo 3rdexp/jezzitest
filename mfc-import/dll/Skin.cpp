@@ -7,7 +7,7 @@
 #include "../base/skiniid.h"
 
 
-class SkinModule : public CAtlDllModuleT< SkinModule >
+class SkinModule : public ATL::CAtlDllModuleT< SkinModule >
 {
 public :
 	// DECLARE_LIBID(LIBID_blank_dllLib)
@@ -19,6 +19,7 @@ __declspec(selectany) SkinModule _AtlModule;
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
 	using namespace Skin;
+    using namespace ATL;
 	hInstance;
 	BOOL ret = _AtlModule.DllMain(dwReason, lpReserved);
 	if (dwReason == DLL_PROCESS_ATTACH)

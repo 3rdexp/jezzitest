@@ -16,8 +16,9 @@
 //  +-----------+-----------|-------+-------------------------------+
 namespace Skin{
 
+using ATL::CWindow;
 
-class ATL_NO_VTABLE SkinScheme : public CComObjectRoot
+class ATL_NO_VTABLE SkinScheme : public ATL::CComObjectRoot
 	, public ISkinScheme
 {
 public:

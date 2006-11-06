@@ -15,7 +15,7 @@
 
 namespace Skin {
 
-
+using ATL::_ATL_MSG;
 // see ../readme.txt
 
 // XXXPolicy SkinControlImpl 的模版参数
