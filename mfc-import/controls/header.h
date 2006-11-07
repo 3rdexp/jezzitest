@@ -3,7 +3,7 @@
 #include "../base/skinctrl.h"
 
 namespace Skin {
-	template<class BaseT = CHeaderCtrl>
+	template<class BaseT = WTL::CHeaderCtrl>
 	struct SkinHeaderCtrl : public SkinControlImpl<SkinHeaderCtrl, BaseT>
 	{
 		enum { class_id = HEADER };
@@ -38,7 +38,7 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			DoPaint(dc);
 			return 0;
 		}
@@ -201,9 +201,9 @@ namespace Skin {
 		}
 		LRESULT DoPaint(HDC dc)
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
-			CMemoryDC memdc(dc, rc);
+			WTL::CMemoryDC memdc(dc, rc);
 
 			int nPart;
 			int nState;
@@ -232,13 +232,13 @@ namespace Skin {
 				GetItem(i, &hditem);
 				GetItemRect(i,&rect);
 				
-				DoPaintHeadItem((CDCHandle)(HDC)memdc,rect,i,hditem);
+				DoPaintHeadItem((WTL::CDCHandle)(HDC)memdc,rect,i,hditem);
 			}
 
 			return 0;
 		}
 
-		void DoPaintHeadItem(CDCHandle memdc,RECT rc,int i,HD_ITEM &hditem)
+		void DoPaintHeadItem(WTL::CDCHandle memdc,RECT rc,int i,HD_ITEM &hditem)
 		{
 			int nPart;
 			int nState;
@@ -314,7 +314,7 @@ namespace Skin {
 				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcClient, NULL);
 
 			//draw imagelist
-			CImageList pImageList = GetImageList();
+			WTL::CImageList pImageList = GetImageList();
 			if ( !pImageList.IsNull() )
 			{
 				int margin = GetBitmapMargin();
