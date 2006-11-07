@@ -9,9 +9,6 @@
 
 
 
-#include "../controls/menu.h"
-#include "../controls/frame.h"
-#include "../controls/dialog.h"
 
 #ifndef __IStream_INTERFACE_DEFINED__
  #error "IStream Need"
@@ -29,10 +26,13 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 
 #include <atlctrls.h>
 
-#include "../controls/button.h"
-#include "../controls/edit.h"
+#include "../controls/frame.h"
 
 #if 1
+#include "../controls/menu.h"
+#include "../controls/dialog.h"
+#include "../controls/button.h"
+#include "../controls/edit.h"
 #include "../controls/combobox.h"
 #include "../controls/tab.h"
 #include "../controls/progress.h"
