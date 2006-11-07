@@ -12,3 +12,4 @@ Menu:
 Misc:
  ISkinScheme::对 char* 类型的支持
  为Skin库起个好名字 j-skin
+ mfc import
