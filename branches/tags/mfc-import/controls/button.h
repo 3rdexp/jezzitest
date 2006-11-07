@@ -7,7 +7,7 @@ namespace Skin {
 
 #define GROUPBOX_TEXT_SPACE                7    //groupbox文字与左（右）边框距离
 
-template<class BaseT = CButton>
+template<class BaseT = WTL::CButton>
 struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 {
     enum { class_id = BUTTON };
@@ -51,7 +51,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 		if ( BP_USERBUTTON == m_nPart )
 			return DefWindowProc( WM_PAINT, wParam, lParam );
 
-        CPaintDC dc(m_hWnd);
+        WTL::CPaintDC dc(m_hWnd);
         DoPaint( dc );
         return 0;
     }
@@ -399,7 +399,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         return BP_PUSHBUTTON;
     }
 
-    void GetCheckImgRect(const CRect& rcClient, int nState,  CRect& rcImg, CRect& rcText)
+    void GetCheckImgRect(const WTL::CRect& rcClient, int nState,  WTL::CRect& rcImg, WTL::CRect& rcText)
     {
         long lStyle = GetStyle();
 
@@ -566,14 +566,14 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     void DrawGroup(HDC hdc)
     {
-        CDC dc;
+        WTL::CDC dc;
         dc.Attach(hdc);
-        CRect rect;//控件矩形
+        WTL::CRect rect;//控件矩形
         GetClientRect(&rect);
 
         rect.bottom --;
         rect.right --;
-        CPen pen;
+        WTL::CPen pen;
         pen.CreatePen(PS_SOLID,1,0xBFD0D0);//边框笔
         HPEN hOldPen = dc.SelectPen(pen.m_hPen);
 
@@ -594,12 +594,12 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
         //字体
         HFONT hOldFont = dc.SelectFont(GetCtrlFont(m_hWnd));
-        CSize Extent;
+        WTL::CSize Extent;
         if (!dc.GetTextExtent(sCaption, lstrlen(sCaption), &Extent))
             return;//得到字所占空间出错
 
         rect.top += Extent.cy/2;
-        CPoint ptText;//文字左上角位置
+        WTL::CPoint ptText;//文字左上角位置
         ptText.y = 0 ;//rect.top + Extent.cy/2;//y方向是不变的
 
         LONG lStyle = GetWindowLong(GWL_STYLE);
@@ -664,7 +664,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
                 dc.LineTo(rect.right,ptText.y+Extent.cy);
         }
 
-        CRect rcText;//文字所在矩形
+        WTL::CRect rcText;//文字所在矩形
         rcText.left = ptText.x;
         rcText.top = ptText.y;
         rcText.right = rcText.left+Extent.cx;
@@ -679,10 +679,10 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
     
     LRESULT DoPaint( HDC dc )
     {
-        CRect rc;
+        WTL::CRect rc;
         GetClientRect(&rc);
         
-		CMemoryDC memdc(dc, rc);
+		WTL::CMemoryDC memdc(dc, rc);
 
 		int nState = GetState();
 		
@@ -713,7 +713,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				return S_OK;
 			}
 
-			CBitmapHandle hBitmap = CBitmapHandle((HBITMAP)::SendMessage(m_hWnd, BM_GETIMAGE, IMAGE_BITMAP, 0L));
+			WTL::CBitmapHandle hBitmap = WTL::CBitmapHandle((HBITMAP)::SendMessage(m_hWnd, BM_GETIMAGE, IMAGE_BITMAP, 0L));
 			if ( hBitmap )
 			{
 				SIZE sz;
@@ -721,7 +721,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				int nX = (rc.right - rc.left - sz.cx) / 2;
 				int nY = (rc.bottom - rc.top - sz.cy) / 2;
 
-				CClientDC cdc(m_hWnd);
+				WTL::CClientDC cdc(m_hWnd);
 				HDC hDC = ::CreateCompatibleDC(cdc.m_hDC);
 				HBITMAP pOldBitmapImage = (HBITMAP)SelectObject(hDC, hBitmap);
 				::BitBlt(memdc, nX, nY, sz.cx, sz.cy, hDC, 0, 0, SRCCOPY);
@@ -760,8 +760,8 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         else if ( m_nPart == BP_CHECKBOX || m_nPart == BP_RADIOBUTTON )
         {
             // 1 计算前面[o]的位置和文字的位置
-            CRect rcImg;
-            CRect rcText;
+            WTL::CRect rcImg;
+            WTL::CRect rcText;
             GetCheckImgRect( rc, nState, rcImg, rcText );
 
             if (_scheme)

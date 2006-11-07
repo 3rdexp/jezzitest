@@ -5,7 +5,7 @@
 
 namespace Skin {
 
-	template<class BaseT = CProgressBarCtrl>
+	template<class BaseT = WTL::CProgressBarCtrl>
 	struct SkinProgressCtrl : public SkinControlImpl<SkinProgressCtrl, BaseT>
 	{
 		enum { class_id = PROGRESS };
@@ -19,17 +19,17 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			DoPaint(dc);
 			return 0;
 		}
 
 		LRESULT DoPaint(HDC dc)
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
 
-			CMemoryDC memdc(dc, rc);
+			WTL::CMemoryDC memdc(dc, rc);
 
 			BOOL bSmooth = (GetStyle() & PBS_SMOOTH);
 			BOOL bHorz = !(GetStyle() & PBS_VERTICAL);
@@ -53,7 +53,7 @@ namespace Skin {
 			int nLower, nUpper;
 			GetRange(nLower, nUpper);
 
-			CRect rClient = rc;
+			WTL::CRect rClient = rc;
 			if (bHorz)
 				rClient.right = rClient.left + (rClient.Width() * nPos) / (nUpper - nLower);
 			else

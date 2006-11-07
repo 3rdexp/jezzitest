@@ -5,7 +5,7 @@
 
 namespace Skin {
 
-	template<class BaseT = CScrollBar>
+	template<class BaseT = WTL::CScrollBar>
 	struct SkinScrollBar : public SkinControlImpl<SkinScrollBar, BaseT>
 	{
 		enum { class_id = SCROLLBAR };
@@ -38,17 +38,17 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			DoPaint(dc);	
 			return 0;
 		}
 
 		LRESULT DoPaint(HDC dc)
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
 
-			CMemoryDC memdc(dc, rc);
+			WTL::CMemoryDC memdc(dc, rc);
 
 			int nPart;
 			int nState;
@@ -75,7 +75,7 @@ namespace Skin {
 			int nWidth = GetSchemeWidth(SBP_ARROWBTN, bVert ? ABS_UPNORMAL : ABS_LEFTNORMAL);
 			int nHeight = GetSchemeHeight(SBP_ARROWBTN, bVert ? ABS_UPNORMAL : ABS_LEFTNORMAL);
 
-			CRect rcDraw;
+			WTL::CRect rcDraw;
 			rcDraw = rc;
 			if ( bVert )
 			{
@@ -164,7 +164,7 @@ namespace Skin {
 				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcDraw, NULL );
 
 			// draw gripper
-			CRect rcGripper = rcDraw;
+			WTL::CRect rcGripper = rcDraw;
 			int nGripperWidth = GetSchemeWidth(bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ, SCRBS_NORMAL);
 			int nGripperHeight = GetSchemeHeight(bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ, SCRBS_NORMAL);
 
@@ -188,7 +188,7 @@ namespace Skin {
 				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcGripper, NULL );
 
 			// draw up 
-			CRect rcThumbSpace;
+			WTL::CRect rcThumbSpace;
 			if ( bVert )
 			{
 				nPart = SBP_LOWERTRACKVERT;
@@ -231,9 +231,9 @@ namespace Skin {
 			return 0;
 		}
 		
-		int HitTest(CPoint& pt, BOOL bVer)
+		int HitTest(WTL::CPoint& pt, BOOL bVer)
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
 			if ( bVer ) //´¹Ö±
 			{
@@ -246,7 +246,7 @@ namespace Skin {
 
 		}
 
-		int GetState(const BOOL& bMouseDown, const CRect& rHalf, CPoint& ptCursor, const BOOL& bVert, const BOOL bLeftUp)
+		int GetState(const BOOL& bMouseDown, const WTL::CRect& rHalf, WTL::CPoint& ptCursor, const BOOL& bVert, const BOOL bLeftUp)
 		{
 			int nState;
 			if ( bVert )
