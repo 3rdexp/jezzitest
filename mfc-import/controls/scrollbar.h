@@ -235,7 +235,7 @@ namespace Skin {
 		{
 			WTL::CRect rc;
 			GetClientRect(&rc);
-			if ( bVer ) //垂直
+			if ( bVer ) //直
 			{
 				
 			}
@@ -251,7 +251,7 @@ namespace Skin {
 			int nState;
 			if ( bVert )
 			{
-				// 垂直
+				// 直
 				if ( !IsWindowEnabled() )
 				{
 					nState = bLeftUp ? UPS_DISABLED : DNS_DISABLED;
