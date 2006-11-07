@@ -10,7 +10,6 @@ using WTL::CDCHandle;
 using WTL::CMenuHandle;
 
 #ifndef MSG_WM_NCMOUSELEAVE
-
 #define MSG_WM_NCMOUSELEAVE(func) \
     if (uMsg == WM_NCMOUSELEAVE) \
     { \
@@ -20,7 +19,7 @@ using WTL::CMenuHandle;
         if (IsMsgHandled()) \
         return TRUE; \
     }
-#endif
+#endif // #ifndef MSG_WM_NCMOUSELEAVE
 
 // Menu 扩充的 part and property 
 // BEGIN_TM_CLASS_PARTS(WINDOW)
@@ -35,20 +34,14 @@ using WTL::CMenuHandle;
 #define TMT_MENU_BORDER         TMT_MENUBAR + 1     // item border
 #define TMT_MENUBORDER_HILIGHT  TMT_MENUBAR + 2     // hilight border
 
+
 template<class ControlT, class WindowT = CWindow>
 class SkinFrameImpl : public WindowT
 {
 protected:
-    // replace by _frame_state;
-//    enum ActiveState
-//    {
-//        _Active   = 1,
-//        _Inactive = 2,
-//        _Disable  = 3
-//    };
-
-    // 注意：在 wm_nccalcsize 消息前就要初始化
+    
     SkinFrameImpl() 
+        // 注意：在 WM_NCCALCSIZE 消息前就要初始化
         : _frame_state(FS_ACTIVE)
         , _fTrackNcMouseLeave(false) 
         , _anchorDown(0) , _anchorHover(0)
@@ -180,8 +173,6 @@ protected:
         rc.bottom = rc.top + CalcMenuBarHeight();
         return rc;
     }
-    
-
 
     // 固定system button在 caption上的位置
     // TODO: 建立子元素 placement 的机制
@@ -629,11 +620,11 @@ protected:
     }
 
     BEGIN_MSG_MAP_EX(SkinFrameImpl)
-        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
-            && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-            ATLTRACE("%04x frame\n", uMsg);
-    if (uMsg == WM_COMMAND)
-        __asm nop;
+    //    if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+    //        && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+    //        ATLTRACE("%04x frame\n", uMsg);
+    // if (uMsg == WM_COMMAND)
+    //    __asm nop;
         MSG_WM_NCACTIVATE(OnNcActivate)
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_CREATE(OnCreate)
@@ -976,7 +967,14 @@ protected:
         SetMsgHandled(FALSE);
 
         ControlT * pT = static_cast<ControlT*>(this);
+#if 0
         _rgn = pT->GetSchemeRegion(0, 0);
+#else
+        CRect rcw;
+        GetWindowRect(&rcw);
+        rcw.OffsetRect(-rcw.left, -rcw.top);
+        _rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 35, 35);
+#endif
         ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
         
         return 0;
@@ -1057,7 +1055,7 @@ protected:
         }
         // TODO: 没有绘制正确
         // TODO: 没有得到正确的Region in OnCreate
-        RedrawWindow();
+        RedrawWindow(NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
     }
 
     void OnNcPaint(HRGN)

@@ -7,19 +7,7 @@ extern long FindItemIDThatOwnsThisMenu (HMENU hMenuOwned,HWND* phwndOwner,
 
 namespace Skin {
 
-//#ifndef MSG_MN_.............
-//
-//#define MSG_WM_NCMOUSELEAVE(func) \
-//    if (uMsg == WM_NCMOUSELEAVE) \
-//{ \
-//    SetMsgHandled(TRUE); \
-//    func(); \
-//    lResult = 0; \
-//    if (IsMsgHandled()) \
-//    return TRUE; \
-//}
-//
-//#endif
+
 
 
 #ifndef MN_SETHMENU
@@ -41,7 +29,20 @@ namespace Skin {
 //;MN_MOUSEMOVE           = 01EEh ;Win32
 //;MN_BUTTONUP            = 01EFh ;Win32
 //;MN_SETTIMERTOOPENHIERARCHY = 01F0 ;Win32
-#endif
+
+#endif // #ifndef MN_SETHMENU
+
+#ifndef MSG_MN_SELECTITEM
+#define MSG_MN_SELECTITEM(func) \
+    if (uMsg == MN_SELECTITEM) \
+    { \
+        SetMsgHandled(TRUE); \
+        func((int)wParam); \
+        lResult = 0; \
+        if (IsMsgHandled()) \
+        return TRUE; \
+    }
+#endif // #ifndef MSG_MN_SELECTITEM
 
 // 1 要让系统处理，MN_SELECTITEM,不然会死得很难看
 // GetCurrentSelectedIndex
@@ -67,30 +68,23 @@ public:
     {}
 
     BEGIN_MSG_MAP(this_type)
-        ATLASSERT(::IsWindow(m_hWnd));
-        //if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
-        //        && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-        //    TRACE("Menu: %p %08x %08x %08x\n", m_hWnd, uMsg, wParam, lParam);
-
-        // WM_PAINT 似乎是第一个设置了 HMENU 后的消息，还有一个更早的 MN_SIZEWINDOW，没有测试过
+//        ATLASSERT(::IsWindow(m_hWnd));
+//        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+//              && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+//            TRACE("Menu: %p %08x %08x %08x\n", m_hWnd, uMsg, wParam, lParam);
+//        WM_PAINT 似乎是第一个设置了 HMENU 后的消息，还有一个更早的 MN_SIZEWINDOW，没有测试过
 //        if (uMsg == WM_PAINT && m_menu.IsNull())
 //        {
-//            m_menu = GetHMenu();
+//          m_menu = GetHMenu();
 //        }
 
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_PAINT(OnPaint)
+        MSG_MN_SELECTITEM(OnSelectItem)
+        MSG_WM_KEYDOWN(OnKeyDown)
+
 //        MSG_WM_PRINT()
 //        MSG_WM_PRINTCLIENT()
-        if (uMsg == MN_SELECTITEM)
-        {
-            SetMsgHandled(TRUE);
-            lResult = OnSelectItem((int)wParam);
-            if (IsMsgHandled())
-                return TRUE;
-        }
-
-        MSG_WM_KEYDOWN(OnKeyDown)
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
 //        MSG_WM_ERASEBKGND
