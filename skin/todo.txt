@@ -3,12 +3,12 @@ Frame:
  Region, SetWindowRgn 
  MenuBar
  SystemButton restore state and ...
+ // Dialog Button 消息居然没有处理, 去掉 SkinDialog::REFLECT_NOTIFICATIONS()
 
 Menu:
- Keyboard support
- Read from config file
-
+ // Keyboard support
+ // Read from config file
 
 Misc:
  ISkinScheme::对 char* 类型的支持
- 为Skin起个好名字
+ 为Skin库起个好名字 j-skin
