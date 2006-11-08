@@ -45,6 +45,7 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls/scrollbar.h"
 #include "../libcoolsb/coolscroll.h"
 #include "../libcoolsb/coolsb_detours.h"
+#include "../base/SkinHook.h"
 #endif
 
 
@@ -192,6 +193,8 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_WINDOW;
     }    
 	
+	CSkinHook::Initialize();
+
 	// value => type
 	// 1 => SkinButton
 	// 2 => SkinEdit
