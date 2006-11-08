@@ -140,7 +140,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             if(GetCapture() == m_hWnd)
             {
                 if(bHover && m_fPressed == 1)
-                    ::SendMessage(GetParent(), WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(), BN_CLICKED), (LPARAM)m_hWnd);
+                    ::PostMessage(GetParent(), WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(), BN_CLICKED), (LPARAM)m_hWnd);
                 ::ReleaseCapture();
             }
             return lRet;
