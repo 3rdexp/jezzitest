@@ -17,7 +17,7 @@ END_TM_CLASS_PARTS()
 */
 namespace Skin {
 
-	template<class BaseT = CTabCtrl>
+	template<class BaseT = WTL::CTabCtrl>
 	struct SkinTabCtrl : public SkinControlImpl<SkinTabCtrl, BaseT>
 	{
 		enum { class_id = TAB };
@@ -32,7 +32,7 @@ namespace Skin {
 
 		void GetDrawRect ( LPRECT pWindow, LPRECT pClient = NULL )
 		{
-			CRect rWindow;
+			WTL::CRect rWindow;
 			GetWindowRect(rWindow);
 
 			if (pClient)
@@ -56,7 +56,7 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			TAB_Refresh(dc);
 			return 0;
 		}
@@ -73,7 +73,7 @@ namespace Skin {
 		
 		void TAB_DrawItem( HDC  hdc, INT  iItem)
 		{
-			CRect rcItem;
+			WTL::CRect rcItem;
 			BOOL bRet = GetItemRect( iItem, &rcItem );
 			if ( !bRet )
 				return;
@@ -123,7 +123,7 @@ namespace Skin {
 
 		void TAB_DrawBorder ( HDC hdc )
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
 
 			BOOL bVert = FALSE;
@@ -132,7 +132,7 @@ namespace Skin {
 
 			if ( GetItemCount() > 0 )
 			{
-				CRect rcItem;
+				WTL::CRect rcItem;
 				GetItemRect( 0, &rcItem );
 				if ( bVert )
 				{
@@ -153,10 +153,10 @@ namespace Skin {
 
 		LRESULT TAB_Refresh( HDC hdc )
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
 
-			CMemoryDC memdc(hdc, rc);
+			WTL::CMemoryDC memdc(hdc, rc);
 			
 			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, TABP_TABITEM, TIS_NORMAL))
 				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
@@ -194,13 +194,13 @@ namespace Skin {
 	
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CRect rWindow, rClient;
+			WTL::CRect rWindow, rClient;
 			GetDrawRect(rWindow, rClient);
 
 			BOOL bHot = FALSE;//IsHot(rWindow);
 
 			// draw the rest of the border
-			CRect rPage;
+			WTL::CRect rPage;
 			GetClientRect(rPage);
 			AdjustRect(FALSE, rPage);
 			rPage.top -= 2;
@@ -209,7 +209,7 @@ namespace Skin {
 			COLORREF crBkgnd = RGB(255, 125, 125);
 			const int EDGE = 1;
 			HDC hdc = GetWindowDC();
-			CDC dc;
+			WTL::CDC dc;
 			dc.Attach(hdc);
 			dc.FillSolidRect(rWindow.left, rWindow.top, EDGE, rClient.top - rWindow.top, crBkgnd);
 			//dc.FillSolidRect(rWindow.left, rWindow.top, rWindow.right - rWindow.left, EDGE, crBkgnd);
@@ -225,7 +225,7 @@ namespace Skin {
 
 			if (nSel != -1)
 			{
-				CRect rTab;
+				WTL::CRect rTab;
 				GetItemRect(nSel, rTab);
 
 				if (rTab.right > 4)

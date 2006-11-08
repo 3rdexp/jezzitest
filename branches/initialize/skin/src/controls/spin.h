@@ -4,7 +4,7 @@
 
 
 namespace Skin {
-	template<class BaseT = CUpDownCtrlT>
+	template<class BaseT = WTL::CUpDownCtrlT>
 	struct SkinUpDownCtrl : public SkinControlImpl<SkinUpDownCtrl, BaseT>
 	{
 		enum { class_id = SPIN };
@@ -18,26 +18,26 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			DoPaint(dc);
 			return 0;
 		}
 
 		LRESULT DoPaint(HDC dc)
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
 
-			CMemoryDC memdc(dc, rc);
+			WTL::CMemoryDC memdc(dc, rc);
 
 			// pressed?
-			CPoint ptCursor;
+			WTL::CPoint ptCursor;
 
 			BOOL bMouseDown = (GetAsyncKeyState(MK_LBUTTON) & 0x8000);
 
 			GetCursorPos(&ptCursor);
 
-			CRect rMem;
+			WTL::CRect rMem;
 			GetWindowRect(&rMem);
 			ptCursor.Offset(-rMem.TopLeft());
 			rMem.OffsetRect(-rMem.TopLeft());
@@ -47,7 +47,7 @@ namespace Skin {
 			int nState;
 			
 			// draw left/up arrow
-			CRect rHalf = rMem;
+			WTL::CRect rHalf = rMem;
 			if (bVert)
 				rHalf.bottom = (rHalf.top + rHalf.bottom) / 2;
 			else
@@ -78,7 +78,7 @@ namespace Skin {
 			return 0;
 		}
 
-		int GetState(const BOOL& bMouseDown, const CRect& rHalf, CPoint& ptCursor, const BOOL& bVert, const BOOL bLeftUp)
+		int GetState(const BOOL& bMouseDown, const WTL::CRect& rHalf, WTL::CPoint& ptCursor, const BOOL& bVert, const BOOL bLeftUp)
 		{
 			int nState;
 			if ( bVert )

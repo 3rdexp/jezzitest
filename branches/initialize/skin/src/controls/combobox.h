@@ -4,7 +4,7 @@
 
 namespace Skin {
 
-	template<class BaseT = CComboBox>
+	template<class BaseT = WTL::CComboBox>
 	struct SkinComboBox : public SkinControlImpl<SkinComboBox, BaseT>
 	{
 		enum { class_id = COMBOBOX };
@@ -29,9 +29,9 @@ namespace Skin {
 			RECT rc = {0};
 			GetClientRect( &rc );
 
-			CClientDC	dc( m_hWnd );
+			WTL::CClientDC	dc( m_hWnd );
 			
-			CMemoryDC memdc(dc, rc);
+			WTL::CMemoryDC memdc(dc, rc);
 
 			int nState = GetState();
 
@@ -59,10 +59,10 @@ namespace Skin {
 
 		void DoPaint(HDC hdc, int nState, RECT *pRect)
 		{
-			CDC dc;
+			WTL::CDC dc;
 			dc.Attach(hdc);
 
-			CRect rcFill(*pRect);
+			WTL::CRect rcFill(*pRect);
 
 			FillRect(dc.m_hDC, &rcFill, (HBRUSH)GetStockObject(WHITE_BRUSH));
 
@@ -71,7 +71,7 @@ namespace Skin {
 
 			
 
-			CRect rcItem(*pRect);
+			WTL::CRect rcItem(*pRect);
 			// Cover up dark 3D shadow.
 			COLORREF cr;
 			_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
@@ -96,8 +96,8 @@ namespace Skin {
 			rcItem.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB);
 			rcItem.DeflateRect(1,1);
 
-			CRect rcClient(*pRect);			
-			CRect rcButton(rcClient.right - GetSystemMetrics(SM_CXHTHUMB) , rcClient.top + ICON_SPACE, rcClient.right - 1, rcClient.bottom - 1);
+			WTL::CRect rcClient(*pRect);			
+			WTL::CRect rcButton(rcClient.right - GetSystemMetrics(SM_CXHTHUMB) , rcClient.top + ICON_SPACE, rcClient.right - 1, rcClient.bottom - 1);
 
 			// fix icon combox draw
 			FillRect(dc.m_hDC, &rcButton, (HBRUSH)GetStockObject(WHITE_BRUSH));
@@ -106,7 +106,7 @@ namespace Skin {
 			int nImgWidth =  GetSchemeWidth( m_nPart, nState );
 			int nImgkHeight = GetSchemeHeight( m_nPart, nState );
 			
-			CRect rcbmp;
+			WTL::CRect rcbmp;
 			rcbmp.left = rcButton.right - nImgWidth - 1;
 			rcbmp.top = rcButton.bottom - nImgkHeight - 1;
 			rcbmp.right = rcbmp.left + nImgWidth;
