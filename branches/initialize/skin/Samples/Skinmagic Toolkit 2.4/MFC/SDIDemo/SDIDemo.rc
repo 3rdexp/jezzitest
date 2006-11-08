@@ -267,7 +267,7 @@ END
 // SKINMAGIC
 //
 
-DEFAULT                 SKINMAGIC DISCARDABLE   "res\\MacOS.smf"
+// DEFAULT                 SKINMAGIC DISCARDABLE   "res\\MacOS.smf"
 
 /////////////////////////////////////////////////////////////////////////////
 //
