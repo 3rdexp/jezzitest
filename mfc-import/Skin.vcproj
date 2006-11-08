@@ -197,6 +197,9 @@
 				RelativePath=".\base\SkinDraw.h">
 			</File>
 			<File
+				RelativePath=".\base\SkinHook.h">
+			</File>
+			<File
 				RelativePath=".\base\SkinMgr.cpp">
 			</File>
 			<File
@@ -207,6 +210,9 @@
 			</File>
 			<File
 				RelativePath=".\base\SkinScheme.h">
+			</File>
+			<File
+				RelativePath=".\base\wclassdefines.h">
 			</File>
 			<File
 				RelativePath=".\base\WinAPIEx.cpp">
