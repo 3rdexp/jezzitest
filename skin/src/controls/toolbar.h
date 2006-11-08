@@ -33,7 +33,7 @@ namespace Skin {
 	/* vertical padding used in list mode when image is present */
 #define LISTPAD_CY 9
 
-	template<class BaseT = CToolBarCtrl>
+	template<class BaseT = WTL::CToolBarCtrl>
 	struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT>
 	{
 		enum { class_id = TOOLBAR };
@@ -52,7 +52,7 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			TOOLBAR_Refresh(dc);
 			return 0;
 		}
@@ -83,9 +83,9 @@ namespace Skin {
 
 		void TOOLBAR_Refresh(HDC dc)
 		{
-			CRect rcClient;
+			WTL::CRect rcClient;
 			GetClientRect(&rcClient);
-			CMemoryDC memdc(dc, rcClient);
+			WTL::CMemoryDC memdc(dc, rcClient);
 
 			int nPart = TP_SEPARATORVERT + 1; //没有背景的.我加上一个
 			int nState = TS_NORMAL;
@@ -95,11 +95,11 @@ namespace Skin {
 				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcClient, NULL );
 
 
-			CPoint ptCursor;
+			WTL::CPoint ptCursor;
 			::GetCursorPos (&ptCursor);
 			ScreenToClient (&ptCursor);
 
-			CRect rcClip;
+			WTL::CRect rcClip;
 			GetClipBox (dc, rcClip);
 			
 			HIMAGELIST m_hImageList = (HIMAGELIST)DefWindowProc (TB_GETIMAGELIST, 0, 0);
@@ -118,10 +118,10 @@ namespace Skin {
 				{
 					continue;
 				}
-				CRect rcButton;
+				WTL::CRect rcButton;
 				DefWindowProc (TB_GETITEMRECT, i, (LPARAM)&rcButton);
 
-				if ( !CRect().IntersectRect (rcClip, rcButton) )
+				if ( !WTL::CRect().IntersectRect (rcClip, rcButton) )
 				{
 					continue;
 				}
@@ -150,7 +150,7 @@ namespace Skin {
 
 					int nSepWidth = GetSchemeWidth( nPart, nState );
 					int nSepHeight = GetSchemeHeight( nPart, nState );
-					CRect rcSep ;
+					WTL::CRect rcSep ;
 					rcSep.left = rcButton.left + ( rcButton.Width() - nSepWidth ) / 2;
 					rcSep.right = rcSep.left +  nSepWidth;
 					rcSep.top = rcButton.top + ( rcButton.Height() - nSepHeight ) / 2;
@@ -192,7 +192,7 @@ namespace Skin {
 						nPart = TP_DROPDOWNBUTTON;
 						int nArrowWidth = GetSchemeWidth( nPart, nState );
 						int nArrowHeight = GetSchemeHeight( nPart, nState );
-						CRect rcArrow ;
+						WTL::CRect rcArrow ;
 						rcArrow.left = rcButton.right - nArrowWidth;
 						rcArrow.right = rcButton.right;
 						rcArrow.top = rcButton.top + ( rcButton.Height() - nArrowHeight ) / 2;
@@ -314,7 +314,7 @@ namespace Skin {
 				
 					// 绘制按钮bmp和text
 
-					CImageList imgList;
+					WTL::CImageList imgList;
 					if ( tbbutton.iBitmap >= 0 )
 					{
 						if ( nState == TS_HOT )
@@ -414,7 +414,7 @@ namespace Skin {
 				//变灰色 不可点击
 				if ( IS_INDETERMINATE(tbbutton) )
 				{
-					CPen pen;// (cDC, ::GetSysColor (COLOR_3DSHADOW));
+					WTL::CPen pen;// (WTL::CDC, ::GetSysColor (COLOR_3DSHADOW));
 					pen.CreatePen( PS_SOLID, 1, ::GetSysColor (COLOR_3DSHADOW));
 					HPEN oldPen = memdc.SelectPen(pen);
 					memdc.MoveTo (rcButton.left, rcButton.bottom);
@@ -439,16 +439,16 @@ namespace Skin {
 						}
 					}
 					COLORREF crHighLight = ::GetSysColor (COLOR_HIGHLIGHT);
-					CPen pen;// (cDC, crHighLight);
+					WTL::CPen pen;// (WTL::CDC, crHighLight);
 					pen.CreatePen (PS_SOLID, 1, crHighLight);
 					HPEN oldPen= memdc.SelectPen(pen);
-					//CPenDC pen (cDC, ::GetSysColor(COLOR_BTNSHADOW));
-					CBrush brush ;//(cDC, bPressed||(bOver&&IS_CHECKED(tbbutton)) ? HLS_TRANSFORM (crHighLight, +50, -50) : (bOver ? HLS_TRANSFORM (crHighLight, +70, -57) : HLS_TRANSFORM (crHighLight, +80, -66)));
+					//WTL::CPenDC pen (WTL::CDC, ::GetSysColor(COLOR_BTNSHADOW));
+					WTL::CBrush brush ;//(WTL::CDC, bPressed||(bOver&&IS_CHECKED(tbbutton)) ? HLS_TRANSFORM (crHighLight, +50, -50) : (bOver ? HLS_TRANSFORM (crHighLight, +70, -57) : HLS_TRANSFORM (crHighLight, +80, -66)));
 					brush.CreateSolidBrush(  crHighLight );
 					HBRUSH oldBrush = memdc.SelectBrush(brush);
 					memdc.FillSolidRect(rcButton, crHighLight);
 					memdc.Draw3dRect(rcButton,crHighLight,crHighLight);
-					//cDC.Draw3dRect (rcButton, ::GetSysColor (COLOR_BTNHILIGHT), ::GetSysColor(COLOR_BTNSHADOW));//Enable This to Get the classic look
+					//WTL::CDC.Draw3dRect (rcButton, ::GetSysColor (COLOR_BTNHILIGHT), ::GetSysColor(COLOR_BTNSHADOW));//Enable This to Get the classic look
 
 					if ( IsDropDown(tbbutton) )
 					{
@@ -477,7 +477,7 @@ namespace Skin {
 				//分隔条
 				if ( IS_SEPARATOR(tbbutton) )
 				{
-					CPen pen;// (cDC, crHighLight);
+					WTL::CPen pen;// (WTL::CDC, crHighLight);
 					pen.CreatePen (PS_SOLID, 1, RGB( 255, 0 ,0 ) ) ; // ::GetSysColor (COLOR_BTNFACE));
 					HPEN oldPen =  memdc.SelectPen(pen);
 					if ( IS_WRAP(tbbutton) )
@@ -496,10 +496,10 @@ namespace Skin {
 				{
 					if ( IsDropDown(tbbutton) )
 					{
-						CPen pen;// (cDC, crHighLight);
+						WTL::CPen pen;// (WTL::CDC, crHighLight);
 						pen.CreatePen (PS_SOLID, 1, RGB( 255, 0, 0 ) ); //::GetSysColor (COLOR_BTNTEXT));
 						HPEN oldPen =  memdc.SelectPen(pen);
-						//CPenDC pen (cDC, ( bOver && !IS_INDETERMINATE(tbbutton) ) ? RGB(0,0,0) : ::GetSysColor (IS_ENABLED(tbbutton) ? COLOR_BTNTEXT : COLOR_GRAYTEXT));
+						//WTL::CPenDC pen (WTL::CDC, ( bOver && !IS_INDETERMINATE(tbbutton) ) ? RGB(0,0,0) : ::GetSysColor (IS_ENABLED(tbbutton) ? COLOR_BTNTEXT : COLOR_GRAYTEXT));
 
 						memdc.MoveTo (rcButton.right-9, (rcButton.top+rcButton.bottom)/2-1);
 						memdc.LineTo (rcButton.right-4, (rcButton.top+rcButton.bottom)/2-1);
@@ -526,34 +526,34 @@ namespace Skin {
 							}
 							memdc.Draw3dRect (rcButton, crHighLight, crHighLight);
 							HICON hIcon = ImageList_ExtractIcon (NULL, m_hImageList, tbbutton.iBitmap);
-							//memdc.DrawState (CPoint (rcButton.left + ( bOver ? 4 : 3 ), rcButton.top + ( bOver ? 4 : 3 )), m_sizeImage, hIcon, DSS_MONO, CBrush (bOver ? (IS_INDETERMINATE(tbbutton) ? ::GetSysColor (COLOR_BTNFACE): ::GetSysColor (COLOR_HIGHLIGHT): ::GetSysColor (COLOR_BTNFACE)));
-							//cDC.DrawState (CPoint (rcButton.left + 2, rcButton.top + 2), m_sizeImage, hIcon, DSS_MONO, CBrush (bOver ? (IS_INDETERMINATE(tbbutton) ? HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -20, 0) : HLS_TRANSFORM (::GetSysColor (COLOR_HIGHLIGHT), +50, -66)) : HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -27, 0)));
+							//memdc.DrawState (WTL::CPoint (rcButton.left + ( bOver ? 4 : 3 ), rcButton.top + ( bOver ? 4 : 3 )), m_sizeImage, hIcon, DSS_MONO, WTL::CBrush (bOver ? (IS_INDETERMINATE(tbbutton) ? ::GetSysColor (COLOR_BTNFACE): ::GetSysColor (COLOR_HIGHLIGHT): ::GetSysColor (COLOR_BTNFACE)));
+							//WTL::CDC.DrawState (WTL::CPoint (rcButton.left + 2, rcButton.top + 2), m_sizeImage, hIcon, DSS_MONO, WTL::CBrush (bOver ? (IS_INDETERMINATE(tbbutton) ? HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -20, 0) : HLS_TRANSFORM (::GetSysColor (COLOR_HIGHLIGHT), +50, -66)) : HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -27, 0)));
 							DestroyIcon (hIcon);
 
 						}
 						if ( IS_DISABLED(tbbutton) )
 						{
 							memdc.FillSolidRect(rcButton, ::GetSysColor (COLOR_3DFACE));
-							//CBrush icont(::GetSysColor(COLOR_BTNSHADOW));
-							CBrush icont ;
+							//WTL::CBrush icont(::GetSysColor(COLOR_BTNSHADOW));
+							WTL::CBrush icont ;
 							icont.CreateSolidBrush(  ::GetSysColor(COLOR_BTNSHADOW));
 
 							HICON hIcon = ImageList_ExtractIcon (NULL, m_hImageList, tbbutton.iBitmap);
-							//memdc.DrawState (CPoint (rcButton.left + ( bOver ? 4 : 3 ), rcButton.top + ( bOver ? 4 : 3 )), m_sizeImage, hIcon, DSS_MONO, icont/*CBrush (bOver ? (IS_INDETERMINATE(tbbutton) ? HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -20, 0) : HLS_TRANSFORM (::GetSysColor (COLOR_HIGHLIGHT), +50, -66)) : HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -27, 0))*/);
+							//memdc.DrawState (WTL::CPoint (rcButton.left + ( bOver ? 4 : 3 ), rcButton.top + ( bOver ? 4 : 3 )), m_sizeImage, hIcon, DSS_MONO, icont/*WTL::CBrush (bOver ? (IS_INDETERMINATE(tbbutton) ? HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -20, 0) : HLS_TRANSFORM (::GetSysColor (COLOR_HIGHLIGHT), +50, -66)) : HLS_TRANSFORM (::GetSysColor (COLOR_3DFACE), -27, 0))*/);
 							DestroyIcon (hIcon);
 						}
 						if ( IS_ENABLED(tbbutton) )
 						{
 							::ImageList_Draw (m_hImageList, tbbutton.iBitmap, memdc,
 								rcButton.left + ( (bOver && !bPressed) ? 2 : 3 ), rcButton.top + ( (bOver && !bPressed) ? 2 : 3 ), ILD_TRANSPARENT);
-							/*::ImageList_Draw (m_hImageList, tbbutton.iBitmap, cDC.m_hDC,//Enable This to get the Non-shadowed buttons
+							/*::ImageList_Draw (m_hImageList, tbbutton.iBitmap, WTL::CDC.m_hDC,//Enable This to get the Non-shadowed buttons
 							rcButton.left + 2, rcButton.top + 2, ILD_TRANSPARENT);*/
 						}
 						/*if (bPressed )//Enable this to get The Classic Style
 						{
 						COLORREF crHighLight = ::GetSysColor (COLOR_HIGHLIGHT);
-						//cDC.Draw3dRect (rcButton, ::GetSysColor (COLOR_3DSHADOW), ::GetSysColor(COLOR_3DHIGHLIGHT));
-						cDC.FillSolidRect(rcButton,HLS_TRANSFORM (crHighLight, +50, -57));
+						//WTL::CDC.Draw3dRect (rcButton, ::GetSysColor (COLOR_3DSHADOW), ::GetSysColor(COLOR_3DHIGHLIGHT));
+						WTL::CDC.FillSolidRect(rcButton,HLS_TRANSFORM (crHighLight, +50, -57));
 						}*/
 					}
 				}

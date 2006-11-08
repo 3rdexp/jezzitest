@@ -16,6 +16,7 @@
 			OutputDirectory="..\Debug"
 			IntermediateDirectory="../Debug/Skin"
 			ConfigurationType="2"
+			UseOfMFC="1"
 			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">

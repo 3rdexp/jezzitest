@@ -17,7 +17,7 @@ namespace Skin {
 #define TB_AUTO_PAGE		(TB_AUTO_PAGE_LEFT | TB_AUTO_PAGE_RIGHT)
 #define TB_THUMB_HOT            64    /* mouse hovers above thumb */
 
-	template<class BaseT = CTrackBarCtrl>
+	template<class BaseT = WTL::CTrackBarCtrl>
 	struct SkinTrackBarCtrl : public SkinControlImpl<SkinTrackBarCtrl, BaseT>
 	{
 		enum { class_id = TRACKBAR };
@@ -152,7 +152,7 @@ namespace Skin {
 			}
 			else
 			{
-				CPaintDC dc(m_hWnd);
+				WTL::CPaintDC dc(m_hWnd);
 				TRACKBAR_Refresh( dc );
 			}
 			return 0;
@@ -198,9 +198,9 @@ namespace Skin {
 		}
 		void TRACKBAR_Refresh ( HDC hdcDst )
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
-			CMemoryDC memdc(hdcDst, rc);
+			WTL::CMemoryDC memdc(hdcDst, rc);
 			
 			int nPart = TKP_TRACK;// 取得一个就可以了
 			int nState = TKS_NORMAL;

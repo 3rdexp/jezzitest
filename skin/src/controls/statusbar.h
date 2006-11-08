@@ -3,7 +3,7 @@
 #include "../base/skinctrl.h"
 
 namespace Skin {
-	template<class BaseT = CStatusBarCtrl>
+	template<class BaseT = WTL::CStatusBarCtrl>
 	struct SkinStatusBarCtrl : public SkinControlImpl<SkinStatusBarCtrl, BaseT>
 	{
 		enum { class_id = STATUS };
@@ -23,7 +23,7 @@ namespace Skin {
 		
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			STATUSBAR_Refresh(dc);
 			return 0;
 		}
@@ -102,7 +102,7 @@ namespace Skin {
 			if (!IsWindowVisible ())
 				return;
 
-			CRect rectPane;
+			WTL::CRect rectPane;
 			BOOL bRet = GetRect( itemID, &rectPane );
 			if ( !bRet && !bSimple )
 				return;
@@ -191,9 +191,9 @@ namespace Skin {
 
 		LRESULT STATUSBAR_Refresh ( HDC hdc )
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect(&rc);
-			CMemoryDC memdc(hdc, rc);
+			WTL::CMemoryDC memdc(hdc, rc);
 
 
 			int nPart;

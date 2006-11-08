@@ -13,6 +13,10 @@
 
 namespace xml_parser{
 
+using ATL::CComPtr;
+using ATL::CComVariant;
+using ATL::CComVariant;
+
 static std::string _getXMLAttribute(IXMLDOMNode* p, BSTR bsAttributeName)
 {
 	HRESULT hr = E_FAIL;

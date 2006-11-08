@@ -34,16 +34,33 @@
 // 关闭 ATL 对某些常被安全忽略的常见警告消息的隐藏
 #define _ATL_ALL_WARNINGS
 
+#include <afxwin.h>         // MFC core and standard components
+#include <afxext.h>         // MFC extensions
+#include <afxdisp.h>        // MFC Automation classes
+#include <afxcmn.h>			// MFC support for Windows Common Controls
+
+#if _WIN32_IE != 0x0500
+#pragma message( "check _WIN32_IE  version" )
+#endif
+
+#if _WIN32_WINNT != 0x0501
+#pragma message( "check _WIN32_WINNT version" )
+#endif
+
+#if WINVER != 0x0501
+#pragma message( "check WINVER version" )
+#endif
+
+#undef _WIN32_WCE
+#undef WIN32_WCE
 
 #include <atlbase.h>
 #include <atlcom.h>
 
-using namespace ATL;
-
+#define _WTL_NO_AUTOMATIC_NAMESPACE
 #include <atlapp.h>
-#include <atlctrls.h>
+// #include <atlctrls.h>
 #include <atlmisc.h>
-
 
 #pragma warning(disable : 4996) // 'function': was declared deprecated
 
