@@ -25,6 +25,39 @@ using ATL::_ATL_MSG;
 //   bool UnInstall(...)
 //   WNDPROC GetDefaultProc()
 
+//
+class HookPolicy
+{
+public:
+	HookPolicy() : _defaultproc(0) {}
+	bool Install(HWND hWnd, WNDPROC proc)
+	{
+#pragma warning(disable : 4311 4312)
+		WNDPROC oldproc = (WNDPROC)SetClassLongPtr(hWnd, GCLP_WNDPROC, (DWORD)proc);
+#pragma warning(default: 4311 4312)
+		if (oldproc)
+			_defaultproc = oldproc;
+		return _defaultproc!=0;
+	}
+
+	bool Uninstall(HWND hWnd, LPCSTR szClassName)
+	{
+#pragma warning(disable : 4311 4312)
+		WNDPROC proc = (WNDPROC)SetClassLongPtr(hWnd, GCLP_WNDPROC, (DWORD)GetDefaultProc());
+#pragma warning(default: 4311 4312)
+		if (proc)
+			_defaultproc = 0;
+		// ASSERT( proc == (WNDPROC)GetControlProc() );
+		return proc!=0;
+	}
+	WNDPROC GetDefaultProc()
+	{
+		return _defaultproc;
+	}
+private:
+	WNDPROC _defaultproc;
+};
+
 // 用于非系统window
 class RegisterPolicy
 {
