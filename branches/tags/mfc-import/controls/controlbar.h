@@ -16,7 +16,10 @@ class SkinControlBar : public SkinControlImpl<SkinControlBar, SkinHookBase,
 {
 public:
 	
-
+	~SkinControlBar()
+	{
+		UninstallHook( m_hWnd );
+	}
 	enum { class_id = CONTROLBAR };
 
 	BEGIN_MSG_MAP(CWindow)
