@@ -58,6 +58,7 @@ enum skincontrol_class_id
 
     // Non-client ´°¿Ú
     CCI_DEF(19, WINDOW)
+	CCI_DEF(20, CONTROLBAR)
 };
 
 #undef CCI_DEF
