@@ -1,5 +1,6 @@
 #pragma once
 #include "wclassdefines.h"
+#include "../controls/controlbar.h"
 
 namespace Skin {
 
@@ -98,6 +99,78 @@ public:
 		return sClass;
 	}
 
+
+	SkinHookBase* GetSkinCtrl( HWND hWnd )
+	{
+		SkinHookBase* pSkin = NULL;
+
+		SKINHOOK_ITERATOR it = _handle_maps.find( hWnd );
+		if( it != _handle_maps.end() )
+		{
+			pSkin = it->second;
+			return pSkin;
+		}
+
+		return NULL;
+	}
+
+	SkinHookBase* NewSkinCtrl( const CString& sClass, HWND hWnd )
+	{
+		if ( sClass.Find(WC_CONTROLBAR) == 0 )
+			return new SkinControlBar();
+
+
+		return NULL;//new CSkinOther(0);
+	}
+
+
+	BOOL InitSkin( HWND hWnd )
+	{
+		// do what
+		CString sClass( GetClass( hWnd ) );
+		SkinHookBase* pSkinCtrl = GetSkinCtrl( hWnd );
+		if ( pSkinCtrl )
+			return TRUE;
+
+		// finally do it ourselves
+		if (!pSkinCtrl)
+		{
+			CString sClass( GetClassEx( hWnd ) ); // converts Afx class names into something more useful
+
+			pSkinCtrl = NewSkinCtrl( sClass, hWnd );
+		}
+
+		if ( pSkinCtrl )
+		{
+			pSkinCtrl->Attach( hWnd );
+			pSkinCtrl->InstallHook( hWnd );
+			_handle_maps.insert( std::make_pair(hWnd, pSkinCtrl) );	
+			return TRUE;
+		}
+
+		// else
+		delete pSkinCtrl;
+
+		return TRUE;
+	}
+
+
+	BOOL  UnInstallSkin( HWND hWnd )
+	{
+		SKINHOOK_ITERATOR it = _handle_maps.find( hWnd );
+		if( it != _handle_maps.end() )
+		{
+
+			SkinHookBase* pCtrl = it->second;
+			_handle_maps.erase(it);
+			//pCtrl->UninstallHook( hWnd );
+			pCtrl->Detach();
+			delete pCtrl;
+		}
+		// else
+		return FALSE;
+	}
+
 	// global app hooks
 	// WH_CALLWNDPROC
 	static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
@@ -120,24 +193,57 @@ public:
 
 	void OnCallWndProc(const MSG& msg)
 	{   
-
-		/*
 		switch (msg.message)
 		{
-		case WM_CREATE:
+		case WM_STYLECHANGED:
+			if (msg.wParam == GWL_STYLE)
+			{
+				LPSTYLESTRUCT lpSS = (LPSTYLESTRUCT)msg.lParam;
 
+				if (lpSS->styleNew & WS_VISIBLE)
+				{
+					BOOL bRes = InitSkin(msg.hwnd);
+				}
+			}
+			break;
+
+		case WM_PARENTNOTIFY:
+			{
+				if (LOWORD(msg.wParam) == WM_CREATE)
+				{
+					BOOL bRes = InitSkin((HWND)msg.lParam);
+				}
+			}
+			break;
+
+		case WM_WINDOWPOSCHANGED: // alternative to WM_SHOWWINDOW
+			if (msg.wParam)
+			{
+				WINDOWPOS* pWPos = (WINDOWPOS*)msg.lParam;
+
+				if (pWPos->flags & SWP_SHOWWINDOW)
+					BOOL bRes = InitSkin(msg.hwnd);
+			}
+			break;
+
+		case WM_SHOWWINDOW:
+			if (msg.wParam)
+			{
+				BOOL bRes = InitSkin(msg.hwnd);
+			}
+			break;
 		case WM_NCDESTROY:
 			{
-				BOOL bRes = Unskin(msg.hwnd);
+				BOOL bRes = UnInstallSkin(msg.hwnd);
 			}
 			break;
 		}
-		*/
-		
 	}
 
 public:
 	HHOOK _hCallWndHook;
+	std::map< HWND , SkinHookBase* > _handle_maps;
+	typedef std::map<HWND, SkinHookBase* >::iterator SKINHOOK_ITERATOR;
 
 };
 
