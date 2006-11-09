@@ -140,7 +140,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             if(GetCapture() == m_hWnd)
             {
                 if(bHover && m_fPressed == 1)
-                    ::SendMessage(GetParent(), WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(), BN_CLICKED), (LPARAM)m_hWnd);
+                    ::PostMessage(GetParent(), WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(), BN_CLICKED), (LPARAM)m_hWnd);
                 ::ReleaseCapture();
             }
             return lRet;
@@ -594,7 +594,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
         //字体
         HFONT hOldFont = dc.SelectFont(GetCtrlFont(m_hWnd));
-        CSize Extent;
+        WTL::CSize Extent;
         if (!dc.GetTextExtent(sCaption, lstrlen(sCaption), &Extent))
             return;//得到字所占空间出错
 
@@ -682,7 +682,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         WTL::CRect rc;
         GetClientRect(&rc);
         
-        WTL::CMemoryDC memdc(dc, rc);
+		WTL::CMemoryDC memdc(dc, rc);
 
 		int nState = GetState();
 		
@@ -722,12 +722,12 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				int nY = (rc.bottom - rc.top - sz.cy) / 2;
 
 				WTL::CClientDC cdc(m_hWnd);
-				HDC hDC = ::CreateCompatibleDC(cdc);
+				HDC hDC = ::CreateCompatibleDC(cdc.m_hDC);
 				HBITMAP pOldBitmapImage = (HBITMAP)SelectObject(hDC, hBitmap);
 				::BitBlt(memdc, nX, nY, sz.cx, sz.cy, hDC, 0, 0, SRCCOPY);
 				SelectObject(hDC, pOldBitmapImage);
 				::DeleteObject(hDC);
-				// ::ReleaseDC(m_hWnd, cdc);
+				::ReleaseDC(m_hWnd, cdc);
 				return S_OK;
 			}
             // if exist icon

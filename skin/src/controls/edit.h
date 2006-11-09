@@ -5,7 +5,7 @@
 
 namespace Skin {
 
-	template<class BaseT = WTL::CEdit>
+	template<class BaseT = CEdit>
 	struct SkinEdit : public SkinControlImpl<SkinEdit, BaseT>
 	{
 		enum { class_id = EDIT };
@@ -44,7 +44,7 @@ namespace Skin {
 			if (( GetStyle() & WS_BORDER) ||
 				(lExStyle & WS_EX_CLIENTEDGE) || (lExStyle & WS_EX_STATICEDGE))
 			{		
-				WTL::CRect rcw;
+				CRect rcw;
 				GetWindowRect(&rcw);
 				rcw.right -= rcw.left;
 				rcw.bottom -= rcw.top;
@@ -53,12 +53,12 @@ namespace Skin {
 				HDC hdc = GetWindowDC(  );
 
 				// 绘制外框
-				WTL::CBrush brBorder;
+				CBrush brBorder;
 				int nState = GetState();
 				COLORREF cr;
 				_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
-				FrameRect(hdc, WTL::CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
+				FrameRect(hdc, CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 				brBorder.DeleteObject();
 
 				// 绘制内框
@@ -66,7 +66,7 @@ namespace Skin {
 				{
 					InflateRect(&rcw, -1, -1);
 					LONG lStyle = GetStyle();			
-					WTL::CBrush brBorder;
+					CBrush brBorder;
 					_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 					brBorder.CreateSolidBrush( cr ); 
 					FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
