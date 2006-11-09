@@ -13,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\Debug"
+			OutputDirectory="D:\0public\dev\jezzitest\initialize\skin\Samples\Skinmagic Toolkit 2.4\bin"
 			IntermediateDirectory="../Debug/Skin"
 			ConfigurationType="2"
 			UseOfMFC="1"
@@ -225,6 +225,9 @@
 			</File>
 			<File
 				RelativePath=".\controls\combobox.h">
+			</File>
+			<File
+				RelativePath=".\controls\controlbar.h">
 			</File>
 			<File
 				RelativePath=".\controls\dialog.h">
