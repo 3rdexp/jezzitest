@@ -20,10 +20,10 @@ namespace Skin {
 		END_MSG_MAP()
 
 
-		void DrawGripper(WTL::CWindowDC *pDC, WTL::CRect& rectWindow)
+		void DrawGripper(CWindowDC *pDC, CRect& rectWindow)
 		{
 			// get the gripper rect (1 pixel smaller than toolbar)
-			WTL::CRect gripper = rectWindow;
+			CRect gripper = rectWindow;
 			//Disable these line to disable the XP Gripper
 			
 
@@ -33,7 +33,7 @@ namespace Skin {
 			//pDC->Draw3dRect(gripper,::GetSysColor(COLOR_3DHIGHLIGHT),::GetSysColor(COLOR_3DSHADOW));//Enable this to get the classic gripper
 			gripper.OffsetRect(+4,0);
 			gripper.DeflateRect(0,6);
-			WTL::CBrush brGripperHorz;
+			CBrush brGripperHorz;
 			brGripperHorz.CreateSolidBrush(RGB(0, 255, 0));
 			pDC->FillRect (gripper,brGripperHorz);//Disable This to disable the XP Gripper
 			rectWindow.left += 8; 
@@ -65,10 +65,10 @@ namespace Skin {
 		void EraseNonClientEx()
 		{
 			// get window DC that is clipped to the non-client area
-			WTL::CWindowDC dc(m_hWnd);
-			WTL::CRect rectClient;
+			CWindowDC dc(m_hWnd);
+			CRect rectClient;
 			GetClientRect(rectClient);
-			WTL::CRect rectWindow;
+			CRect rectWindow;
 			GetWindowRect(rectWindow);
 			ScreenToClient(rectWindow);
 			rectClient.OffsetRect(-rectWindow.left, -rectWindow.top);
@@ -99,7 +99,7 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			WTL::CPaintDC dc(m_hWnd);
+			CPaintDC dc(m_hWnd);
 			//REBAR_Refresh(dc);
 			return 0;
 		}

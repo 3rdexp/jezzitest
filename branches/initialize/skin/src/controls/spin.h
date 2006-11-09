@@ -83,7 +83,7 @@ namespace Skin {
 			int nState;
 			if ( bVert )
 			{
-				// ´¹Ö±
+				// Ö±
 				if ( !IsWindowEnabled() )
 				{
 					nState = bLeftUp ? UPS_DISABLED : DNS_DISABLED;
