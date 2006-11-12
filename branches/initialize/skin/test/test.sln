@@ -25,7 +25,22 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcoolsb", "..\src\libcool
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mfc42_sb", "..\examples\mfc\mfc42_sb\mfc42_sb.vcproj", "{E750F1EE-84E2-4E01-A2F7-8F57582E2635}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mfc42_sr", "..\examples\mfc\mfc42_sr\mfc42_sr.vcproj", "{2EABC688-7602-468A-975D-06102A87F4A9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 1
+		SccProjectUniqueName0 = kPad_src\\kPad.vcproj
+		SccProjectName0 = \u0022$/kPad\u0022,\u0020TPAAAAAA
+		SccLocalPath0 = kPad_src
+		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
+	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
@@ -55,6 +70,14 @@ Global
 		{A0B46AC8-9D79-470E-A9F6-CD7F168E6749}.Debug.Build.0 = Debug|Win32
 		{A0B46AC8-9D79-470E-A9F6-CD7F168E6749}.Release.ActiveCfg = Release|Win32
 		{A0B46AC8-9D79-470E-A9F6-CD7F168E6749}.Release.Build.0 = Release|Win32
+		{E750F1EE-84E2-4E01-A2F7-8F57582E2635}.Debug.ActiveCfg = Debug|Win32
+		{E750F1EE-84E2-4E01-A2F7-8F57582E2635}.Debug.Build.0 = Debug|Win32
+		{E750F1EE-84E2-4E01-A2F7-8F57582E2635}.Release.ActiveCfg = Release|Win32
+		{E750F1EE-84E2-4E01-A2F7-8F57582E2635}.Release.Build.0 = Release|Win32
+		{2EABC688-7602-468A-975D-06102A87F4A9}.Debug.ActiveCfg = Debug|Win32
+		{2EABC688-7602-468A-975D-06102A87F4A9}.Debug.Build.0 = Debug|Win32
+		{2EABC688-7602-468A-975D-06102A87F4A9}.Release.ActiveCfg = Release|Win32
+		{2EABC688-7602-468A-975D-06102A87F4A9}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

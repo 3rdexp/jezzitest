@@ -100,8 +100,9 @@ void CFormViewDemoView::OnPrint(CDC* pDC, CPrintInfo* /*pInfo*/)
 
 HRESULT CFormViewDemoView::OnScrollCustomDraw(UINT wParam, NMHDR* lParam, LRESULT* bRet)
 {
-	using namespace Skin;
-	return HandleSkinScrollCustomDraw(wParam, lParam);
+	return 0;
+	//using namespace Skin;
+	//return HandleSkinScrollCustomDraw(wParam, lParam);
 }
 
 BOOL CFormViewDemoView::PreTranslateMessage(MSG* pMsg)
@@ -146,8 +147,8 @@ int CFormViewDemoView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFormView::OnCreate(lpCreateStruct) == -1)
 		return -1;
-	using namespace Skin;
-	InstallSkinScrollBar( m_hWnd );
+	//using namespace Skin;
+	//InstallSkinScrollBar( m_hWnd );
 	// TODO: Add your specialized creation code here
 
 	return 0;

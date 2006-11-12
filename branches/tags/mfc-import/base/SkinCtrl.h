@@ -145,6 +145,9 @@ private:
     WNDPROC _defaultproc;
 };
 
+
+
+
 /*----------------------------------------------------------------------------//
 
 ControlT: 实现该window的消息处理的模版参数
@@ -164,6 +167,14 @@ TODO:
 
 
 \\----------------------------------------------------------------------------*/
+
+class SkinHookBase : public CWindow
+{
+public:
+	virtual bool UninstallHook( HWND hWnd ) = 0;
+	virtual bool InstallHook( HWND hWnd ) = 0;
+};
+
 template<class ControlT, class BaseT, class InstallPolicy = ClassPolicy>
 class SkinControlImpl : public BaseT
 {
@@ -324,6 +335,37 @@ public: // 需要被模版派生类访问
         if (!dw)
             dw = ::DefWindowProc;
 		return ::CallWindowProc(dw, m_hWnd, uMsg, wParam, lParam);
+	}
+
+
+	BOOL DefaultReflectionHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult)
+	{
+		switch(uMsg)
+		{
+		case OCM_COMMAND:
+		case OCM_NOTIFY:
+		case OCM_PARENTNOTIFY:
+		case OCM_DRAWITEM:
+		case OCM_MEASUREITEM:
+		case OCM_COMPAREITEM:
+		case OCM_DELETEITEM:
+		case OCM_VKEYTOITEM:
+		case OCM_CHARTOITEM:
+		case OCM_HSCROLL:
+		case OCM_VSCROLL:
+		case OCM_CTLCOLORBTN:
+		case OCM_CTLCOLORDLG:
+		case OCM_CTLCOLOREDIT:
+		case OCM_CTLCOLORLISTBOX:
+		case OCM_CTLCOLORMSGBOX:
+		case OCM_CTLCOLORSCROLLBAR:
+		case OCM_CTLCOLORSTATIC:
+			lResult = ::DefWindowProc(hWnd, uMsg - OCM__BASE, wParam, lParam);
+			return TRUE;
+		default:
+			break;
+		}
+		return FALSE;
 	}
 
 	HRESULT InstallScrollBar()

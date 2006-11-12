@@ -118,7 +118,8 @@ public:
 	{
 		if ( sClass.Find(WC_CONTROLBAR) == 0 )
 			return new SkinControlBar();
-
+		else if ( sClass.CompareNoCase(WC_TOOLBAR) == 0 )
+			return new SkinToolBarCtrl();
 
 		return NULL;//new CSkinOther(0);
 	}
