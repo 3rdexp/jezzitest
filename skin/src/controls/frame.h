@@ -46,6 +46,7 @@ protected:
         , _fTrackNcMouseLeave(false) 
         , _anchorDown(0) , _anchorHover(0)
         , _hoverMenuItem(-1), _selectedMenuItem(-1)
+        , _rgn(0)
     {}
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
@@ -722,13 +723,17 @@ protected:
     //    TraceRect("after ", &rc2);
     //    TRACE("return %d\n", ret);
 
-        int c_top = CaptionHeight();
+        DWORD dwStyle = GetStyle();
+
+        int c_top = 0;
+        if (dwStyle & WS_DLGFRAME)
+            c_top += CaptionHeight();
         if (GetMenu())
             c_top += CalcMenuBarHeight();
 
         int c_left = 0, c_right = 0, c_bottom = 0;
 
-        if (GetStyle() & WS_BORDER)
+        if (dwStyle & WS_BORDER)
         {
             ControlT * pT = static_cast<ControlT*>(this);
 
@@ -965,18 +970,24 @@ protected:
     BOOL OnCreate(LPCREATESTRUCT)
     {
         SetMsgHandled(FALSE);
-
-        ControlT * pT = static_cast<ControlT*>(this);
-#if 0
-        _rgn = pT->GetSchemeRegion(0, 0);
-#else
-        CRect rcw;
-        GetWindowRect(&rcw);
-        rcw.OffsetRect(-rcw.left, -rcw.top);
-        _rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 35, 35);
-#endif
-        ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
         
+#if 1
+        if(GetStyle() & WS_DLGFRAME)
+        {
+            ControlT * pT = static_cast<ControlT*>(this);
+            _rgn = pT->GetSchemeRegion(0, 0);
+            ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
+        }
+#else
+        if(GetStyle() & WS_DLGFRAME)
+        {
+            CRect rcw;
+            GetWindowRect(&rcw);
+            rcw.OffsetRect(-rcw.left, -rcw.top);
+            _rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 35, 35);
+            ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
+        }
+#endif  
         return 0;
     }
 
@@ -1029,6 +1040,7 @@ protected:
 
     void OnSize(UINT nType, CSize)
     {
+        // 注意Region是 Windows's Rect，而不是 Client's Rect
         SetMsgHandled(FALSE);
         if(SIZE_MAXIMIZED == nType && _rgn)
         {
@@ -1211,15 +1223,11 @@ protected:
                     sysbtn_state._min = SystemButtonState::pushed;
             }
 
-#if 1
             WTL::CWindowDC dc(m_hWnd);
             WTL::CRect rcw;
             GetWindowRect(&rcw);
             rcw.OffsetRect(-rcw.left, -rcw.top);
-#else
-            WTL::CWindowDC dc(0);
-            WTL::CRect rcw(0, 40, 200, 80);
-#endif
+
             EtchedSysButton((HDC)dc, rcw, sysbtn_state);
         }
         if (HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)

@@ -24,7 +24,9 @@ public:
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainDlg)
-		_ASSERTE( _CrtCheckMemory( ) );
+        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+            && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+            ATLTRACE("%04x CMainDlg\n", uMsg);
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
         COMMAND_ID_HANDLER(IDCANCEL, OnOK)
