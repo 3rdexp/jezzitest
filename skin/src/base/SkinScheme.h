@@ -320,6 +320,48 @@ public:
 
     STDMETHOD(DrawParentBackground)(HWND hwnd, HDC hdc, RECT *prc)
     {
+
+		RECT rt;
+		POINT org;
+		HWND hParent;
+		HRGN clip = NULL;
+		int hasClip = -1;
+
+		TRACE("(%p,%p,%p)\n", hwnd, hdc, prc);
+		hParent = GetParent(hwnd);
+		if(!hParent)
+			hParent = hwnd;
+		if(prc) {
+			CopyRect(&rt, prc);
+			MapWindowPoints(hwnd, NULL, (LPPOINT)&rt, 2);
+
+			clip = CreateRectRgn(0,0,1,1);
+			hasClip = GetClipRgn(hdc, clip);
+			if(hasClip == -1)
+				TRACE("Failed to get original clipping region\n");
+			else
+				IntersectClipRect(hdc, prc->left, prc->top, prc->right, prc->bottom);
+		}
+		else {
+			GetClientRect(hParent, &rt);
+			MapWindowPoints(hParent, NULL, (LPPOINT)&rt, 2);
+		}
+
+		OffsetViewportOrgEx(hdc, -rt.left, -rt.top, &org);
+
+		SendMessageW(hParent, WM_ERASEBKGND, (WPARAM)hdc, 0);
+		SendMessageW(hParent, WM_PRINTCLIENT, (WPARAM)hdc, PRF_CLIENT);
+
+		SetViewportOrgEx(hdc, org.x, org.y, NULL);
+		if(prc) {
+			if(hasClip == 0)
+				SelectClipRgn(hdc, NULL);
+			else if(hasClip == 1)
+				SelectClipRgn(hdc, clip);
+			DeleteObject(clip);
+		}
+		return S_OK;
+#if 0
         CWindow wndparent( GetParent(hwnd) );
         CWindow wndchild(hwnd);
 
@@ -330,7 +372,7 @@ public:
             FillRect(hdc, prc, br);
 
         // TODO: 检测 WM_PRINTCLIENT 返回值，确定 Dialog 是否有底图
-#if 0
+
         CRect rcparent;
         wndparent.GetClientRect(&rcparent);
 

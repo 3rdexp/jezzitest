@@ -16,7 +16,7 @@ namespace Skin {
 
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
-			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
+			//MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 		END_MSG_MAP()
 
 
@@ -100,7 +100,9 @@ namespace Skin {
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			CPaintDC dc(m_hWnd);
-			//REBAR_Refresh(dc);
+			CRect rcClip;
+			dc.GetClipBox (rcClip);
+			dc.FillSolidRect (rcClip, RGB( 255, 0, 0 ));//Enable This to get the Classic Color
 			return 0;
 		}
 

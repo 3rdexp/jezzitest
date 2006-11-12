@@ -11,7 +11,7 @@
 
 #include "skinlib.h"
 //#include "./libcoolsb/coolscroll.h"
-#pragma comment(lib, "../../../../debug/skin.lib")
+#pragma comment(lib, "D:\\0public\\dev\\jezzitest\\tags\\Debug/skin.lib")
 
 /*using namespace Skin;*/
 

@@ -5,3 +5,5 @@ EXPORTS
 ;	GetSkinMgr				Private
 	SkinFrameProc			Private
 ;	GetCurrentScheme		Private
+;	InstallSkinScrollBar	Private
+;	HandleSkinScrollCustomDraw	Private

@@ -32,7 +32,7 @@ public:
 	HRESULT FinalConstruct()
 	{
 		_installed_type = 0;
-		
+		_hCallWndHook = NULL;
 		return S_OK;
 	}
 
@@ -69,6 +69,8 @@ private:
 
 	CComPtr<ISkinScheme> _spCurrentScheme;
 	unsigned _installed_type;
+
+	HHOOK _hCallWndHook;
 };
 
 __declspec(selectany) ATL::CComObjectGlobal<SkinMgr> * gpMgr = 0;

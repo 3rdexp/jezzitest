@@ -27,6 +27,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
         CoInitialize(NULL);
 		CComPtr<ISkinMgr> spmgr;
 		GetSkinMgr(&spmgr);
+
 		if (spmgr && S_OK == spmgr->LoadTheme("test.cfg"))
         {   
             spmgr->InitControls(hInstance, SKINCTL_ALL);

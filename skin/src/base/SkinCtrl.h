@@ -67,7 +67,7 @@ public:
     {
         WNDCLASS wc = {0};
         
-        if (!GetClassInfo(NULL, szClassName, &wc))
+        if (!GetClassInfo(hInst, szClassName, &wc))
         {
             // 新注册的窗口
             wc.hInstance = hInst;
@@ -241,6 +241,7 @@ public:
 #endif
 
 public:
+
 	static bool Install(HINSTANCE hInst)
     {
         // derived_type:: 可能真正调用的是 CWindow，必须限制
@@ -251,6 +252,9 @@ public:
     {
         return _installer.Uninstall(hInst, derived_type::GetWndClassName());
     }
+
+	//增加hook的支持
+
 
 protected:
     SkinControlImpl() 

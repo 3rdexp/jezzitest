@@ -21,7 +21,9 @@ namespace Skin{
   #define ASSERT ATLASSERT
 #endif
 
-
+#ifndef NM_COOLSB_CUSTOMDRAW
+	#define NM_COOLSB_CUSTOMDRAW (0-0xfffU)
+#endif
 // ------------------------------------------------------
 // 控件类型
 // 为什么有 skincontrol_class_id，还有 skincontrol_flag？
@@ -58,6 +60,7 @@ enum skincontrol_class_id
 
     // Non-client 窗口
     CCI_DEF(19, WINDOW)
+	CCI_DEF(20, CONTROLBAR)
 };
 
 #undef CCI_DEF
@@ -402,9 +405,8 @@ DECLARE_INTERFACE_(ISkinScheme, IUnknown)
 
 HRESULT WINAPI CreatetDefaultSkinScheme(ISkinScheme** ppss);
 DLLEXPORT HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme);
-
-
-
+DLLEXPORT HRESULT WINAPI InstallSkinScrollBar(HWND hWnd);
+DLLEXPORT HRESULT WINAPI HandleSkinScrollCustomDraw(int wParam, LPNMHDR lParam);
 
 
 /*
@@ -427,8 +429,8 @@ HRGN WINAPI RegulateRegion(HRGN hrgn, const SIZE* pszDest);
 BOOL WINAPI TransparentBlt2(HDC hdcDest,int nXOriginDest,int nYOriginDest,int nWidthDest,int nHeightDest,
 					   HDC hdcSrc,int nXOriginSrc,int nYOriginSrc,int nWidthSrc,int nHeightSrc,COLORREF clrTransparent);
 
-HRESULT WINAPI InstallScrollBar(HWND hWnd);
-HRESULT WINAPI HandleScrollCustomDraw(int wParam, LPNMHDR lParam);
+//HRESULT WINAPI InstallScrollBar(HWND hWnd);
+
 
 
 #ifndef SKIN_NO_NAMESPACE
