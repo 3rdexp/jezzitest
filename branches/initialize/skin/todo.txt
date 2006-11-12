@@ -1,15 +1,21 @@
 
 Frame:
- Region, SetWindowRgn 
+ // Region, SetWindowRgn 
  MenuBar
  SystemButton restore state and ...
  // Dialog Button 消息居然没有处理, 去掉 SkinDialog::REFLECT_NOTIFICATIONS()
+ // child dialog wrong region
+ 响应StyleChange消息，处理好style发生变化
 
 Menu:
  // Keyboard support
  // Read from config file
+ mfc42_sr assert
 
 Misc:
  ISkinScheme::对 char* 类型的支持
  为Skin库起个好名字 j-skin
- mfc import
+ // mfc import
+ ExtractRegion 似乎有错误
+
+Lib Project
