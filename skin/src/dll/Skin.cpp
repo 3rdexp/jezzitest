@@ -6,6 +6,36 @@
 #define INITGUID
 #include "../base/skiniid.h"
 
+static bool init_library(HINSTANCE hInst)
+{
+    using namespace Skin;
+    using namespace ATL;
+
+    CComPtr<ISkinMgr> spmgr;
+    GetSkinMgr(&spmgr);
+
+    if (spmgr && S_OK == spmgr->LoadTheme("test.cfg"))
+    {   
+        spmgr->InitControls(hInst, SKINCTL_ALL);
+    }
+    return true;
+}
+
+static bool uninit_library(HINSTANCE hInst)
+{
+    using namespace Skin;
+    using namespace ATL;
+
+    CComPtr<ISkinMgr> spmgr;
+    GetSkinMgr(&spmgr);
+    if (spmgr)
+        spmgr->UninitControls(hInst, SKINCTL_ALL);
+
+    delete gpMgr; 
+    return true;
+}
+
+
 
 class SkinModule : public ATL::CAtlDllModuleT< SkinModule >
 {
@@ -16,33 +46,54 @@ public :
 
 __declspec(selectany) SkinModule _AtlModule;
 
-BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
+#ifdef __AFX_H__
+
+class Cmfc_dllApp : public CWinApp
 {
-	using namespace Skin;
-    using namespace ATL;
-	hInstance;
+public:
+    Cmfc_dllApp() {}
+
+    // 重写
+public:
+    virtual BOOL InitInstance();
+    virtual int ExitInstance();
+
+    DECLARE_MESSAGE_MAP()
+};
+
+BEGIN_MESSAGE_MAP(Cmfc_dllApp, CWinApp)
+END_MESSAGE_MAP()
+
+
+BOOL Cmfc_dllApp::InitInstance()
+{
+    CWinApp::InitInstance();
+    init_library(m_hInstance);
+
+    return TRUE;
+}
+
+
+int Cmfc_dllApp::ExitInstance()
+{
+    CWinApp::ExitInstance();
+    uninit_library(m_hInstance);
+    return 0;
+}
+
+#else // __AFX_H__
+
+BOOL WINAPI DllMain(HINSTANCE hInst, DWORD dwReason, LPVOID lpReserved)
+{
 	BOOL ret = _AtlModule.DllMain(dwReason, lpReserved);
 	if (dwReason == DLL_PROCESS_ATTACH)
 	{
         CoInitialize(NULL);
-		CComPtr<ISkinMgr> spmgr;
-		GetSkinMgr(&spmgr);
-
-		if (spmgr && S_OK == spmgr->LoadTheme("test.cfg"))
-        {   
-            spmgr->InitControls(hInstance, SKINCTL_ALL);
-        }
+		init_library(hInst);
 	}
 	else if (dwReason == DLL_PROCESS_DETACH)
 	{
-		{
-		CComPtr<ISkinMgr> spmgr;
-		GetSkinMgr(&spmgr);
-		if (spmgr)
-			spmgr->UninitControls(hInstance, SKINCTL_ALL);
-		}
-
-		delete gpMgr;
+		uninit_library(hInst);
 
 		HRESULT hr = _AtlModule.DllCanUnloadNow();
 		ASSERT(SUCCEEDED(hr));
@@ -51,6 +102,8 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 	}
 	return ret;
 }
+
+#endif
 
 // TODO: 防止有dll's window还存在就退出dll，让调用者检测或者调用DllCanUnloadNow？ find a good way.
 STDAPI DllCanUnloadNow(void)
