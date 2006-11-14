@@ -163,6 +163,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_MENU;
     }
 
+	/*
 	if (!(_installed_type & SKINCTL_TOOLBAR) && (dwType & SKINCTL_TOOLBAR) )
 	{
 		typedef SkinToolBarCtrl<WTL::CToolBarCtrl> skintoolbar;
@@ -170,6 +171,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_TOOLBAR;
 	}
+	*/
 
 	if (!(_installed_type & SKINCTL_LISTVIEW) && (dwType & SKINCTL_LISTVIEW) )
 	{
@@ -213,9 +215,9 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_WINDOW;
     }    
 	
-	bool f = SkinControlBar::Install(hInst);
+	//bool f = SkinControlBar::Install(hInst);
 
-	_hCallWndHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId());
+	//_hCallWndHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId());
 	// value => type
 	// 1 => SkinButton
 	// 2 => SkinEdit
@@ -223,23 +225,9 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	// 
 
     _installed_type |= SKINCTL_WINDOW;
-    }    
+    
 	
 	CSkinHook::Initialize();
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> .theirs
->>>>>>> .r106
 
 	// value => type
 	// 1 => SkinButton
@@ -248,26 +236,23 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	// 
 
 	return S_OK;
-}
 
-<<<<<<< .mine
-<<<<<<< .mine
 //	CoolSB_UninitializeApp();
 
-	if ( _hCallWndHook ) 
-	{
-		UnhookWindowsHookEx( _hCallWndHook ); 
-		_hCallWndHook = NULL; 
-	}
+//	if ( _hCallWndHook ) 
+//	{
+//		UnhookWindowsHookEx( _hCallWndHook ); 
+//		_hCallWndHook = NULL; 
+//	}
 	return S_OK;
 }
-=======
+
         // value => type
         // 1 => SkinButton
         // 2 => SkinEdit
         // template<T
         // 
-=======
+
 STDMETHODIMP SkinMgr::UninitControls(HINSTANCE hInst, DWORD dwType)
 {
 	if (dwType & SKINCTL_BUTTON )
@@ -275,17 +260,6 @@ STDMETHODIMP SkinMgr::UninitControls(HINSTANCE hInst, DWORD dwType)
 //		typedef SkinButton<CButton> ssbuton;
 //		ssbuton::Uninstall(hInst);
 	}
-
-
-
-
-
-
-
-
-
->>>>>>> .theirs
->>>>>>> .r106
 
 //	CoolSB_UninitializeApp();
 	return S_OK;
@@ -417,14 +391,10 @@ HRESULT WINAPI HandleSkinScrollCustomDraw(int wParam, LPNMHDR lParam)
 
 // global app hooks
 // WH_CALLWNDPROC
+/*
 static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	/*
-#ifdef _USRDLL
-	// If this is a DLL, need to set up MFC state
-	AFX_MANAGE_STATE(AfxGetStaticModuleState());
-#endif
-	*/
+
 	CComPtr<ISkinMgr> p;
 	GetSkinMgr(&p);
 
@@ -439,6 +409,7 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 	return CallNextHookEx(GetInstance().m_hCallWndHook, nCode, wParam, lParam);
 }
+*/
 
 
 } // namespace Skin
