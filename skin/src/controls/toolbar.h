@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../base/skinctrl.h"
+#include <atlctrls.h>
+#include <atlwin.h>
 
 namespace Skin {
 
@@ -33,25 +35,45 @@ namespace Skin {
 	/* vertical padding used in list mode when image is present */
 #define LISTPAD_CY 9
 
-	template<class BaseT = WTL::CToolBarCtrl>
-	struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT>
+	class SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, SkinHookBase,
+		HookPolicy>
+
+	//template<class BaseT = WTL::CToolBarCtrl>
+	//struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT>
 	{
+	public:
 		enum { class_id = TOOLBAR };
 
 		SkinToolBarCtrl()
 		{
 			m_iListGap = DEFLISTGAP;
 		}
-		typedef SkinToolBarCtrl<BaseT> this_type;
-		typedef SkinControlImpl<SkinToolBarCtrl, BaseT> base_type;
 
-		BEGIN_MSG_MAP(this_type)
+		~SkinToolBarCtrl()
+		{
+			UnInstallHook( m_hWnd );
+		}
+
+		//typedef SkinToolBarCtrl<BaseT> this_type;
+		//typedef SkinControlImpl<SkinToolBarCtrl, BaseT> base_type;
+
+		BEGIN_MSG_MAP(CWindow)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)	
-			//MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)	
+			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)	
+			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)	
 		END_MSG_MAP()
+
+		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			EraseNonClient();
+			return 0;
+		}
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
+			CToolBar* pToolbar = NULL;
+			pToolbar = (CToolBar*)CWnd::FromHandle( m_hWnd ); 
+			TRACE("toolbar count is %d \r\n", pToolbar->GetCount());
 			WTL::CPaintDC dc(m_hWnd);
 			TOOLBAR_Refresh(dc);
 			return 0;
@@ -60,11 +82,94 @@ namespace Skin {
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			return 1;
+			CRect rect;
+			GetClientRect(&rect);
+			CDCHandle dc = (HDC)wParam;
+			//CMemoryDC dc ( (HDC)wParam, rect);
+			dc.FillSolidRect (rect, RGB( 0, 0, 255));
+			
+		}
+
+		void EraseNonClient()
+		{
+			// get window DC that is clipped to the non-client area
+			WTL::CWindowDC dc( m_hWnd );
+			CRect rectClient;
+			GetClientRect(rectClient);
+			CRect rectWindow;
+			GetWindowRect(rectWindow);
+			ScreenToClient(rectWindow);
+			rectClient.OffsetRect(-rectWindow.left, -rectWindow.top);
+			dc.ExcludeClipRect(rectClient);
+
+
+			// draw borders in non-client area
+			rectWindow.OffsetRect(-rectWindow.left, -rectWindow.top);
+			dc.FillSolidRect (rectWindow, RGB( 0, 0, 255));
+
+			// erase parts not drawn
+			dc.IntersectClipRect(rectWindow);
+			
+
+			// draw gripper in non-client area
+			DrawGripper(&dc, rectWindow);
+		}
+
+
+		void DrawGripper(WTL::CWindowDC* dc,CRect rcWin)
+		{
+			
+			DWORD dwStyle = GetStyle();
+
+			if (dwStyle & CBRS_FLOATING) return ;
+
+			if (dwStyle & CBRS_ORIENT_HORZ)
+			{
+
+				rcWin.top += 6;
+				rcWin.left += 4;
+				rcWin.right =  rcWin.left + 3;
+				rcWin.bottom -= 3;
+
+
+				for (int i = 0; i < rcWin.Height(); i += 2)
+				{
+					CRect rcWindow;
+					WTL::CBrush cb;
+					cb.CreateSolidBrush(::GetSysColor(COLOR_BTNSHADOW));
+					rcWindow = rcWin;
+					rcWindow.top = rcWin.top + i;
+					rcWindow.bottom = rcWindow.top + 1;
+					dc->FillRect(rcWindow, cb);
+				}
+
+			}
+			else
+			{
+				rcWin.top += 2;
+				rcWin.left += 2;
+				rcWin.right -= 2;
+				rcWin.bottom = rcWin.top + 3;
+				for (int i=0; i < rcWin.Width(); i += 2)
+				{
+					CRect rcWindow;
+					WTL::CBrush cb;
+					cb.CreateSolidBrush(::GetSysColor(COLOR_BTNSHADOW));
+					rcWindow=rcWin;
+					rcWindow.left = rcWindow.left + i;
+					rcWindow.right = rcWindow.left + 1;
+					dc->FillRect(rcWindow,cb);
+
+				}
+
+			}
+
 		}
 
 		BOOL IsDropDown (TBBUTTON& tbbutton)
 		{
-			BOOL hasDropDownArrow = (TOOLBAR_HasDropDownArrows(GetExtendedStyle()) &&
+			DWORD dwExtendedStyle = DWORD(DefWindowProc(TB_GETEXTENDEDSTYLE, 0, 0));
+			BOOL hasDropDownArrow = (TOOLBAR_HasDropDownArrows(dwExtendedStyle) &&
 				(tbbutton.fsStyle & BTNS_DROPDOWN)) ||
 				(tbbutton.fsStyle & BTNS_WHOLEDROPDOWN);
 
@@ -83,6 +188,9 @@ namespace Skin {
 
 		void TOOLBAR_Refresh(HDC dc)
 		{
+			WTL::CToolBarCtrl toolbar;
+			toolbar = m_hWnd;
+
 			WTL::CRect rcClient;
 			GetClientRect(&rcClient);
 			WTL::CMemoryDC memdc(dc, rcClient);
@@ -105,21 +213,23 @@ namespace Skin {
 			HIMAGELIST m_hImageList = (HIMAGELIST)DefWindowProc (TB_GETIMAGELIST, 0, 0);
 			TBBUTTON tbbutton;
 			LRESULT nCount = DefWindowProc (TB_BUTTONCOUNT, 0, 0);
-			int nHotItem = GetHotItem();
+			int nHotItem = toolbar.GetHotItem();
 			
 			int OldMode = memdc.SetBkMode(TRANSPARENT);
 			HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
 
 			for ( int i = 0; i < nCount; i++ )
 			{
-				DefWindowProc (TB_GETBUTTON, i, (LPARAM)&tbbutton);
+				toolbar.GetButton( i, &tbbutton );
+				//DefWindowProc (TB_GETBUTTON, i, (LPARAM)&tbbutton);
 
 				if ( !IS_VISIBLE(tbbutton) )
 				{
 					continue;
 				}
 				WTL::CRect rcButton;
-				DefWindowProc (TB_GETITEMRECT, i, (LPARAM)&rcButton);
+				toolbar.GetItemRect( i, rcButton );
+				//DefWindowProc (TB_GETITEMRECT, i, (LPARAM)&rcButton);
 
 				if ( !WTL::CRect().IntersectRect (rcClip, rcButton) )
 				{
@@ -160,21 +270,21 @@ namespace Skin {
 				}
 				else if ( !IS_CONTROL(tbbutton) )
 				{
-					if ( !IsButtonEnabled(tbbutton.idCommand) )
+					if ( !toolbar.IsButtonEnabled(tbbutton.idCommand) )
 						nState = TS_DISABLED;
-					else if ( IsButtonChecked(tbbutton.idCommand) )
+					else if ( toolbar.IsButtonChecked(tbbutton.idCommand) )
 					{
-						if ( IsButtonHighlighted(tbbutton.idCommand) )
+						if ( toolbar.IsButtonHighlighted(tbbutton.idCommand) )
 							nState = TS_HOTCHECKED;
 						else
 							nState = TS_CHECKED;
 					}
-					else if ( IsButtonPressed(tbbutton.idCommand) )
+					else if ( toolbar.IsButtonPressed(tbbutton.idCommand) )
 					{
 						nState = TS_PRESSED;
 						bPressed = true;
 					}
-					else if ( IsButtonHighlighted(tbbutton.idCommand) )
+					else if ( toolbar.IsButtonHighlighted(tbbutton.idCommand) )
 					{
 						nState = TS_HOT;
 						bOver = true;
@@ -318,22 +428,22 @@ namespace Skin {
 					if ( tbbutton.iBitmap >= 0 )
 					{
 						if ( nState == TS_HOT )
-							imgList = GetHotImageList();
+							imgList = toolbar.GetHotImageList();
 						else if ( nState == TS_DISABLED )
-							imgList = GetDisabledImageList();
+							imgList = toolbar.GetDisabledImageList();
 
 						if ( imgList.IsNull() )
-							imgList = GetImageList();
+							imgList = toolbar.GetImageList();
 					}
 
 					TCHAR szText[256];
 					memset(szText, 0, 256);
 					//GetString( tbbutton.idCommand, szText, 256);
-					GetButtonText( tbbutton.idCommand, szText );
+					toolbar.GetButtonText( tbbutton.idCommand, szText );
 					
 					POINT ptButton;
 					SIZE sizePad;
-					GetPadding( &sizePad );
+					toolbar.GetPadding( &sizePad );
 					SIZE szImg = { 0 };
 
 					BOOL bHasBitmap = FALSE;
@@ -561,7 +671,7 @@ namespace Skin {
 				TCHAR szText[256];
 				memset(szText, 0, 256);
 				//GetString( i, szText, 256);
-				GetButtonText( i, szText );
+				toolbar.GetButtonText( i, szText );
 				//if (_scheme)
 				//	_scheme->DrawText(memdc, class_id, nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
 				memdc.DrawText (szText, -1, rcButton, DT_SINGLELINE|DT_LEFT|DT_VCENTER);
@@ -570,6 +680,7 @@ namespace Skin {
 	
 			memdc.SetBkMode(OldMode);
 			memdc.SelectFont(hOldFont);
+			toolbar.Detach();
 		}
 
 	private:
