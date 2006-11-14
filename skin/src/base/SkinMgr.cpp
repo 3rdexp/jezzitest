@@ -30,7 +30,9 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 
 #if 1
 #include "../controls/menu.h"
+
 #include "../controls/dialog.h"
+
 #include "../controls/button.h"
 #include "../controls/edit.h"
 #include "../controls/combobox.h"
@@ -43,6 +45,10 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls/toolbar.h"
 #include "../controls//listview.h"
 #include "../controls/scrollbar.h"
+
+#include "../controls/rebar.h"
+#include "../controls/controlbar.h"
+
 #include "../libcoolsb/coolscroll.h"
 #include "../libcoolsb/coolsb_detours.h"
 #include "../base/SkinHook.h"
@@ -87,6 +93,18 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 			_installed_type |= SKINCTL_COMBOBOX;
 	}
 
+
+	/*
+	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
+	{
+		typedef SkinReBarCtrl<CReBarCtrl> skinrebar;
+		bool f = skinrebar::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_REBAR;
+	}
+    
+
+
 	if (!(_installed_type & SKINCTL_TAB) && (dwType & SKINCTL_TAB) )
 	{
 		typedef SkinTabCtrl<WTL::CTabCtrl> sstab;
@@ -94,6 +112,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_TAB;
 	}
+
 
 	if (!(_installed_type & SKINCTL_PROGRESS) && (dwType & SKINCTL_PROGRESS) )
 	{
@@ -103,6 +122,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 			_installed_type |= SKINCTL_PROGRESS;
 	}
 
+	*/
 	if (!(_installed_type & SKINCTL_SPIN) && (dwType & SKINCTL_SPIN) )
 	{
 		typedef SkinUpDownCtrl<WTL::CUpDownCtrl> ssspin;
@@ -193,7 +213,33 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_WINDOW;
     }    
 	
+	bool f = SkinControlBar::Install(hInst);
+
+	_hCallWndHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId());
+	// value => type
+	// 1 => SkinButton
+	// 2 => SkinEdit
+	// template<T
+	// 
+
+    _installed_type |= SKINCTL_WINDOW;
+    }    
+	
 	CSkinHook::Initialize();
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> .theirs
+>>>>>>> .r106
 
 	// value => type
 	// 1 => SkinButton
@@ -204,6 +250,24 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	return S_OK;
 }
 
+<<<<<<< .mine
+<<<<<<< .mine
+//	CoolSB_UninitializeApp();
+
+	if ( _hCallWndHook ) 
+	{
+		UnhookWindowsHookEx( _hCallWndHook ); 
+		_hCallWndHook = NULL; 
+	}
+	return S_OK;
+}
+=======
+        // value => type
+        // 1 => SkinButton
+        // 2 => SkinEdit
+        // template<T
+        // 
+=======
 STDMETHODIMP SkinMgr::UninitControls(HINSTANCE hInst, DWORD dwType)
 {
 	if (dwType & SKINCTL_BUTTON )
@@ -211,6 +275,17 @@ STDMETHODIMP SkinMgr::UninitControls(HINSTANCE hInst, DWORD dwType)
 //		typedef SkinButton<CButton> ssbuton;
 //		ssbuton::Uninstall(hInst);
 	}
+
+
+
+
+
+
+
+
+
+>>>>>>> .theirs
+>>>>>>> .r106
 
 //	CoolSB_UninitializeApp();
 	return S_OK;
@@ -300,6 +375,71 @@ HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme)
 
     return E_FAIL;
 }
+
+HRESULT WINAPI InstallSkinScrollBar(HWND hWnd)
+{
+	BOOL f = InitializeCoolSB(hWnd);
+	ATLASSERT( f );
+	if( f )
+	{
+		RECT rc;
+		BOOL fScroll = FALSE;
+		CComPtr<ISkinScheme> pss;
+		GetCurrentScheme(&pss);
+
+		if ( pss )
+			fScroll = pss->GetRect(SCROLLBAR, SBP_ARROWBTN, 1, &rc);
+
+		int nWidth = 0 ;
+		int nHeight = 0;
+
+		if ( fScroll )
+		{
+			nWidth = rc.right - rc.left;
+			nHeight = rc.bottom - rc.top;
+		}
+
+		f = CoolSB_SetStyle(hWnd, SB_BOTH, CSBS_NORMAL);
+		ATLASSERT( f );
+		f = CoolSB_SetSize(hWnd, SB_BOTH, nWidth > 0 ? nWidth : 15, nHeight > 0 ? nHeight : 15);
+		ATLASSERT( f );
+		f = CoolSB_SetMinThumbSize(hWnd, SB_BOTH, nWidth);
+		ATLASSERT( f );
+		return S_OK;
+	}
+	return S_FALSE;
+}
+
+HRESULT WINAPI HandleSkinScrollCustomDraw(int wParam, LPNMHDR lParam)
+{
+	return HandleCustomDraw(wParam, (NMCSBCUSTOMDRAW *)lParam);
+}
+
+// global app hooks
+// WH_CALLWNDPROC
+static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	/*
+#ifdef _USRDLL
+	// If this is a DLL, need to set up MFC state
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+#endif
+	*/
+	CComPtr<ISkinMgr> p;
+	GetSkinMgr(&p);
+
+	if (nCode == HC_ACTION)
+	{
+		CWPSTRUCT* pwp = (CWPSTRUCT*)lParam;
+
+		MSG msg = { pwp->hwnd, pwp->message, pwp->wParam, pwp->lParam, 0, { 0, 0 } };
+		GetInstance().OnCallWndProc(msg);
+		
+	}
+
+	return CallNextHookEx(GetInstance().m_hCallWndHook, nCode, wParam, lParam);
+}
+
 
 } // namespace Skin
 
