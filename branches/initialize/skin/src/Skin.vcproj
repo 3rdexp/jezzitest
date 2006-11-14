@@ -17,13 +17,13 @@
 			IntermediateDirectory="..\Debug\Skin"
 			ConfigurationType="2"
 			UseOfMFC="2"
-			UseOfATL="1"
+			UseOfATL="2"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;DLL_EXPORT"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -170,6 +170,9 @@
 			</File>
 			<File
 				RelativePath=".\dll\Skin.def">
+			</File>
+			<File
+				RelativePath=".\dll\skin.h">
 			</File>
 			<File
 				RelativePath=".\dll\stdafx.cpp">
