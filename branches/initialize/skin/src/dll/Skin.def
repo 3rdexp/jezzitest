@@ -7,4 +7,4 @@ EXPORTS
 ;	GetCurrentScheme		Private
 ;	InstallSkinScrollBar	Private
 ;	HandleSkinScrollCustomDraw	Private
-	InitToolBar
+;	InitToolBar
