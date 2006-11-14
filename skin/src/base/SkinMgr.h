@@ -32,7 +32,7 @@ public:
 	HRESULT FinalConstruct()
 	{
 		_installed_type = 0;
-		_hCallWndHook = NULL;
+		
 		return S_OK;
 	}
 
@@ -69,14 +69,13 @@ private:
 
 	CComPtr<ISkinScheme> _spCurrentScheme;
 	unsigned _installed_type;
-
-	HHOOK _hCallWndHook;
 };
 
 __declspec(selectany) ATL::CComObjectGlobal<SkinMgr> * gpMgr = 0;
 
 
 }; // namespace Skin
+
 
 
 #endif // !defined(AFX_SKINMGR_H__03C770FD_2015_4E2A_858D_9BB71D1E6BD0__INCLUDED_)

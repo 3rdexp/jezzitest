@@ -63,7 +63,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcoolsb", "..\..\..\src\l
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skin", "..\..\..\..\..\tags\mfc-import\Skin.vcproj", "{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skin", "..\..\..\src\Skin.vcproj", "{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject

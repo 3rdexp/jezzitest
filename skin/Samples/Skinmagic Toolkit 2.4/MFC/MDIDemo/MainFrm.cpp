@@ -77,7 +77,19 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockControlBar(&m_wndToolBar);
 
 	
+	CToolBar* pToolbar = NULL;
+	pToolbar = (CToolBar*)CWnd::FromHandle(m_wndToolBar.GetSafeHwnd()); 
 
+	/*
+	HMODULE  hLibSkin = LoadLibrary("skin.dll");
+	typedef BOOL (WINAPI *InitToolBar)(HWND hWnd);
+	InitToolBar pf = (InitToolBar)GetProcAddress(hLibSkin, "InitToolBar");
+	ASSERT(pf);
+	if(pf)
+	{
+		pf(m_wndToolBar.GetSafeHwnd());
+	}
+	*/
 	return 0;
 }
 

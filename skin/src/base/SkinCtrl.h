@@ -33,17 +33,17 @@ public:
 	bool Install(HWND hWnd, WNDPROC proc)
 	{
 #pragma warning(disable : 4311 4312)
-		WNDPROC oldproc = (WNDPROC)SetClassLongPtr(hWnd, GCLP_WNDPROC, (DWORD)proc);
+		WNDPROC oldproc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (DWORD)proc);
 #pragma warning(default: 4311 4312)
 		if (oldproc)
 			_defaultproc = oldproc;
 		return _defaultproc!=0;
 	}
 
-	bool Uninstall(HWND hWnd, LPCSTR szClassName)
+	bool Uninstall(HWND hWnd)
 	{
 #pragma warning(disable : 4311 4312)
-		WNDPROC proc = (WNDPROC)SetClassLongPtr(hWnd, GCLP_WNDPROC, (DWORD)GetDefaultProc());
+		WNDPROC proc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (DWORD)GetDefaultProc());
 #pragma warning(default: 4311 4312)
 		if (proc)
 			_defaultproc = 0;
@@ -164,6 +164,14 @@ TODO:
 
 
 \\----------------------------------------------------------------------------*/
+
+class SkinHookBase : public CWindow
+{
+public:
+	virtual bool UnInstallHook( HWND hWnd ) = 0;
+	virtual bool InstallHook( HWND hWnd ) = 0;
+};
+
 template<class ControlT, class BaseT, class InstallPolicy = ClassPolicy>
 class SkinControlImpl : public BaseT
 {
@@ -253,8 +261,18 @@ public:
         return _installer.Uninstall(hInst, derived_type::GetWndClassName());
     }
 
-	//增加hook的支持
 
+	//增加hook的支持
+	bool InstallHook( HWND hWnd )
+	{
+		// derived_type:: 可能真正调用的是 CWindow，必须限制
+		return _installer.Install( hWnd, GetControlProc() );
+	}
+
+	bool UnInstallHook( HWND hWnd )
+	{
+		return _installer.Uninstall( hWnd );
+	}
 
 protected:
     SkinControlImpl() 
