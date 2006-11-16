@@ -114,11 +114,14 @@ bool CSkinApp::uninit_library(HINSTANCE hInst)
     using namespace Skin;
     using namespace ATL;
 
-    CComPtr<ISkinMgr> spmgr;
-    GetSkinMgr(&spmgr);
-    if (spmgr)
-        spmgr->UninitControls(hInst, SKINCTL_ALL);
+    {
+        CComPtr<ISkinMgr> spmgr;
+        GetSkinMgr(&spmgr);
+        if (spmgr)
+            spmgr->UninitControls(hInst, SKINCTL_ALL);
+    }
 
     delete gpMgr; 
+
     return true;
 }
