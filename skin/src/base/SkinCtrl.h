@@ -71,6 +71,7 @@ public:
         {
             // ÐÂ×¢²áµÄ´°¿Ú
             wc.hInstance = hInst;
+            // TODO: wc.style
             wc.lpszClassName = szClassName;
             wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1); // TODO: right?
         }

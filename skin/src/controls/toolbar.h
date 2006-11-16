@@ -188,6 +188,7 @@ namespace Skin {
 
 		void TOOLBAR_Refresh(HDC dc)
 		{
+            CToolBar * ptb = (CToolBar *)CWnd::FromHandle(m_hWnd);
 			WTL::CToolBarCtrl toolbar;
 			toolbar = m_hWnd;
 
@@ -228,8 +229,13 @@ namespace Skin {
 					continue;
 				}
 				WTL::CRect rcButton;
-				toolbar.GetItemRect( i, rcButton );
-				//DefWindowProc (TB_GETITEMRECT, i, (LPARAM)&rcButton);
+#if 0
+				BOOL r = toolbar.GetItemRect( i, rcButton );
+                ASSERT(r);
+				// r = DefWindowProc (TB_GETITEMRECT, i, (LPARAM)&rcButton);
+#else
+                ptb->GetItemRect(i, &rcButton);
+#endif
 
 				if ( !WTL::CRect().IntersectRect (rcClip, rcButton) )
 				{
