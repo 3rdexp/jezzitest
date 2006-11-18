@@ -3,6 +3,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDIDemo", "SDIDemo.vcproj",
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skin", "..\..\..\..\src\Skin.vcproj", "{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WordPad", "..\..\Tutorial\wordpad\wordpad.vcproj", "{69A08F97-BB91-48EE-AE46-9095FEF0B09E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -13,6 +21,14 @@ Global
 		{04EBA298-CB21-45BC-8202-E7CB54A26F91}.Debug.Build.0 = Debug|Win32
 		{04EBA298-CB21-45BC-8202-E7CB54A26F91}.Release.ActiveCfg = Release|Win32
 		{04EBA298-CB21-45BC-8202-E7CB54A26F91}.Release.Build.0 = Release|Win32
+		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}.Debug.ActiveCfg = Debug|Win32
+		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}.Debug.Build.0 = Debug|Win32
+		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}.Release.ActiveCfg = Release|Win32
+		{81ABF0EA-ED68-43CA-9A08-B3A009A46D23}.Release.Build.0 = Release|Win32
+		{69A08F97-BB91-48EE-AE46-9095FEF0B09E}.Debug.ActiveCfg = Debug|Win32
+		{69A08F97-BB91-48EE-AE46-9095FEF0B09E}.Debug.Build.0 = Debug|Win32
+		{69A08F97-BB91-48EE-AE46-9095FEF0B09E}.Release.ActiveCfg = Release|Win32
+		{69A08F97-BB91-48EE-AE46-9095FEF0B09E}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
