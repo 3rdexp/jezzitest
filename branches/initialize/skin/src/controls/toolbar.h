@@ -46,7 +46,8 @@ namespace Skin {
 
 		SkinToolBarCtrl()
 		{
-			m_iListGap = DEFLISTGAP;
+			m_iListGap	= DEFLISTGAP;
+			m_bHorz		= TRUE;
 		}
 
 		~SkinToolBarCtrl()
@@ -71,12 +72,29 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CToolBar* pToolbar = NULL;
-			pToolbar = (CToolBar*)CWnd::FromHandle( m_hWnd ); 
-			TRACE("toolbar count is %d \r\n", pToolbar->GetCount());
+			//CToolBar* pToolbar = NULL;
+			//pToolbar = (CToolBar*)CWnd::FromHandle( m_hWnd ); 
+			//TRACE("toolbar count is %d \r\n", pToolbar->GetCount());
+			if ( m_bHorz != IsHorz() )
+			{
+				BOOL bRet = DefWindowProc();
+				m_bHorz = IsHorz();
+				Invalidate();
+				return bRet;
+			}
 			WTL::CPaintDC dc(m_hWnd);
 			TOOLBAR_Refresh(dc);
 			return 0;
+		}
+
+		BOOL IsHorz()
+		{
+			CWindow hParent = GetParent();
+			DWORD dwStyle = hParent.GetStyle();
+			if (dwStyle & CBRS_ORIENT_HORZ)
+				return TRUE;
+			return FALSE;
+
 		}
 
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -123,7 +141,7 @@ namespace Skin {
 
 			if (dwStyle & CBRS_FLOATING) return ;
 
-			if (dwStyle & CBRS_ORIENT_HORZ)
+			if (IsHorz())
 			{
 
 				rcWin.top += 6;
@@ -188,7 +206,7 @@ namespace Skin {
 
 		void TOOLBAR_Refresh(HDC dc)
 		{
-            CToolBar * ptb = (CToolBar *)CWnd::FromHandle(m_hWnd);
+            //CToolBar * ptb = (CToolBar *)CWnd::FromHandle(m_hWnd);
 			WTL::CToolBarCtrl toolbar;
 			toolbar = m_hWnd;
 
@@ -229,8 +247,9 @@ namespace Skin {
 					continue;
 				}
 				WTL::CRect rcButton;
-#if 0
+#if 1
 				BOOL r = toolbar.GetItemRect( i, rcButton );
+				TRACE("rcButton is %d,%d,%d,%d \r\n", rcButton.left, rcButton.top, rcButton.right, rcButton.bottom );
                 ASSERT(r);
 				// r = DefWindowProc (TB_GETITEMRECT, i, (LPARAM)&rcButton);
 #else
@@ -264,6 +283,11 @@ namespace Skin {
 						nPart = TP_SEPARATOR;
 					}
 
+					if ( !IsHorz() )
+					{
+						rcButton.top = rcButton.bottom - rcButton.right;	
+					}
+
 					int nSepWidth = GetSchemeWidth( nPart, nState );
 					int nSepHeight = GetSchemeHeight( nPart, nState );
 					WTL::CRect rcSep ;
@@ -272,7 +296,7 @@ namespace Skin {
 					rcSep.top = rcButton.top + ( rcButton.Height() - nSepHeight ) / 2;
 					rcSep.bottom = rcSep.top +  nSepHeight;
 					if (_scheme)
-						_scheme->TransparentDraw(memdc, class_id, nPart, nState, rcSep.left, rcSep.top);
+						_scheme->TransparentDraw(memdc, class_id, nPart, nState, rcSep.left < 0 ? 0 : rcSep.left, rcSep.top);
 				}
 				else if ( !IS_CONTROL(tbbutton) )
 				{
@@ -690,7 +714,8 @@ namespace Skin {
 		}
 
 	private:
-		int	m_iListGap;
+		int		m_iListGap;
+		BOOL	m_bHorz;
 	};
 
 }; // namespace 
