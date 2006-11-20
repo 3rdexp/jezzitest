@@ -160,7 +160,7 @@ public:
 	}
 
 
-	BOOL  UnInstallSkin( HWND hWnd )
+	LRESULT  UnInstallSkin( HWND hWnd, const MSG& msg)
 	{
 		SKINHOOK_ITERATOR it = _handle_maps.find( hWnd );
 		if( it != _handle_maps.end() )
@@ -169,11 +169,15 @@ public:
 			SkinHookBase* pCtrl = it->second;
 			_handle_maps.erase(it);
 			//pCtrl->UninstallHook( hWnd );
+			WNDPROC defaultproc = pCtrl->getDefaultProc();
 			pCtrl->Detach();
 			delete pCtrl;
+
+			return CallWindowProc(defaultproc, hWnd, msg.message, msg.wParam, msg.lParam);
+
 		}
 		// else
-		return FALSE;
+		return 0;
 	}
 
 	// global app hooks
@@ -190,13 +194,16 @@ public:
 			CWPSTRUCT* pwp = (CWPSTRUCT*)lParam;
 
 			MSG msg = { pwp->hwnd, pwp->message, pwp->wParam, pwp->lParam, 0, { 0, 0 } };
-			GetInstance().OnCallWndProc(msg);
+
+			BOOL bRet = GetInstance().OnCallWndProc(msg);
+			if ( bRet )
+				return 0;
 		}
 
 		return CallNextHookEx(GetInstance()._hCallWndHook, nCode, wParam, lParam);
 	}
 
-	void OnCallWndProc(const MSG& msg)
+	BOOL OnCallWndProc(const MSG& msg)
 	{   
 		switch (msg.message)
 		{
@@ -239,10 +246,12 @@ public:
 			break;
 		case WM_NCDESTROY:
 			{
-				BOOL bRes = UnInstallSkin(msg.hwnd);
+				UnInstallSkin(msg.hwnd, msg);
+				return TRUE;
 			}
 			break;
 		}
+		return FALSE;
 	}
 
 public:

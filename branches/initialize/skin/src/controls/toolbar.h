@@ -249,7 +249,7 @@ namespace Skin {
 				WTL::CRect rcButton;
 #if 1
 				BOOL r = toolbar.GetItemRect( i, rcButton );
-				TRACE("rcButton is %d,%d,%d,%d \r\n", rcButton.left, rcButton.top, rcButton.right, rcButton.bottom );
+				//TRACE("rcButton is %d,%d,%d,%d \r\n", rcButton.left, rcButton.top, rcButton.right, rcButton.bottom );
                 ASSERT(r);
 				// r = DefWindowProc (TB_GETITEMRECT, i, (LPARAM)&rcButton);
 #else

@@ -78,7 +78,7 @@ public:
 					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() 
                     - 2 * area.hstep, area.Height(), SRCCOPY);
 				// ср
-				TransparentBlt2(hdc, dx + dcx - area.hstep, dy, area.hstep, dcy, 
+				TransparentBlt2(hdc, dx + dcx - area.hstep , dy, area.hstep, dcy, 
 					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, area.Height(), 
                     _spCache->TranslateColor());
 			}

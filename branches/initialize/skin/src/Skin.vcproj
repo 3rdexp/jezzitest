@@ -256,6 +256,9 @@
 				RelativePath=".\controls\header.h">
 			</File>
 			<File
+				RelativePath=".\controls\listbox.h">
+			</File>
+			<File
 				RelativePath=".\controls\listview.h">
 			</File>
 			<File
