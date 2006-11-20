@@ -309,7 +309,7 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 				if ( rc->bottom - rc->top > rcGripper.bottom - rcGripper.top + 4 )
 				{
 					RECT rcClient = *rc;
-					rcClient.top = rcClient.top + ( rc->bottom - rc->top - rcGripper.bottom + rcGripper.top ) / 2;
+					rcClient.top = rcClient.top + ( rc->bottom - rc->top - rcGripper.bottom + rcGripper.top ) / 2 ;
 					rcClient.bottom = rcClient.top + rcGripper.bottom - rcGripper.top;
 					if  ( pss )
 					{

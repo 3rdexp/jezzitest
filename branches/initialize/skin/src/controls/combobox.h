@@ -1,7 +1,9 @@
 #pragma once
 
-#include "../base/skinctrl.h"
 #include <atlwin.h>
+#include "../base/skinctrl.h"
+#include "../base/wclassdefines.h"
+
 
 namespace Skin {
 
@@ -71,13 +73,35 @@ namespace Skin {
 
 		void DoPaint(HDC hdc, int nState, RECT *pRect)
 		{
+			const int EDGE = 1;
+
 			WTL::CDC dc;
 			dc.Attach(hdc);
 
 			WTL::CRect rcItem(*pRect);
+			
 			// Cover up dark 3D shadow.
+			
 			COLORREF cr;
 			_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+			
+			int nType = (GetStyle() & 0xf);
+
+			if ( nType == CBS_SIMPLE )
+			{
+				CWindow wndLBox = GetChildWnd(WC_COMBOLBOX);
+
+				if ( wndLBox.m_hWnd )
+				{
+					CRect rLBox;
+					wndLBox.GetWindowRect( rLBox );
+					wndLBox.ScreenToClient( rLBox );
+					wndLBox.MapWindowPoints( m_hWnd, rLBox );
+					
+					rcItem.bottom = rLBox.top - EDGE * 2;
+					//dc.ExcludeClipRect(rcItem.left, rLBox.top, rcItem.right, EDGE * 2);
+				}
+			}
 
 			dc.Draw3dRect(rcItem, cr, cr);
 
@@ -94,23 +118,28 @@ namespace Skin {
 				dc.Draw3dRect(rcItem, cr, cr); 
 			}
 
-			WTL::CRect rcButton;
-			rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 2;
-			rcButton.right = rcItem.right;
-			rcButton.top = rcItem.top + 1;
-			rcButton.bottom = rcItem.bottom - 1;
-
-			// fix icon combox draw
-			FillRect(dc.m_hDC, &rcButton, (HBRUSH)GetStockObject(WHITE_BRUSH));
 			
-			rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 1;
-			rcButton.right = rcItem.right - 1;
-			rcButton.top = rcItem.bottom - ::GetSystemMetrics(SM_CYVTHUMB) - 1;
-			rcButton.bottom = rcItem.bottom - 1;
 
-			if (_scheme)
-				_scheme->DrawBackground(dc, class_id, m_nPart, nState, &rcButton, NULL );
+			if ( nType != CBS_SIMPLE )
+			{
+				WTL::CRect rcButton;
+				rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 2;
+				rcButton.right = rcItem.right;
+				rcButton.top = rcItem.top + 1;
+				rcButton.bottom = rcItem.bottom - 1;
 
+				// fix icon combox draw
+				FillRect(dc.m_hDC, &rcButton, (HBRUSH)GetStockObject(WHITE_BRUSH));
+
+				rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 1;
+				rcButton.right = rcItem.right - 1;
+				rcButton.top = rcItem.top + 1;
+				rcButton.bottom = rcItem.bottom - 1;
+
+				if (_scheme)
+					_scheme->DrawBackground(dc, class_id, m_nPart, nState, &rcButton, NULL );
+			}
+			
 			dc.Detach();
 
 		}

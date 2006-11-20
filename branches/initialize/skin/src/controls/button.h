@@ -690,17 +690,16 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
     {
         WTL::CRect rc;
         GetClientRect(&rc);
-        
+  
 		WTL::CMemoryDC memdc(dc, rc);
 
 		int nState = GetState();
 
 		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
 			_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
-        
+
 		if ( BP_GROUPBOX == m_nPart )
 			BitBlt( memdc, 0, 0, rc.Width(), rc.Height(), dc, 0, 0, SRCCOPY);
-
 
         LONG lStyle = GetStyle();
 

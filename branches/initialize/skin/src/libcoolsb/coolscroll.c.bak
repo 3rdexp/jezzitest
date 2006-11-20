@@ -1404,6 +1404,8 @@ HDC CoolSB_GetDC(HWND hwnd, WPARAM wParam)
 #endif
 }
 
+
+
 static LRESULT NCPaint(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	SCROLLBAR *sb;
@@ -1613,6 +1615,18 @@ static LRESULT NCPaint(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
 
 	ReleaseDC(hwnd, hdc);
 	return ret;
+}
+
+static LRESULT Print(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	if (lParam & PRF_NONCLIENT)
+	{
+		if ( GetParent(hwnd) == GetDesktopWindow() )
+		{
+			NCPaint( sw, hwnd, wParam, lParam );					
+		}		
+	}
+	return 0;
 }
 
 //
@@ -3164,6 +3178,14 @@ LRESULT CALLBACK CoolSBWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 	case WM_NCCALCSIZE:
 		return NCCalcSize(swnd, hwnd, wParam, lParam);
 
+	case WM_PRINT:
+		{
+			LRESULT lRet = CallWindowProc(swnd->oldproc, hwnd, message, wParam, lParam);
+			Print(swnd, hwnd, wParam, lParam);
+			return lRet;
+		}
+		
+
 	case WM_NCPAINT:
 		return NCPaint(swnd, hwnd, wParam, lParam);	
 
@@ -3189,15 +3211,19 @@ LRESULT CALLBACK CoolSBWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 		//TRACE("WM_NCLBUTTONDOWN%d\n", count++);
 		{
 			RelayMouseEvent(hwnd, swnd->hwndToolTip, WM_LBUTTONDOWN);
-		return NCLButtonDown(swnd, hwnd, wParam, lParam);
-
+			Hit = NCFakeHitTest(swnd, hwnd, wParam, lParam);			
+			if (Hit == 0)
+				Hit = wParam;
+			return NCLButtonDown(swnd, hwnd, (WPARAM)Hit, lParam);
 		}
 	case WM_LBUTTONUP:
 		//TRACE("WM_LBUTTONUP %d\n", count++);
 		{
 			RelayMouseEvent(hwnd, swnd->hwndToolTip, WM_LBUTTONUP);
-			return LButtonUp(swnd, hwnd, wParam, lParam);
-
+			Hit = NCLButtonUpHitTest(swnd, hwnd, wParam, lParam);
+			if (Hit == 0)
+				Hit = wParam;
+			return LButtonUp(swnd, hwnd, (WPARAM)Hit, lParam);
 		}
 
 	case WM_NOTIFY:

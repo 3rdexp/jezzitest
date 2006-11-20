@@ -1404,6 +1404,8 @@ HDC CoolSB_GetDC(HWND hwnd, WPARAM wParam)
 #endif
 }
 
+
+
 static LRESULT NCPaint(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	SCROLLBAR *sb;
@@ -1613,6 +1615,23 @@ static LRESULT NCPaint(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
 
 	ReleaseDC(hwnd, hdc);
 	return ret;
+}
+
+static LRESULT Print(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	if (lParam & PRF_NONCLIENT)
+	{
+		if ( GetParent(hwnd) == GetDesktopWindow() )
+		{
+			
+			//CoolSB_StyleChange(sw, hwnd, WM_STYLECHANGED, wParam, lParam);
+			//NCLButtonDown(sw, hwnd, 6, lParam);
+			//SendMessage(hwnd, WM_NCPAINT, (WPARAM)1, 0);
+			//SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+			//SendMessage(hwnd, WM_NCPAINT, (WPARAM)1, 0);
+		}		
+	}
+	return 0;
 }
 
 //
@@ -2106,7 +2125,7 @@ static LRESULT NCLButtonDown(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lPa
 //
 //	Left button released
 //
-static LRESULT LButtonUp(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
+static LRESULT LButtonUp(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam, int nRelease)
 {
 	RECT rect;
 	//UINT thisportion;
@@ -2120,7 +2139,8 @@ static LRESULT LButtonUp(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
 	{
 		SCROLLBAR *sb = &sw->sbarHorz;
 		lParam = GetMessagePos();
-		ReleaseCapture();
+		if ( nRelease == 1 )
+			ReleaseCapture();
 
 		GetWindowRect(hwnd, &winrect);
 		pt.x = LOWORD(lParam);
@@ -3144,6 +3164,8 @@ LRESULT CALLBACK CoolSBWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 	SCROLLWND *swnd = GetScrollWndFromHwnd(hwnd);
 	static int count;
 	static LONG Hit = 0;
+	static int   nRelease = 1;	
+	static int   nFirstCombolbox = 0;
 	switch(message)
 	{
 	case WM_NCDESTROY:
@@ -3163,6 +3185,16 @@ LRESULT CALLBACK CoolSBWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 
 	case WM_NCCALCSIZE:
 		return NCCalcSize(swnd, hwnd, wParam, lParam);
+/*
+	case WM_PRINT:
+		{
+			LRESULT lRet = CallWindowProc(swnd->oldproc, hwnd, message, wParam, lParam);
+			//Print(swnd, hwnd, wParam, lParam);
+			if ( GetParent(hwnd) == GetDesktopWindow() )
+				nFirstCombolbox = 1;
+			return lRet;
+		}
+*/		
 
 	case WM_NCPAINT:
 		return NCPaint(swnd, hwnd, wParam, lParam);	
@@ -3189,19 +3221,42 @@ LRESULT CALLBACK CoolSBWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 		//TRACE("WM_NCLBUTTONDOWN%d\n", count++);
 		{
 			RelayMouseEvent(hwnd, swnd->hwndToolTip, WM_LBUTTONDOWN);
-			Hit = NCFakeHitTest(swnd, hwnd, wParam, lParam);			
-			if (Hit == 0)
+			if ( GetParent(hwnd) == GetDesktopWindow() )
+			{
+				Hit = NCFakeHitTest(swnd, hwnd, wParam, lParam);			
+				if (Hit == 0)
+					Hit = wParam;
+			}
+			else
 				Hit = wParam;
+			
+			
 			return NCLButtonDown(swnd, hwnd, (WPARAM)Hit, lParam);
 		}
 	case WM_LBUTTONUP:
 		//TRACE("WM_LBUTTONUP %d\n", count++);
 		{
 			RelayMouseEvent(hwnd, swnd->hwndToolTip, WM_LBUTTONUP);
-			Hit = NCLButtonUpHitTest(swnd, hwnd, wParam, lParam);
-			if (Hit == 0)
+			if ( GetParent(hwnd) == GetDesktopWindow() )
+			{
+				nRelease = 1;
+				if (Hit == 0)
+				{
+					Hit = wParam;
+				}
+				else
+					nRelease = 0;
+
+				Hit = NCLButtonUpHitTest(swnd, hwnd, wParam, lParam);
+			}
+			else
+			{
 				Hit = wParam;
-			return LButtonUp(swnd, hwnd, (WPARAM)Hit, lParam);
+				nRelease = 1;
+			}
+			
+			
+			return LButtonUp(swnd, hwnd, (WPARAM)Hit, lParam, nRelease);
 		}
 
 	case WM_NOTIFY:
@@ -3216,9 +3271,23 @@ LRESULT CALLBACK CoolSBWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 	case WM_TIMER:
 		return CoolSB_Timer(swnd, hwnd, wParam, lParam);
 
+	case WM_WINDOWPOSCHANGING:
+		if ( GetParent(hwnd) == GetDesktopWindow())
+		{
+			uMouseOverId = 0;
+			uMouseOverScrollbar = COOLSB_NONE;
+			uLastHitTestPortion = HTSCROLL_NONE;
+
+			uHitTestPortion = HTSCROLL_NONE;
+			NCPaint(swnd, hwnd, 1, 0);
+			nFirstCombolbox = 0;
+		}
+		break;
 	//case WM_STYLECHANGING:
 	//	return CoolSB_StyleChange(swnd, hwnd, WM_STYLECHANGING, wParam, lParam);
 	case WM_STYLECHANGED:
+
+		
 
 		if(swnd->bPreventStyleChange)
 		{

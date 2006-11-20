@@ -275,6 +275,36 @@ public:
 		return _installer.Uninstall( hWnd );
 	}
 
+
+	CWindow GetChildWnd(LPCTSTR szClass)
+	{
+		CWindow wndChild = GetWindow(GW_CHILD); 
+
+		while ( wndChild.m_hWnd )    
+		{
+			if (IsClass(wndChild.m_hWnd, szClass))
+				return wndChild;
+
+			wndChild = wndChild.GetWindow(GW_HWNDNEXT);
+		}
+
+		return CWindow( NULL );
+	}
+
+	BOOL IsClass(HWND hWnd, LPCTSTR szClass)
+	{
+		if (hWnd)
+		{
+			char szWndClass[128] = "";
+
+			::GetClassName(hWnd, szWndClass, 127);
+			return (lstrcmpi(szClass, szWndClass) == 0);
+		}
+
+		return FALSE;
+	}
+
+
 protected:
     SkinControlImpl() 
         : _enable(true) 
@@ -406,7 +436,7 @@ public:
 	{
         if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
                     && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-            ATLTRACE("%04x SkinCtrl\n", uMsg);
+        //    ATLTRACE("%04x SkinCtrl\n", uMsg);
 		_ASSERTE( _CrtCheckMemory( ) );
 
 		BOOL bRet = FALSE;

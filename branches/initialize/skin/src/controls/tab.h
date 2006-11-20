@@ -52,9 +52,14 @@ namespace Skin {
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 			MESSAGE_HANDLER(WM_PRINTCLIENT, OnPrintClient)
-			
+			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			//MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 		END_MSG_MAP()
+
+		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			return 1;
+		}
 
 		LRESULT OnPrintClient(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
