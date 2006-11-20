@@ -84,7 +84,7 @@ public:
 		CPaintDC dc(m_hWnd);
 
 		//TODO: Add your drawing code here
-
+/*
         pss->Draw(dc, 19, WP_CAPTION, 1, 10, 10, 300, 0);
 
         pss->Draw(dc, 19, WP_MINBUTTON, 1, 10, 40);
@@ -96,6 +96,7 @@ public:
 		pss->Draw(dc, 1, BP_PUSHBUTTON, 1, 10, 100, 100, 30);
 
 		pss->Draw(dc, 1, BP_PUSHBUTTON, 2, 10, 140, 100, 30);
+*/
 		return 0;
 	}
 	

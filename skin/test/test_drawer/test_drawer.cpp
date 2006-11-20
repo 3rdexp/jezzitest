@@ -16,7 +16,7 @@
 #include "skinlib.h"
 #include <tmschema.h>
 
-#pragma comment(lib, "skin.lib")
+#pragma comment(lib, "../../samples/Skinmagic Toolkit 2.4/bin/skin.lib")
 
 #include "test_drawerView.h"
 #include "aboutdlg.h"

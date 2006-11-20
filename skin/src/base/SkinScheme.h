@@ -331,7 +331,8 @@ public:
 		hParent = GetParent(hwnd);
 		if(!hParent)
 			hParent = hwnd;
-		if(prc) {
+		if(prc) 
+		{
 			CopyRect(&rt, prc);
 			MapWindowPoints(hwnd, NULL, (LPPOINT)&rt, 2);
 
@@ -342,7 +343,8 @@ public:
 			else
 				IntersectClipRect(hdc, prc->left, prc->top, prc->right, prc->bottom);
 		}
-		else {
+		else 
+		{
 			GetClientRect(hParent, &rt);
 			MapWindowPoints(hParent, NULL, (LPPOINT)&rt, 2);
 		}

@@ -11,19 +11,22 @@ template<class BaseT = WTL::CButton>
 struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 {
     enum { class_id = BUTTON };
+
     SkinButton()
     {
-        m_fMouseOver = 0;
-        m_fFocus     = 0;
-        m_fPressed     = 0;
+        m_fMouseOver	= 0;
+        m_fFocus		= 0;
+        m_fPressed		= 0;
 
         m_hIcon         = 0;
+		_classid		= class_id;
     }
     typedef SkinButton<BaseT> this_type;
     typedef SkinControlImpl<SkinButton, BaseT> base_type;
 
     BEGIN_MSG_MAP(this_type)
         MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPrintClient)
         MESSAGE_HANDLER(WM_KILLFOCUS, OnFocus)
         MESSAGE_HANDLER(WM_SETFOCUS, OnFocus)
         MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
@@ -45,6 +48,12 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         SetMsgHandled(FALSE);
         return TRUE;
     }
+
+	LRESULT OnPrintClient(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		DoPaint( (HDC) wParam );
+		return 0;
+	}
 
     LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
@@ -685,12 +694,13 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 		WTL::CMemoryDC memdc(dc, rc);
 
 		int nState = GetState();
-		
+
 		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
 			_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
         
 		if ( BP_GROUPBOX == m_nPart )
 			BitBlt( memdc, 0, 0, rc.Width(), rc.Height(), dc, 0, 0, SRCCOPY);
+
 
         LONG lStyle = GetStyle();
 

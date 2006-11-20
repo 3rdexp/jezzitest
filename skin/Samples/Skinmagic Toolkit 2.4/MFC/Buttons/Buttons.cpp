@@ -7,7 +7,8 @@
 
 #include "skinitf.h"
 #include "skinlib.h"
-#pragma comment(lib, "../../../../debug/skin.lib")
+#pragma comment(lib, "../../../../samples/Skinmagic Toolkit 2.4/bin/skin.lib")
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

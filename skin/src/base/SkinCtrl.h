@@ -532,6 +532,7 @@ protected:
 	CComPtr<ISkinScheme> _scheme;
 
 	unsigned _enable : 1;
+	int			_classid;
 #ifdef LOOP_DEBUG 
     int indent;
 #endif    

@@ -8,6 +8,8 @@
 #define IDC_LOAD                        1000
 #define IDC_ENABLE                      1001
 #define IDC_SAMPLE                      1002
+#define IDC_TAB1                        1003
+#define IDTAB                           1004
 
 // Next default values for new objects
 // 
@@ -15,7 +17,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        201
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1003
+#define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

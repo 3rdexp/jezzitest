@@ -62,6 +62,7 @@ namespace Skin {
 				brBorder.DeleteObject();
 
 				// »æÖÆÄÚ¿ò
+				/*
 				if ((lExStyle & WS_EX_CLIENTEDGE) || (lExStyle & WS_EX_STATICEDGE))
 				{
 					InflateRect(&rcw, -1, -1);
@@ -77,6 +78,7 @@ namespace Skin {
 					}
 					brBorder.DeleteObject();
 				}
+				*/
 				ReleaseDC( hdc );
 			}
 			else

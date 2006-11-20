@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../base/skinctrl.h"
+#include <atlwin.h>
 
 namespace Skin {
 
@@ -20,56 +21,58 @@ namespace Skin {
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+
 		END_MSG_MAP()
+
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			LRESULT lRet = DefWindowProc();
-
-			RECT rc = {0};
-			GetClientRect( &rc );
+			CRect rc ;
+			GetClientRect( rc );
 
 			WTL::CClientDC	dc( m_hWnd );
-			
-			WTL::CMemoryDC memdc(dc, rc);
-
+		
 			int nState = GetState();
 
-			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
-				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
-			
-			DoPaint(memdc, nState, &rc);
+			LRESULT lRet = DefWindowProc();
+			//if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
+			//	_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
+
+			DoPaint(dc, nState, rc);
 			
 			return 0;
 		}
 
 		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			LRESULT lRet = DefWindowProc();
+			LRESULT lRet = 0;
+			//LRESULT lRet = DefWindowProc();
 			m_bLBtnDown = TRUE;
+			if( IsWindowEnabled() )
+			{
+				lRet = DefWindowProc();
+				Invalidate();
+			}
 			return lRet;
 		}
 
 		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			LRESULT lRet = DefWindowProc();
+			LRESULT lRet = 0;
 			m_bLBtnDown = FALSE;
+			Invalidate();
+			if( IsWindowEnabled() ) 
+				lRet = DefWindowProc();
+			
 			return lRet;
 		}
+
+		
 
 		void DoPaint(HDC hdc, int nState, RECT *pRect)
 		{
 			WTL::CDC dc;
 			dc.Attach(hdc);
-
-			WTL::CRect rcFill(*pRect);
-
-			FillRect(dc.m_hDC, &rcFill, (HBRUSH)GetStockObject(WHITE_BRUSH));
-
-			rcFill.left = rcFill.right - GetSystemMetrics(SM_CXHTHUMB) - ICON_SPACE;
-			rcFill.right = rcFill.left + ICON_SPACE;
-
-			
 
 			WTL::CRect rcItem(*pRect);
 			// Cover up dark 3D shadow.
@@ -77,7 +80,6 @@ namespace Skin {
 			_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
 
 			dc.Draw3dRect(rcItem, cr, cr);
-
 
 			rcItem.DeflateRect(1,1);
 
@@ -91,32 +93,29 @@ namespace Skin {
 				_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 				dc.Draw3dRect(rcItem, cr, cr); 
 			}
-			// Cover up dark 3D shadow on drop arrow.
-			rcItem.DeflateRect(1,1);
-			rcItem.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB);
-			rcItem.DeflateRect(1,1);
 
-			WTL::CRect rcClient(*pRect);			
-			WTL::CRect rcButton(rcClient.right - GetSystemMetrics(SM_CXHTHUMB) , rcClient.top + ICON_SPACE, rcClient.right - 1, rcClient.bottom - 1);
+			WTL::CRect rcButton;
+			rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 2;
+			rcButton.right = rcItem.right;
+			rcButton.top = rcItem.top + 1;
+			rcButton.bottom = rcItem.bottom - 1;
 
 			// fix icon combox draw
 			FillRect(dc.m_hDC, &rcButton, (HBRUSH)GetStockObject(WHITE_BRUSH));
-			rcButton.left += 1;
-
-			int nImgWidth =  GetSchemeWidth( m_nPart, nState );
-			int nImgkHeight = GetSchemeHeight( m_nPart, nState );
 			
-			WTL::CRect rcbmp;
-			rcbmp.left = rcButton.right - nImgWidth - 1;
-			rcbmp.top = rcButton.bottom - nImgkHeight - 1;
-			rcbmp.right = rcbmp.left + nImgWidth;
-			rcbmp.bottom = rcbmp.top + nImgkHeight;
+			rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 1;
+			rcButton.right = rcItem.right - 1;
+			rcButton.top = rcItem.bottom - ::GetSystemMetrics(SM_CYVTHUMB) - 1;
+			rcButton.bottom = rcItem.bottom - 1;
+
 			if (_scheme)
-				_scheme->DrawBackground(dc, class_id, m_nPart, nState, &rcbmp, NULL );
+				_scheme->DrawBackground(dc, class_id, m_nPart, nState, &rcButton, NULL );
 
 			dc.Detach();
 
 		}
+
+	
 		int  GetState()
 		{
 			int nState = CBXS_NORMAL;
