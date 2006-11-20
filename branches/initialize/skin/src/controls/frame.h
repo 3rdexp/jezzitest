@@ -269,6 +269,9 @@ protected:
         ASSERT(!menu.IsNull());
         ASSERT(!dc.IsNull());
 
+		if ( !::IsMenu(menu.m_hMenu) )
+			return;
+
         ControlT * pT = static_cast<ControlT*>(this);
 
         WTL::CRect rc = CalcMenuBarRect(rcw, _frame_state);

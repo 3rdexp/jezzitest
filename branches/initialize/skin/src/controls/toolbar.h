@@ -77,7 +77,7 @@ namespace Skin {
 			//TRACE("toolbar count is %d \r\n", pToolbar->GetCount());
 			if ( m_bHorz != IsHorz() )
 			{
-				BOOL bRet = DefWindowProc();
+				LRESULT bRet = DefWindowProc();
 				m_bHorz = IsHorz();
 				Invalidate();
 				return bRet;
@@ -91,9 +91,9 @@ namespace Skin {
 		{
 			CWindow hParent = GetParent();
 			DWORD dwStyle = hParent.GetStyle();
-			if (dwStyle & CBRS_ORIENT_HORZ)
-				return TRUE;
-			return FALSE;
+			if (dwStyle & CBRS_ORIENT_VERT)
+				return FALSE;
+			return TRUE;
 
 		}
 

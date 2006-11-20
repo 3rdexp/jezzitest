@@ -24,7 +24,8 @@
 #include "skinitf.h"
 
 //#include "./libcoolsb/coolscroll.h"
-#pragma comment(lib, "../../../../debug/skin.lib")
+#pragma comment(lib, "../../../../samples/Skinmagic Toolkit 2.4/bin/skin.lib")
+
 
 
 //{{AFX_INSERT_LOCATION}}

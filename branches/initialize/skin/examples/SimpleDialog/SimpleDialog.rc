@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 英语(美国) resources
+// English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -80,6 +80,8 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,119,132,50,14
     PUSHBUTTON      "&About...",ID_APP_ABOUT,177,132,50,14
+    CONTROL         "",IDTAB,"SysTabControl32",TCS_MULTILINE | 
+                    TCS_OWNERDRAWFIXED,7,7,126,116
 END
 
 
@@ -260,7 +262,7 @@ BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
-#endif    // 英语(美国) resources
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

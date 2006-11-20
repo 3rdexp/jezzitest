@@ -51,13 +51,24 @@ namespace Skin {
 
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
+			MESSAGE_HANDLER(WM_PRINTCLIENT, OnPrintClient)
+			
 			//MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 		END_MSG_MAP()
 
+		LRESULT OnPrintClient(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			TAB_Refresh( (HDC)wParam );
+			return 0;
+		}
+
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
+			CRect rc;
+			GetClientRect( &rc );
 			WTL::CPaintDC dc(m_hWnd);
-			TAB_Refresh(dc);
+			WTL::CMemoryDC memdc ( dc, rc );
+			TAB_Refresh( memdc );
 			return 0;
 		}
 
@@ -73,6 +84,8 @@ namespace Skin {
 		
 		void TAB_DrawItem( HDC  hdc, INT  iItem)
 		{
+			const int PADDING = 2;
+
 			WTL::CRect rcItem;
 			BOOL bRet = GetItemRect( iItem, &rcItem );
 			if ( !bRet )
@@ -108,10 +121,31 @@ namespace Skin {
 
 			// draw icon and text
 			TCHAR szText[256] = {0};
-			tcItem.mask = TCIF_TEXT;
+			tcItem.mask = TCIF_TEXT | TCIF_IMAGE;
 			tcItem.pszText = szText;
 			tcItem.cchTextMax = 256;
 			GetItem(iItem, &tcItem);
+
+			WTL::CImageList imgList = GetImageList();
+			if ( !imgList.IsNull() )
+			{
+				CSize szImg;
+				imgList.GetIconSize(szImg);
+				if ( bVert )
+				{
+					BOOL bRet = imgList.Draw(hdc, tcItem.iImage, CPoint(rcItem.left, rcItem.top), ILD_TRANSPARENT);
+					if ( bRet )
+						rcItem.bottom = rcItem.bottom - szImg.cy - PADDING;
+				}
+				else
+				{
+					BOOL bRet = imgList.Draw(hdc, tcItem.iImage, CPoint(rcItem.left, rcItem.bottom - szImg.cy ), ILD_TRANSPARENT);
+					if ( bRet )
+						rcItem.left = rcItem.left + szImg.cx + PADDING;
+					
+				}
+				
+			}
 
 			HFONT hOldFont = (HFONT)SelectObject(hdc, GetCtrlFont(m_hWnd));
 			if (_scheme)
@@ -125,23 +159,38 @@ namespace Skin {
 		{
 			WTL::CRect rc;
 			GetClientRect(&rc);
-
+			
 			BOOL bVert = FALSE;
 			if ( GetStyle() & TCS_VERTICAL )
 				bVert = TRUE;
 
 			if ( GetItemCount() > 0 )
 			{
-				WTL::CRect rcItem;
-				GetItemRect( 0, &rcItem );
+				int nMax = 0;
+				for ( int i = 0; i < GetItemCount(); i++ )
+				{
+					WTL::CRect rcItem;
+					GetItemRect( 0, &rcItem );
+					if ( bVert )
+					{
+						if ( rcItem.right > nMax )
+							nMax = rcItem.right;
+					}
+					else
+					{
+						if ( rcItem.bottom > nMax )
+							nMax = rcItem.bottom;
+					}
+				}
+				
 				if ( bVert )
 				{
-					rc.left += rcItem.right;
+					rc.left += nMax;
 					rc.left --;
 				}
 				else
 				{
-					rc.top += rcItem.bottom;
+					rc.top += nMax;
 					rc.top --;
 				}
 			}

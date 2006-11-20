@@ -59,6 +59,20 @@ public:
 
 		UIAddChildWindowContainer(m_hWnd);
 
+		CTabCtrl m_tab;
+		m_tab.Attach(GetDlgItem(IDTAB));
+		m_tab.InsertItem(0, "tab1");
+		m_tab.InsertItem(1, "tab2");
+		m_tab.InsertItem(2, "tab3");
+		m_tab.InsertItem(3, "tab4");
+		m_tab.InsertItem(4, "tab5");
+		m_tab.InsertItem(5, "tab6");
+		m_tab.InsertItem(6, "tab7");
+		m_tab.InsertItem(7, "tab8");
+		m_tab.InsertItem(8, "tab9");
+		m_tab.InsertItem(9, "tab10");
+		m_tab.InsertItem(10, "tab11");
+		m_tab.InsertItem(11, "tab12");
 		return TRUE;
 	}
 
