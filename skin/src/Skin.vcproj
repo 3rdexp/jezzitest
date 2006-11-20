@@ -13,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\Samples\Skinmagic Toolkit 2.4\bin"
+			OutputDirectory="..\Debug"
 			IntermediateDirectory="..\Debug\Skin"
 			ConfigurationType="2"
 			UseOfMFC="2"
@@ -236,6 +236,9 @@
 			</File>
 			<File
 				RelativePath=".\controls\combobox.h">
+			</File>
+			<File
+				RelativePath=".\controls\combolbox.h">
 			</File>
 			<File
 				RelativePath=".\controls\controlbar.h">

@@ -45,7 +45,7 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls/toolbar.h"
 #include "../controls//listview.h"
 #include "../controls/scrollbar.h"
-
+#include "../controls/combolbox.h"
 #include "../controls/rebar.h"
 #include "../controls/controlbar.h"
 
@@ -87,12 +87,15 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	if (!(_installed_type & SKINCTL_COMBOBOX) && (dwType & SKINCTL_COMBOBOX) )
 	{
+
 		typedef SkinComboBox<WTL::CComboBox> sscombobox;
 		bool f = sscombobox::Install(hInst);
 		if (f)
 			_installed_type |= SKINCTL_COMBOBOX;
-	}
 
+		SkinComboLbox::Install(hInst);
+
+	}
 
 	/*
 	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
@@ -389,7 +392,7 @@ HRESULT WINAPI InstallSkinScrollBar(HWND hWnd)
 
 HRESULT WINAPI HandleSkinScrollCustomDraw(int wParam, LPNMHDR lParam)
 {
-	return HandleCustomDraw(wParam, (NMCSBCUSTOMDRAW *)lParam);
+	return (HRESULT)HandleCustomDraw(wParam, (NMCSBCUSTOMDRAW *)lParam);
 }
 
 // global app hooks

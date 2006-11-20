@@ -62,7 +62,7 @@ namespace Skin {
 				brBorder.DeleteObject();
 
 				// »æÖÆÄÚ¿ò
-				/*
+				
 				if ((lExStyle & WS_EX_CLIENTEDGE) || (lExStyle & WS_EX_STATICEDGE))
 				{
 					InflateRect(&rcw, -1, -1);
@@ -71,14 +71,14 @@ namespace Skin {
 					_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 					brBorder.CreateSolidBrush( cr ); 
 					FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
-					//if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))
+					if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))
 					{
 						InflateRect(&rcw, -1, -1);
 						FrameRect(hdc, &rcw, (HBRUSH)brBorder);
 					}
 					brBorder.DeleteObject();
 				}
-				*/
+				
 				ReleaseDC( hdc );
 			}
 			else
