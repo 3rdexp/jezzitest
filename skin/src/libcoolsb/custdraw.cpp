@@ -276,7 +276,7 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 			{
 				if ( rc->left == 0 && rc->top == 0 )
 					return CDRF_SKIPDEFAULT;
-
+				
 				pss->DrawBackground( nm->hdc, SCROLLBAR, nPart, nState, rc, NULL);
 			}
 			return CDRF_SKIPDEFAULT;
@@ -326,7 +326,13 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 			nPart = SBP_LOWERTRACKVERT;
 			if  ( pss )
 			{
-				pss->DrawBackground( nm->hdc, SCROLLBAR, nPart, 1, rc, NULL);
+				if  ( pss && rc->top != rc->bottom )
+				{
+					ATLTRACE("scroll bar %d:%d \r\n", rc->top, rc->bottom);
+					IntersectClipRect( nm->hdc, rc->left, rc->top, rc->right, rc->bottom );
+					pss->DrawBackground( nm->hdc, SCROLLBAR, nPart, 1, rc, NULL);
+					SelectClipRgn( nm->hdc, NULL);
+				}
 			}
 			return CDRF_SKIPDEFAULT;
 		}
@@ -335,7 +341,9 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 			nPart = SBP_UPPERTRACKVERT;
 			if  ( pss && rc->top != rc->bottom )
 			{
+				IntersectClipRect( nm->hdc, rc->left, rc->top, rc->right, rc->bottom );
 				pss->DrawBackground( nm->hdc, SCROLLBAR, nPart, 1, rc, NULL);
+				SelectClipRgn( nm->hdc, NULL);
 			}
 			return CDRF_SKIPDEFAULT;
 		}

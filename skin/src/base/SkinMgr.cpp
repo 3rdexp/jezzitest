@@ -48,7 +48,7 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls/combolbox.h"
 #include "../controls/rebar.h"
 #include "../controls/controlbar.h"
-
+#include "../controls//listbox.h"
 #include "../libcoolsb/coolscroll.h"
 #include "../libcoolsb/coolsb_detours.h"
 #include "../base/SkinHook.h"
@@ -183,6 +183,14 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		bool f = skinlistview::Install(hInst);
 		if (f)
 			_installed_type |= SKINCTL_LISTVIEW;
+	}
+
+	if (!(_installed_type & SKINCTL_LISTBOX) && (dwType & SKINCTL_LISTBOX) )
+	{
+		typedef SkinListBox<WTL::CListBox> skinlistbox;
+		bool f = skinlistbox::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_LISTBOX;
 	}
 
 	CoolSB_InitializeApp();

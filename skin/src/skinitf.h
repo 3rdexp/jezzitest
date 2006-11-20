@@ -61,6 +61,7 @@ enum skincontrol_class_id
     // Non-client ´°¿Ú
     CCI_DEF(19, WINDOW)
 	CCI_DEF(20, CONTROLBAR)
+	CCI_DEF(21, LISTBOX)
 };
 
 #undef CCI_DEF
@@ -95,6 +96,7 @@ enum skincontrol_flag
 
     // Non-client ´°¿Ú
     SKIN_TYPE( WINDOW)
+	SKIN_TYPE( LISTBOX )
 
     SKINCTL_SYSDEFAULT   = 0x000FFFFF,
     SKINCTL_EXTENSION    = 0xFFF00000,

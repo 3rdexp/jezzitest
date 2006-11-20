@@ -171,6 +171,7 @@ class SkinHookBase : public CWindow
 public:
 	virtual bool UnInstallHook( HWND hWnd ) = 0;
 	virtual bool InstallHook( HWND hWnd ) = 0;
+	virtual WNDPROC getDefaultProc() = 0;
 };
 
 template<class ControlT, class BaseT, class InstallPolicy = ClassPolicy>
@@ -273,6 +274,11 @@ public:
 	bool UnInstallHook( HWND hWnd )
 	{
 		return _installer.Uninstall( hWnd );
+	}
+
+	WNDPROC getDefaultProc()
+	{
+		return _installer.GetDefaultProc();
 	}
 
 
