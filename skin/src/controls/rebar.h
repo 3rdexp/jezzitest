@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../base/skinctrl.h"
+
 namespace Skin {
-	template<class BaseT = CReBarCtrl>
+	template<class BaseT = WTL::CReBarCtrl>
 	struct SkinReBarCtrl : public SkinControlImpl<SkinReBarCtrl, BaseT>
 	{
 		enum { class_id = REBAR };
@@ -19,7 +20,7 @@ namespace Skin {
 			//MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 		END_MSG_MAP()
 
-
+	
 		void DrawGripper(CWindowDC *pDC, CRect& rectWindow)
 		{
 			// get the gripper rect (1 pixel smaller than toolbar)
@@ -99,7 +100,7 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPaintDC dc(m_hWnd);
+			WTL::CPaintDC dc(m_hWnd);
 			CRect rcClip;
 			dc.GetClipBox (rcClip);
 			dc.FillSolidRect (rcClip, RGB( 255, 0, 0 ));//Enable This to get the Classic Color

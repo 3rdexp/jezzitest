@@ -22,8 +22,8 @@ namespace Skin {
 		enum { class_id = COMBOBOX };
 
 		BEGIN_MSG_MAP(CWindow)
-			if ( hWnd == m_hWnd && bPrint)
-				ATLTRACE("combolbox msg is %04x \n", uMsg);
+			//if ( hWnd == m_hWnd && bPrint)
+			//	ATLTRACE("combolbox msg is %04x \n", uMsg);
 			MSG_WM_CREATE(OnCreate)
 			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 			MESSAGE_HANDLER(WM_PRINT, OnPrint)
