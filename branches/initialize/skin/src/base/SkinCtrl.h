@@ -4,6 +4,7 @@
 #include <crtdbg.h>
 #include <atlcrack.h>
 #include <boost/shared_ptr.hpp>
+#include <atlwin.h>
 // ------------------------------------------------------
 // We use UxTheme's Part, State Define
 #include <tmschema.h>
@@ -165,14 +166,6 @@ TODO:
 
 
 \\----------------------------------------------------------------------------*/
-
-class SkinHookBase : public CWindow
-{
-public:
-	virtual bool UnInstallHook( HWND hWnd ) = 0;
-	virtual bool InstallHook( HWND hWnd ) = 0;
-	virtual WNDPROC getDefaultProc() = 0;
-};
 
 template<class ControlT, class BaseT, class InstallPolicy = ClassPolicy>
 class SkinControlImpl : public BaseT

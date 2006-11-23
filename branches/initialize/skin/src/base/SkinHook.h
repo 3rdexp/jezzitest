@@ -3,7 +3,6 @@
 #include "../controls/controlbar.h"
 
 namespace Skin {
-
 class CSkinHook
 {
 public:
@@ -100,9 +99,9 @@ public:
 	}
 
 
-	SkinHookBase* GetSkinCtrl( HWND hWnd )
+	CSkinHookBase* GetSkinCtrl( HWND hWnd )
 	{
-		SkinHookBase* pSkin = NULL;
+		CSkinHookBase* pSkin = NULL;
 
 		SKINHOOK_ITERATOR it = _handle_maps.find( hWnd );
 		if( it != _handle_maps.end() )
@@ -114,14 +113,12 @@ public:
 		return NULL;
 	}
 
-	SkinHookBase* NewSkinCtrl( const CString& sClass, HWND hWnd )
+	CSkinHookBase* NewSkinCtrl( const CString& sClass, HWND hWnd )
 	{
 		if ( sClass.Find(WC_CONTROLBAR) == 0 )
 			return new SkinControlBar();
 		else if ( sClass.CompareNoCase(WC_TOOLBAR) == 0 )
 		{
-			CToolBar* pToolbar = NULL;
-			pToolbar = (CToolBar*)CWnd::FromHandle( hWnd ); 
 			return new SkinToolBarCtrl();
 		}
 		return NULL;//new CSkinOther(0);
@@ -132,7 +129,7 @@ public:
 	{
 		// do what
 		CString sClass( GetClass( hWnd ) );
-		SkinHookBase* pSkinCtrl = GetSkinCtrl( hWnd );
+		CSkinHookBase* pSkinCtrl = GetSkinCtrl( hWnd );
 		if ( pSkinCtrl )
 			return TRUE;
 
@@ -146,9 +143,7 @@ public:
 
 		if ( pSkinCtrl )
 		{
-
-			pSkinCtrl->Attach( hWnd );
-			pSkinCtrl->InstallHook( hWnd );
+			pSkinCtrl->Install( hWnd );
 			_handle_maps.insert( std::make_pair(hWnd, pSkinCtrl) );	
 			return TRUE;
 		}
@@ -166,14 +161,14 @@ public:
 		if( it != _handle_maps.end() )
 		{
 
-			SkinHookBase* pCtrl = it->second;
+			//SkinHookBase* pCtrl = it->second;
 			_handle_maps.erase(it);
 			//pCtrl->UninstallHook( hWnd );
-			WNDPROC defaultproc = pCtrl->getDefaultProc();
-			pCtrl->Detach();
-			delete pCtrl;
+			//WNDPROC defaultproc = pCtrl->getDefaultProc();
+			//pCtrl->Detach();
+			//delete pCtrl;
 
-			return CallWindowProc(defaultproc, hWnd, msg.message, msg.wParam, msg.lParam);
+			//return CallWindowProc(defaultproc, hWnd, msg.message, msg.wParam, msg.lParam);
 
 		}
 		// else
@@ -196,8 +191,8 @@ public:
 			MSG msg = { pwp->hwnd, pwp->message, pwp->wParam, pwp->lParam, 0, { 0, 0 } };
 
 			BOOL bRet = GetInstance().OnCallWndProc(msg);
-			if ( bRet )
-				return 0;
+			//if ( bRet )
+			//	return 0;
 		}
 
 		return CallNextHookEx(GetInstance()._hCallWndHook, nCode, wParam, lParam);
@@ -256,8 +251,8 @@ public:
 
 public:
 	HHOOK _hCallWndHook;
-	std::map< HWND , SkinHookBase* > _handle_maps;
-	typedef std::map<HWND, SkinHookBase* >::iterator SKINHOOK_ITERATOR;
+	std::map< HWND , CSkinHookBase* > _handle_maps;
+	typedef std::map<HWND, CSkinHookBase* >::iterator SKINHOOK_ITERATOR;
 
 };
 
