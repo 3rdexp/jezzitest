@@ -14,6 +14,8 @@ namespace Skin {
 		typedef SkinControlImpl<SkinListBox, BaseT> base_type;
 
 		BEGIN_MSG_MAP(this_type)
+			if ( hWnd == m_hWnd )
+				ATLTRACE(" msg is %04x \n", uMsg);
 			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 			MSG_WM_CREATE(OnCreate)
 		END_MSG_MAP()
@@ -21,8 +23,8 @@ namespace Skin {
 		BOOL OnCreate(LPCREATESTRUCT)
 		{
 			m_nPart = LVP_LISTITEM;
-
-			InstallScrollBar();
+			m_bInit = FALSE;
+			//InstallScrollBar();
 
 			SetMsgHandled(FALSE);
 			return TRUE;
@@ -30,6 +32,11 @@ namespace Skin {
 
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
+			if ( m_bInit )
+			{
+				InstallScrollBar();
+				m_bInit = TRUE;
+			}
 			LONG lExStyle;
 			lExStyle = GetExStyle();
 			if (( GetStyle() & WS_BORDER) ||
@@ -87,6 +94,7 @@ namespace Skin {
 		}
 	private:
 		int m_nPart;
+		BOOL m_bInit;
 	};
 
 }; // namespace 
