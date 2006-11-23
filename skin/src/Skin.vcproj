@@ -211,6 +211,9 @@
 				RelativePath=".\base\SkinHook.h">
 			</File>
 			<File
+				RelativePath=".\base\skinhookbase.h">
+			</File>
+			<File
 				RelativePath=".\base\SkinMgr.cpp">
 			</File>
 			<File
