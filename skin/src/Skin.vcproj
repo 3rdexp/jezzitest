@@ -247,6 +247,9 @@
 				RelativePath=".\controls\controlbar.h">
 			</File>
 			<File
+				RelativePath=".\controls\Datetimepick.h">
+			</File>
+			<File
 				RelativePath=".\controls\dialog.h">
 			</File>
 			<File
@@ -257,6 +260,9 @@
 			</File>
 			<File
 				RelativePath=".\controls\header.h">
+			</File>
+			<File
+				RelativePath=".\controls\ipadress.h">
 			</File>
 			<File
 				RelativePath=".\controls\listbox.h">
@@ -281,6 +287,9 @@
 			</File>
 			<File
 				RelativePath=".\controls\menu.h">
+			</File>
+			<File
+				RelativePath=".\controls\monthcal.h">
 			</File>
 			<File
 				RelativePath=".\controls\progress.h">

@@ -121,6 +121,10 @@ public:
 		{
 			return new SkinToolBarCtrl();
 		}
+		//else if ( sClass.CompareNoCase(WC_SCROLLBAR) == 0 )
+		//{
+		//	return new SkinScrollBar();
+		//}
 		return NULL;//new CSkinOther(0);
 	}
 

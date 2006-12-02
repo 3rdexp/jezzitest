@@ -31,12 +31,18 @@ namespace Skin {
 
 		BEGIN_MSG_MAP(this_type)
 			//REFLECTED_NOTIFY_CODE_HANDLER_EX( NM_CUSTOMDRAW, OnCustomDraw )
+			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 			MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 		END_MSG_MAP()
+
+		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			return 0 ;
+		}
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
