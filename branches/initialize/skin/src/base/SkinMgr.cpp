@@ -48,7 +48,10 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls/combolbox.h"
 #include "../controls/rebar.h"
 #include "../controls/controlbar.h"
-#include "../controls//listbox.h"
+#include "../controls/listbox.h"
+#include "../controls/ipadress.h"
+#include "../controls/Datetimepick.h"
+#include "../controls/monthcal.h"
 #include "../libcoolsb/coolscroll.h"
 #include "../libcoolsb/coolsb_detours.h"
 #include "../base/SkinHook.h"
@@ -195,6 +198,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	CoolSB_InitializeApp();
 	
+	
 	if (!(_installed_type & SKINCTL_SCROLLBAR) && (dwType & SKINCTL_SCROLLBAR) )
 	{
 		typedef SkinScrollBar<WTL::CScrollBar> skinscroll;
@@ -202,7 +206,31 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_SCROLLBAR;
 	}
+	
 
+	if (!(_installed_type & SKINCTL_IPADDRESS) && (dwType & SKINCTL_IPADDRESS) )
+	{
+		typedef SkinIpAddress<WTL::CIPAddressCtrl> skinipaddress;
+		bool f = skinipaddress::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_IPADDRESS;
+	}
+
+	if (!(_installed_type & SKINCTL_DATATIMEPICKER) && (dwType & SKINCTL_DATATIMEPICKER) )
+	{
+		typedef SkinDataTimePickerCtrl<WTL::CDateTimePickerCtrl> skindata;
+		bool f = skindata::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_DATATIMEPICKER;
+	}
+
+	if (!(_installed_type & SKINCTL_MONTHCAL) && (dwType & SKINCTL_MONTHCAL) )
+	{
+		typedef SkinMonthCal<WTL::CMonthCalendarCtrl> skindata;
+		bool f = skindata::Install(hInst);
+		if (f)
+			_installed_type |= SKINCTL_MONTHCAL;
+	}
 	/*
 	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
 	{

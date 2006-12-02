@@ -25,17 +25,17 @@ namespace Skin {
 			m_nPart = LVP_LISTITEM;
 			m_bInit = FALSE;
 			//InstallScrollBar();
-
+			InstallScrollBar();
 			SetMsgHandled(FALSE);
 			return TRUE;
 		}
 
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			if ( m_bInit )
+			if ( !m_bInit )
 			{
-				InstallScrollBar();
 				m_bInit = TRUE;
+				
 			}
 			LONG lExStyle;
 			lExStyle = GetExStyle();
