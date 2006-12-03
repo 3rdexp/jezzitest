@@ -145,7 +145,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\Bin\"
+			OutputDirectory="..\..\..\..\debug\"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			UseOfMFC="2"
@@ -172,7 +172,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\Bin\FormViewDemo.exe"
+				OutputFile="..\..\..\..\debug\FormViewDemo.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"

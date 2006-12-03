@@ -224,12 +224,12 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 			_installed_type |= SKINCTL_DATATIMEPICKER;
 	}
 
-	if (!(_installed_type & SKINCTL_MONTHCAL) && (dwType & SKINCTL_MONTHCAL) )
+	if (!(_installed_type & SKINCTL_MONTHCALCTL) && (dwType & SKINCTL_MONTHCALCTL) )
 	{
 		typedef SkinMonthCal<WTL::CMonthCalendarCtrl> skindata;
 		bool f = skindata::Install(hInst);
 		if (f)
-			_installed_type |= SKINCTL_MONTHCAL;
+			_installed_type |= SKINCTL_MONTHCALCTL;
 	}
 	/*
 	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
