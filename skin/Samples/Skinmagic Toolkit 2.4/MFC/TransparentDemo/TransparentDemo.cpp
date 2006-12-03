@@ -5,6 +5,11 @@
 #include "TransparentDemo.h"
 #include "TransparentDemoDlg.h"
 
+
+#include "skinitf.h"
+#include "skinlib.h"
+#pragma comment(lib, "../../../../samples/Skinmagic Toolkit 2.4/bin/skin.lib")
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -51,11 +56,12 @@ BOOL CTransparentDemoApp::InitInstance()
 #else
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
-	InitSkinMagicLib( AfxGetInstanceHandle(), "Demo" , NULL, NULL );
+//	InitSkinMagicLib( AfxGetInstanceHandle(), "Demo" , NULL, NULL );
 
-	LoadSkinFile("..\\Samples\\MFC\\TransparentDemo\\transparent.smf"); 
+//	LoadSkinFile("..\\Samples\\MFC\\TransparentDemo\\transparent.smf"); 
 	//SetDialogSkin("MainDialog");
 
+	LoadSkinDll();
 
 	CTransparentDemoDlg dlg;
 	m_pMainWnd = &dlg;
@@ -79,6 +85,6 @@ BOOL CTransparentDemoApp::InitInstance()
 int CTransparentDemoApp::ExitInstance() 
 {
 	// TODO: Add your specialized code here and/or call the base class
-	ExitSkinMagicLib();
+	UnloadSkinDll();
 	return CWinApp::ExitInstance();
 }

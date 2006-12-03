@@ -4,12 +4,14 @@
 #include "../base/skinctrl.h"
 #include "../base/wclassdefines.h"
 
+
+
 namespace Skin {
 
 	template<class BaseT = WTL::CMonthCalendarCtrl>
 	struct SkinMonthCal: public SkinControlImpl<SkinMonthCal, BaseT>
 	{
-		enum { class_id = MONTHCAL };
+		enum { class_id = MONTHCALCTL };
 
 		enum
 		{
@@ -156,11 +158,40 @@ namespace Skin {
 
 		WTL::CRect GetLeftButtonRect()
 		{
+
+
 			WTL::CRect rcItem;
 			GetClientRect( rcItem );
 	
 			WTL::CRect rcReqRect;
 			GetMinReqRect(rcReqRect);
+
+			
+			for ( int i = 0; i < 12; i++ )
+			{
+				if ( rcReqRect.Width() * ( i + 1 ) + i * 7 > rcItem.Width() )
+					break;
+			}
+			int nCol = i + 1;
+
+
+			for ( i = 0; i < 12; i++ )
+			{
+				if ( rcReqRect.Height() * ( i + 1 ) + i * 7 > rcItem.Height() )
+					break;
+			}
+			int nRow = i + 1;
+			
+			while ((nRow * nCol) > 12)
+			{
+				if (nRow > nCol)
+					nRow--;
+				else
+					nCol--;
+			}
+
+			rcReqRect.right = rcReqRect.Width() * nCol + ( nCol - 1 ) * 7 + rcReqRect.left;
+			rcReqRect.bottom = rcReqRect.Height() * nRow + ( nRow - 1 ) * 7 + rcReqRect.top;
 
 			WTL::CRect rcButton;
 			if ( rcItem.Width() > rcReqRect.Width() )
@@ -194,11 +225,39 @@ namespace Skin {
 
 		WTL::CRect GetRightButtonRect()
 		{
+
+
 			WTL::CRect rcItem;
 			GetClientRect( rcItem );
 
 			WTL::CRect rcReqRect;
 			GetMinReqRect(rcReqRect);
+
+			for ( int i = 0; i < 12; i++ )
+			{
+				if ( rcReqRect.Width() * ( i + 1 ) + i * 6 > rcItem.Width() )
+					break;
+			}
+			int nCol = i + 1;
+
+
+			for ( i = 0; i < 12; i++ )
+			{
+				if ( rcReqRect.Height() * ( i + 1 ) + i * 6 > rcItem.Height() )
+					break;
+			}
+			int nRow = i + 1;
+
+			while ((nRow * nCol) > 12)
+			{
+				if (nRow > nCol)
+					nRow--;
+				else
+					nCol--;
+			}
+
+			rcReqRect.right = rcReqRect.Width() * nCol + ( nCol - 1 ) * 6 + rcReqRect.left;
+			rcReqRect.bottom = rcReqRect.Height() * nRow + ( nRow - 1 ) * 6 + rcReqRect.top;
 
 			WTL::CRect rcButton;
 			if ( rcItem.Width() + 4 >= rcReqRect.Width()  )

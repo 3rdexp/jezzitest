@@ -12,6 +12,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+/*
 MENUIMAGEINFO MenuImage[]={
 	{IDM_FILE_OPEN , 0 },
 	{IDM_FILE_SAVE , 1 },
@@ -20,6 +21,7 @@ MENUIMAGEINFO MenuImage[]={
 	{IDM_HELP_ABOUT , 4 },
 	{IDM_FILE_PRINTPREVIEW , 5}
 };
+*/
 /////////////////////////////////////////////////////////////////////////////
 // CTransparentDemoDlg dialog
 
@@ -122,6 +124,7 @@ int CTransparentDemoDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CDialog::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
+	/*
 	// TODO: Add your specialized creation code here
 	SetSingleDialogSkin(m_hWnd , "MainFrame" );
 	//SetShapeWindowSkin(m_hWnd,"Shape2");
@@ -132,7 +135,7 @@ int CTransparentDemoDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 		SetWindowMainMenuImage( m_hWnd , MenuImage ,6 ,m_hMenuImage , NULL,NULL );
 	}
-
+	*/
 	return 0;
 }
 
@@ -170,6 +173,7 @@ void CTransparentDemoDlg::OnContextMenu(CWnd*, CPoint point)
 		while (pWndPopupOwner->GetStyle() & WS_CHILD)
 			pWndPopupOwner = pWndPopupOwner->GetParent();
 
+		/*
 		//DWORD dwCmd = pPopup->TrackPopupMenu(TPM_RETURNCMD|TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y,
 		//	pWndPopupOwner);
 		DWORD dwCmd = TrackSkinPopupMenu( pPopup->m_hMenu , TPM_RETURNCMD|TPM_LEFTALIGN | TPM_RIGHTBUTTON,
@@ -184,6 +188,7 @@ void CTransparentDemoDlg::OnContextMenu(CWnd*, CPoint point)
 			strR.Format("%d" , dwCmd ); 
 			AfxMessageBox( strR , MB_OK );
 		}
+		*/
 	}
 }
 
@@ -229,7 +234,7 @@ void CTransparentDemoDlg::OnTimer(UINT nIDEvent)
 {
 	// TODO: Add your message handler code here and/or call default
 	//SetWindowPos( NULL , 0 , 0 , 0 , 0 , SWP_DRAWFRAME|SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER );
-	RedrawCaptionStatic( m_hWnd , "OD1" );
+	//RedrawCaptionStatic( m_hWnd , "OD1" );
 	//NcInvalidateRect( m_hWnd , r );
 
 	CDialog::OnTimer(nIDEvent);

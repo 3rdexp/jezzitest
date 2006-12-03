@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -27,7 +27,7 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 // TEXTINCLUDE
 //
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -54,12 +54,12 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
@@ -75,19 +75,19 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\MFCControls.ico"
+IDR_MAINFRAME           ICON                    "res\\MFCControls.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_MFCCONTROLS_DIALOG DIALOGEX 0, 0, 371, 287
-STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
-    WS_SYSMENU
+IDD_MFCCONTROLS_DIALOG DIALOGEX 0, 0, 759, 347
+STYLE DS_SETFONT | DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "MFCControls"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Close",IDOK,299,251,50,18
     CONTROL         "Radio Button",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | 
@@ -113,8 +113,8 @@ BEGIN
                     ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_HSCROLL
     CONTROL         "Tab1",IDC_TAB1,"SysTabControl32",TCS_HOTTRACK,139,6,197,
                     64
-    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",PBS_SMOOTH | 
-                    WS_BORDER,17,211,318,14
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER | 
+                    0x1,17,211,318,14
     PUSHBUTTON      "Pause",IDC_PAUSEPLAY,241,251,46,18
     LISTBOX         IDC_LIST1,14,15,113,53,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
                     WS_VSCROLL | WS_TABSTOP
@@ -136,10 +136,19 @@ BEGIN
                     TBS_NOTICKS | WS_TABSTOP,160,147,19,43
     CONTROL         "",IDC_SLIDER6,"msctls_trackbar32",TBS_VERT | 
                     TBS_NOTICKS | WS_TABSTOP,180,147,16,43
+    CONTROL         "",IDC_SPIN3,"msctls_updown32",UDS_ARROWKEYS,27,263,21,
+                    36
+    CONTROL         "",IDC_MONTHCALENDAR1,"SysMonthCal32",MCS_NOTODAY | 
+                    WS_TABSTOP,407,7,345,142
+    CONTROL         "",IDC_IPADDRESS1,"SysIPAddress32",WS_TABSTOP,499,209,
+                    102,25
+    CONTROL         "",IDC_COMBOBOXEX1,"ComboBoxEx32",CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP,381,207,100,21
+    CONTROL         "",IDC_DATETIMEPICKER1,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | WS_TABSTOP,75,291,116,17
 END
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -162,18 +171,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "\0"
-            VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "MFCControls Microsoft \0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "MFCControls\0"
-            VALUE "LegalCopyright", "Copyright (C) 2005\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "MFCControls.EXE\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "MFCControls 应用程序\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "FileDescription", "MFCControls Microsoft "
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "MFCControls"
+            VALUE "LegalCopyright", "Copyright (C) 2005"
+            VALUE "OriginalFilename", "MFCControls.EXE"
+            VALUE "ProductName", "MFCControls 应用程序"
+            VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -182,8 +186,6 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -191,14 +193,14 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_MFCCONTROLS_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 364
+        RIGHTMARGIN, 752
         TOPMARGIN, 7
-        BOTTOMMARGIN, 280
+        BOTTOMMARGIN, 340
     END
 END
 #endif    // APSTUDIO_INVOKED

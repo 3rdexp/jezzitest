@@ -5,6 +5,10 @@
 #include "ShapeWindowDemo.h"
 #include "ShapeWindowDemoDlg.h"
 
+#include "skinitf.h"
+#include "skinlib.h"
+#pragma comment(lib, "../../../../samples/Skinmagic Toolkit 2.4/bin/skin.lib")
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -45,12 +49,16 @@ BOOL CShapeWindowDemoApp::InitInstance()
 	// If you are not using these features and wish to reduce the size
 	//  of your final executable, you should remove from the following
 	//  the specific initialization routines you do not need.
+	/*
 	VERIFY( 1 == InitSkinMagicLib( AfxGetInstanceHandle(), "Demo" , 
 					  NULL,
 					  NULL ) );
 
 	VERIFY( 1 == LoadSkinFromResource( AfxGetInstanceHandle()  , "SKIN" ,"SKINMAGIC" ) ); 
- 
+	*/
+
+	LoadSkinDll();
+
 	CShapeWindowDemoDlg dlg;
 
 	m_pMainWnd = &dlg;
@@ -70,3 +78,10 @@ BOOL CShapeWindowDemoApp::InitInstance()
 	//  application, rather than start the application's message pump.
 	return FALSE;
 }
+int CShapeWindowDemoApp::ExitInstance() 
+{
+	UnloadSkinDll();
+	// TODO: Add your specialized code here and/or call the base class
+	return CWinApp::ExitInstance();
+}
+

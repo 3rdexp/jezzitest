@@ -79,7 +79,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\Bin\"
+			OutputDirectory="..\..\..\..\debug\"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			UseOfMFC="1"
@@ -107,7 +107,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\Bin\Buttons.exe"
+				OutputFile="..\..\..\..\debug\Buttons.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"

@@ -62,7 +62,7 @@ BOOL CShapeWindowDemoDlg::OnInitDialog()
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-
+/*
 	SetShapeWindowSkin( m_hWnd , "ShapeWnd2" );
 	
 	// TODO: Add extra initialization here
@@ -71,9 +71,9 @@ BOOL CShapeWindowDemoDlg::OnInitDialog()
 	//SetTimer( 1000 , 500 , NULL );
 	
 	SetDialogSkin("Dialog");
-
+*/
 	CRect rc;
-	GetSkinClientRect( m_hWnd , rc );
+	GetClientRect(  rc );
 	m_MonthCalCtrl.MoveWindow( rc );
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -177,7 +177,7 @@ void CShapeWindowDemoDlg::OnContextMenu(CWnd*, CPoint point)
 
 		//pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y,
 		//	pWndPopupOwner);
-		TrackSkinPopupMenu( pPopup->m_hMenu , TPM_LEFTALIGN | TPM_RIGHTBUTTON,point.x, point.y , m_hWnd );
+//		TrackSkinPopupMenu( pPopup->m_hMenu , TPM_LEFTALIGN | TPM_RIGHTBUTTON,point.x, point.y , m_hWnd );
 	}
 }
 
