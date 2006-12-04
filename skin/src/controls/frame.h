@@ -23,7 +23,8 @@ using WTL::CMenuHandle;
 
 // Menu 扩充的 part and property 
 // BEGIN_TM_CLASS_PARTS(WINDOW)
-#define WP_MENUBAR      WP_SMALLFRAMEBOTTOMSIZINGTEMPLATE + 1  // WP_MENU 已经被适用了
+#define WP_SYSTEM_LAST  WP_SMALLFRAMEBOTTOMSIZINGTEMPLATE
+#define WP_MENUBAR      WP_SYSTEM_LAST + 1  // WP_MENU 已经被使用了
 
 // TMT_MENU             ? menu item background
 // TMT_MENUTEXT         The color of text drawn on a menu.
@@ -263,7 +264,7 @@ protected:
         ASSERT(ERROR != nRet);
     }
 
-    // TODO: 改变行为，让 EtchedMenuBar 调用
+    // Attention: EtchedMenuBar 调用了
     void DrawMenuBar(CDCHandle dc, CMenuHandle menu, const WTL::CRect& rcw, int iSpecialItem, MENUSTATES ms)
     {
         ASSERT(!menu.IsNull());
@@ -425,7 +426,7 @@ protected:
         else
             ASSERT(false);
         
-        // TODO: ownerdraw
+        // TODO: OwnerDraw
         if (false)
         {
             MENUITEMINFO menuInfo = {0};
@@ -629,12 +630,12 @@ protected:
     //        ATLTRACE("%04x frame\n", uMsg);
     // if (uMsg == WM_COMMAND)
     //    __asm nop;
-        MSG_WM_NCACTIVATE(OnNcActivate)
-        MSG_WM_NCPAINT(OnNcPaint)
+//        MSG_WM_NCACTIVATE(OnNcActivate)
+//        MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_CREATE(OnCreate)
-        MSG_WM_DESTROY(OnDestroy)
+//        MSG_WM_DESTROY(OnDestroy)
         MSG_WM_SIZE(OnSize)
-        MSG_WM_NCCALCSIZE(OnNcCalcSize)
+//        MSG_WM_NCCALCSIZE(OnNcCalcSize)
 #if 1
         MSG_WM_NCHITTEST(OnNcHitTest)
 #else
@@ -649,13 +650,13 @@ protected:
             }
         }
 #endif
-        MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
-        MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
-        MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
-        // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
-        MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
-
-        MSG_WM_MENUSELECT(OnMenuSelect)
+//        MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
+//        MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
+//        MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
+//        // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
+//        MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
+//
+//        MSG_WM_MENUSELECT(OnMenuSelect)
     END_MSG_MAP()
 
     BOOL OnNcActivate(BOOL bActive)
@@ -940,6 +941,7 @@ protected:
                 return HTMENU; // TODO: 
         }
 
+        // TODO: menu 后半部分 返回啥？
         ASSERT(false);
         return HTNOWHERE;
         // HTBORDER In the border of a window that does not have a sizing border.
@@ -974,7 +976,7 @@ protected:
     {
         SetMsgHandled(FALSE);
         
-#if 1
+#if 0
         if(GetStyle() & WS_DLGFRAME)
         {
             ControlT * pT = static_cast<ControlT*>(this);
@@ -1045,6 +1047,7 @@ protected:
     {
         // 注意Region是 Windows's Rect，而不是 Client's Rect
         SetMsgHandled(FALSE);
+        
         if(SIZE_MAXIMIZED == nType && _rgn)
         {
             // SetWindowRgn(0);
@@ -1066,11 +1069,13 @@ protected:
             int nRet = ::DeleteObject(hrgnPrev);
             ASSERT(nRet);
 
-            SetWindowRgn(rgn_new, FALSE);
+            SetWindowRgn(rgn_new, TRUE);
         }
+
         // TODO: 没有绘制正确
-        // TODO: 没有得到正确的Region in OnCreate
-        RedrawWindow(NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+        // TODO: 没有得到正确的 Region in OnCreate
+        // RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASENOW
+        RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
     }
 
     void OnNcPaint(HRGN)
@@ -1329,7 +1334,6 @@ protected:
 
     void OnMenuSelect(UINT nItem, UINT nFlag, HMENU menu)
     {
-        // Why not use parameter menu? 
         // menu maybe popupmenu or sysmenu
         
         TRACE("Frame::OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
@@ -1459,12 +1463,13 @@ LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 } // namespace Skin
 
 
-//
+// ????????????????????????????????????????????????????????????????????
 // 需要记录 placement 的元素：
 // menu, system buttons
 //
-//
+// ????????????????????????????????????????????????????????????????????
 // part 相对于 parent window 的位置
+// 或者说 windows 内，每个child part所处的位置
 // WTL::CRect SkinScheme::GetPlacement(int part, WTL::CRect& rcparent);
 //
 // <area state="" placement="left, top, right, bottom" />
