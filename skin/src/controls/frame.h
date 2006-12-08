@@ -107,7 +107,7 @@ protected:
                     _max = normal;
             }
 
-            if (hasmin() && !hasmax())
+            if (hasmin() && !hasmax() && !hasrestore())
             {
                 _max = disabled;
             }
@@ -630,12 +630,12 @@ protected:
     //        ATLTRACE("%04x frame\n", uMsg);
     // if (uMsg == WM_COMMAND)
     //    __asm nop;
-//        MSG_WM_NCACTIVATE(OnNcActivate)
-//        MSG_WM_NCPAINT(OnNcPaint)
+        MSG_WM_NCACTIVATE(OnNcActivate)
+        MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_CREATE(OnCreate)
-//        MSG_WM_DESTROY(OnDestroy)
+        MSG_WM_DESTROY(OnDestroy)
         MSG_WM_SIZE(OnSize)
-//        MSG_WM_NCCALCSIZE(OnNcCalcSize)
+        MSG_WM_NCCALCSIZE(OnNcCalcSize)
 #if 1
         MSG_WM_NCHITTEST(OnNcHitTest)
 #else
@@ -650,13 +650,13 @@ protected:
             }
         }
 #endif
-//        MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
-//        MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
-//        MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
-//        // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
-//        MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
-//
-//        MSG_WM_MENUSELECT(OnMenuSelect)
+        MSG_WM_NCLBUTTONDOWN(OnNcLButtonDown)
+        MSG_WM_NCLBUTTONUP(OnNcLButtonUp)
+        MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
+        // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
+        MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
+
+        MSG_WM_MENUSELECT(OnMenuSelect)
     END_MSG_MAP()
 
     BOOL OnNcActivate(BOOL bActive)
@@ -989,7 +989,7 @@ protected:
             CRect rcw;
             GetWindowRect(&rcw);
             rcw.OffsetRect(-rcw.left, -rcw.top);
-            _rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 35, 35);
+            _rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 10, 10);
             ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
         }
 #endif  
