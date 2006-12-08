@@ -72,6 +72,12 @@ class CCacheDC;
 // value in hash     class_id << 26
 // value in SkinMgr::InitControls
 
+//   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1
+//   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+//  +-----------+-----------+-------+-------------------------------+
+//  |   class   |  part     | state |               prop            |
+//  +-----------+-----------|-------+-------------------------------+
+
 inline scheme_data::key_type make_key(int iClassId, int iPartId, int iState, int iProp = 0)
 {
     ASSERT(iClassId < 1<<6);
