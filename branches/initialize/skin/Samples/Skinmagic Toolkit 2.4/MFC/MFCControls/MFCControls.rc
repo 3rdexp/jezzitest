@@ -139,7 +139,7 @@ BEGIN
     CONTROL         "",IDC_SPIN3,"msctls_updown32",UDS_ARROWKEYS,27,263,21,
                     36
     CONTROL         "",IDC_MONTHCALENDAR1,"SysMonthCal32",MCS_NOTODAY | 
-                    WS_TABSTOP,407,7,345,142
+                    WS_TABSTOP,369,20,368,173
     CONTROL         "",IDC_IPADDRESS1,"SysIPAddress32",WS_TABSTOP,499,209,
                     102,25
     CONTROL         "",IDC_COMBOBOXEX1,"ComboBoxEx32",CBS_DROPDOWN | 

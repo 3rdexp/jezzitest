@@ -238,12 +238,148 @@ public:
         const RECT* lprc)
 	{
 		ASSERT( lprc );
-		return lprc && TransparentDraw(hdc, iPartId, iStateId, lprc->left, lprc->top, 
+		return lprc && TransparentDraw(hdc, iClassId, iPartId, iStateId, lprc->left, lprc->top, 
             lprc->right-lprc->left, lprc->bottom-lprc->top );
 	}
 	STDMETHODIMP_(BOOL) TransparentDraw(HDC hdc, int iClassId, int iPartId, int iStateId,
         long dx, long dy, long dcx = 0, long dcy = 0)
 	{
+
+		ASSERT( hdc );
+
+		if (!_spCache)
+			return FALSE;
+
+		area_t area;
+		BOOL f = _psd->get(make_key(iClassId, iPartId, iStateId), area);
+		ASSERT(f);
+		if (f)
+		{
+			if( 0 == dcx ) dcx = area.right - area.left;
+			if( 0 == dcy ) dcy = area.bottom - area.top;
+
+
+			// TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, 
+			// area.top, scx, scy, _spCache->TranslateColor());
+
+			if (area.hstep && !area.vstep)
+			{
+				// horz and !vert
+				// ___________________
+				// ||               || 
+				// ||               ||
+				// ||               ||
+				// -------------------
+				// 左
+				TransparentBlt2(hdc, dx, dy, area.hstep, dcy, 
+					_spCache->GetDC(), area.left, area.top, area.hstep, area.Height(), 
+					_spCache->TranslateColor());
+				// 中
+				TransparentBlt2(hdc, dx + area.hstep, dy, dcx - 2 * area.hstep, dcy, 
+					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() 
+					- 2 * area.hstep, area.Height(), _spCache->TranslateColor());
+				// 右
+				TransparentBlt2(hdc, dx + dcx - area.hstep , dy, area.hstep, dcy, 
+					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, area.Height(), 
+					_spCache->TranslateColor());
+			}
+			else if (!area.hstep && area.vstep)
+			{
+				// !horz and vert
+				// ___________________
+				// |                 | 
+				// -------------------
+				// |                 |
+				// |                 |
+				// -------------------
+				// |                 |
+				// -------------------
+				// 上
+				TransparentBlt2(hdc, dx, dy, dcx, area.vstep, 
+					_spCache->GetDC(), area.left, area.top, area.Width(), area.vstep, 
+					_spCache->TranslateColor());
+				// 中
+				TransparentBlt2(hdc, dx, dy + area.vstep, dcx, dy - 2 * area.vstep, 
+					_spCache->GetDC(), area.left, area.top + area.vstep, area.Width(), 
+					area.Height() - 2 * area.vstep, _spCache->TranslateColor());
+				// 下
+				TransparentBlt2(hdc, dx, dy + dcy - area.vstep, dcx, area.vstep, 
+					_spCache->GetDC(), area.left, area.bottom - area.vstep, area.Width(), 
+					area.vstep, _spCache->TranslateColor());
+			}
+			else if (area.hstep && area.vstep)
+			{
+				// horz and vert
+				// ___________________
+				// ||               || 
+				// -------------------
+				// ||               ||
+				// ||               ||
+				// -------------------
+				// ||               ||
+				// -------------------
+				// 左上角
+				TransparentBlt2(hdc, dx, dy, area.hstep, area.vstep, 
+					_spCache->GetDC(), area.left, area.top, area.hstep, area.vstep, 
+					_spCache->TranslateColor());
+				// 上部中间
+				TransparentBlt2(hdc, dx + area.hstep, dy, dcx - 2 * area.hstep, area.vstep, 
+					_spCache->GetDC(), area.left + area.hstep, area.top, area.Width() 
+					- 2 * area.hstep, area.vstep, _spCache->TranslateColor());
+				// 上部右边
+				TransparentBlt2(hdc, dx + dcx - area.hstep, dy, area.hstep, area.vstep, 
+					_spCache->GetDC(), area.right - area.hstep, area.top, area.hstep, 
+					area.vstep, _spCache->TranslateColor());
+
+				// 中间部分 左边
+				TransparentBlt2(hdc, dx, dy + area.vstep, area.hstep, dcy - 2 * area.vstep, 
+					_spCache->GetDC(), area.left, area.top + area.vstep, area.hstep, 
+					area.Height() - 2 * area.vstep, _spCache->TranslateColor());
+
+				// 中间部分 中部
+				TransparentBlt2(hdc, dx + area.hstep, dy + area.vstep, dcx - 2 * area.hstep, 
+					dcy - 2 * area.vstep, 
+					_spCache->GetDC(), area.left + area.hstep, area.top + area.vstep, 
+					area.Width() - 2 * area.hstep, area.Height() - 2 * area.vstep, _spCache->TranslateColor());
+
+				// 中间部分 右边
+				TransparentBlt2(hdc, dx + dcx - area.hstep, dy + area.vstep, area.hstep, 
+					dcy - 2 * area.vstep, 
+					_spCache->GetDC(), area.right - area.hstep, area.top + area.vstep, 
+					area.hstep, area.Height() - 2 * area.vstep, _spCache->TranslateColor());
+
+				// 下面部分 左边
+				TransparentBlt2(hdc, dx, dy + dcy - area.vstep, area.hstep, area.vstep, 
+					_spCache->GetDC(), area.left, area.top + area.Height() - area.vstep, 
+					area.hstep, area.vstep, _spCache->TranslateColor());
+
+				// 下面部分 中间
+				TransparentBlt2(hdc, dx + area.hstep, dy + dcy - area.vstep, dcx - 2 * area.hstep, 
+					area.vstep,
+					_spCache->GetDC(), area.left + area.hstep, area.bottom - area.vstep, 
+					area.Width() - 2 * area.hstep, area.vstep, _spCache->TranslateColor());
+
+				// 下面部分 右边
+				TransparentBlt2(hdc, dx + dcx - area.hstep, dy + dcy - area.vstep,  
+					area.hstep, area.vstep, 
+					_spCache->GetDC(), area.right - area.hstep, area.bottom - area.vstep, 
+					area.hstep, area.vstep, _spCache->TranslateColor());
+			}
+			else if (!area.hstep && !area.vstep)
+			{
+				f = TransparentBlt2(hdc, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, 
+					area.top, area.right-area.left, area.bottom-area.top, _spCache->TranslateColor());
+				ASSERT(f);
+			}
+#if 0
+			HDC d = ::GetDC(0);
+			BitBlt(d, dx, dy, dcx, dcy, _spCache->GetDC(), area.left, area.top, SRCCOPY);
+			::ReleaseDC(0, d);
+#endif
+		}
+		return f;
+
+		/*
 		ASSERT( hdc );
 
 		if (!_spCache)
@@ -262,6 +398,7 @@ public:
 			ASSERT(f);
 		}
 		return f;
+		*/
 	}
 
 
