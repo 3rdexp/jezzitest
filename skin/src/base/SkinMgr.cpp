@@ -240,7 +240,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 			_installed_type |= SKINCTL_REBAR;
 	}
     */
-/*
+
     if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
     {       
         bool f = SkinDialog::Install(hInst);
@@ -255,7 +255,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
         if (f)
             _installed_type |= SKINCTL_WINDOW;
     } 
-	*/
+	
 	
 	//bool f = SkinControlBar::Install(hInst);
 
