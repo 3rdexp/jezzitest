@@ -247,6 +247,29 @@ namespace Skin {
 				m_ptDrag = pt;
 				m_si.nTrackPos = m_si.nPos;
 				m_nDragPos = m_si.nPos;
+
+				int nOldPos = 0;
+
+				SCROLLBARINFO sbar;
+				sbar.cbSize = sizeof( sbar );
+				GetScrollBarInfo( &sbar );
+
+				BOOL bVert = IsVertical();
+
+				if ( m_si.nMax - m_si.nMin > 0 )
+				{
+					if ( bVert )
+					{
+						nOldPos = sbar.dxyLineButton + (sbar.rcScrollBar.bottom - sbar.rcScrollBar.top - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) * ( m_nDragPos - m_si.nMin ) / (m_si.nMax - m_si.nMin);
+					}
+					else
+					{
+						nOldPos = sbar.dxyLineButton + (sbar.rcScrollBar.right - sbar.rcScrollBar.left - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) * ( m_nDragPos - m_si.nMin) / (m_si.nMax - m_si.nMin);
+					}
+				}
+
+				m_nTraceSize = nOldPos;
+
 				//::SendMessage( GetParent(), WM_SYSCOMMAND,IsVertical() ? SC_VSCROLL : SC_HSCROLL, 0 );
 				InvalidateRect( GetRect( uHit ), FALSE );
 			}
@@ -328,7 +351,39 @@ namespace Skin {
 				sbar.cbSize = sizeof( sbar );
 				scrollbar.GetScrollBarInfo( &sbar );
 
-				int nNewTrackPos = IsVertical() ? point.y - m_ptDrag.y : point.x - m_ptDrag.x;
+				BOOL bVert = IsVertical();
+		
+				int nOldPos = 0;
+
+				if ( m_si.nMax - m_si.nMin > 0 )
+				{
+					if ( bVert )
+					{
+						nOldPos = sbar.dxyLineButton + (sbar.rcScrollBar.bottom - sbar.rcScrollBar.top - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) * ( m_nDragPos - m_si.nMin ) / (m_si.nMax - m_si.nMin);
+					}
+					else
+					{
+						nOldPos = sbar.dxyLineButton + (sbar.rcScrollBar.right - sbar.rcScrollBar.left - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) * ( m_nDragPos - m_si.nMin) / (m_si.nMax - m_si.nMin);
+					}
+				}
+		
+				int nNewTrackPos = IsVertical() ? nOldPos + point.y - m_ptDrag.y : nOldPos + point.x - m_ptDrag.x;
+				
+				int nMin = sbar.dxyLineButton; //IsVertical() ? sbar.rcScrollBar.top : sbar.rcScrollBar.left;
+				int nMax = IsVertical() ? sbar.rcScrollBar.bottom - sbar.rcScrollBar.top - sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop 
+										: sbar.rcScrollBar.right - sbar.rcScrollBar.left - sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop;
+				if( nNewTrackPos  < nMin )
+				{
+					nNewTrackPos = nMin ;
+				}
+				else if( nNewTrackPos  > nMax )
+				{
+					nNewTrackPos = nMax ;
+				}
+
+				
+
+				/*
 				TRACE( "nNewTrackPos is %d \r\n", nNewTrackPos );
 				int nMin = sbar.dxyLineButton; //IsVertical() ? sbar.rcScrollBar.top : sbar.rcScrollBar.left;
 				int nMax = IsVertical() ? sbar.rcScrollBar.bottom - sbar.rcScrollBar.top - sbar.dxyLineButton : sbar.rcScrollBar.right - sbar.rcScrollBar.left - sbar.dxyLineButton;
@@ -340,12 +395,28 @@ namespace Skin {
 				{
 					nNewTrackPos = nMax - sbar.xyThumbBottom;
 				}
-
-				if(nNewTrackPos != m_si.nTrackPos)
+				*/
+				if( nNewTrackPos != m_nTraceSize )
 				{
 					//WTL::CRect rcOld = GetRect( SB_THUMBTRACK );
 
-					m_si.nTrackPos=nNewTrackPos;
+					m_nTraceSize = nNewTrackPos;
+
+					if ( m_si.nMax - m_si.nMin > 0 )
+					{
+						if ( bVert )
+						{
+							nNewTrackPos = m_si.nMin + (sbar.rcScrollBar.bottom - sbar.rcScrollBar.top - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) *  nNewTrackPos / (m_si.nMax - m_si.nMin);
+						}
+						else
+						{
+							nNewTrackPos = m_si.nMin + (sbar.rcScrollBar.right - sbar.rcScrollBar.left - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) *  nNewTrackPos / (m_si.nMax - m_si.nMin);
+						}
+					}
+					else
+						nNewTrackPos = 0;
+					
+					m_si.nTrackPos = nNewTrackPos;
 					
 					//InvalidateRect( rcOld, FALSE );
 					//InvalidateRect( GetRect( SB_THUMBTRACK ), FALSE );
@@ -561,16 +632,30 @@ namespace Skin {
 			}
 			else
 			{
+				/*
 				if ( bVert )
 				{
-					rcDraw.top = sbar.xyThumbTop + m_si.nTrackPos;
-					rcDraw.bottom = sbar.xyThumbBottom + m_si.nTrackPos;
+					rcDraw.top = sbar.dxyLineButton + (rc.Height() - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) * m_si.nTrackPos / (m_si.nMax - m_si.nMin);
+					rcDraw.bottom = rcDraw.top + sbar.xyThumbBottom - sbar.xyThumbTop;
 				}
 				else
 				{
-					rcDraw.left = sbar.xyThumbTop + m_si.nTrackPos;
-					rcDraw.right = sbar.xyThumbBottom + m_si.nTrackPos;
+					rcDraw.left = sbar.dxyLineButton + (rc.Width() - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) * m_si.nTrackPos / (m_si.nMax - m_si.nMin);
+					rcDraw.right = rcDraw.left + sbar.xyThumbBottom - sbar.xyThumbTop;
 				}
+				*/
+		
+				if ( bVert )
+				{
+					rcDraw.top =  m_nTraceSize;
+					rcDraw.bottom = sbar.xyThumbBottom - sbar.xyThumbTop + m_nTraceSize;
+				}
+				else
+				{
+					rcDraw.left = m_nTraceSize;
+					rcDraw.right = sbar.xyThumbBottom - sbar.xyThumbTop + m_nTraceSize;
+				}
+		
 			}
 			
 			return rcDraw;
@@ -846,6 +931,7 @@ namespace Skin {
 		BOOL		m_bDrag;
 		CPoint		m_ptDrag;
 		int			m_nDragPos;
+		int			m_nTraceSize;
 
 		UINT		m_uClicked;
 		BOOL		m_bNotify;
