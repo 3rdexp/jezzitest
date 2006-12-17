@@ -33,29 +33,29 @@ public:
 		rectClient.OffsetRect(-rectWindow.left, -rectWindow.top);
 		dc.ExcludeClipRect(rectClient);     // draw borders in non-client area
 		rectWindow.OffsetRect(-rectWindow.left, -rectWindow.top);
-		dc.FillSolidRect(rectWindow, RGB( 0, 0, 125));
-		dc.IntersectClipRect(rectWindow);
-		SendMessage(WM_ERASEBKGND, (WPARAM)dc.m_hDC);
-		dc.SetBkColor(::GetSysColor(COLOR_3DFACE));
+		
+		if (_scheme)
+			_scheme->DrawBackground(dc, class_id, 1, 1, &rectWindow, NULL );
+
 		return 0;
 	}
 
 	LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		CRect rect;
-		GetClientRect(&rect);
-		CDCHandle dc = (HDC)wParam;
-		//CMemoryDC dc ( (HDC)wParam, rect);
-		dc.FillSolidRect (rect, RGB( 255, 0, 255));
-		return 1;
+		return 0;
 	}	
 
 	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		CRect rect;
+		WTL::CRect rect;
+		
 		GetClientRect(&rect);
+		
 		WTL::CPaintDC dc(m_hWnd);
-		dc.FillSolidRect (rect, RGB( 255, 0, 255));
+		
+		if (_scheme)
+			_scheme->DrawBackground(dc, class_id, 1, 1, &rect, NULL );
+
 		return 0;
 	}
 

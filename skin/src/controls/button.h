@@ -41,7 +41,6 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         MESSAGE_HANDLER(WM_SETTEXT, OnSetText)
         MESSAGE_HANDLER(BM_SETCHECK, OnStateChange)
         MESSAGE_HANDLER(BM_SETSTATE, OnStateChange)
-        
     END_MSG_MAP()
 
     BOOL OnCreate(LPCREATESTRUCT)

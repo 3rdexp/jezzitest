@@ -7,10 +7,12 @@ namespace Skin {
 	struct SkinListViewCtrl : public SkinControlImpl<SkinListViewCtrl, BaseT>
 	{
 		enum { class_id = LISTVIEW };
+
 		SkinListViewCtrl()
 		{
 			m_nPart = LVP_LISTITEM;
 		}
+
 		typedef SkinListViewCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinListViewCtrl, BaseT> base_type;
 
@@ -81,6 +83,7 @@ namespace Skin {
 		{
 			return LIS_NORMAL;
 		}
+
 	private:
 		int m_nPart;
 	};

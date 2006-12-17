@@ -35,8 +35,8 @@ namespace Skin {
 			if ( !m_bInit )
 			{
 				m_bInit = TRUE;
-				
 			}
+
 			LONG lExStyle;
 			lExStyle = GetExStyle();
 			if (( GetStyle() & WS_BORDER) ||

@@ -2,7 +2,6 @@
 
 #include "../base/skinctrl.h"
 
-
 namespace Skin {
 
 	template<class BaseT = CEdit>

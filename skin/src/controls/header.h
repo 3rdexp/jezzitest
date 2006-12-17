@@ -17,12 +17,14 @@ namespace Skin {
 			m_nSortItem = -1;
 			m_isAscSort = TRUE;
 		}
+
 		typedef SkinHeaderCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinHeaderCtrl, BaseT> base_type;
 
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_PAINT,OnPaint)	
+			MESSAGE_HANDLER(WM_PRINTCLIENT, OnPrintClient)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLbuttonDown)
 			MESSAGE_HANDLER(WM_LBUTTONUP,OnLbuttonUp)
 			MESSAGE_HANDLER(WM_LBUTTONDBLCLK,OnDbClick)
@@ -43,9 +45,14 @@ namespace Skin {
 			return 0;
 		}
 
+		LRESULT OnPrintClient(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			DoPaint( (HDC) wParam );
+			return 0;
+		}
+		
 		LRESULT OnLbuttonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-
 			ATLTRACE("CMyListViewImpl<T>::OnHeadLbuttonDown");
 			POINT			pt		= { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			HD_HITTESTINFO	testInfo= {0};
@@ -91,6 +98,7 @@ namespace Skin {
 			return 0;
 
 		}
+
 		LRESULT OnLbuttonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			if(m_bCapture)
@@ -110,6 +118,7 @@ namespace Skin {
 			bHandled = FALSE;
 			return 0;
 		}
+
 		LRESULT OnDbClick(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			POINT			pt		= { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
@@ -125,6 +134,7 @@ namespace Skin {
 					bHandled = FALSE;
 			return 0;
 		}
+
 		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			POINT			pt		= { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
@@ -133,8 +143,6 @@ namespace Skin {
 			bHandled = FALSE;
 			//if(!m_bCapture)
 			//	return 0;
-
-
 			{
 				HD_HITTESTINFO	testInfo= {0};
 				m_bInItem = FALSE;

@@ -594,7 +594,26 @@ namespace Skin {
 			int nPart;
 			int nState;
 
+			if ( GetStyle() & SBS_SIZEBOX  )
+			{
+
+				if (_scheme)
+					_scheme->DrawBackground(memdc, class_id, SBP_SIZEBOX, SCRBS_NORMAL, &rc, NULL );
+
+				return 0;
+			}
+
 			BOOL bVert =  (GetStyle() & SBS_VERT );
+
+			if ( GetStyle() & SBS_SIZEGRIP  )
+			{
+				if (_scheme)
+					_scheme->DrawBackground(memdc, class_id, bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ, SCRBS_NORMAL, &rc, NULL );
+
+				return 0;
+			}
+
+			
 		
 			nPart = SBP_ARROWBTN;
 			if ( !IsWindowEnabled() )
@@ -681,8 +700,8 @@ namespace Skin {
 
 			// draw gripper
 			WTL::CRect rcGripper = rcDraw;
-			int nGripperWidth = GetSchemeWidth(bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ, SCRBS_NORMAL);
-			int nGripperHeight = GetSchemeHeight(bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ, SCRBS_NORMAL);
+			int nGripperWidth = GetSchemeWidth(bVert ? 12 : 11, SCRBS_NORMAL);
+			int nGripperHeight = GetSchemeHeight(bVert ? 12 : 11, SCRBS_NORMAL);
 
 			if ( bVert )
 			{
@@ -699,7 +718,7 @@ namespace Skin {
 				rcGripper.bottom =  rcGripper.top + nGripperHeight;	
 			}
 
-			nPart = bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ;
+			nPart = bVert ? 12 : 11;
 			if (_scheme)
 				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcGripper, NULL );
 

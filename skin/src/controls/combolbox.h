@@ -121,6 +121,7 @@ namespace Skin {
 				brBorder.DeleteObject();
 			}
 		}
+
 		int  GetState()
 		{
 			return CBXS_NORMAL;

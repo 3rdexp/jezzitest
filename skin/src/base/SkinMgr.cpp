@@ -100,7 +100,6 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 
 	}
 
-	
 	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
 	{
 		typedef SkinReBarCtrl<WTL::CReBarCtrl> skinrebar;
