@@ -139,13 +139,15 @@ BEGIN
     CONTROL         "",IDC_SPIN3,"msctls_updown32",UDS_ARROWKEYS,27,263,21,
                     36
     CONTROL         "",IDC_MONTHCALENDAR1,"SysMonthCal32",MCS_NOTODAY | 
-                    WS_TABSTOP,369,20,368,173
-    CONTROL         "",IDC_IPADDRESS1,"SysIPAddress32",WS_TABSTOP,499,209,
+                    WS_TABSTOP,369,20,368,320
+    CONTROL         "",IDC_IPADDRESS1,"SysIPAddress32",WS_TABSTOP,147,315,
                     102,25
     CONTROL         "",IDC_COMBOBOXEX1,"ComboBoxEx32",CBS_DROPDOWN | 
-                    CBS_SORT | WS_VSCROLL | WS_TABSTOP,381,207,100,21
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP,31,319,100,21
     CONTROL         "",IDC_DATETIMEPICKER1,"SysDateTimePick32",
                     DTS_RIGHTALIGN | WS_TABSTOP,75,291,116,17
+    COMBOBOX        IDC_COMBO2,203,292,93,25,CBS_DROPDOWN | CBS_SORT | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
 END
 
 

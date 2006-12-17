@@ -218,7 +218,7 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 			// second draw gripper
 			
 			RECT rcGripper;
-			BOOL bRet = pss->GetRect( SCROLLBAR, SBP_GRIPPERHORZ, nState, &rcGripper);
+			BOOL bRet = pss->GetRect( SCROLLBAR, 11, nState, &rcGripper);
 			if ( bRet )
 			{
 				if ( rc->right - rc->left > rcGripper.right - rcGripper.left + 4 )
@@ -228,7 +228,7 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 					rcClient.right = rcClient.left + rcGripper.right - rcGripper.left;
 					if  ( pss )
 					{
-						pss->DrawBackground( nm->hdc, SCROLLBAR, SBP_GRIPPERHORZ, nState, &rcClient, NULL);
+						pss->DrawBackground( nm->hdc, SCROLLBAR, 11, nState, &rcClient, NULL);
 					}
 					
 				}
@@ -303,7 +303,7 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 			// second draw gripper
 
 			RECT rcGripper;
-			BOOL bRet = pss->GetRect( SCROLLBAR, SBP_GRIPPERVERT, nState, &rcGripper);
+			BOOL bRet = pss->GetRect( SCROLLBAR, 12, nState, &rcGripper);
 			if ( bRet )
 			{
 				if ( rc->bottom - rc->top > rcGripper.bottom - rcGripper.top + 4 )
@@ -313,7 +313,7 @@ LRESULT WINAPI HandleCustomDraw(UINT ctrlid, NMCSBCUSTOMDRAW *nm)
 					rcClient.bottom = rcClient.top + rcGripper.bottom - rcGripper.top;
 					if  ( pss )
 					{
-						pss->DrawBackground( nm->hdc, SCROLLBAR, SBP_GRIPPERVERT, nState, &rcClient, NULL);
+						pss->DrawBackground( nm->hdc, SCROLLBAR, 12, nState, &rcClient, NULL);
 					}
 
 				}

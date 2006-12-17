@@ -11,12 +11,15 @@ namespace Skin {
 	template<class BaseT = WTL::CMonthCalendarCtrl>
 	struct SkinMonthCal: public SkinControlImpl<SkinMonthCal, BaseT>
 	{
+
+		
 		enum { class_id = MONTHCALCTL };
 
 		enum
 		{
 			BUTTON_LEFT = 5,
-			BUTTON_TOP  = 6,
+			BUTTON_TOP  = 5,
+			CALBORDER	= 6
 		};
 
 		SkinMonthCal()
@@ -159,6 +162,7 @@ namespace Skin {
 		WTL::CRect GetLeftButtonRect()
 		{
 
+			int n = MonthCal_GetMaxSelCount( m_hWnd );
 
 			WTL::CRect rcItem;
 			GetClientRect( rcItem );
@@ -169,18 +173,26 @@ namespace Skin {
 			
 			for ( int i = 0; i < 12; i++ )
 			{
-				if ( rcReqRect.Width() * ( i + 1 ) + i * 7 > rcItem.Width() )
+				if ( rcReqRect.Width() * ( i + 1 ) + i * CALBORDER > rcItem.Width() )
 					break;
 			}
-			int nCol = i + 1;
+			
+			if ( i == 0 )
+				i  = 1;
+			
+			int nCol = i ;
 
 
 			for ( i = 0; i < 12; i++ )
 			{
-				if ( rcReqRect.Height() * ( i + 1 ) + i * 7 > rcItem.Height() )
+				if ( rcReqRect.Height() * ( i + 1 ) + i * CALBORDER > rcItem.Height() )
 					break;
 			}
-			int nRow = i + 1;
+
+			if ( i == 0 )
+				i  = 1;
+
+			int nRow = i ;
 			
 			while ((nRow * nCol) > 12)
 			{
@@ -190,8 +202,8 @@ namespace Skin {
 					nCol--;
 			}
 
-			rcReqRect.right = rcReqRect.Width() * nCol + ( nCol - 1 ) * 7 + rcReqRect.left;
-			rcReqRect.bottom = rcReqRect.Height() * nRow + ( nRow - 1 ) * 7 + rcReqRect.top;
+			rcReqRect.right = rcReqRect.Width() * nCol + ( nCol - 1 ) * CALBORDER + rcReqRect.left;
+			rcReqRect.bottom = rcReqRect.Height() * nRow + ( nRow - 1 ) * CALBORDER + rcReqRect.top;
 
 			WTL::CRect rcButton;
 			if ( rcItem.Width() > rcReqRect.Width() )
@@ -235,18 +247,26 @@ namespace Skin {
 
 			for ( int i = 0; i < 12; i++ )
 			{
-				if ( rcReqRect.Width() * ( i + 1 ) + i * 6 > rcItem.Width() )
+				if ( rcReqRect.Width() * ( i + 1 ) + i * CALBORDER > rcItem.Width() )
 					break;
 			}
-			int nCol = i + 1;
+			
+			if ( i == 0 )
+				i  = 1;
+
+			int nCol = i ;
 
 
 			for ( i = 0; i < 12; i++ )
 			{
-				if ( rcReqRect.Height() * ( i + 1 ) + i * 6 > rcItem.Height() )
+				if ( rcReqRect.Height() * ( i + 1 ) + i * CALBORDER > rcItem.Height() )
 					break;
 			}
-			int nRow = i + 1;
+
+			if ( i == 0 )
+				i  = 1;
+
+			int nRow = i ;
 
 			while ((nRow * nCol) > 12)
 			{
@@ -256,8 +276,8 @@ namespace Skin {
 					nCol--;
 			}
 
-			rcReqRect.right = rcReqRect.Width() * nCol + ( nCol - 1 ) * 6 + rcReqRect.left;
-			rcReqRect.bottom = rcReqRect.Height() * nRow + ( nRow - 1 ) * 6 + rcReqRect.top;
+			rcReqRect.right = rcReqRect.Width() * nCol + ( nCol - 1 ) * CALBORDER + rcReqRect.left;
+			rcReqRect.bottom = rcReqRect.Height() * nRow + ( nRow - 1 ) * CALBORDER + rcReqRect.top;
 
 			WTL::CRect rcButton;
 			if ( rcItem.Width() + 4 >= rcReqRect.Width()  )

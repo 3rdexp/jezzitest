@@ -18,9 +18,7 @@ namespace Skin {
 
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
-		END_MSG_MAP()
-
-		
+		END_MSG_MAP()		
 
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -79,6 +77,7 @@ namespace Skin {
 		{
 			return ETS_NORMAL;
 		}
+
 	private:
 		int m_nPart;
 	};

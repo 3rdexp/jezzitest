@@ -175,7 +175,7 @@ namespace Skin {
 				for ( int i = 0; i < GetItemCount(); i++ )
 				{
 					WTL::CRect rcItem;
-					GetItemRect( 0, &rcItem );
+					GetItemRect( i, &rcItem );
 					if ( bVert )
 					{
 						if ( rcItem.right > nMax )

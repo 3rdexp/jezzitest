@@ -21,15 +21,15 @@ namespace Skin {
 
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
+			MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
-
 		END_MSG_MAP()
 
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CRect rc ;
+			WTL::CRect rc ;
 			GetClientRect( rc );
 
 			WTL::CClientDC	dc( m_hWnd );
@@ -42,34 +42,37 @@ namespace Skin {
 
 			DoPaint(dc, nState, rc);
 			
-			return 0;
+			return lRet;
 		}
 
 		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			LRESULT lRet = 0;
-			//LRESULT lRet = DefWindowProc();
+			
 			m_bLBtnDown = TRUE;
+			
 			if( IsWindowEnabled() )
 			{
 				lRet = DefWindowProc();
 				Invalidate();
 			}
+			
 			return lRet;
 		}
 
 		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			LRESULT lRet = 0;
+			
 			m_bLBtnDown = FALSE;
+			
 			Invalidate();
+			
 			if( IsWindowEnabled() ) 
 				lRet = DefWindowProc();
 			
 			return lRet;
 		}
-
-		
 
 		void DoPaint(HDC hdc, int nState, RECT *pRect)
 		{
@@ -117,8 +120,6 @@ namespace Skin {
 				_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 				dc.Draw3dRect(rcItem, cr, cr); 
 			}
-
-			
 
 			if ( nType != CBS_SIMPLE )
 			{
