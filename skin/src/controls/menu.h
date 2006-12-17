@@ -92,6 +92,8 @@ public:
     END_MSG_MAP()
 
 private:
+    // ! 不知是何时 m_hWnd 和 Menu 才关联起来
+    // 注意此函数调用可能失败
     HMENU GetHMenu()
     {
         return (HMENU)SendMessage(MN_GETHMENU, 0, 0);
