@@ -124,7 +124,11 @@ namespace Skin {
 
 			// draw borders in non-client area
 			rectWindow.OffsetRect(-rectWindow.left, -rectWindow.top);
-			dc.FillSolidRect (rectWindow, RGB( 0, 0, 255));
+			
+			// draw backimg
+			if( _scheme )
+				_scheme->DrawBackground(dc, class_id, 8, 1, &rectWindow, NULL );
+			//dc.FillSolidRect (rectWindow, RGB( 0, 0, 255));
 
 			// erase parts not drawn
 			dc.IntersectClipRect(rectWindow);
@@ -142,9 +146,16 @@ namespace Skin {
 
 			if (dwStyle & CBRS_FLOATING) return ;
 
+			int nWidth = GetSchemeWidth( IsHorz() ? 9 : 10 , 1 );
+			int nHeight = GetSchemeWidth( IsHorz() ? 9 : 10 , 1 );
+
 			if (IsHorz())
 			{
 
+				if (_scheme)
+					_scheme->TransparentDraw(dc->m_hDC, class_id, 9, 1, rcWin.left, rcWin.top, nWidth, rcWin.Height() );
+
+				/*
 				rcWin.top += 6;
 				rcWin.left += 4;
 				rcWin.right =  rcWin.left + 3;
@@ -161,10 +172,15 @@ namespace Skin {
 					rcWindow.bottom = rcWindow.top + 1;
 					dc->FillRect(rcWindow, cb);
 				}
+				*/
 
 			}
 			else
 			{
+				if (_scheme)
+					_scheme->TransparentDraw(dc->m_hDC, class_id, 10, 1, rcWin.left, rcWin.top, rcWin.Width(), nHeight );
+
+				/*
 				rcWin.top += 2;
 				rcWin.left += 2;
 				rcWin.right -= 2;
@@ -180,6 +196,7 @@ namespace Skin {
 					dc->FillRect(rcWindow,cb);
 
 				}
+				*/
 
 			}
 

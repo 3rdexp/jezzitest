@@ -74,7 +74,7 @@ namespace Skin {
 			ScreenToClient(rectWindow);
 			rectClient.OffsetRect(-rectWindow.left, -rectWindow.top);
 			dc.ExcludeClipRect(rectClient);
-			dc.SetBkColor( RGB(255, 0, 0 ) );
+			//dc.SetBkColor( RGB(255, 0, 0 ) );
 
 			// draw borders in non-client area
 			rectWindow.OffsetRect(-rectWindow.left, -rectWindow.top);
@@ -83,6 +83,10 @@ namespace Skin {
 			//DrawRaisedBorders(&dc, rectWindow);
 			//else
 			//	DrawBorders(&dc, rectWindow);
+
+			// draw backimg
+			if( _scheme )
+				_scheme->DrawBackground(dc, class_id, 8, 1, &rectWindow, NULL );
 
 			// erase parts not drawn
 			dc.IntersectClipRect(rectWindow);
@@ -103,7 +107,12 @@ namespace Skin {
 			WTL::CPaintDC dc(m_hWnd);
 			CRect rcClip;
 			dc.GetClipBox (rcClip);
-			dc.FillSolidRect (rcClip, RGB( 255, 0, 0 ));//Enable This to get the Classic Color
+			
+			// draw backimg
+			if( _scheme )
+				_scheme->DrawBackground(dc, class_id, 1, 1, &rcClip, NULL );
+
+			//dc.FillSolidRect (rcClip, RGB( 255, 0, 0 ));//Enable This to get the Classic Color
 			return 0;
 		}
 
