@@ -75,10 +75,10 @@ BOOL CTransparentDemoDlg::OnInitDialog()
 	m_TabCtrl.InsertItem( 2 , "Page3" , -1 );
 
 
-	SetTimer(1 , 1000 , NULL );
+	//SetTimer(1 , 1000 , NULL );
 
-	m_ctrlAnimate.Open( IDR_AVI1 );
-	m_ctrlAnimate.Play(0,-1, 3 );
+	//m_ctrlAnimate.Open( IDR_AVI1 );
+	//m_ctrlAnimate.Play(0,-1, 3 );
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

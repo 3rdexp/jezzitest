@@ -26,6 +26,7 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 
 #include <atlctrls.h>
 
+#include "../controls/menubar.h"
 #include "../controls/frame.h"
 
 #if 1
@@ -230,16 +231,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_MONTHCALCTL;
 	}
-	/*
-	if (!(_installed_type & SKINCTL_REBAR) && (dwType & SKINCTL_REBAR) )
-	{
-		typedef SkinReBarCtrl<CReBarCtrl> skinrebar;
-		bool f = skinrebar::Install(hInst);
-		if (f)
-			_installed_type |= SKINCTL_REBAR;
-	}
-    */
-
+	
     if (!(_installed_type & SKINCTL_DIALOG) && (dwType & SKINCTL_DIALOG) )
     {       
         bool f = SkinDialog::Install(hInst);
@@ -254,8 +246,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
         if (f)
             _installed_type |= SKINCTL_WINDOW;
     } 
-	
-	
+
 	//bool f = SkinControlBar::Install(hInst);
 
 	//_hCallWndHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId());
