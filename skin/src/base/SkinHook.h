@@ -1,6 +1,7 @@
 #pragma once
 #include "wclassdefines.h"
 #include "../controls/controlbar.h"
+#include "../controls/skindialog.h"
 
 namespace Skin {
 class CSkinHook
@@ -21,7 +22,7 @@ public:
 		static CSkinHook manager; 
 		return manager; 
 	}
-	
+	 
 	static BOOL Initialize()
 	{
 		return GetInstance().InitHooks();
@@ -121,6 +122,10 @@ public:
 		{
 			return new SkinToolBarCtrl();
 		}
+		//else if ( sClass.CompareNoCase(WC_DIALOGBOX) == 0 )
+		//{
+		//	return new SkinHookDialog();
+		//}
 		//else if ( sClass.CompareNoCase(WC_SCROLLBAR) == 0 )
 		//{
 		//	return new SkinScrollBar();
