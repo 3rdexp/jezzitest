@@ -57,7 +57,7 @@ protected:
         , _hoverMenuItem(-1), _selectedMenuItem(-1)
         , _rgn(0)
     {
-		
+		m_bIgnoreAlt = FALSE;
 	}
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
@@ -495,7 +495,7 @@ protected:
         MSG_WM_NCACTIVATE(OnNcActivate)
         MSG_WM_NCPAINT(OnNcPaint)
 		//MSG_WM_PAINT(OnPaint)
-		//MSG_WM_SETCURSOR( OnSetCursor )
+		MSG_WM_SETCURSOR( OnSetCursor )
 		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
         MSG_WM_CREATE(OnCreate)
         MSG_WM_DESTROY(OnDestroy)
@@ -524,7 +524,17 @@ protected:
 		//MSG_WM_MOUSEMOVE(OnMouseMove)
 
         MSG_WM_MENUSELECT(OnMenuSelect)
+		/*
+		MESSAGE_HANDLER( WM_SYSKEYDOWN, OnKey)
+		MESSAGE_HANDLER( WM_SYSKEYUP, OnKey)
+		MESSAGE_HANDLER( WM_KEYDOWN, OnKey)
+		*/
 
+		if ( uMsg == WM_KEYDOWN )
+		{
+			int i ;
+			i = 0;
+		}
 		//MESSAGE_HANDLER( WM_SYSCOMMAND, OnSysCommand)
     END_MSG_MAP()
 
@@ -847,6 +857,40 @@ protected:
         // HTZOOM In a Maximize button.
     }
     // TODO: Read http://www.codeproject.com/menu/newmenuxpstyle.asp
+
+
+	
+	LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		BOOL bAlt = HIWORD( lParam) & KF_ALTDOWN;	// Alt key presed?
+		TCHAR vkey = wParam;						// + X key
+
+		//对F10的支持还没有
+
+		if (( uMsg == WM_SYSKEYDOWN || uMsg == WM_KEYDOWN)) 
+		{
+			// Alt + X pressed
+			if ((bAlt || _hoverMenuItem != -1 ) && _istalnum(vkey)) 
+			{
+				int nIndex;
+				if ( m_MenuBar.MapAccessKey(vkey, nIndex) == TRUE ) 
+				{
+					_selectedMenuItem = nIndex;
+					m_MenuBar.TrackPopup( _selectedMenuItem );
+					return TRUE;		// eat it!
+				}
+				else if ( _hoverMenuItem != -1 && !bAlt)
+				{
+					//					MessageBeep(0);		// if you want
+					return TRUE;
+				}
+			}
+		}
+		ControlT * pT = static_cast<ControlT*>(this);
+		LRESULT lRet = pT->DefWindowProc();
+		return lRet;
+	}
+
     BOOL OnCreate(LPCREATESTRUCT)
     {
 		m_MenuBar.SetMenu( GetMenu() );
@@ -1006,14 +1050,7 @@ protected:
 
 		ControlT * pT = static_cast<ControlT*>(this);
 		LRESULT lRet = pT->DefWindowProc();
-	
 		
-		if  ( GetMenu( ) )
-		{
-			m_hm = GetMenu();
-			//SetMenu ( 0 );
-		}
-			
 		ModifyStyle( 0, WS_VISIBLE );
 
 		return lRet;
@@ -1180,7 +1217,7 @@ protected:
 
             EtchedSysButton((HDC)dc, rcw, sysbtn_state);
         }
-        if (HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
+        if (HTCAPTION != nHitTest && HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
         {
             SetMsgHandled(FALSE);
             //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest),
@@ -1394,6 +1431,7 @@ private:
 	//BOOL	m_bProcessRightArrow;
 
 	CSkinMenuBar	m_MenuBar;
+	BOOL			m_bIgnoreAlt;
 };
 
 class SkinFrame : public SkinControlImpl<SkinFrame, SkinFrameImpl<SkinFrame>,

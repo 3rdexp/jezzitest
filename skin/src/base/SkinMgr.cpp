@@ -247,6 +247,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_WINDOW;
     } 
 
+	CSkinMenuBar::InitKeyAccess();
 	//bool f = SkinControlBar::Install(hInst);
 
 	//_hCallWndHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId());
@@ -292,8 +293,8 @@ STDMETHODIMP SkinMgr::UninitControls(HINSTANCE hInst, DWORD dwType)
 //		typedef SkinButton<CButton> ssbuton;
 //		ssbuton::Uninstall(hInst);
 	}
-
-//	CoolSB_UninitializeApp();
+	CSkinMenuBar::UnInitKeyAccess();
+	CoolSB_UninitializeApp();
 	return S_OK;
 }
 
