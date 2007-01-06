@@ -147,6 +147,10 @@ int CFormViewDemoView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFormView::OnCreate(lpCreateStruct) == -1)
 		return -1;
+
+	
+
+
 	//using namespace Skin;
 	//InstallSkinScrollBar( m_hWnd );
 	// TODO: Add your specialized creation code here

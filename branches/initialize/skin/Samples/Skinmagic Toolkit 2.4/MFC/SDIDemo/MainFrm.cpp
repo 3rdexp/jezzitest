@@ -53,6 +53,19 @@ CMainFrame::~CMainFrame()
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	HINSTANCE _hLibSkinLoad = LoadLibrary("skin.dll");	
+	ATLASSERT(_hLibSkinLoad);
+	if (_hLibSkinLoad)
+	{
+		typedef LRESULT (WINAPI *SkinFrameProcT)(HWND hWnd);
+		SkinFrameProcT pf = (SkinFrameProcT)GetProcAddress(_hLibSkinLoad, "SkinFramehWnd");
+		ASSERT(pf);
+		if(pf)
+		{
+			pf(m_hWnd);
+		}
+	}
+
 	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
@@ -77,6 +90,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
+
+	
 
 	return 0;
 }

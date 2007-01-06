@@ -117,6 +117,22 @@ BEGIN
     BEGIN
         MENUITEM "&About",                      IDM_HELP_ABOUT
     END
+    POPUP "sdf"
+    BEGIN
+        MENUITEM "d",                           ID_SDF_D
+    END
+    POPUP "dd"
+    BEGIN
+        MENUITEM "ddd",                         ID_DD_DDD
+    END
+    POPUP "d"
+    BEGIN
+        MENUITEM "dd",                          ID_D_DD
+    END
+    POPUP "dd"
+    BEGIN
+        MENUITEM "ddd",                         ID_DD_DDD32781
+    END
 END
 
 IDR_POUPMENU MENU 

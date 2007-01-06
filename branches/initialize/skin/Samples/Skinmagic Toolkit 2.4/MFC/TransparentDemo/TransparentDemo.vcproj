@@ -249,5 +249,8 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="TransparentDemo.rc"/>
 	</Globals>
 </VisualStudioProject>

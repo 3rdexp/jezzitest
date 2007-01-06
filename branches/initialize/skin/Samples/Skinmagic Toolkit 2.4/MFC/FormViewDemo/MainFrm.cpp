@@ -73,6 +73,19 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
 
+	HINSTANCE _hLibSkinLoad = LoadLibrary("skin.dll");	
+	ATLASSERT(_hLibSkinLoad);
+	if (_hLibSkinLoad)
+	{
+		typedef LRESULT (WINAPI *SkinFrameProcT)(HWND hWnd);
+		SkinFrameProcT pf = (SkinFrameProcT)GetProcAddress(_hLibSkinLoad, "SkinFramehWnd");
+		ASSERT(pf);
+		if(pf)
+		{
+			pf(m_hWnd);
+		}
+	}
+
 	return 0;
 }
 
