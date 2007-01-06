@@ -2022,8 +2022,8 @@ void CSkinMenuBar::DoPaint(CDCHandle dc)
 
 	//LTRACE(_T("CXPMenuBar::DoPaint\n"));
 	//CRect rect;	GetClientRect(rect);
-
-	CheckActiveChildWndMaximized();
+	if ( m_bMDIApp )
+		CheckActiveChildWndMaximized();
 
 	WTL::CRect rcw;
 	::GetWindowRect( m_hWnd, rcw );
