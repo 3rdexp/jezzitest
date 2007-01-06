@@ -21,6 +21,12 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         m_hIcon         = 0;
 		_classid		= class_id;
     }
+
+	void OnFirstMessage()
+	{
+		int i = 0;
+	}
+
     typedef SkinButton<BaseT> this_type;
     typedef SkinControlImpl<SkinButton, BaseT> base_type;
 

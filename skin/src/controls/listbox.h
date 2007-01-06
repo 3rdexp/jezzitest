@@ -10,6 +10,11 @@ namespace Skin {
 	{
 		enum { class_id = LISTVIEW };
 
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinListBox<BaseT> this_type;
 		typedef SkinControlImpl<SkinListBox, BaseT> base_type;
 

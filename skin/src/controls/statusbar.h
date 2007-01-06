@@ -11,6 +11,12 @@ namespace Skin {
 		SkinStatusBarCtrl()
 		{
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		
 		typedef SkinStatusBarCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinStatusBarCtrl, BaseT> base_type;

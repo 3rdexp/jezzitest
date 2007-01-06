@@ -44,20 +44,20 @@ using WTL::CMenuHandle;
 
 
 
-template<class ControlT, class WindowT = CWindow>
+template<class ControlT, class WindowT = ATL::CWindow>
 class SkinFrameImpl : public WindowT
 {
 protected:
-    
+    int nMsg ;
     SkinFrameImpl() 
         // 注意：在 WM_NCCALCSIZE 消息前就要初始化
         : _frame_state(FS_ACTIVE)
         , _fTrackNcMouseLeave(false) 
         , _anchorDown(0) , _anchorHover(0)
-        , _hoverMenuItem(-1), _selectedMenuItem(-1)
         , _rgn(0)
     {
-		m_bIgnoreAlt = FALSE;
+		nMsg = 0;
+		m_frameStyle = DIALOG_STYLE;
 	}
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
@@ -66,7 +66,6 @@ protected:
     {
         BorderThickness = 4,
     };
-
 
 	// 共 12 种SysButton, 每种 6 种状态
     // tmschema.h 中只定义了4种，加入 0 程序中使用而已，5 表示窗口不处于active状态
@@ -207,6 +206,7 @@ protected:
 		return hFont;
 	}
 
+	/*
 	void InitMenu( CMenuHandle menu )
 	{
 		//得到Menu的各个菜单
@@ -219,7 +219,7 @@ protected:
 
 		m_MenuBar.InitMenu( m_hWnd, menu, border_left_width, CaptionHeight());
 	}
-
+	*/
 
     //! MenuBar 缺省位置就在 caption 下面
     RECT CalcMenuBarRect(const WTL::CRect& rcw, FRAMESTATES fs)
@@ -285,9 +285,11 @@ protected:
         
         DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
+
         if ( m_MenuBar.GetMenu() )
 		{
-            m_MenuBar.DrawMenuBar(dcMem, m_MenuBar.GetMenu(), rcw, -1, MS_NORMAL );
+			m_MenuBar.DoPaint ( dcMem );
+            //m_MenuBar.DrawMenuBar(dcMem, m_MenuBar.GetMenu(), rcw, -1, MS_NORMAL );
 		}
 #if 0
         HDC dct = ::GetDC(0);
@@ -311,6 +313,11 @@ protected:
     void DrawFrameBorder(HDC hdc, const WTL::CRect& rcw, FRAMESTATES _frame_state)
     {
         // FS_INACTIVE FS_ACTIVE
+
+		if ( rcw.Width()  == 0 )
+			return;
+		if ( rcw.Height()  == 0 )
+			return;
         ASSERT(hdc);
         ControlT * pT = static_cast<ControlT*>(this);
 
@@ -492,16 +499,27 @@ protected:
     //        ATLTRACE("%04x frame\n", uMsg);
     // if (uMsg == WM_COMMAND)
     //    __asm nop;
+		//ATLTRACE("%d -> %04x frame\n", nMsg, uMsg);
+		//nMsg ++;
+		if (uMsg == 0x00ae)
+			return 0;
+
+		
+
         MSG_WM_NCACTIVATE(OnNcActivate)
+		MSG_WM_ACTIVATE(OnActivate)
+		MSG_WM_ACTIVATEAPP(OnActivateApp)
         MSG_WM_NCPAINT(OnNcPaint)
 		//MSG_WM_PAINT(OnPaint)
 		MSG_WM_SETCURSOR( OnSetCursor )
+		MSG_WM_SETTEXT( OnSetText )
 		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
         MSG_WM_CREATE(OnCreate)
         MSG_WM_DESTROY(OnDestroy)
         MSG_WM_SIZE(OnSize)
         MSG_WM_NCCALCSIZE(OnNcCalcSize)
 		
+
 #if 1
         MSG_WM_NCHITTEST(OnNcHitTest)
 #else
@@ -523,25 +541,55 @@ protected:
         MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
 		//MSG_WM_MOUSEMOVE(OnMouseMove)
 
-        MSG_WM_MENUSELECT(OnMenuSelect)
+        //MSG_WM_MENUSELECT(OnMenuSelect)
+		//MESSAGE_HANDLER( WM_MDISETMENU , OnMdiSetMenu)
+		//MESSAGE_HANDLER( WM_MDIREFRESHMENU  , OnMdiSetMenu)
 		/*
 		MESSAGE_HANDLER( WM_SYSKEYDOWN, OnKey)
 		MESSAGE_HANDLER( WM_SYSKEYUP, OnKey)
 		MESSAGE_HANDLER( WM_KEYDOWN, OnKey)
 		*/
-
-		if ( uMsg == WM_KEYDOWN )
-		{
-			int i ;
-			i = 0;
-		}
 		//MESSAGE_HANDLER( WM_SYSCOMMAND, OnSysCommand)
     END_MSG_MAP()
+
+/*
+	LRESULT OnMdiSetMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		ControlT * pT = static_cast<ControlT*>(this);
+		LRESULT lRet = pT->DefWindowProc();
+		OnFirstMessage();
+		return lRet;
+	}
+*/
+	LRESULT OnSetText( LPCTSTR lParam )
+	{
+		return 0;
+	}
+	void OnActivateApp( BOOL wParam, DWORD lParam )
+	{
+		OnNcPaint( (HRGN)0 );	
+	}
+
+	void OnActivate(UINT wParam, BOOL bActive, HWND hWnd)
+	{
+		//TRACE("WM_NCACTIVATE %d\n", bActive);
+
+		//_frame_state = bActive ? FS_ACTIVE : FS_INACTIVE;
+
+		//ControlT * pT1 = static_cast<ControlT*>(this);
+		//LRESULT ret = pT1->DefWindowProc();
+
+		OnNcPaint( (HRGN)0 );	
+	}
 
     BOOL OnNcActivate(BOOL bActive)
     {
         TRACE("WM_NCACTIVATE %d\n", bActive);
-        _frame_state = bActive ? FS_ACTIVE : FS_INACTIVE;
+        
+		_frame_state = bActive ? FS_ACTIVE : FS_INACTIVE;
+		
+		//ControlT * pT1 = static_cast<ControlT*>(this);
+		//LRESULT ret = pT1->DefWindowProc();
 
         WTL::CWindowDC dc(m_hWnd);
 
@@ -552,7 +600,8 @@ protected:
         rcc.OffsetRect(-rcw.left, -rcw.top);
         rcw.OffsetRect(-rcw.left, -rcw.top);
 
-        DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
+		if ( rcw.Width() > 0 && rcw.Height() > 0 )
+			DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
         return TRUE;
     }
 
@@ -712,6 +761,8 @@ protected:
 
         WTL::CRect rc_caption = pT->GetSchemeRect(WP_CAPTION, _frame_state);
 
+		rc_caption.OffsetRect( -rc_caption.left, -rc_caption.top );
+
         int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);        
         int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
         int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
@@ -825,7 +876,7 @@ protected:
         }
 		
 		
-		//return lr;
+		return HTCLIENT;
         // TODO: menu 后半部分 返回啥？
         ASSERT(false);
         return HTNOWHERE;
@@ -859,7 +910,7 @@ protected:
     // TODO: Read http://www.codeproject.com/menu/newmenuxpstyle.asp
 
 
-	
+	/*
 	LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		BOOL bAlt = HIWORD( lParam) & KF_ALTDOWN;	// Alt key presed?
@@ -890,10 +941,11 @@ protected:
 		LRESULT lRet = pT->DefWindowProc();
 		return lRet;
 	}
+	*/
 
     BOOL OnCreate(LPCREATESTRUCT)
     {
-		m_MenuBar.SetMenu( GetMenu() );
+		
 
         SetMsgHandled(FALSE);
         
@@ -915,14 +967,7 @@ protected:
         }
 #endif  
 		
-		
-
-		SetMenu ( 0 );
-
-		InitMenu( m_MenuBar.GetMenu() );
-		m_MenuBar.SetFrameState( _frame_state );
-		m_MenuBar.SethWnd( m_hWnd );
-		m_MenuBar.m_pselectedMenuItem = &_selectedMenuItem;
+		OnFirstMessage();
         return 0;
     }
 
@@ -1004,8 +1049,11 @@ protected:
             SetWindowRgn(rgn_new, TRUE);
         }
 
-		InitMenu( m_MenuBar.GetMenu() );
-
+		//OnFirstMessage();
+		//InitMenu( m_MenuBar.GetMenu() );
+		//OnFirstMessage();
+		if ( m_MenuBar.GetMenu() )
+			m_MenuBar.CalcLayout();
         // TODO: 没有绘制正确
         // TODO: 没有得到正确的 Region in OnCreate
         // RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASENOW
@@ -1051,9 +1099,29 @@ protected:
 		ControlT * pT = static_cast<ControlT*>(this);
 		LRESULT lRet = pT->DefWindowProc();
 		
-		ModifyStyle( 0, WS_VISIBLE );
+		//OnFirstMessage();
 
+		ModifyStyle( 0, WS_VISIBLE );
 		return lRet;
+	}
+
+	void OnFirstMessage()
+	{
+		HMENU hm = GetMenu();
+		if ( hm )
+		{
+			
+			_frame_state = FS_ACTIVE;
+
+			m_MenuBar.SetFrameState( &_frame_state );
+			m_MenuBar.SetWnd( m_hWnd, m_frameStyle );
+			m_MenuBar.SetMenu( hm );
+			//m_MenuBar.m_pselectedMenuItem = &_selectedMenuItem;
+			m_MenuBar.InitItems();
+			//InitMenu( m_MenuBar.GetMenu() );
+			SetMenu ( 0 );
+			SetWindowPos(0, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOMOVE|SWP_NOSIZE);   
+		}
 	}
 
     void OnNcPaint(HRGN)
@@ -1072,7 +1140,8 @@ protected:
 
 		//dc.FillSolidRect( rcw, RGB( 255, 0, 5));
 		//return;
-        DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
+		if ( rcw.Width() > 0 && rcw.Height() > 0 )
+			DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
     }
 
     void OnNcMouseMove(UINT nHitTest, WTL::CPoint point)
@@ -1100,6 +1169,8 @@ protected:
         else 
             return;
 
+		m_MenuBar.OnMouseMove( nHitTest, point );
+		/*
         if ( HTMENU == nHitTest )
         {
 			//
@@ -1117,6 +1188,7 @@ protected:
 
                 _hoverMenuItem = n;
             }
+		
         }
         else if (_hoverMenuItem != -1)
         {
@@ -1124,7 +1196,7 @@ protected:
             m_MenuBar.EtchedMenuBarItem( (HDC)dc, m_MenuBar.GetMenu(), _hoverMenuItem, MS_NORMAL);
             _hoverMenuItem = -1;
         }
-        
+        */
         // 使用标志，简直是搬起石头砸自己的头
         if(GetStyle() & WS_DLGFRAME) // 是否有 TitleBar
         {
@@ -1177,14 +1249,16 @@ protected:
             if ( HTMENU == nHitTest )
             {
                 // sure ?
+				m_MenuBar.OnLButtonDown( nHitTest, point );
+				/*
                 _selectedMenuItem = m_MenuBar.PtInMenu( point );
 				if (-1 != _selectedMenuItem)
                 {
                     WTL::CWindowDC dc(m_hWnd);
-                    m_MenuBar.EtchedMenuBarItem( (HDC)dc, m_MenuBar.GetMenu(), _selectedMenuItem, MS_SELECTED);
+                    m_MenuBar.EtchedMenuBarItem( (HDC)dc, m_MenuBar.GetMenu(), _selectedMenuItem, MS_SELECTED );
 					m_MenuBar.TrackPopup( _selectedMenuItem );
                 }
-				
+				*/
                 return;
             }
         }
@@ -1217,7 +1291,7 @@ protected:
 
             EtchedSysButton((HDC)dc, rcw, sysbtn_state);
         }
-        if (HTCAPTION != nHitTest && HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
+        if ( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
         {
             SetMsgHandled(FALSE);
             //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest),
@@ -1227,6 +1301,9 @@ protected:
     
     void OnNcLButtonUp(UINT nHitTest, WTL::CPoint point)
     {
+		if ( HTMENU == nHitTest )
+			m_MenuBar.OnLButtonUp( nHitTest, point );
+
         if (0 == _anchorDown)
             return;
 
@@ -1252,6 +1329,7 @@ protected:
         }
         else if (HTCLOSE == nHitTest)
             PostMessage(WM_SYSCOMMAND, SC_CLOSE, -1);
+		//else 
     }
 
     void OnNcMouseLeave()
@@ -1277,6 +1355,8 @@ protected:
                 sbState._min = SystemButtonState::normal;
         }
 #endif
+		m_MenuBar.OnMouseLeave();
+		/*
         if( -1 != _hoverMenuItem)
         {
             HMENU hm = m_MenuBar.GetMenu();
@@ -1289,7 +1369,7 @@ protected:
 
             _hoverMenuItem = -1;
         }
-        
+        */
         // TODO: 设置sysbutton的专用标志
         {
             WTL::CWindowDC dc(m_hWnd);
@@ -1314,13 +1394,17 @@ protected:
         }
     }
 
+	/*
     void OnMenuSelect(UINT nItem, UINT nFlag, HMENU menu)
     {
         // menu maybe popupmenu or sysmenu
         
-        // TRACE("Frame::OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
+        TRACE("Frame::OnMenuSelect %d %x %p\n", nItem, nFlag, menu);
+		return;
 
         HMENU hm = m_MenuBar.GetMenu();
+		if ( !hm )
+			return;
 
         if (nFlag == 0xFFFF && menu == 0 && _selectedMenuItem != -1)
         {
@@ -1342,7 +1426,8 @@ protected:
             m_MenuBar.EtchedMenuBarItem((HDC)dc, hm, _selectedMenuItem, MS_DEMOTED);
         }
     }
-    
+    */
+
     LRESULT ReflectNotifications(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
         HWND hWndChild = NULL;
@@ -1417,9 +1502,9 @@ private:
     UINT _anchorDown, _anchorHover;
     //! 在NcMouseMove中设置/取消
     //! 在NcMouseLeave中取消
-    UINT _hoverMenuItem;    // 鼠标曾经在过的 menu bar 上
+    //UINT _hoverMenuItem;    // 鼠标曾经在过的 menu bar 上
     //! 在NcLButtonDown中设置
-    UINT _selectedMenuItem; // 鼠标点击该 item 或者**曾经收到 WM_MENUSELECT 消息
+    //UINT _selectedMenuItem; // 鼠标点击该 item 或者**曾经收到 WM_MENUSELECT 消息
     unsigned long _fTrackNcMouseLeave : 1;
     HRGN _rgn;
 
@@ -1431,11 +1516,15 @@ private:
 	//BOOL	m_bProcessRightArrow;
 
 	CSkinMenuBar	m_MenuBar;
-	BOOL			m_bIgnoreAlt;
+
+public:
+
+	FrameStyle		m_frameStyle;
+
 };
 
 class SkinFrame : public SkinControlImpl<SkinFrame, SkinFrameImpl<SkinFrame>,
-            RegisterPolicy>
+            HookPolicy>
 {
 public:
     typedef SkinFrameImpl<SkinFrame> framebase_type;
@@ -1444,15 +1533,82 @@ public:
         return _T("SKINFRAME");
     }
     enum { class_id = WINDOW };
+	
+	SkinFrame()
+	{
+		m_frameStyle = NORMAL_STYLE;
+	}
 
-  BEGIN_MSG_MAP(SkinFrame)
-    CHAIN_MSG_MAP(framebase_type)
-  END_MSG_MAP()
+	BEGIN_MSG_MAP(SkinFrame)
+		CHAIN_MSG_MAP(framebase_type)
+	END_MSG_MAP()
+};
+
+class SkinSDIFrame : public SkinControlImpl<SkinSDIFrame, SkinFrameImpl<SkinSDIFrame>,
+	HookPolicy>
+{
+public:
+	typedef SkinFrameImpl<SkinSDIFrame> framebase_type;
+	static LPCTSTR GetWndClassName()
+	{
+		return _T("SKINSDIFRAME");
+	}
+
+	SkinSDIFrame()
+	{
+		m_frameStyle = SDI_STYLE;
+	}
+
+	enum { class_id = WINDOW };
+
+	BEGIN_MSG_MAP(SkinSDIFrame)
+		CHAIN_MSG_MAP(framebase_type)
+	END_MSG_MAP()
+};
+
+class SkinMDIFrame : public SkinControlImpl<SkinMDIFrame, SkinFrameImpl<SkinMDIFrame>,
+	HookPolicy>
+{
+public:
+	typedef SkinFrameImpl<SkinMDIFrame> framebase_type;
+	static LPCTSTR GetWndClassName()
+	{
+		return _T("SKINMDIFRAME");
+	}
+
+	SkinMDIFrame()
+	{
+		m_frameStyle = MDI_STYLE;
+	}
+
+	enum { class_id = WINDOW };
+
+	BEGIN_MSG_MAP(SkinMDIFrame)
+		CHAIN_MSG_MAP(framebase_type)
+	END_MSG_MAP()
 };
 
 LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     return SkinFrame::ControlProc(hWnd, uMsg, wParam, lParam);
+}
+
+LRESULT WINAPI SkinFramehWnd(HWND hWnd)
+{
+	SkinFrame::InstallHook( hWnd );
+	return 0;
+}
+
+LRESULT WINAPI SkinMDIFramehWnd(HWND hWnd)
+{
+	SkinMDIFrame::InstallHook( hWnd );
+	return 0;
+}
+
+LRESULT WINAPI SkinSDIFramehWnd(HWND hWnd)
+{
+	SkinSDIFrame::InstallHook( hWnd );
+	return 0;
 }
 
 } // namespace Skin

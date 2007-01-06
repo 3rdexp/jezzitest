@@ -18,6 +18,11 @@ namespace Skin {
 			m_isAscSort = TRUE;
 		}
 
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinHeaderCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinHeaderCtrl, BaseT> base_type;
 

@@ -16,6 +16,12 @@ namespace Skin {
 			m_nPart		= CP_DROPDOWNBUTTON;
 			m_bLBtnDown	= FALSE;
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinComboBox<BaseT> this_type;
 		typedef SkinControlImpl<SkinComboBox, BaseT> base_type;
 

@@ -8,6 +8,12 @@ namespace Skin {
 	template<class BaseT = WTL::CProgressBarCtrl>
 	struct SkinProgressCtrl : public SkinControlImpl<SkinProgressCtrl, BaseT>
 	{
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		enum { class_id = PROGRESS };
 
 		typedef SkinProgressCtrl<BaseT> this_type;

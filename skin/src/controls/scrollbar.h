@@ -25,6 +25,11 @@ namespace Skin {
 		};
 
 
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		SkinScrollBar()
 		{
 			m_bDrag			=	 FALSE;
@@ -114,8 +119,8 @@ namespace Skin {
 		
 		LRESULT OnSetRangeDraw(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			m_si.nMin = wParam;
-			m_si.nMax = lParam;
+			m_si.nMin = (int)wParam;
+			m_si.nMax = (int)lParam;
 			
 			if ( m_si.nPos < m_si.nMin )
 			{
@@ -136,8 +141,8 @@ namespace Skin {
 
 		LRESULT OnSetRange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			m_si.nMin = wParam;
-			m_si.nMax = lParam;
+			m_si.nMin = (int)wParam;
+			m_si.nMax = (int)lParam;
 
 			if ( m_si.nPos < m_si.nMin )
 			{
@@ -166,7 +171,7 @@ namespace Skin {
 		LRESULT OnSetPos(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			BOOL bRedraw = (BOOL)lParam;
-			m_si.nPos = wParam;
+			m_si.nPos = (int)wParam;
 			if(bRedraw)
 			{
 				InvalidateRect(NULL,FALSE);

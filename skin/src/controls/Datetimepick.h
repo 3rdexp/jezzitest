@@ -19,6 +19,12 @@ namespace Skin {
 			m_bLBtnDown	= FALSE;
 			m_bRefresh  = FALSE;
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinDataTimePickerCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinDataTimePickerCtrl, BaseT> base_type;
 
