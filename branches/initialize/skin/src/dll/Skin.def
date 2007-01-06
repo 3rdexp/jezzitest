@@ -4,6 +4,9 @@ LIBRARY      "Skin"
 EXPORTS
 ;	GetSkinMgr				Private
 	SkinFrameProc			Private
+	SkinFramehWnd			Private
+	SkinMDIFramehWnd		Private
+	SkinSDIFramehWnd		Private
 ;	GetCurrentScheme		Private
 ;	InstallSkinScrollBar	Private
 ;	HandleSkinScrollCustomDraw	Private

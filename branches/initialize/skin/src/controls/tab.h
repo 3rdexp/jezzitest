@@ -26,6 +26,12 @@ namespace Skin {
 		{
 			
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinTabCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinTabCtrl, BaseT> base_type;
 

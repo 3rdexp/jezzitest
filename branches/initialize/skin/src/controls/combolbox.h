@@ -15,6 +15,12 @@ namespace Skin {
 			bPrint = FALSE;
 		}
 
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
+
 		static LPCTSTR GetWndClassName()
 		{
 			return WC_COMBOLBOX;

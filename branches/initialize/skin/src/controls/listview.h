@@ -13,6 +13,11 @@ namespace Skin {
 			m_nPart = LVP_LISTITEM;
 		}
 
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinListViewCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinListViewCtrl, BaseT> base_type;
 

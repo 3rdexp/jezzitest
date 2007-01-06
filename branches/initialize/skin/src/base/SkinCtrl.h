@@ -31,7 +31,7 @@ class HookPolicy
 {
 public:
 	HookPolicy() : _defaultproc(0) {}
-	bool Install(HWND hWnd, WNDPROC proc)
+	bool Install(HWND hWnd, HINSTANCE hInst, LPCSTR szClassName, WNDPROC proc)
 	{
 #pragma warning(disable : 4311 4312)
 		WNDPROC oldproc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (DWORD)proc);
@@ -41,7 +41,7 @@ public:
 		return _defaultproc!=0;
 	}
 
-	bool Uninstall(HWND hWnd)
+	bool Uninstall(HWND hWnd, HINSTANCE hInst, LPCSTR szClassName)
 	{
 #pragma warning(disable : 4311 4312)
 		WNDPROC proc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (DWORD)GetDefaultProc());
@@ -64,7 +64,7 @@ class RegisterPolicy
 {
 public:
     RegisterPolicy() : _defaultproc(0) {}
-    bool Install(HINSTANCE hInst, LPCSTR szClassName, WNDPROC proc)
+    bool Install(HWND hWnd, HINSTANCE hInst, LPCSTR szClassName, WNDPROC proc)
     {
         WNDCLASS wc = {0};
         
@@ -87,7 +87,7 @@ public:
         return atom != 0;
     }
 
-    bool Uninstall(HINSTANCE hInst, LPCSTR szClassName)
+    bool Uninstall(HWND hWnd, HINSTANCE hInst, LPCSTR szClassName)
     {
         // 一般如果还有注册的窗口，该调用会失败
         BOOL r = UnregisterClass(szClassName, hInst);
@@ -109,33 +109,33 @@ class ClassPolicy
 {
 public:
     ClassPolicy() : _defaultproc(0) {}
-    bool Install(HINSTANCE hInst, LPCSTR szClassName, WNDPROC proc)
+    bool Install(HWND hWnd, HINSTANCE hInst, LPCSTR szClassName, WNDPROC proc)
     {
-        HWND hWnd = ::CreateWindowEx(0, szClassName, 0, WS_DISABLED, 0, 0, 0, 0,
+        HWND hCreateWnd = ::CreateWindowEx(0, szClassName, 0, WS_DISABLED, 0, 0, 0, 0,
             NULL, // parent Wnd
             0, // hMenu
             hInst, 0 );
 #pragma warning(disable : 4311 4312)
-        WNDPROC oldproc = (WNDPROC)SetClassLongPtr(hWnd, GCLP_WNDPROC, (DWORD)proc);
+        WNDPROC oldproc = (WNDPROC)SetClassLongPtr(hCreateWnd, GCLP_WNDPROC, (DWORD)proc);
 #pragma warning(default: 4311 4312)
         if (oldproc)
             _defaultproc = oldproc;
-        ::DestroyWindow(hWnd);
+        ::DestroyWindow(hCreateWnd);
         return _defaultproc!=0;
     }
 
-    bool Uninstall(HINSTANCE hInst, LPCSTR szClassName)
+    bool Uninstall(HWND hWnd, HINSTANCE hInst, LPCSTR szClassName)
     {
-        HWND hWnd = ::CreateWindowEx(0, szClassName, 0, WS_DISABLED, 0, 0, 0, 0,
+        HWND hCreateWnd = ::CreateWindowEx(0, szClassName, 0, WS_DISABLED, 0, 0, 0, 0,
             NULL, // parent Wnd
             0, // hMenu
             hInst, 0 );
         #pragma warning(disable : 4311 4312)
-        WNDPROC proc = (WNDPROC)SetClassLongPtr(hWnd, GCLP_WNDPROC, (DWORD)GetDefaultProc());
+        WNDPROC proc = (WNDPROC)SetClassLongPtr(hCreateWnd, GCLP_WNDPROC, (DWORD)GetDefaultProc());
         #pragma warning(default: 4311 4312)
         if (proc)
             _defaultproc = 0;
-        ::DestroyWindow(hWnd);
+        ::DestroyWindow(hCreateWnd);
         // ASSERT( proc == (WNDPROC)GetControlProc() );
         return proc!=0;
     }
@@ -177,6 +177,8 @@ class SkinControlImpl : public BaseT
     typedef ControlT derived_type;
 	
     typedef std::hash_map<handle, boost::shared_ptr<ControlT> > handle_map;
+
+	typedef std::hash_map<handle, handle> hook_map;
 
     // Draw Helper, Scheme function proxy
 public:
@@ -248,25 +250,33 @@ public:
 	static bool Install(HINSTANCE hInst)
     {
         // derived_type:: 可能真正调用的是 CWindow，必须限制
-        return _installer.Install(hInst, derived_type::GetWndClassName(), 
+        return _installer.Install(0, hInst, derived_type::GetWndClassName(), 
             GetControlProc());
     }
     static bool Uninstall(HINSTANCE hInst)
     {
-        return _installer.Uninstall(hInst, derived_type::GetWndClassName());
+        return _installer.Uninstall(0, hInst, derived_type::GetWndClassName());
     }
 
 
 	//增加hook的支持
-	bool InstallHook( HWND hWnd )
+	static bool InstallHook( HWND hWnd )
 	{
 		// derived_type:: 可能真正调用的是 CWindow，必须限制
-		return _installer.Install( hWnd, GetControlProc() );
+		//判断一下,是否已经hook了
+		hook_map::const_iterator it = _hook_maps.lower_bound(hWnd);
+		if (it == _hook_maps.end()) // 第一次创建之
+		{
+			_hook_maps.insert( std::make_pair(hWnd, hWnd) );
+			return _installer.Install( hWnd, 0, "",  GetControlProc() );
+		}
+		else
+			return false;
 	}
 
-	bool UnInstallHook( HWND hWnd )
+	static bool UnInstallHook( HWND hWnd )
 	{
-		return _installer.Uninstall( hWnd );
+		return _installer.Uninstall( hWnd, 0, "" );
 	}
 
 	WNDPROC getDefaultProc()
@@ -429,6 +439,10 @@ private:
     }
 
     static std::hash_map<HWND, boost::shared_ptr<ControlT> > _handle_maps;
+
+	static std::hash_map<HWND, HWND> _hook_maps;
+
+
     static InstallPolicy _installer;
 public:
 	static LRESULT ControlProc(handle hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -443,7 +457,7 @@ public:
         boost::shared_ptr<derived_type> safeptr;
 
 		_ATL_MSG msg(hWnd, uMsg, wParam, lParam);
-
+		
 		handle_map::const_iterator it = _handle_maps.lower_bound(hWnd);
 		if (it == _handle_maps.end()) // 第一次创建之
 		{
@@ -455,6 +469,8 @@ public:
             // TRACE("n ew: %p\n", p);
 
 			p->Init();
+
+			p->OnFirstMessage();
 		}
 
 		if (it->second)
@@ -510,26 +526,46 @@ public:
 #endif
 			}
             safeptr->m_pCurrentMsg = pOldMsg;
-
-			if (uMsg == WM_NCDESTROY) //最后一个消息
-			{
-                // 清零，防止以后的过程再操作m_hWnd
-                // 如： Menu::WM_KEYDOWN
-                safeptr->m_hWnd = 0;
-
-                _handle_maps.erase(hWnd);
-			}
 		}
 
 		if (!bRet)
         {
-            WNDPROC dw = GetDefaultProc();
-            if (!dw)
-                dw = ::DefWindowProc;
-            
-            lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
-        }
 
+			if(uMsg != WM_NCDESTROY)
+			{
+				WNDPROC dw = GetDefaultProc();
+				if (!dw)
+					dw = ::DefWindowProc;
+
+				lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
+			}
+			else
+			{
+				// unsubclass, if needed
+				LONG_PTR pfnWndProc = ::GetWindowLongPtr(hWnd, GWLP_WNDPROC);
+				
+				WNDPROC dw = GetDefaultProc();
+				if (!dw)
+					dw = ::DefWindowProc;
+
+				lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
+
+				hook_map::const_iterator it = _hook_maps.lower_bound(hWnd);
+				if (it != _hook_maps.end()) // 第一次创建之
+				{
+					//发现了
+					if(GetDefaultProc() != ::DefWindowProc && ::GetWindowLongPtr(hWnd, GWLP_WNDPROC) == pfnWndProc)
+						::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)GetDefaultProc());
+				}
+				// mark window as destryed
+				safeptr->m_hWnd = 0;
+
+				_handle_maps.erase(hWnd);
+
+				_hook_maps.erase(hWnd);
+			}            
+        }
+		
 		_ASSERTE( _CrtCheckMemory( ) );
 		return lRes;
 	}
@@ -573,5 +609,10 @@ InstallPolicy SkinControlImpl<ControlT, BaseT, InstallPolicy>::_installer;
 template<class ControlT, class BaseT, class InstallPolicy>
 std::hash_map<HWND, boost::shared_ptr<ControlT>  >
 SkinControlImpl<ControlT, BaseT, InstallPolicy>::_handle_maps;
+
+template<class ControlT, class BaseT, class InstallPolicy>
+std::hash_map<HWND, HWND>
+SkinControlImpl<ControlT, BaseT, InstallPolicy>::_hook_maps;
+
 
 } // namespace Skin

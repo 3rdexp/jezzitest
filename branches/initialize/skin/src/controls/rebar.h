@@ -12,6 +12,12 @@ namespace Skin {
 		{
 			
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinReBarCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinReBarCtrl, BaseT> base_type;
 

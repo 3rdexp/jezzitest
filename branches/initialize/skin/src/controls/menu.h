@@ -57,6 +57,12 @@ public:
         return _T("#32768");
     }
 
+	void OnFirstMessage()
+	{
+		int i = 0;
+	}
+
+
     typedef SkinMenu<BaseT> this_type;
     typedef SkinControlImpl<SkinMenu, BaseT> base_type;
 

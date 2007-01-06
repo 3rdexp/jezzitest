@@ -5,7 +5,8 @@
 
 namespace Skin {
 
-class SkinControlBar : public CSkinHookImpl<SkinControlBar>
+template<class BaseT = ATL::CWindow>
+struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, HookPolicy>
 {
 public:
 	
@@ -13,6 +14,12 @@ public:
 	{
 		//UnInstallHook( m_hWnd );
 	}
+
+	void OnFirstMessage()
+	{
+		int i = 0;
+	}
+
 	enum { class_id = CONTROLBAR };
 
 	BEGIN_MSG_MAP(SkinControlBar)

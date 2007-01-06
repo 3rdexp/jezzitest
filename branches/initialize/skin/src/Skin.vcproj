@@ -226,6 +226,12 @@
 				RelativePath=".\base\SkinScheme.h">
 			</File>
 			<File
+				RelativePath=".\base\subclass.cpp">
+			</File>
+			<File
+				RelativePath=".\base\subclass.h">
+			</File>
+			<File
 				RelativePath=".\base\wclassdefines.h">
 			</File>
 			<File
@@ -305,9 +311,6 @@
 			</File>
 			<File
 				RelativePath=".\controls\scrollbar.h">
-			</File>
-			<File
-				RelativePath=".\controls\skindialog.h">
 			</File>
 			<File
 				RelativePath=".\controls\spin.h">

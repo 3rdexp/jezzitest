@@ -170,7 +170,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_MENU;
     }
 
-/*
+
 	if (!(_installed_type & SKINCTL_TOOLBAR) && (dwType & SKINCTL_TOOLBAR) )
 	{
 		typedef SkinToolBarCtrl<WTL::CToolBarCtrl> skintoolbar;
@@ -178,7 +178,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_TOOLBAR;
 	}
-*/
+
 
 	if (!(_installed_type & SKINCTL_LISTVIEW) && (dwType & SKINCTL_LISTVIEW) )
 	{
@@ -239,13 +239,14 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_DIALOG;
     }
 
-	
+	/*
     if (!(_installed_type & SKINCTL_WINDOW) && (dwType & SKINCTL_WINDOW) )
     {
         bool f = SkinFrame::Install(hInst);
         if (f)
             _installed_type |= SKINCTL_WINDOW;
     } 
+	*/
 
 	CSkinMenuBar::InitKeyAccess();
 	//bool f = SkinControlBar::Install(hInst);

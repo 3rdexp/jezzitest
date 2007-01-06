@@ -13,6 +13,12 @@ namespace Skin {
 		{
 			m_nPart = EP_EDITTEXT;
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinIpAddress<BaseT> this_type;
 		typedef SkinControlImpl<SkinIpAddress, BaseT> base_type;
 

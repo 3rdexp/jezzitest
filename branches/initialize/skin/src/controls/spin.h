@@ -9,6 +9,11 @@ namespace Skin {
 	{
 		enum { class_id = SPIN };
 
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinUpDownCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinUpDownCtrl, BaseT> base_type;
 

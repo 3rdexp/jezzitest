@@ -12,6 +12,12 @@ namespace Skin {
 		{
 			m_nPart = EP_EDITTEXT;
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinEdit<BaseT> this_type;
 		typedef SkinControlImpl<SkinEdit, BaseT> base_type;
 

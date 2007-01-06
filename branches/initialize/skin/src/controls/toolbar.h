@@ -36,11 +36,14 @@ namespace Skin {
 
 	/* vertical padding used in list mode when image is present */
 #define LISTPAD_CY 9
+	
+	
+	//class SkinToolBarCtrl : public CSkinHookImpl<SkinToolBarCtrl>
 
-	class SkinToolBarCtrl : public CSkinHookImpl<SkinToolBarCtrl>
-
-	//template<class BaseT = WTL::CToolBarCtrl>
-	//struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT>
+	//template<class BaseT = ATL::CWindow>
+	//struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT, HookPolicy>
+	template<class BaseT = WTL::CToolBarCtrl>
+	struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT>
 	{
 	public:
 		enum { class_id = TOOLBAR };
@@ -50,6 +53,12 @@ namespace Skin {
 			m_iListGap	= DEFLISTGAP;
 			m_bHorz		= TRUE;
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 
 		~SkinToolBarCtrl()
 		{

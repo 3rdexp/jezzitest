@@ -26,6 +26,12 @@ namespace Skin {
 		{
 			m_flags = 0;
 		}
+
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
+
 		typedef SkinTrackBarCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinTrackBarCtrl, BaseT> base_type;
 

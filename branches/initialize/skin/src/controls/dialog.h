@@ -18,10 +18,16 @@ public:
     typedef SkinDialog this_type;
     typedef SkinFrameImpl<SkinDialog> framebase_type;
 
+	void OnFirstMessage()
+	{
+		return ;
+	}
+
+
     BEGIN_MSG_MAP(this_type)
-        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
-            && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-            ATLTRACE("%04x Dialog\n", uMsg);
+        //if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
+          //  && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
+          //  ATLTRACE("%04x Dialog\n", uMsg);
 //        MESSAGE_HANDLER(WM_PAINT, OnPaint)
 //        MESSAGE_HANDLER(WM_KILLFOCUS, OnFocus)
 //        MESSAGE_HANDLER(WM_SETFOCUS, OnFocus)

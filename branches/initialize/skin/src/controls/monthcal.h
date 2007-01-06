@@ -11,7 +11,11 @@ namespace Skin {
 	template<class BaseT = WTL::CMonthCalendarCtrl>
 	struct SkinMonthCal: public SkinControlImpl<SkinMonthCal, BaseT>
 	{
-
+		
+		void OnFirstMessage()
+		{
+			int i = 0;
+		}
 		
 		enum { class_id = MONTHCALCTL };
 

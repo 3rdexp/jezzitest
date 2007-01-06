@@ -2,6 +2,7 @@
 #include "wclassdefines.h"
 #include "../controls/controlbar.h"
 #include "../controls/skindialog.h"
+#include "../controls/frame.h"
 
 namespace Skin {
 class CSkinHook
@@ -59,8 +60,10 @@ public:
 		{
 			// can do the check if pWnd is permanent else mfc will not yet
 			// have hooked up
-			CWnd* pWnd = CWnd::FromHandlePermanent(hWnd);
 
+			CWnd* pWnd = CWnd::FromHandlePermanent(hWnd);
+			//CWnd* pWnd = CWnd::FromHandle(hWnd);
+			
 			if (pWnd)
 			{
 				// must do the check in order of most derived class first
@@ -99,7 +102,7 @@ public:
 		return sClass;
 	}
 
-
+	/*
 	CSkinHookBase* GetSkinCtrl( HWND hWnd )
 	{
 		CSkinHookBase* pSkin = NULL;
@@ -114,6 +117,7 @@ public:
 		return NULL;
 	}
 
+	
 	CSkinHookBase* NewSkinCtrl( const CString& sClass, HWND hWnd )
 	{
 		if ( sClass.Find(WC_CONTROLBAR) == 0 )
@@ -132,11 +136,27 @@ public:
 		//}
 		return NULL;//new CSkinOther(0);
 	}
-
-
+	*/
+	
 	BOOL InitSkin( HWND hWnd )
 	{
+		CString sClass( GetClassEx( hWnd ) ); // converts Afx class names into something more useful
+	
+		//if ( sClass.CompareNoCase(WC_TOOLBAR) == 0 )
+		//{
+	//		SkinToolBarCtrl<ATL::CWindow>::InstallHook( hWnd );
+	//	}
+		//else 
+			if( sClass.Find(WC_CONTROLBAR) == 0 )
+		{
+			SkinControlBar<ATL::CWindow>::InstallHook( hWnd );
+		}
+		
+		return TRUE;
+		/*
+
 		// do what
+
 		CString sClass( GetClass( hWnd ) );
 		CSkinHookBase* pSkinCtrl = GetSkinCtrl( hWnd );
 		if ( pSkinCtrl )
@@ -161,9 +181,10 @@ public:
 		delete pSkinCtrl;
 
 		return TRUE;
+		*/
 	}
 
-
+	/*
 	LRESULT  UnInstallSkin( HWND hWnd, const MSG& msg)
 	{
 		SKINHOOK_ITERATOR it = _handle_maps.find( hWnd );
@@ -183,6 +204,7 @@ public:
 		// else
 		return 0;
 	}
+	*/
 
 	// global app hooks
 	// WH_CALLWNDPROC
@@ -190,7 +212,7 @@ public:
 	{
 #ifdef _USRDLL
 		// If this is a DLL, need to set up MFC state
-		AFX_MANAGE_STATE(AfxGetStaticModuleState());
+		//AFX_MANAGE_STATE(AfxGetStaticModuleState());
 #endif
 
 		if (nCode == HC_ACTION)
@@ -248,20 +270,22 @@ public:
 				BOOL bRes = InitSkin(msg.hwnd);
 			}
 			break;
+		/*
 		case WM_NCDESTROY:
 			{
 				UnInstallSkin(msg.hwnd, msg);
 				return TRUE;
 			}
 			break;
+		*/
 		}
 		return FALSE;
 	}
 
 public:
 	HHOOK _hCallWndHook;
-	std::map< HWND , CSkinHookBase* > _handle_maps;
-	typedef std::map<HWND, CSkinHookBase* >::iterator SKINHOOK_ITERATOR;
+	//std::map< HWND , CSkinHookBase* > _handle_maps;
+	//typedef std::map<HWND, CSkinHookBase* >::iterator SKINHOOK_ITERATOR;
 
 };
 
