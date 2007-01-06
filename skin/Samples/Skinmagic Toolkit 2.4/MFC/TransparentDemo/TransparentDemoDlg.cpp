@@ -5,6 +5,7 @@
 #include "TransparentDemo.h"
 #include "TransparentDemoDlg.h"
 #include "resource.h"
+#include ".\transparentdemodlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -55,6 +56,7 @@ BEGIN_MESSAGE_MAP(CTransparentDemoDlg, CDialog)
 	ON_WM_TIMER()
 	ON_WM_DESTROY()
 	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDOK, OnBnClickedOk)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -248,4 +250,12 @@ void CTransparentDemoDlg::OnDestroy()
 	
 	// TODO: Add your message handler code here
 	ImageList_Destroy( m_hMenuImage );
+}
+
+void CTransparentDemoDlg::OnBnClickedOk()
+{
+	// TODO: Add your control notification handler code here
+	CTransparentDemoDlg dlg;
+	dlg.DoModal();
+	//OnOK();
 }

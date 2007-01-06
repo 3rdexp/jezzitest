@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by TransparentDemo.rc
 //
 #define IDD_TRANSPARENTDEMO_DIALOG      102
@@ -29,13 +29,17 @@
 #define IDM_FILE_EXIT                   32775
 #define IDM_FILE_SAVEAS                 32776
 #define IDM_HELP_ABOUT                  32777
+#define ID_SDF_D                        32778
+#define ID_DD_DDD                       32779
+#define ID_D_DD                         32780
+#define ID_DD_DDD32781                  32781
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
-#define _APS_NEXT_COMMAND_VALUE         32778
+#define _APS_NEXT_COMMAND_VALUE         32782
 #define _APS_NEXT_CONTROL_VALUE         1018
 #define _APS_NEXT_SYMED_VALUE           104
 #endif

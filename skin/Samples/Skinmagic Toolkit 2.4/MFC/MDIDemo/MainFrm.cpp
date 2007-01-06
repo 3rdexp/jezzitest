@@ -49,6 +49,19 @@ CMainFrame::~CMainFrame()
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	HINSTANCE _hLibSkinLoad = LoadLibrary("skin.dll");	
+	ATLASSERT(_hLibSkinLoad);
+	if (_hLibSkinLoad)
+	{
+		typedef LRESULT (WINAPI *SkinFrameProcT)(HWND hWnd);
+		SkinFrameProcT pf = (SkinFrameProcT)GetProcAddress(_hLibSkinLoad, "SkinMDIFramehWnd");
+		ASSERT(pf);
+		if(pf)
+		{
+			pf(m_hWnd);
+		}
+	}
+
 	if (CMDIFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	//CBRS_TOOLTIPS
