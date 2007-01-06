@@ -1757,7 +1757,7 @@ void CSkinMenuBar::CalcItemLayout(int nCount, BOOL bVert)
 	//int x = 0;
 	//int y = 0;
 
-	int x = GetSchemeWidth(WP_FRAMELEFT, CS_ACTIVE);;
+	int x = GetSchemeWidth(WP_FRAMELEFT, CS_ACTIVE);
 	int y = GetSchemeHeight(WP_CAPTION, CS_ACTIVE);
 
 	if (!bVert) 
@@ -1769,7 +1769,7 @@ void CSkinMenuBar::CalcItemLayout(int nCount, BOOL bVert)
 			pItem->Layout(ptItem, TRUE);// layout by itself!
 			if (pItem->GetState() & MISTATE_WRAP) 
 			{
-				x = 0;// reset x to 0
+				x = GetSchemeWidth(WP_FRAMELEFT, CS_ACTIVE);// reset x to 0
 				y += pItem->GetRect().Height();
 			}
 			else
