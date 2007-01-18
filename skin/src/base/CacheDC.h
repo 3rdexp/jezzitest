@@ -1,8 +1,6 @@
 #ifndef __CACHEDC_H__
 #define __CACHEDC_H__
 
-#include "CDibData.h"
-
 namespace Skin{
 
 // 选入了一个位图的dc,方便进行其他操作
