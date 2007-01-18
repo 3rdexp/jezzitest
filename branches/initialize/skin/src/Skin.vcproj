@@ -196,6 +196,9 @@
 		<Filter
 			Name="base">
 			<File
+				RelativePath=".\base\refresh.h">
+			</File>
+			<File
 				RelativePath=".\base\scheme.cpp">
 			</File>
 			<File
@@ -346,6 +349,31 @@
 			</File>
 			<File
 				RelativePath=".\lib\libcoolsb.lib">
+			</File>
+		</Filter>
+		<Filter
+			Name="DIB"
+			Filter="">
+			<File
+				RelativePath=".\base\CacheDC.h">
+			</File>
+			<File
+				RelativePath=".\base\CDibData.cpp">
+			</File>
+			<File
+				RelativePath=".\base\CDibData.h">
+			</File>
+			<File
+				RelativePath=".\base\MyTrace.cpp">
+			</File>
+			<File
+				RelativePath=".\base\MyTrace.h">
+			</File>
+			<File
+				RelativePath=".\base\Quantize.cpp">
+			</File>
+			<File
+				RelativePath=".\base\Quantize.h">
 			</File>
 		</Filter>
 	</Files>

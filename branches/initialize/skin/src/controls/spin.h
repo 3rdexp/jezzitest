@@ -7,7 +7,12 @@ namespace Skin {
 	template<class BaseT = WTL::CUpDownCtrlT>
 	struct SkinUpDownCtrl : public SkinControlImpl<SkinUpDownCtrl, BaseT>
 	{
-		enum { class_id = SPIN };
+		//enum { class_id = SPIN };
+
+		SkinUpDownCtrl()
+		{
+			_classid	= SPIN;
+		}
 
 		void OnFirstMessage()
 		{
@@ -62,7 +67,7 @@ namespace Skin {
 			nPart = bVert ? SPNP_UP  : SPNP_UPHORZ;
 
 			if (_scheme)
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rHalf, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rHalf, NULL );
 
 			// draw right/down arrow
 			if (bVert)
@@ -79,7 +84,7 @@ namespace Skin {
 			nPart = bVert ? SPNP_DOWN  : SPNP_DOWNHORZ;
 
 			if (_scheme)
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rHalf, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rHalf, NULL );
 			return 0;
 		}
 

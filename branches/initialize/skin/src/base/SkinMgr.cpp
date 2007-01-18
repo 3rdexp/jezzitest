@@ -170,7 +170,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_MENU;
     }
 
-
+/*
 	if (!(_installed_type & SKINCTL_TOOLBAR) && (dwType & SKINCTL_TOOLBAR) )
 	{
 		typedef SkinToolBarCtrl<WTL::CToolBarCtrl> skintoolbar;
@@ -178,7 +178,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_TOOLBAR;
 	}
-
+*/
 
 	if (!(_installed_type & SKINCTL_LISTVIEW) && (dwType & SKINCTL_LISTVIEW) )
 	{
@@ -371,8 +371,6 @@ HRESULT WINAPI GetSkinMgr(ISkinMgr ** pMgr)
 	return hr;
 }
 
-
-
 HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme)
 {
     CComPtr<ISkinMgr> p;
@@ -382,6 +380,57 @@ HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme)
         return p->GetCurentScheme(ppScheme);
 
     return E_FAIL;
+}
+
+HRESULT WINAPI ChangeCurrentSchemeColor( COLORREF clr )
+{
+	CComPtr<ISkinMgr> p;
+	GetSkinMgr(&p);
+
+	CComPtr<ISkinScheme> pss;
+
+	if (p)
+		p->GetCurentScheme(&pss);
+
+	if ( pss )
+		pss->ChangeSchemeColor( clr );
+
+	CSkinHook::RefreshUI();
+
+	return E_FAIL;
+}
+
+HRESULT WINAPI ClearCurrentSchemeColor( )
+{
+	CComPtr<ISkinMgr> p;
+	GetSkinMgr(&p);
+
+	CComPtr<ISkinScheme> pss;
+
+	if (p)
+		p->GetCurentScheme(&pss);
+
+	if ( pss )
+		pss->ClearSchemeColor(  );
+
+	CSkinHook::RefreshUI();
+
+	return E_FAIL;
+}
+
+
+HRESULT WINAPI LoadSkinFile( LPCTSTR pszFileName )
+{
+	CComPtr<ISkinMgr> p;
+	GetSkinMgr(&p);
+
+	if (p && S_OK == p->LoadTheme( pszFileName ))
+	{
+		CSkinHook::RefreshUI();
+		return S_OK;
+	}
+
+	return S_FALSE;
 }
 
 HRESULT WINAPI InstallSkinScrollBar(HWND hWnd)

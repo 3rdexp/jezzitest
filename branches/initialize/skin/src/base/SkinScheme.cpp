@@ -7,8 +7,16 @@
   #include <iomanip> // for test
 #endif // file_parse_test
 
+//
+
 
 #include "SkinScheme.h"
+
+using namespace ATL; // 解决CComPtr c2501的问题
+
+
+//#include <atlctrls.h>
+//#include "skinhook.h"
 
 #ifdef _DEBUG
 	// #define PERF_DEBUG
@@ -289,6 +297,10 @@ BOOL SchemeData::LoadConfig(const char* pszConfigFile)
 	return TRUE;
 }
 #endif
+
+//
+
+
 
 } // namespace Skin
 

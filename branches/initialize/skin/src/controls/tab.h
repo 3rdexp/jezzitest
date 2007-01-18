@@ -20,11 +20,11 @@ namespace Skin {
 	template<class BaseT = WTL::CTabCtrl>
 	struct SkinTabCtrl : public SkinControlImpl<SkinTabCtrl, BaseT>
 	{
-		enum { class_id = TAB };
+		//enum { class_id = TAB };
 
 		SkinTabCtrl()
 		{
-			
+			_classid = TAB;	
 		}
 
 		void OnFirstMessage()
@@ -128,7 +128,7 @@ namespace Skin {
 			
 			// draw item background
 			if ( _scheme )
-				_scheme->DrawBackground(hdc, class_id, bVert ? TABP_TOPTABITEM : TABP_TABITEM, nState, &rcItem, NULL );
+				_scheme->DrawBackground(hdc, _classid, bVert ? TABP_TOPTABITEM : TABP_TABITEM, nState, &rcItem, NULL );
 
 			// draw icon and text
 			TCHAR szText[256] = {0};
@@ -160,7 +160,7 @@ namespace Skin {
 
 			HFONT hOldFont = (HFONT)SelectObject(hdc, GetCtrlFont(m_hWnd));
 			if (_scheme)
-				_scheme->DrawText(hdc, class_id, bVert ? TABP_TOPTABITEM : TABP_TABITEM, nState, tcItem.pszText, DT_VCENTER | DT_SINGLELINE | DT_CENTER , 0, &rcItem);
+				_scheme->DrawText(hdc, _classid, bVert ? TABP_TOPTABITEM : TABP_TABITEM, nState, tcItem.pszText, DT_VCENTER | DT_SINGLELINE | DT_CENTER , 0, &rcItem);
 
 			SelectObject(hdc, hOldFont);
 
@@ -207,7 +207,7 @@ namespace Skin {
 			}
 			
 			if ( _scheme )
-				_scheme->DrawBackground(hdc, class_id, TABP_PANE, TIS_NORMAL, &rc, NULL );
+				_scheme->DrawBackground(hdc, _classid, TABP_PANE, TIS_NORMAL, &rc, NULL );
 			
 		}
 
@@ -218,7 +218,7 @@ namespace Skin {
 
 			WTL::CMemoryDC memdc(hdc, rc);
 			
-			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, TABP_TABITEM, TIS_NORMAL))
+			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, TABP_TABITEM, TIS_NORMAL))
 				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 			int i = 0;

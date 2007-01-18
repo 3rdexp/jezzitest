@@ -59,7 +59,7 @@ namespace Skin {
 		TCHAR GetAccessKey() const { return m_cAccessKey; }
 
 		// Overidables
-		virtual void Update(CDCHandle dc) = 0;
+		virtual void Update(CDCHandle dc, CSkinMenuBar* pMenuBar) = 0;
 		virtual void Layout(CPoint, BOOL bHorz) = 0;
 		virtual void TrackPopup(CSkinMenuBar* pBar, HWND hWndSentCmd) = 0;
 
@@ -99,7 +99,7 @@ namespace Skin {
 		void OnActivateChildWnd();
 
 		// Overidables
-		virtual void Update(CDCHandle dc);
+		virtual void Update(CDCHandle dc, CSkinMenuBar* pMenuBar);
 		virtual void Layout(CPoint, BOOL bHorz);
 		virtual void TrackPopup(CSkinMenuBar* pBar, HWND hWndSentCmd);
 
@@ -124,7 +124,7 @@ namespace Skin {
 		CMenuButton(HMENU hMenu, int nIndex);
 
 		// Overidables
-		virtual void Update(CDCHandle dc);
+		virtual void Update(CDCHandle dc, CSkinMenuBar* pMenuBar);
 		virtual void Layout(CPoint, BOOL bHorz);
 		virtual void TrackPopup(CSkinMenuBar* pBar, HWND hWndSentCmd);
 
@@ -166,7 +166,7 @@ namespace Skin {
 		void DelayLayoutAndDraw(CDCHandle dc, CSize sizeBar);
 
 		// Overidables
-		virtual void Update(CDCHandle dc);
+		virtual void Update(CDCHandle dc, CSkinMenuBar* pMenuBar);
 		virtual void Layout(CPoint, BOOL bHorz);
 		virtual void TrackPopup(CSkinMenuBar* pBar, HWND hWndSentCmd) { ASSERT(TRUE); }
 
@@ -472,6 +472,18 @@ namespace Skin {
 				rc.left = rc.right = rc.top = rc.bottom = 0;
 				return rc;
 			}
+		}
+
+		void DrawBackground( HDC hdc, int nPart, int nState, const RECT *pRect, const RECT *pClipRect)
+		{
+			if ( m_scheme )
+				m_scheme->DrawBackground( hdc, MENU, nPart, nState, pRect, pClipRect );
+		}
+
+		void DrawText( HDC hdc, int nPart, int nState, LPCSTR szText, DWORD dwTextFlags, DWORD dwTextFlags2, const RECT *pRect)
+		{
+			if ( m_scheme )
+				m_scheme->DrawText( hdc, MENU, nPart, nState, szText, dwTextFlags, dwTextFlags2, pRect );
 		}
 
 		RECT CalcMenuBarRect(const WTL::CRect& rcw, FRAMESTATES fs)

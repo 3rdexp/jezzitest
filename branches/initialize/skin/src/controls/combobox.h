@@ -10,11 +10,12 @@ namespace Skin {
 	template<class BaseT = WTL::CComboBox>
 	struct SkinComboBox : public SkinControlImpl<SkinComboBox, BaseT>
 	{
-		enum { class_id = COMBOBOX };
+		//enum { class_id = COMBOBOX };
 		SkinComboBox()
 		{
 			m_nPart		= CP_DROPDOWNBUTTON;
 			m_bLBtnDown	= FALSE;
+			_classid	= COMBOBOX;
 		}
 
 		void OnFirstMessage()
@@ -92,7 +93,7 @@ namespace Skin {
 			// Cover up dark 3D shadow.
 			
 			COLORREF cr;
-			_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+			_scheme->GetColor(_classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
 			
 			int nType = (GetStyle() & 0xf);
 
@@ -123,7 +124,7 @@ namespace Skin {
 			}
 			else 
 			{
-				_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+				_scheme->GetColor(_classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 				dc.Draw3dRect(rcItem, cr, cr); 
 			}
 
@@ -144,7 +145,7 @@ namespace Skin {
 				rcButton.bottom = rcItem.bottom - 1;
 
 				if (_scheme)
-					_scheme->DrawBackground(dc, class_id, m_nPart, nState, &rcButton, NULL );
+					_scheme->DrawBackground(dc, _classid, m_nPart, nState, &rcButton, NULL );
 			}
 			
 			dc.Detach();

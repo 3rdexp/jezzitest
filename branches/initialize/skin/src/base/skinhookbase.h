@@ -8,6 +8,8 @@ namespace Skin {
 	{
 	public:
 		virtual bool Install( HWND hWnd ) = 0;
+
+		int _classid;
 	};
 
 	template <class T, class TBase = ATL::CWindow>
@@ -72,7 +74,7 @@ namespace Skin {
 		RECT GetSchemeRect(int iPartId, int iStateId = 0)
 		{
 			RECT rc;
-			BOOL f = _scheme->GetRect(T::class_id, iPartId, iStateId, &rc);
+			BOOL f = _scheme->GetRect(_classid, iPartId, iStateId, &rc);
 			ASSERT(f);
 			return rc;
 		}
@@ -81,7 +83,7 @@ namespace Skin {
 		{
 			// GetColor(int iClassId, int iPartId, int iStateId, int iPropId, COLORREF *pColor)
 			COLORREF ret;
-			BOOL f = _scheme->GetColor(T::class_id, iPartId, iStateId, iPropId, &ret);
+			BOOL f = _scheme->GetColor(_classid, iPartId, iStateId, iPropId, &ret);
 			ASSERT(f);
 			return ret;
 		}
@@ -89,7 +91,7 @@ namespace Skin {
 		HRGN GetSchemeRegion(int iPartId, int iStateId)
 		{
 			HRGN rgn = 0;
-			BOOL f = _scheme->GetRegion(T::class_id, iPartId, iStateId, 0, &rgn);
+			BOOL f = _scheme->GetRegion(_classid, iPartId, iStateId, 0, &rgn);
 			ASSERT(f);
 			return rgn;
 		}
@@ -97,7 +99,7 @@ namespace Skin {
 		BOOL Draw(HDC hdc, int iPartId, int iState, long dx, long dy, long dcx = 0, 
 			long dcy = 0, DWORD dwRop = SRCCOPY)
 		{
-			return _scheme->Draw(hdc, T::class_id, iPartId, iState, dx, dy, 
+			return _scheme->Draw(hdc, _classid, iPartId, iState, dx, dy, 
 				dcx, dcy, dwRop);
 		}
 
@@ -112,6 +114,6 @@ namespace Skin {
 
 	protected:
 		CComPtr<ISkinScheme> _scheme;
-
+		
 	};
 }; // namespace 

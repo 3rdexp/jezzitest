@@ -7,7 +7,7 @@ namespace Skin {
 	template<class BaseT = WTL::CScrollBar>
 	struct SkinScrollBar : public SkinControlImpl<SkinScrollBar, BaseT>
 	{
-		enum { class_id = SCROLLBAR };
+		//enum { class_id = SCROLLBAR };
 
 		enum
 		{
@@ -39,6 +39,7 @@ namespace Skin {
 			m_bMouseHover	=	FALSE;
 			memset(&m_si,0,sizeof(SCROLLINFO));
 			m_si.nTrackPos	=	-1;
+			_classid		=   SCROLLBAR;
 		}
 		
 		typedef SkinScrollBar<BaseT> this_type;
@@ -688,7 +689,7 @@ namespace Skin {
 			{
 
 				if (_scheme)
-					_scheme->DrawBackground(memdc, class_id, SBP_SIZEBOX, SCRBS_NORMAL, &rc, NULL );
+					_scheme->DrawBackground(memdc, _classid, SBP_SIZEBOX, SCRBS_NORMAL, &rc, NULL );
 
 				return 0;
 			}
@@ -698,7 +699,7 @@ namespace Skin {
 			if ( GetStyle() & SBS_SIZEGRIP  )
 			{
 				if (_scheme)
-					_scheme->DrawBackground(memdc, class_id, bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ, SCRBS_NORMAL, &rc, NULL );
+					_scheme->DrawBackground(memdc, _classid, bVert ? SBP_GRIPPERVERT : SBP_GRIPPERHORZ, SCRBS_NORMAL, &rc, NULL );
 
 				return 0;
 			}
@@ -731,7 +732,7 @@ namespace Skin {
 
 			// draw up arrow
 			if (_scheme)
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcDraw, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcDraw, NULL );
 
 
 			// draw down arrow
@@ -754,7 +755,7 @@ namespace Skin {
 			rcDraw = GetLineDownRect ( rc, bVert, sbar);
 		
 			if (_scheme)
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcDraw, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcDraw, NULL );
 
 			
 
@@ -786,7 +787,7 @@ namespace Skin {
 			nPart = bVert ? SBP_THUMBBTNVERT : SBP_THUMBBTNHORZ;
 
 			if (_scheme)
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcDraw, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcDraw, NULL );
 
 			// draw gripper
 			WTL::CRect rcGripper = rcDraw;
@@ -810,7 +811,7 @@ namespace Skin {
 
 			nPart = bVert ? 12 : 11;
 			if (_scheme)
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcGripper, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcGripper, NULL );
 
 			// draw up 
 			WTL::CRect rcThumbSpace;
@@ -834,7 +835,7 @@ namespace Skin {
 			rcThumbSpace = GetPageUpRect( rc, bVert, sbar );
 
 			if ( _scheme && rcThumbSpace.right > rcThumbSpace.left && rcThumbSpace.bottom > rcThumbSpace.top )
-				_scheme->DrawBackground(memdc, class_id, nPart, SCRBS_NORMAL, &rcThumbSpace, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, SCRBS_NORMAL, &rcThumbSpace, NULL );
 
 
 			if ( bVert )
@@ -857,7 +858,7 @@ namespace Skin {
 			rcThumbSpace = GetPageDownRect( rc, bVert, sbar );
 
 			if ( _scheme && rcThumbSpace.right > rcThumbSpace.left && rcThumbSpace.bottom > rcThumbSpace.top )
-				_scheme->DrawBackground(memdc, class_id, nPart, SCRBS_NORMAL, &rcThumbSpace, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, SCRBS_NORMAL, &rcThumbSpace, NULL );
 
 			return 0;
 		}

@@ -6,7 +6,7 @@ namespace Skin {
 	template<class BaseT = WTL::CHeaderCtrl>
 	struct SkinHeaderCtrl : public SkinControlImpl<SkinHeaderCtrl, BaseT>
 	{
-		enum { class_id = HEADER };
+		//enum { class_id = HEADER };
 
 		SkinHeaderCtrl()
 		{
@@ -16,6 +16,7 @@ namespace Skin {
 			//m_bSort     = FALSE;
 			m_nSortItem = -1;
 			m_isAscSort = TRUE;
+			_classid		= HEADER; 
 		}
 
 		void OnFirstMessage()
@@ -223,12 +224,12 @@ namespace Skin {
 			nPart = HP_HEADERITEM;
 			nState = HIS_NORMAL;
 
-			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, nPart, nState))
+			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, nPart, nState))
 				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 			// draw background
 			if ( _scheme )
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rc, NULL);
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rc, NULL);
 
 			int nCount = GetItemCount();
 			for ( int i = 0; i < nCount; i++)
@@ -277,7 +278,7 @@ namespace Skin {
 			rcClient.right = rc.left + nLeftWidth;
 
 			if ( _scheme )
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcClient, NULL);
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcClient, NULL);
 
 			// draw right
 
@@ -301,7 +302,7 @@ namespace Skin {
 			rcClient = rc;
 			rcClient.left = rc.right - nRightWidth;
 			if ( _scheme )
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcClient, NULL);
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcClient, NULL);
 
 			// draw center
 			nPart = HP_HEADERITEM;
@@ -324,7 +325,7 @@ namespace Skin {
 			rcClient.left = rc.left + nLeftWidth;
 			rcClient.right = rc.right - nRightWidth;
 			if ( _scheme )
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcClient, NULL);
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcClient, NULL);
 
 			//draw imagelist
 			WTL::CImageList pImageList = GetImageList();
@@ -393,7 +394,7 @@ namespace Skin {
 			}
 			// nPart 和 nState使用HP_HEADERITEM的属性来设置
 			if (_scheme)
-				_scheme->DrawText(memdc, class_id, nPart, nState, hditem.pszText, uFormat, 0, &rcClient);
+				_scheme->DrawText(memdc, _classid, nPart, nState, hditem.pszText, uFormat, 0, &rcClient);
 
 			memdc.SelectFont(hOldFont);
 
@@ -430,7 +431,7 @@ namespace Skin {
 				nState = m_isAscSort ? HSAS_SORTEDUP : HSAS_SORTEDDOWN;
 
 				if (_scheme)
-					_scheme->TransparentDraw(memdc, class_id, nPart, nState, rcArrow.left, rcArrow.top);
+					_scheme->TransparentDraw(memdc, _classid, nPart, nState, rcArrow.left, rcArrow.top);
 
 			}
 		}

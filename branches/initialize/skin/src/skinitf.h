@@ -409,6 +409,9 @@ DECLARE_INTERFACE_(ISkinScheme, IUnknown)
 	
 	STDMETHOD_(BOOL, GetBitmap)(int iClassId, int iPartId, int iStateId, int iPropId, HBITMAP *pBitmap) PURE;
 	STDMETHOD_(BOOL, GetRegion)(int iClassId, int iPartId, int iStateId, int iPropId, HRGN *pRegion) PURE;
+
+	STDMETHOD_(BOOL, ChangeSchemeColor)( COLORREF clr ) PURE;
+	STDMETHOD_(BOOL, ClearSchemeColor)(  ) PURE;
 };
 
 
@@ -416,6 +419,13 @@ HRESULT WINAPI CreatetDefaultSkinScheme(ISkinScheme** ppss);
 DLLEXPORT HRESULT WINAPI GetCurrentScheme(ISkinScheme** ppScheme);
 DLLEXPORT HRESULT WINAPI InstallSkinScrollBar(HWND hWnd);
 DLLEXPORT HRESULT WINAPI HandleSkinScrollCustomDraw(int wParam, LPNMHDR lParam);
+DLLEXPORT LRESULT WINAPI SkinFrameProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+DLLEXPORT LRESULT WINAPI SkinFramehWnd(HWND hWnd);
+DLLEXPORT LRESULT WINAPI SkinMDIFramehWnd(HWND hWnd);
+DLLEXPORT LRESULT WINAPI SkinSDIFramehWnd(HWND hWnd);
+
+//DLLEXPORT HRESULT WINAPI ChangeCurrentSchemeColor(COLORREF clr);
+
 
 
 /*

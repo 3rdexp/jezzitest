@@ -13,7 +13,12 @@ public:
     {
         return _T("#32770");
     }
-    enum { class_id = DIALOG };
+   
+	SkinDialog()
+	{	
+		_classid = DIALOG;
+	}
+	//enum { class_id = DIALOG };
 
     typedef SkinDialog this_type;
     typedef SkinFrameImpl<SkinDialog> framebase_type;

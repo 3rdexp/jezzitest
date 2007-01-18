@@ -38,20 +38,21 @@ namespace Skin {
 #define LISTPAD_CY 9
 	
 	
-	//class SkinToolBarCtrl : public CSkinHookImpl<SkinToolBarCtrl>
+	class SkinToolBarCtrl : public CSkinHookImpl<SkinToolBarCtrl>
 
 	//template<class BaseT = ATL::CWindow>
 	//struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT, HookPolicy>
-	template<class BaseT = WTL::CToolBarCtrl>
-	struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT>
+	//template<class BaseT = WTL::CToolBarCtrl>
+	//struct SkinToolBarCtrl : public SkinControlImpl<SkinToolBarCtrl, BaseT>
 	{
 	public:
-		enum { class_id = TOOLBAR };
-
+		//enum { class_id = TOOLBAR };
+		
 		SkinToolBarCtrl()
 		{
 			m_iListGap	= DEFLISTGAP;
 			m_bHorz		= TRUE;
+			_classid	= TOOLBAR;
 		}
 
 		void OnFirstMessage()
@@ -112,7 +113,7 @@ namespace Skin {
 			return 1;
 			CRect rect;
 			GetClientRect(&rect);
-			CDCHandle dc = (HDC)wParam;
+			WTL::CDCHandle dc = (HDC)wParam;
 			//CMemoryDC dc ( (HDC)wParam, rect);
 			dc.FillSolidRect (rect, RGB( 0, 0, 255));
 			
@@ -136,7 +137,7 @@ namespace Skin {
 			
 			// draw backimg
 			if( _scheme )
-				_scheme->DrawBackground(dc, class_id, 8, 1, &rectWindow, NULL );
+				_scheme->DrawBackground(dc, _classid, 8, 1, &rectWindow, NULL );
 			//dc.FillSolidRect (rectWindow, RGB( 0, 0, 255));
 
 			// erase parts not drawn
@@ -162,7 +163,7 @@ namespace Skin {
 			{
 
 				if (_scheme)
-					_scheme->TransparentDraw(dc->m_hDC, class_id, 9, 1, rcWin.left, rcWin.top, nWidth, rcWin.Height() );
+					_scheme->TransparentDraw(dc->m_hDC, _classid, 9, 1, rcWin.left, rcWin.top, nWidth, rcWin.Height() );
 
 				/*
 				rcWin.top += 6;
@@ -187,7 +188,7 @@ namespace Skin {
 			else
 			{
 				if (_scheme)
-					_scheme->TransparentDraw(dc->m_hDC, class_id, 10, 1, rcWin.left, rcWin.top, rcWin.Width(), nHeight );
+					_scheme->TransparentDraw(dc->m_hDC, _classid, 10, 1, rcWin.left, rcWin.top, rcWin.Width(), nHeight );
 
 				/*
 				rcWin.top += 2;
@@ -246,7 +247,7 @@ namespace Skin {
 
 			//draw background
 			if( _scheme )
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcClient, NULL );
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcClient, NULL );
 
 
 			WTL::CPoint ptCursor;
@@ -323,7 +324,7 @@ namespace Skin {
 					rcSep.top = rcButton.top + ( rcButton.Height() - nSepHeight ) / 2;
 					rcSep.bottom = rcSep.top +  nSepHeight;
 					if (_scheme)
-						_scheme->TransparentDraw(memdc, class_id, nPart, nState, rcSep.left < 0 ? 0 : rcSep.left, rcSep.top);
+						_scheme->TransparentDraw(memdc, _classid, nPart, nState, rcSep.left < 0 ? 0 : rcSep.left, rcSep.top);
 				}
 				else if ( !IS_CONTROL(tbbutton) )
 				{
@@ -352,7 +353,7 @@ namespace Skin {
 					nPart = TP_BUTTON;
 
 					if (_scheme)
-						_scheme->DrawBackground(memdc, class_id, nPart, nState, &rcButton, NULL );
+						_scheme->DrawBackground(memdc, _classid, nPart, nState, &rcButton, NULL );
 
 					if ( IsDropDown(tbbutton) )
 					{					
@@ -365,7 +366,7 @@ namespace Skin {
 						rcArrow.top = rcButton.top + ( rcButton.Height() - nArrowHeight ) / 2;
 						rcArrow.bottom = rcArrow.top +  nArrowHeight;
 						if (_scheme)
-							_scheme->TransparentDraw(memdc, class_id, nPart, nState, rcArrow.left, rcArrow.top);
+							_scheme->TransparentDraw(memdc, _classid, nPart, nState, rcArrow.left, rcArrow.top);
 					}
 
 
@@ -541,7 +542,7 @@ namespace Skin {
 
 						DWORD dwDTFlags = DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
 						if (_scheme)
-							_scheme->DrawText(memdc, class_id, nPart, nState, szText, dwDTFlags, 0, &rcButton);
+							_scheme->DrawText(memdc, _classid, nPart, nState, szText, dwDTFlags, 0, &rcButton);
 					}
 					else
 					{
@@ -571,7 +572,7 @@ namespace Skin {
 
 						DWORD dwDTFlags = DT_TOP | DT_CENTER | DT_END_ELLIPSIS;
 						if (_scheme)
-							_scheme->DrawText(memdc, class_id, nPart, nState, szText, dwDTFlags, 0, &rcButton);
+							_scheme->DrawText(memdc, _classid, nPart, nState, szText, dwDTFlags, 0, &rcButton);
 					}
 
 					//memdc.DrawText (szText, -1, rcButton, DT_SINGLELINE|DT_LEFT|DT_VCENTER);

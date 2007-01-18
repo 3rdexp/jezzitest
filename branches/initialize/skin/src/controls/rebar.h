@@ -6,11 +6,11 @@ namespace Skin {
 	template<class BaseT = WTL::CReBarCtrl>
 	struct SkinReBarCtrl : public SkinControlImpl<SkinReBarCtrl, BaseT>
 	{
-		enum { class_id = REBAR };
+		//enum { class_id = REBAR };
 		
 		SkinReBarCtrl()
 		{
-			
+			_classid = REBAR;
 		}
 
 		void OnFirstMessage()
@@ -92,7 +92,7 @@ namespace Skin {
 
 			// draw backimg
 			if( _scheme )
-				_scheme->DrawBackground(dc, class_id, 8, 1, &rectWindow, NULL );
+				_scheme->DrawBackground(dc, _classid, 8, 1, &rectWindow, NULL );
 
 			// erase parts not drawn
 			dc.IntersectClipRect(rectWindow);
@@ -116,7 +116,7 @@ namespace Skin {
 			
 			// draw backimg
 			if( _scheme )
-				_scheme->DrawBackground(dc, class_id, 1, 1, &rcClip, NULL );
+				_scheme->DrawBackground(dc, _classid, 1, 1, &rcClip, NULL );
 
 			//dc.FillSolidRect (rcClip, RGB( 255, 0, 0 ));//Enable This to get the Classic Color
 			return 0;

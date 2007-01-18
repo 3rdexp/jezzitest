@@ -12,7 +12,8 @@ namespace Skin {
 
 		SkinComboLbox()
 		{
-			bPrint = FALSE;
+			bPrint		= FALSE;
+			_classid	= COMBOBOX;
 		}
 
 		void OnFirstMessage()
@@ -25,7 +26,7 @@ namespace Skin {
 		{
 			return WC_COMBOLBOX;
 		}
-		enum { class_id = COMBOBOX };
+		//enum { class_id = COMBOBOX };
 
 		BEGIN_MSG_MAP(CWindow)
 			//if ( hWnd == m_hWnd && bPrint)
@@ -104,7 +105,7 @@ namespace Skin {
 			CBrush brBorder;
 			int nState = GetState();
 			COLORREF cr;
-			_scheme->GetColor(class_id, CP_DROPDOWNBUTTON, nState, TMT_BORDERCOLOR, &cr);
+			_scheme->GetColor(_classid, CP_DROPDOWNBUTTON, nState, TMT_BORDERCOLOR, &cr);
 			brBorder.CreateSolidBrush( cr ); 
 			FrameRect(hdc, CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 			brBorder.DeleteObject();
@@ -116,7 +117,7 @@ namespace Skin {
 				InflateRect(&rcw, -1, -1);
 				LONG lStyle = GetStyle();			
 				CBrush brBorder;
-				_scheme->GetColor(class_id, CP_DROPDOWNBUTTON, nState, TMT_TEXTBORDERCOLOR, &cr);
+				_scheme->GetColor(_classid, CP_DROPDOWNBUTTON, nState, TMT_TEXTBORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
 				FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
 				if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))

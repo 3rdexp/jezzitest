@@ -10,8 +10,8 @@ namespace Skin {
 template<class BaseT = WTL::CButton>
 struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 {
-    enum { class_id = BUTTON };
-
+    //enum { class_id = BUTTON };
+	
     SkinButton()
     {
         m_fMouseOver	= 0;
@@ -19,7 +19,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         m_fPressed		= 0;
 
         m_hIcon         = 0;
-		_classid		= class_id;
+		_classid		= BUTTON;
     }
 
 	void OnFirstMessage()
@@ -623,7 +623,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         if ( strlen(sCaption) == 0 )//没有文字，只画个边框
         {
 			if (_scheme)
-				_scheme->TransparentDraw(dc, class_id, BP_GROUPBOX, GBS_NORMAL, &rect );
+				_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 			/*
             dc.MoveTo(rect.left,rect.top);
@@ -659,7 +659,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				dc.ExcludeClipRect( ptText.x - 1, 0, ptText.x + Extent.cx + 1, Extent.cy);
 
 				if (_scheme)
-					_scheme->TransparentDraw(dc, class_id, BP_GROUPBOX, GBS_NORMAL, &rect );
+					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 				
 				dc.SelectClipRgn( NULL );
 				/*
@@ -678,7 +678,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				WTL::CRect rectDraw = rect;
 				rectDraw.top = nYTop + 1;
 				if (_scheme)
-					_scheme->TransparentDraw(dc, class_id, BP_GROUPBOX, GBS_NORMAL, &rectDraw );
+					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rectDraw );
 				/*
                 dc.MoveTo(rect.left,nYTop+1);
                 dc.LineTo(rect.left,rect.bottom);
@@ -704,7 +704,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				dc.ExcludeClipRect( ptText.x - 1, 0, rect.right - GROUPBOX_TEXT_SPACE, Extent.cy);
 
 				if (_scheme)
-					_scheme->TransparentDraw(dc, class_id, BP_GROUPBOX, GBS_NORMAL, &rect );
+					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
 				/*
@@ -717,7 +717,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				dc.ExcludeClipRect( GROUPBOX_TEXT_SPACE, 0, rect.right - GROUPBOX_TEXT_SPACE, Extent.cy);
 
 				if (_scheme)
-					_scheme->TransparentDraw(dc, class_id, BP_GROUPBOX, GBS_NORMAL, &rect );
+					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
 
@@ -743,7 +743,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				dc.ExcludeClipRect( rect.left+GROUPBOX_TEXT_SPACE - 1, 0, ptText.x + Extent.cx + 1, Extent.cy);
 
 				if (_scheme)
-					_scheme->TransparentDraw(dc, class_id, BP_GROUPBOX, GBS_NORMAL, &rect );
+					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
 				/*
@@ -757,7 +757,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				dc.ExcludeClipRect( GROUPBOX_TEXT_SPACE, 0, rect.right - GROUPBOX_TEXT_SPACE, Extent.cy);
 
 				if (_scheme)
-					_scheme->TransparentDraw(dc, class_id, BP_GROUPBOX, GBS_NORMAL, &rect );
+					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
 
@@ -789,7 +789,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 		int nState = GetState();
 
-		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
+		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, m_nPart, nState))
 			_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 		if ( BP_GROUPBOX == m_nPart )
@@ -800,7 +800,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         if (m_nPart == BP_PUSHBUTTON)
         {
             if (_scheme)
-                _scheme->DrawBackground(memdc, class_id, m_nPart, nState, &rc, NULL );
+                _scheme->DrawBackground(memdc, _classid, m_nPart, nState, &rc, NULL );
 
             // icon / bitmap ( TODO: button should have bitmap itself
             // text
@@ -851,7 +851,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 			HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
 			if (_scheme)
-				_scheme->DrawText(memdc, class_id, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
+				_scheme->DrawText(memdc, _classid, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
 
 			_ASSERTE( _CrtCheckMemory( ) );
 			delete [] szText;
@@ -868,7 +868,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             GetCheckImgRect( rc, nState, rcImg, rcText );
 
             if (_scheme)
-                _scheme->TransparentDraw(memdc, class_id, m_nPart, nState, rcImg.left, rcImg.top);
+                _scheme->TransparentDraw(memdc, _classid, m_nPart, nState, rcImg.left, rcImg.top);
 
             rc = rcText;
 
@@ -879,7 +879,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 			HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
 			if (_scheme)
-				_scheme->DrawText(memdc, class_id, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
+				_scheme->DrawText(memdc, _classid, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
 
 			_ASSERTE( _CrtCheckMemory( ) );
 			delete [] szText;

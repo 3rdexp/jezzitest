@@ -128,7 +128,22 @@ void CMFCDialogDlg::OnColordlg()
 {
 	CColorDialog dlg;    
     dlg.m_cc.Flags |= CC_SHOWHELP;
-	dlg.DoModal();	
+	if ( dlg.DoModal() == IDOK )
+	{
+		HINSTANCE _hLibSkinLoad = LoadLibrary("skin.dll");	
+		ATLASSERT(_hLibSkinLoad);
+		if (_hLibSkinLoad)
+		{
+			typedef LRESULT (WINAPI *ChangeCurrentSchemeColorT)(COLORREF clr);
+			ChangeCurrentSchemeColorT pf = (ChangeCurrentSchemeColorT)GetProcAddress(_hLibSkinLoad, "ChangeCurrentSchemeColor");
+			ASSERT(pf);
+			if(pf)
+			{
+				pf( dlg.GetColor() );
+			}
+		}
+	}
+	
 }
 
 void CMFCDialogDlg::OnOpenfile() 

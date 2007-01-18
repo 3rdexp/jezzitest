@@ -20,11 +20,12 @@ namespace Skin {
 	template<class BaseT = WTL::CTrackBarCtrl>
 	struct SkinTrackBarCtrl : public SkinControlImpl<SkinTrackBarCtrl, BaseT>
 	{
-		enum { class_id = TRACKBAR };
+		//enum { class_id = TRACKBAR };
 
 		SkinTrackBarCtrl()
 		{
-			m_flags = 0;
+			m_flags		= 0;
+			_classid	= TRACKBAR;
 		}
 
 		void OnFirstMessage()
@@ -190,7 +191,7 @@ namespace Skin {
 			RECT	rc;
 			GetChannelRect( &rc );
 			if (_scheme)
-				_scheme->DrawBackground(hdc, class_id, nPart, nState, &rc, NULL );			
+				_scheme->DrawBackground(hdc, _classid, nPart, nState, &rc, NULL );			
 		}
 
 		void TRACKBAR_DrawThumb( HDC hdc )
@@ -205,7 +206,7 @@ namespace Skin {
 			RECT	rc;
 			GetThumbRect( &rc );
 			if (_scheme)
-				_scheme->DrawBackground(hdc, class_id, nPart, nState, &rc, NULL );			
+				_scheme->DrawBackground(hdc, _classid, nPart, nState, &rc, NULL );			
 
 		}
 		void TRACKBAR_Refresh ( HDC hdcDst )
@@ -240,7 +241,7 @@ namespace Skin {
 				notify_customdraw( &nmcd, CDDS_PREERASE ) != CDRF_SKIPDEFAULT) 
 			{
 				//背景图的绘制,需要在想想.
-				if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, nPart, nState))
+				if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, nPart, nState))
 					_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 				if (gcdrf != CDRF_DODEFAULT)
