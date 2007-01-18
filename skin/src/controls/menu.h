@@ -51,7 +51,8 @@ template<class BaseT = CWindow>
 class SkinMenu : public SkinControlImpl<SkinMenu, BaseT>
 {
 public:
-    enum { class_id = MENU };
+    //enum { class_id = MENU };
+
     static LPCTSTR GetWndClassName()
     {
         return _T("#32768");
@@ -71,7 +72,9 @@ public:
         , m_nSelectedItem(-1)
         , m_fSysMenu(FALSE)
         , m_fPopup(FALSE)
-    {}
+    {
+		_classid = MENU;
+	}
 
     BEGIN_MSG_MAP(this_type)
 //        ATLASSERT(::IsWindow(m_hWnd));

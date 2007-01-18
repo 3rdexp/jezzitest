@@ -5,6 +5,9 @@ EXPORTS
 ;	GetSkinMgr				Private
 	SkinFrameProc			Private
 	SkinFramehWnd			Private
+	ChangeCurrentSchemeColor Private
+	ClearCurrentSchemeColor Private
+	LoadSkinFile			Private
 	SkinMDIFramehWnd		Private
 	SkinSDIFramehWnd		Private
 ;	GetCurrentScheme		Private

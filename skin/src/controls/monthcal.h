@@ -17,7 +17,7 @@ namespace Skin {
 			int i = 0;
 		}
 		
-		enum { class_id = MONTHCALCTL };
+		//enum { class_id = MONTHCALCTL };
 
 		enum
 		{
@@ -30,6 +30,7 @@ namespace Skin {
 		{
 			m_nPart		= 1;
 			m_bLBtnDown	= FALSE;
+			_classid	= MONTHCALCTL;
 		}
 		typedef SkinMonthCal<BaseT> this_type;
 		typedef SkinControlImpl<SkinMonthCal, BaseT> base_type;
@@ -60,7 +61,7 @@ namespace Skin {
 				CBrush brBorder;
 				int nState = GetState();
 				COLORREF cr;
-				_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+				_scheme->GetColor( _classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
 				FrameRect(hdc, CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 				brBorder.DeleteObject();
@@ -72,7 +73,7 @@ namespace Skin {
 					InflateRect(&rcw, -1, -1);
 					LONG lStyle = GetStyle();			
 					CBrush brBorder;
-					_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+					_scheme->GetColor( _classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 					brBorder.CreateSolidBrush( cr ); 
 					FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
 					if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))
@@ -322,12 +323,12 @@ namespace Skin {
 			rcButton = GetLeftButtonRect();
 
 			if (_scheme)
-					_scheme->DrawBackground(dc, class_id, m_nPart, ABS_LEFTNORMAL, &rcButton, NULL );
+					_scheme->DrawBackground(dc, _classid, m_nPart, ABS_LEFTNORMAL, &rcButton, NULL );
 
 			rcButton = GetRightButtonRect();
 
 			if (_scheme)
-				_scheme->DrawBackground(dc, class_id, m_nPart, ABS_RIGHTNORMAL, &rcButton, NULL );
+				_scheme->DrawBackground(dc, _classid, m_nPart, ABS_RIGHTNORMAL, &rcButton, NULL );
 
 			dc.Detach();
 

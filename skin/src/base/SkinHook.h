@@ -1,7 +1,8 @@
 #pragma once
 #include "wclassdefines.h"
 #include "../controls/controlbar.h"
-#include "../controls/skindialog.h"
+#include "../controls/toolbar.h"
+//#include "../controls/skindialog.h"
 #include "../controls/frame.h"
 
 namespace Skin {
@@ -29,6 +30,10 @@ public:
 		return GetInstance().InitHooks();
 	}
 
+	static void RefreshUI()
+	{
+		GetInstance().UpdateUI();
+	}
 	BOOL InitHooks()
 	{
 		_hCallWndHook = SetWindowsHookEx(WH_CALLWNDPROC, CallWndProc, NULL, GetCurrentThreadId()); 
@@ -102,7 +107,7 @@ public:
 		return sClass;
 	}
 
-	/*
+	
 	CSkinHookBase* GetSkinCtrl( HWND hWnd )
 	{
 		CSkinHookBase* pSkin = NULL;
@@ -117,7 +122,7 @@ public:
 		return NULL;
 	}
 
-	
+	/*
 	CSkinHookBase* NewSkinCtrl( const CString& sClass, HWND hWnd )
 	{
 		if ( sClass.Find(WC_CONTROLBAR) == 0 )
@@ -142,12 +147,20 @@ public:
 	{
 		CString sClass( GetClassEx( hWnd ) ); // converts Afx class names into something more useful
 	
-		//if ( sClass.CompareNoCase(WC_TOOLBAR) == 0 )
-		//{
-	//		SkinToolBarCtrl<ATL::CWindow>::InstallHook( hWnd );
-	//	}
-		//else 
-			if( sClass.Find(WC_CONTROLBAR) == 0 )
+		if ( sClass.CompareNoCase(WC_TOOLBAR) == 0 )
+		{
+			CSkinHookBase* pSkinCtrl = GetSkinCtrl( hWnd );
+			if ( pSkinCtrl )
+				return TRUE;
+			SkinToolBarCtrl* pSkinToolBar = new SkinToolBarCtrl();
+			if ( pSkinToolBar )
+			{
+				pSkinToolBar->Install( hWnd );
+				_handle_maps.insert( std::make_pair(hWnd, pSkinToolBar) );	
+				return TRUE;
+			}
+		} 
+		else if( sClass.Find(WC_CONTROLBAR) == 0 )
 		{
 			SkinControlBar<ATL::CWindow>::InstallHook( hWnd );
 		}
@@ -184,7 +197,7 @@ public:
 		*/
 	}
 
-	/*
+	
 	LRESULT  UnInstallSkin( HWND hWnd, const MSG& msg)
 	{
 		SKINHOOK_ITERATOR it = _handle_maps.find( hWnd );
@@ -204,7 +217,35 @@ public:
 		// else
 		return 0;
 	}
-	*/
+	
+	void AddhWnd(HWND hWnd )
+	{
+		SKINHWND_ITERATOR it = _hwnd_maps.find( hWnd );
+		if( it == _hwnd_maps.end() )
+		{
+			_hwnd_maps.insert( std::make_pair(hWnd, hWnd) );	
+		}
+	}
+
+	void RemovehWnd( HWND hWnd )
+	{
+		SKINHWND_ITERATOR it = _hwnd_maps.find( hWnd );
+		if( it == _hwnd_maps.end() )
+		{
+			_hwnd_maps.erase(it);
+		}
+	}
+
+	void UpdateUI()
+	{
+		SKINHWND_ITERATOR it = _hwnd_maps.begin();
+		for ( it = _hwnd_maps.begin(); it != _hwnd_maps.end(); it++)
+		{
+			::SendMessage ( it->first, WM_NCACTIVATE, 1, 0 );
+			//::InvalidateRect( it->first, NULL, TRUE);
+			RedrawWindow(it->first, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
+		}
+	}
 
 	// global app hooks
 	// WH_CALLWNDPROC
@@ -270,22 +311,44 @@ public:
 				BOOL bRes = InitSkin(msg.hwnd);
 			}
 			break;
-		/*
+		
+		case WM_CREATE:
+			{
+				AddhWnd(msg.hwnd);
+			}
+			break;
 		case WM_NCDESTROY:
 			{
 				UnInstallSkin(msg.hwnd, msg);
+				RemovehWnd( msg.hwnd );
 				return TRUE;
 			}
 			break;
-		*/
+		case WMS_SETSTYLE: //ÐÞ¸Ästyle
+			{
+				CSkinHookBase* pSkinCtrl = GetSkinCtrl( msg.hwnd );
+				if ( pSkinCtrl )
+				{
+					if ( pSkinCtrl->_classid != msg.wParam )
+					{
+						pSkinCtrl->_classid == msg.wParam;
+						::InvalidateRect( msg.hwnd, NULL, TRUE );
+					}
+
+				}
+			}
+		
 		}
 		return FALSE;
 	}
 
 public:
 	HHOOK _hCallWndHook;
-	//std::map< HWND , CSkinHookBase* > _handle_maps;
-	//typedef std::map<HWND, CSkinHookBase* >::iterator SKINHOOK_ITERATOR;
+	std::map< HWND , CSkinHookBase* > _handle_maps;
+	typedef std::map<HWND, CSkinHookBase* >::iterator SKINHOOK_ITERATOR;
+
+	std::map< HWND , HWND > _hwnd_maps;
+	typedef std::map<HWND, HWND >::iterator SKINHWND_ITERATOR;
 
 };
 

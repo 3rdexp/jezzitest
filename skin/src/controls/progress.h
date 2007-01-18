@@ -9,12 +9,17 @@ namespace Skin {
 	struct SkinProgressCtrl : public SkinControlImpl<SkinProgressCtrl, BaseT>
 	{
 
+		SkinProgressCtrl()
+		{
+			_classid = PROGRESS;
+		}
+
 		void OnFirstMessage()
 		{
 			int i = 0;
 		}
 
-		enum { class_id = PROGRESS };
+		//enum { class_id = PROGRESS };
 
 		typedef SkinProgressCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinProgressCtrl, BaseT> base_type;
@@ -44,13 +49,13 @@ namespace Skin {
 			int nChunkPart = bHorz ? PP_CHUNK : PP_CHUNKVERT ;
 
 			int nState = 1; //没有状态的变化,都为1即可 ,tmschema.h里面没有progress的state的定义
-			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, nBarPart, nState))
+			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent( _classid, nBarPart, nState))
 				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 
 			// 绘制背景
 			if (_scheme)
-				_scheme->DrawBackground(memdc, class_id, nBarPart, nState, &rc, NULL );
+				_scheme->DrawBackground(memdc, _classid, nBarPart, nState, &rc, NULL );
 
 			// 绘制进度条
 			// 1.计算进度条的RECT
@@ -81,7 +86,7 @@ namespace Skin {
 			
 			// 绘制进度条
 			if (_scheme && rClient.Width() > 0 && rClient.Height() > 0)
-				_scheme->DrawBackground(memdc, class_id, nChunkPart, nState, &rClient, NULL );
+				_scheme->DrawBackground(memdc, _classid, nChunkPart, nState, &rClient, NULL );
 
 			return 0;
 		}

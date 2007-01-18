@@ -6,10 +6,11 @@ namespace Skin {
 	template<class BaseT = WTL::CStatusBarCtrl>
 	struct SkinStatusBarCtrl : public SkinControlImpl<SkinStatusBarCtrl, BaseT>
 	{
-		enum { class_id = STATUS };
+		//enum { class_id = STATUS };
 		
 		SkinStatusBarCtrl()
 		{
+			_classid = STATUS;
 		}
 
 		void OnFirstMessage()
@@ -99,7 +100,7 @@ namespace Skin {
 				}
 				//DrawStatusText (hdc, &r, szText, SBT_NOBORDERS);
 				SetBkMode( hdc, TRANSPARENT );
-				DrawText(hdc, szText, -1, &r, DT_SINGLELINE  | DT_END_ELLIPSIS | DT_VCENTER | DT_LEFT);
+				::DrawText(hdc, szText, -1, &r, DT_SINGLELINE  | DT_END_ELLIPSIS | DT_VCENTER | DT_LEFT);
 			}
 		}
 
@@ -122,7 +123,7 @@ namespace Skin {
 			nPart = SP_GRIPPERPANE; // 需要确认是否是这个????//
 			nState = 1; // 没有状态,统一搞1吧
 			if ( _scheme )
-				_scheme->DrawBackground(hdc, class_id, nPart, nState, &rectPane, NULL);
+				_scheme->DrawBackground(hdc, _classid, nPart, nState, &rectPane, NULL);
 
 			if ( bSimple )
 			{
@@ -151,7 +152,7 @@ namespace Skin {
 			rcClient.top = rcClient.bottom - nHeight;
 
 			if ( _scheme )
-				_scheme->DrawBackground(hdc, class_id, nPart, nState, &rcClient, NULL);
+				_scheme->DrawBackground(hdc, _classid, nPart, nState, &rcClient, NULL);
 
 			/*
 
@@ -207,13 +208,13 @@ namespace Skin {
 			nPart = SP_PANE;
 			nState = 1; // 没有状态,统一搞1吧
 
-			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, nPart, nState))
+			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, nPart, nState))
 				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 
 			// draw background
 			if ( _scheme )
-				_scheme->DrawBackground(memdc, class_id, nPart, nState, &rc, NULL);
+				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rc, NULL);
 
 			// draw part
 			HGDIOBJ  hOldFont = SelectObject (memdc, GetCtrlFont(m_hWnd) );

@@ -9,7 +9,11 @@ template<class BaseT = ATL::CWindow>
 struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, HookPolicy>
 {
 public:
-	
+	SkinControlBar()
+	{
+		_classid = CONTROLBAR;
+	}
+
 	~SkinControlBar()
 	{
 		//UnInstallHook( m_hWnd );
@@ -20,7 +24,7 @@ public:
 		int i = 0;
 	}
 
-	enum { class_id = CONTROLBAR };
+	//enum { class_id = CONTROLBAR };
 
 	BEGIN_MSG_MAP(SkinControlBar)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)	
@@ -42,7 +46,7 @@ public:
 		rectWindow.OffsetRect(-rectWindow.left, -rectWindow.top);
 		
 		if (_scheme)
-			_scheme->DrawBackground(dc, class_id, 1, 1, &rectWindow, NULL );
+			_scheme->DrawBackground(dc, _classid, 1, 1, &rectWindow, NULL );
 
 		return 0;
 	}
@@ -61,7 +65,7 @@ public:
 		WTL::CPaintDC dc(m_hWnd);
 		
 		if (_scheme)
-			_scheme->DrawBackground(dc, class_id, 1, 1, &rect, NULL );
+			_scheme->DrawBackground(dc, _classid, 1, 1, &rect, NULL );
 
 		return 0;
 	}

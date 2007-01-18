@@ -7,10 +7,11 @@ namespace Skin {
 	template<class BaseT = CEdit>
 	struct SkinEdit : public SkinControlImpl<SkinEdit, BaseT>
 	{
-		enum { class_id = EDIT };
+		//enum { class_id = EDIT };
 		SkinEdit()
 		{
-			m_nPart = EP_EDITTEXT;
+			m_nPart		= EP_EDITTEXT;
+			_classid	= EDIT; 
 		}
 
 		void OnFirstMessage()
@@ -61,7 +62,7 @@ namespace Skin {
 				CBrush brBorder;
 				int nState = GetState();
 				COLORREF cr;
-				_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+				_scheme->GetColor(_classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
 				FrameRect(hdc, CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 				brBorder.DeleteObject();
@@ -73,7 +74,7 @@ namespace Skin {
 					InflateRect(&rcw, -1, -1);
 					LONG lStyle = GetStyle();			
 					CBrush brBorder;
-					_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+					_scheme->GetColor(_classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 					brBorder.CreateSolidBrush( cr ); 
 					FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
 					if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))

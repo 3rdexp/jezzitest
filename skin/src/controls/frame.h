@@ -49,6 +49,7 @@ class SkinFrameImpl : public WindowT
 {
 protected:
     int nMsg ;
+	BOOL bLog;
     SkinFrameImpl() 
         // 注意：在 WM_NCCALCSIZE 消息前就要初始化
         : _frame_state(FS_ACTIVE)
@@ -56,8 +57,10 @@ protected:
         , _anchorDown(0) , _anchorHover(0)
         , _rgn(0)
     {
+		bLog = FALSE;
 		nMsg = 0;
 		m_frameStyle = DIALOG_STYLE;
+		_bNoStyleChangeProcessing = FALSE;
 	}
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
@@ -177,23 +180,6 @@ protected:
     int CalcMenuBarHeight()
     {
 		return m_MenuBar.CalcMenuBarHeight();
-
-		/*
-        HMENU h = m_hMenu;
-        ASSERT(h);
-        MENUINFO mi;
-        mi.cbSize = sizeof(MENUINFO);
-        mi.fMask = MIM_MAXHEIGHT;
-        GetMenuInfo(h, &mi);
-
-        if (0 == mi.cyMax)
-        {
-            // ASSERT(false && "这样的情况会发生吗?");
-            return GetSystemMetrics(SM_CYMENU);
-        }
-        else
-            return mi.cyMax;
-		*/
     }
 
 	static HFONT GetCtrlFont(HWND hwnd)
@@ -205,21 +191,6 @@ protected:
 
 		return hFont;
 	}
-
-	/*
-	void InitMenu( CMenuHandle menu )
-	{
-		//得到Menu的各个菜单
-		if ( !menu )
-			return;
-
-		ControlT * pT = static_cast<ControlT*>(this);
-
-		int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
-
-		m_MenuBar.InitMenu( m_hWnd, menu, border_left_width, CaptionHeight());
-	}
-	*/
 
     //! MenuBar 缺省位置就在 caption 下面
     RECT CalcMenuBarRect(const WTL::CRect& rcw, FRAMESTATES fs)
@@ -277,7 +248,7 @@ protected:
         HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
         ASSERT(pOldBmp);
 
-        DrawFrameBorder(dcMem, rcw, _frame_state);
+        
 
         SystemButtonState sysbtn_state;
         sysbtn_state.initFromWindow(dwStyle, _frame_state == FS_ACTIVE);
@@ -285,12 +256,12 @@ protected:
         
         DrawCaption(dcMem, rcw, dwStyle, caption_state, sysbtn_state);
 
-
         if ( m_MenuBar.GetMenu() )
 		{
 			m_MenuBar.DoPaint ( dcMem );
-            //m_MenuBar.DrawMenuBar(dcMem, m_MenuBar.GetMenu(), rcw, -1, MS_NORMAL );
 		}
+
+		DrawFrameBorder(dcMem, rcw, _frame_state);
 #if 0
         HDC dct = ::GetDC(0);
         BitBlt(dct, 0, 0, rcw.Width(), rcw.Height(), dcMem, 0, 0, SRCCOPY);
@@ -360,6 +331,54 @@ protected:
         ControlT * pT = static_cast<ControlT*>(this);
 
         pT->Draw(hdc, WP_CAPTION, caption_state, rcw.left, rcw.top, rcw.Width(), 0);
+
+		// draw icon
+		const int cxIcon = GetSystemMetrics(SM_CXSMICON);
+		const int cyIcon = GetSystemMetrics(SM_CYSMICON);
+		
+		HICON hIcon = (HICON)SendMessage( m_hWnd, WM_GETICON, ICON_SMALL, 0 );
+		if (!hIcon)
+		{
+			hIcon = (HICON)SendMessage( m_hWnd, WM_GETICON, ICON_SMALL2, 0); // large icon			
+		}
+		if (!hIcon)
+		{
+			hIcon = (HICON)SendMessage( m_hWnd, WM_GETICON, ICON_BIG, 0); // large icon			
+		}
+		if (!hIcon)
+		{
+			hIcon = (HICON)::GetClassLong( m_hWnd, GCL_HICONSM ); // Retrieves a handle to the small icon associated with the class.			
+		}
+		if (!hIcon)
+		{
+			hIcon = (HICON)::GetClassLong( m_hWnd, GCL_HICON ); // 	Retrieves a handle to the icon associated with the class.
+		}
+
+		WTL::CRect rcText = rcw;
+		int caption_height = pT->GetSchemeHeight(WP_CAPTION, caption_state);
+		rcText.bottom = rcText.top + caption_height;
+		if( hIcon )
+		{
+			// 图标距边线的距离为 9 个像素
+			BOOL bRet = DrawIconEx( hdc, rcText.left + 9, rcText.top + ( rcText.Height() - cyIcon ) / 2, hIcon, cxIcon, cyIcon, 0, NULL, DI_NORMAL);
+			ASSERT( bRet );
+			if( bRet )
+				rcText.left += cxIcon + 9 + 5; // 图标和文字的距离为 5
+		}
+		else
+			rcText.left += 9;
+
+		char szText[MAX_PATH];
+
+		if(int nLen = GetWindowText(szText, MAX_PATH) )
+		{
+			HGDIOBJ pOldFont = SelectObject(hdc, GetCtrlFont( m_hWnd ) );
+			ControlT * pT = static_cast<ControlT*>(this);
+			pT->DrawText(hdc, WP_CAPTION, caption_state, szText, DT_END_ELLIPSIS | DT_SINGLELINE | DT_VCENTER, 0, &rcText);
+			SelectObject( hdc, pOldFont );
+		}
+
+
         DrawSysButton(hdc, rcw, sysbtn_state, dwStyle);
 #if 0
         HDC dct = ::GetDC(0);
@@ -499,12 +518,27 @@ protected:
     //        ATLTRACE("%04x frame\n", uMsg);
     // if (uMsg == WM_COMMAND)
     //    __asm nop;
-		//ATLTRACE("%d -> %04x frame\n", nMsg, uMsg);
-		//nMsg ++;
-		if (uMsg == 0x00ae)
-			return 0;
+		//if ( bLog )
+		//{
+		//	ATLTRACE("%d -> %04x frame\n", nMsg, uMsg);
+		//	nMsg ++;
+		//}
+		// 
+		/*
+		Case WM_SETCURSOR
+		'
+		' a Very Nasty Hack :)
+		' discovered by watching NeoPlanet and MSOffice
+		' in Spy++
+		'
+		' Without this, Win will redraw caption areas and
+		' min/max/close buttons whenever the mouse is released
+		' following a NC mouse down.
+		0x00ae 不知道是什么消息,返回1 就可以解决了.奇怪
+		*/ 
 
-		
+		if (uMsg == 0x00ae)
+			return 1;
 
         MSG_WM_NCACTIVATE(OnNcActivate)
 		MSG_WM_ACTIVATE(OnActivate)
@@ -519,7 +553,6 @@ protected:
         MSG_WM_SIZE(OnSize)
         MSG_WM_NCCALCSIZE(OnNcCalcSize)
 		
-
 #if 1
         MSG_WM_NCHITTEST(OnNcHitTest)
 #else
@@ -539,6 +572,7 @@ protected:
         MSG_WM_NCMOUSELEAVE(OnNcMouseLeave)
         // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
         MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
+		MSG_WM_STYLECHANGED(OnStyleChanged)
 		//MSG_WM_MOUSEMOVE(OnMouseMove)
 
         //MSG_WM_MENUSELECT(OnMenuSelect)
@@ -563,11 +597,27 @@ protected:
 */
 	LRESULT OnSetText( LPCTSTR lParam )
 	{
+		OnNcPaint( (HRGN)0 );	
 		return 0;
 	}
 	void OnActivateApp( BOOL wParam, DWORD lParam )
 	{
 		OnNcPaint( (HRGN)0 );	
+	}
+
+	void OnStyleChanged( UINT wParam, LPSTYLESTRUCT lParam)
+	{
+		ControlT * pT1 = static_cast<ControlT*>(this);
+		
+		if (! _bNoStyleChangeProcessing ) 
+		{
+			LRESULT ret = pT1->DefWindowProc();			
+			OnNcPaint( (HRGN)0 );	
+		}
+		else
+		{
+			LRESULT ret = pT1->DefWindowProc();
+		}
 	}
 
 	void OnActivate(UINT wParam, BOOL bActive, HWND hWnd)
@@ -588,6 +638,9 @@ protected:
         
 		_frame_state = bActive ? FS_ACTIVE : FS_INACTIVE;
 		
+		OnNcPaint( (HRGN)0 );
+
+		return TRUE;
 		//ControlT * pT1 = static_cast<ControlT*>(this);
 		//LRESULT ret = pT1->DefWindowProc();
 
@@ -949,23 +1002,7 @@ protected:
 
         SetMsgHandled(FALSE);
         
-#if 0
-        if(GetStyle() & WS_DLGFRAME)
-        {
-            ControlT * pT = static_cast<ControlT*>(this);
-            _rgn = pT->GetSchemeRegion(0, 0);
-            ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
-        }
-#else
-        if(GetStyle() & WS_DLGFRAME)
-        {
-            CRect rcw;
-            GetWindowRect(&rcw);
-            rcw.OffsetRect(-rcw.left, -rcw.top);
-            _rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 10, 10);
-            ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
-        }
-#endif  
+
 		
 		OnFirstMessage();
         return 0;
@@ -1094,6 +1131,25 @@ protected:
 
 	LRESULT OnSetCursor( HWND hWnd, UINT x, UINT y )
 	{
+		_bNoStyleChangeProcessing = TRUE;
+/*
+		LONG lStyle = ::GetWindowLong(m_hWnd, GWL_STYLE);
+		LONG lNewStyle = lStyle & ~WS_VISIBLE;
+		::SetWindowLong( m_hWnd, GWL_STYLE, lNewStyle );
+		ControlT * pT = static_cast<ControlT*>(this);
+		LRESULT lRet = pT->DefWindowProc();
+
+		::SetWindowLong( m_hWnd, GWL_STYLE, lStyle );
+
+		_bNoStyleChangeProcessing = FALSE;
+*/
+		ControlT * pT = static_cast<ControlT*>(this);
+		LRESULT lRet = pT->DefWindowProc();
+
+		//OnNcPaint( (HRGN)0 );	
+		TRACE("OnSetCursor \r\n");
+		return lRet;
+		/*
 		ModifyStyle( WS_VISIBLE, 0 );
 
 		ControlT * pT = static_cast<ControlT*>(this);
@@ -1103,6 +1159,7 @@ protected:
 
 		ModifyStyle( 0, WS_VISIBLE );
 		return lRet;
+		*/
 	}
 
 	void OnFirstMessage()
@@ -1122,6 +1179,26 @@ protected:
 			SetMenu ( 0 );
 			SetWindowPos(0, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOMOVE|SWP_NOSIZE);   
 		}
+		// 计算rgn
+
+#if 0
+		if(GetStyle() & WS_DLGFRAME)
+		{
+			ControlT * pT = static_cast<ControlT*>(this);
+			_rgn = pT->GetSchemeRegion(0, 0);
+			ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
+		}
+#else
+		if(GetStyle() & WS_DLGFRAME)
+		{
+			CRect rcw;
+			GetWindowRect(&rcw);
+			rcw.OffsetRect(-rcw.left, -rcw.top);
+			_rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 10, 10);
+			ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
+		}
+#endif  
+
 	}
 
     void OnNcPaint(HRGN)
@@ -1234,6 +1311,8 @@ protected:
     
     void OnNcLButtonDown(UINT nHitTest, WTL::CPoint point)
     {
+		bLog = TRUE;
+
         if (nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON 
             || nHitTest == HTCLOSE || nHitTest == HTHELP)
         {
@@ -1290,7 +1369,8 @@ protected:
             rcw.OffsetRect(-rcw.left, -rcw.top);
 
             EtchedSysButton((HDC)dc, rcw, sysbtn_state);
-        }
+  
+		}
         if ( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
         {
             SetMsgHandled(FALSE);
@@ -1500,6 +1580,7 @@ protected:
 private:
     FRAMESTATES    _frame_state;
     UINT _anchorDown, _anchorHover;
+	BOOL	_bNoStyleChangeProcessing;
     //! 在NcMouseMove中设置/取消
     //! 在NcMouseLeave中取消
     //UINT _hoverMenuItem;    // 鼠标曾经在过的 menu bar 上
@@ -1532,11 +1613,12 @@ public:
     {
         return _T("SKINFRAME");
     }
-    enum { class_id = WINDOW };
+    //enum { class_id = WINDOW };
 	
 	SkinFrame()
 	{
-		m_frameStyle = NORMAL_STYLE;
+		m_frameStyle	= NORMAL_STYLE;
+		_classid		= WINDOW;
 	}
 
 	BEGIN_MSG_MAP(SkinFrame)
@@ -1556,10 +1638,11 @@ public:
 
 	SkinSDIFrame()
 	{
-		m_frameStyle = SDI_STYLE;
+		m_frameStyle	= SDI_STYLE;
+		_classid		= WINDOW; 
 	}
 
-	enum { class_id = WINDOW };
+	//enum { class_id = WINDOW };
 
 	BEGIN_MSG_MAP(SkinSDIFrame)
 		CHAIN_MSG_MAP(framebase_type)
@@ -1578,10 +1661,11 @@ public:
 
 	SkinMDIFrame()
 	{
-		m_frameStyle = MDI_STYLE;
+		m_frameStyle	= MDI_STYLE;
+		_classid		= WINDOW; 
 	}
 
-	enum { class_id = WINDOW };
+	//enum { class_id = WINDOW };
 
 	BEGIN_MSG_MAP(SkinMDIFrame)
 		CHAIN_MSG_MAP(framebase_type)

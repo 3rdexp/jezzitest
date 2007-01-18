@@ -201,7 +201,7 @@ public:
     RECT GetSchemeRect(int iPartId, int iStateId = 0)
     {
         RECT rc;
-        BOOL f = _scheme->GetRect(ControlT::class_id, iPartId, iStateId, &rc);
+        BOOL f = _scheme->GetRect(_classid, iPartId, iStateId, &rc);
         ASSERT(f);
         return rc;
     }
@@ -210,7 +210,7 @@ public:
     {
         // GetColor(int iClassId, int iPartId, int iStateId, int iPropId, COLORREF *pColor)
         COLORREF ret;
-        BOOL f = _scheme->GetColor(ControlT::class_id, iPartId, iStateId, iPropId, &ret);
+        BOOL f = _scheme->GetColor(_classid, iPartId, iStateId, iPropId, &ret);
         ASSERT(f);
         return ret;
     }
@@ -218,7 +218,7 @@ public:
     HRGN GetSchemeRegion(int iPartId, int iStateId)
     {
         HRGN rgn = 0;
-        BOOL f = _scheme->GetRegion(ControlT::class_id, iPartId, iStateId, 0, &rgn);
+        BOOL f = _scheme->GetRegion(_classid, iPartId, iStateId, 0, &rgn);
         ASSERT(f);
         return rgn;
     }
@@ -226,9 +226,14 @@ public:
     BOOL Draw(HDC hdc, int iPartId, int iState, long dx, long dy, long dcx = 0, 
         long dcy = 0, DWORD dwRop = SRCCOPY)
     {
-        return _scheme->Draw(hdc, ControlT::class_id, iPartId, iState, dx, dy, 
+        return _scheme->Draw(hdc, _classid, iPartId, iState, dx, dy, 
             dcx, dcy, dwRop);
     }
+
+	BOOL DrawText(HDC hdc, int iPartId, int iState, LPCSTR szText, DWORD dwTextFlags, DWORD dwTextFlags2, const RECT *pRect)
+	{
+		return _scheme->DrawText(hdc, _classid, iPartId, iState, szText, dwTextFlags, dwTextFlags2, pRect);
+	}
 
 #if 0
     BOOL Draw(HDC hdc, int iPartId, int iStateId, 
@@ -285,9 +290,9 @@ public:
 	}
 
 
-	CWindow GetChildWnd(LPCTSTR szClass)
+	ATL::CWindow GetChildWnd(LPCTSTR szClass)
 	{
-		CWindow wndChild = GetWindow(GW_CHILD); 
+		ATL::CWindow wndChild = GetWindow(GW_CHILD); 
 
 		while ( wndChild.m_hWnd )    
 		{
@@ -297,7 +302,7 @@ public:
 			wndChild = wndChild.GetWindow(GW_HWNDNEXT);
 		}
 
-		return CWindow( NULL );
+		return ATL::CWindow( NULL );
 	}
 
 	BOOL IsClass(HWND hWnd, LPCTSTR szClass)
@@ -409,6 +414,7 @@ public: // 需要被模版派生类访问
 
 	BEGIN_MSG_MAP(this_type)
 		MESSAGE_HANDLER(WMS_ENABLE, OnEnable)
+		MESSAGE_HANDLER(WMS_SETSTYLE, OnSetStyle)
 		NOTIFY_CODE_HANDLER(NM_COOLSB_CUSTOMDRAW, OnScrollCustomDraw)
 	END_MSG_MAP()
 
@@ -418,6 +424,16 @@ public: // 需要被模版派生类访问
 		if( wParam != _enable )
 		{
 			_enable = wParam;
+			Invalidate();
+		}
+		return 0;
+	}
+
+	LRESULT OnSetStyle(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if( wParam != _classid )
+		{
+			_classid = wParam;
 			Invalidate();
 		}
 		return 0;
@@ -442,8 +458,8 @@ private:
 
 	static std::hash_map<HWND, HWND> _hook_maps;
 
-
     static InstallPolicy _installer;
+
 public:
 	static LRESULT ControlProc(handle hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
@@ -570,6 +586,7 @@ public:
 		return lRes;
 	}
 
+	
 #if 0
 private:
     // TODO: find out the way to unload dll from process memory
@@ -596,7 +613,7 @@ protected:
 	const _ATL_MSG * m_pCurrentMsg;
 	CComPtr<ISkinScheme> _scheme;
 
-	unsigned _enable : 1;
+	unsigned	_enable : 1;
 	int			_classid;
 #ifdef LOOP_DEBUG 
     int indent;

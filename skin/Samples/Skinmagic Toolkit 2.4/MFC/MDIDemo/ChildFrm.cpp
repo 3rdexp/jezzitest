@@ -75,5 +75,18 @@ int CChildFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	
 	// TODO: Add your specialized creation code here
 	//SetWindowSkin( m_hWnd , _T("MainFrame") );
+	
+	HINSTANCE _hLibSkinLoad = LoadLibrary("skin.dll");	
+	ATLASSERT(_hLibSkinLoad);
+	if (_hLibSkinLoad)
+	{
+		typedef LRESULT (WINAPI *SkinFrameProcT)(HWND hWnd);
+		SkinFrameProcT pf = (SkinFrameProcT)GetProcAddress(_hLibSkinLoad, "SkinFramehWnd");
+		ASSERT(pf);
+		if(pf)
+		{
+			pf(m_hWnd);
+		}
+	}
 	return 0;
 }

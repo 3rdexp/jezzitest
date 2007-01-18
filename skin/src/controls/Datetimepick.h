@@ -11,13 +11,14 @@ namespace Skin {
 	template<class BaseT = WTL::CDateTimePickerCtrl>
 	struct SkinDataTimePickerCtrl : public SkinControlImpl<SkinDataTimePickerCtrl, BaseT>
 	{
-		enum { class_id = DATATIMEPICKER };
+		//enum { class_id = DATATIMEPICKER };
 
 		SkinDataTimePickerCtrl()
 		{
 			m_nPart		= CP_DROPDOWNBUTTON;
 			m_bLBtnDown	= FALSE;
 			m_bRefresh  = FALSE;
+			_classid	= DATATIMEPICKER;
 		}
 
 		void OnFirstMessage()
@@ -117,7 +118,7 @@ namespace Skin {
 			rcButton =  getDropButtonRect();
 
 			if (_scheme)
-				_scheme->DrawBackground(hdc, class_id, m_nPart, nState, &rcButton, NULL );
+				_scheme->DrawBackground(hdc, _classid, m_nPart, nState, &rcButton, NULL );
 		}
 
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -143,7 +144,7 @@ namespace Skin {
 			// Cover up dark 3D shadow.
 
 			COLORREF cr;
-			_scheme->GetColor(class_id, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+			_scheme->GetColor(_classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
 
 
 			dc.Draw3dRect(rcItem, cr, cr);
@@ -157,7 +158,7 @@ namespace Skin {
 			}
 			else 
 			{
-				_scheme->GetColor(class_id, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+				_scheme->GetColor(_classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 				dc.Draw3dRect(rcItem, cr, cr); 
 			}
 /*
@@ -182,7 +183,7 @@ namespace Skin {
 
 			int nState = GetState();
 
-			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
+			if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, m_nPart, nState))
 				_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 			DoPaint(memdc, nState, rc);
@@ -317,7 +318,7 @@ namespace Skin {
 
 			HFONT hOldFont = dc.SelectFont(GetCtrlFont(m_hWnd));
 			if (_scheme)
-				_scheme->DrawText(dc, class_id, m_nPart, nState, szText, DT_VCENTER | DT_LEFT | DT_SINGLELINE | DT_END_ELLIPSIS, 0, &rText);
+				_scheme->DrawText(dc, _classid, m_nPart, nState, szText, DT_VCENTER | DT_LEFT | DT_SINGLELINE | DT_END_ELLIPSIS, 0, &rText);
 
 			delete [] szText;
 

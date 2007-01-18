@@ -9,6 +9,7 @@
 #include "scheme.h"
 #include "CacheDC.h"
 
+
 //   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1
 //   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
 //  +-----------+-----------+-------+-------------------------------+
@@ -27,7 +28,10 @@ public:
 		COM_INTERFACE_ENTRY_IID(IID_ISkinScheme, ISkinScheme)
 	END_COM_MAP()
 
-	SkinScheme() {}
+	SkinScheme() 
+	{
+		_changeColor = false;
+	}
 
 	DECLARE_PROTECT_FINAL_CONSTRUCT()
 	HRESULT FinalConstruct()
@@ -464,7 +468,7 @@ public:
 		HRGN clip = NULL;
 		int hasClip = -1;
 
-		TRACE("(%p,%p,%p)\n", hwnd, hdc, prc);
+		//TRACE("(%p,%p,%p)\n", hwnd, hdc, prc);
 		hParent = GetParent(hwnd);
 		if(!hParent)
 			hParent = hwnd;
@@ -602,7 +606,17 @@ public:
 	STDMETHODIMP_(BOOL) GetColor(int iClassId, int iPartId, int iStateId, int iPropId, 
         COLORREF *pColor)
 	{
-		return _psd->get(make_key(iClassId, iPartId, iStateId, iPropId), *pColor);
+		bool bRet = _psd->get(make_key(iClassId, iPartId, iStateId, iPropId), *pColor);
+		if ( _changeColor )
+		{
+			BYTE lR = 255 - (255 - GetRValue(*pColor)) * (255 - GetRValue(_clr))  /  255;
+			BYTE lG = 255 - (255 - GetGValue(*pColor)) * (255 - GetGValue(_clr))  /  255;
+			BYTE lB = 255 - (255 - GetBValue(*pColor)) * (255 - GetBValue(_clr))  /  255;
+			*pColor = RGB( lR, lG, lB );
+		}
+
+		return bRet ? TRUE : FALSE;
+
 	}
 	STDMETHOD_(BOOL, GetRect)(int iClassId, int iPartId, int iStateId, RECT *pRect)
 	{
@@ -641,15 +655,49 @@ public:
 		}
 		return f;
 	}
+
+	STDMETHOD_(BOOL, ChangeSchemeColor)( COLORREF clr )
+	{
+		//
+		_changeColor = true;
+		
+		_clr = clr;
+
+		_spCache->ChangeColor( clr );
+
+		
+
+		return TRUE;
+
+	}
+
+	STDMETHOD_(BOOL, ClearSchemeColor)(  )
+	{
+		//
+		_changeColor = false;
+
+		//_clr = clr;
+
+		_spCache->ClearColor(  );
+
+		
+
+		return TRUE;
+
+	}
+
 public:
     void SetSchemeData(const scheme_data * psd, boost::shared_ptr<CCacheDC> cdc)
 	{
         _psd = psd;
 		_spCache = cdc;
 	}
+
 private:
     boost::shared_ptr<CCacheDC> _spCache; // todo: use shared_ptr<CCacheDC>
     const scheme_data * _psd;
+	bool		_changeColor;
+	COLORREF	_clr;
 };
 
 } // Skin

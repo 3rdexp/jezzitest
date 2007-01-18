@@ -172,7 +172,7 @@ void CMenuIcon::OnActivateChildWnd()
 		m_hDocIcon = m_hIconWinLogo;
 }
 
-void CMenuIcon::Update(CDCHandle dc)
+void CMenuIcon::Update(CDCHandle dc, CSkinMenuBar* pMenuBar)
 {
 	if (m_fsState & MISTATE_HIDDEN)
 		return;
@@ -318,27 +318,51 @@ void CMenuButton::Layout(CPoint point, BOOL bHorz)
 	}
 }
 
-void CMenuButton::Update(CDCHandle dc)
+void CMenuButton::Update(CDCHandle dc, CSkinMenuBar* pMenuBar)
 {
 	if (m_fsState & MISTATE_HIDDEN)
 		return;
 
 	// clean background
-	COLORREF clr = ::GetSysColor(COLOR_3DFACE);
-	dc.FillSolidRect( m_rcItem, clr );
+	//COLORREF clr = ::GetSysColor(COLOR_3DFACE);
+	//dc.FillSolidRect( m_rcItem, clr );
 
+	/*
+	<area state="1" name="PBS_NORMAL"    rc="144 298 217 319" step_horz="4" step_vert="4" />
+	<area state="2" name="PBS_HOT"        rc="219 298 292 319" step_horz="4" step_vert="4" />
+	<area state="3" name="PBS_PRESSED"    rc="294,298 367 319" step_horz="4" step_vert="4" />
+	<area state="5" name="PBS_DEFAULTED" rc="446 298 519 319" step_horz="4" step_vert="4" />
+	<area state="4" name="PBS_DISABLED"  rc="369 298 442 319" step_horz="4" step_vert="4" />
+	*/
+
+	int nState = 1;
 	if (m_fsState & MISTATE_HOT)
 	{
-		DrawHot(dc);
+		nState = 2;
+		//DrawHot(dc);
 	}
 	else if (m_fsState & MISTATE_PRESSED)
 	{
-		DrawPressed(dc);
+		nState = 3;
+		//DrawPressed(dc);
 	}
+	/*
 	else 
 	{
-		DrawNone(dc);
+		//DrawNone(dc);
 	}
+	*/
+	if ( pMenuBar )
+		pMenuBar->DrawBackground(dc.m_hDC, 1, nState, &m_rcItem, NULL );
+
+	HFONT hOldFont = dc.SelectFont( _fontHorzMenu );
+
+	if ( pMenuBar )
+		pMenuBar->DrawText(dc.m_hDC, 1, nState, m_strBtn.GetBuffer(m_strBtn.GetLength()), DT_SINGLELINE | DT_CENTER | DT_VCENTER, 0, &m_rcItem);
+
+	dc.SelectFont(hOldFont);
+
+	
 }
 
 void CMenuButton::TrackPopup(CSkinMenuBar* pBar, HWND hWndSentCmd)
@@ -495,7 +519,7 @@ CMenuControl::CMenuControl(CSkinMenuBar* pMenuBar)
 	m_sizeHorz = CSize(sizeCaption.cx*3 + CX_GAP_CAPTION + 1, sizeCaption.cy + 2);
 }
 
-void CMenuControl::Update(CDCHandle dc)
+void CMenuControl::Update(CDCHandle dc,  CSkinMenuBar* pMenuBar)
 {
 	// do nothing
 }
@@ -659,12 +683,22 @@ void CMenuControl::DrawControl(CDCHandle dc, int nIndex, BOOL bPressed)
 {
 	//LTRACE(_T("CMenuControl::DrawControl\n"));
 	// draw frame controls
+	
 	CRect& rc = m_arrCaption[nIndex];
 	//LTRACE(_T("    %d, %d, %d, %d\n"), rc.left, rc.top, rc.right, rc.bottom);
+	/*
 	static UINT dfcs[3] = { DFCS_CAPTIONCLOSE, DFCS_CAPTIONRESTORE, DFCS_CAPTIONMIN };
 	UINT uState = dfcs[nIndex];
 	uState |= DFCS_FLAT;
 	dc.DrawFrameControl(rc, DFC_CAPTION, uState);
+	*/
+	int nState = 1;
+	if ( bPressed )
+		nState = 3;
+	if ( m_pMenuBar )
+	{
+		m_pMenuBar->DrawBackground( dc.m_hDC, nIndex + 2, nState, rc, NULL );
+	}
 }
 
 void CMenuControl::ForceDrawControl(CDCHandle dc)
@@ -1873,7 +1907,7 @@ void CSkinMenuBar::UpdateBar(TrackingState nState, int nNewIndex)
 		CXPMenuItem* pItem = m_MenuLst[m_nCurIndex];
 		WTL::CWindowDC dc( m_hWnd );
 		pItem->ModifyState(MISTATE_HOT | MISTATE_PRESSED, 0);
-		pItem->Update(dc.m_hDC);
+		pItem->Update(dc.m_hDC, this );
 
 		// draw captions forcefully
 		if (m_pMenuControl) 
@@ -1898,12 +1932,12 @@ void CSkinMenuBar::UpdateBar(TrackingState nState, int nNewIndex)
 		if (nState == button || nState == buttonmouse) 
 		{
 			pItem->ModifyState(MISTATE_PRESSED, MISTATE_HOT);
-			pItem->Update(dc.m_hDC);
+			pItem->Update(dc.m_hDC, this);
 		}
 		else if (nState == popup) 
 		{
 			pItem->ModifyState(MISTATE_HOT, MISTATE_PRESSED);
-			pItem->Update( dc.m_hDC );
+			pItem->Update( dc.m_hDC , this );
 		}
 
 		// draw captions forcefully
@@ -2038,16 +2072,18 @@ void CSkinMenuBar::DoPaint(CDCHandle dc)
 
 	int r = dc.SaveDC();
 
-	COLORREF cr =  GetSchemeColor(WP_MENUBAR, 0, TMT_MENUBAR);
-	CBrush br;
+	//COLORREF cr =  GetSchemeColor(WP_MENUBAR, 0, TMT_MENUBAR);
+	//CBrush br;
 
-	br.CreateSolidBrush(cr);
-	dc.FillRect(&rcmb, br);
+	//br.CreateSolidBrush(cr);
+	//dc.FillRect(&rcmb, br);
 
+	if ( m_scheme )
+		m_scheme->DrawBackground(dc.m_hDC, MENU, 0, 1, &rcmb, NULL );
 	// draw items
 	for (int i = 0; i < m_MenuLst.size(); ++i) 
 	{
-		m_MenuLst[i]->Update( dc );
+		m_MenuLst[i]->Update( dc , this);
 	}
 
 	// delay draw captions 
