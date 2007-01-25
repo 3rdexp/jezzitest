@@ -539,7 +539,11 @@ protected:
 
 		if (uMsg == 0x00ae)
 			return 1;
-
+		if ( uMsg == WM_NCDESTROY )
+		{
+			int kkk;
+			kkk = 0;
+		}
         MSG_WM_NCACTIVATE(OnNcActivate)
 		MSG_WM_ACTIVATE(OnActivate)
 		MSG_WM_ACTIVATEAPP(OnActivateApp)
@@ -602,7 +606,7 @@ protected:
 	}
 	void OnActivateApp( BOOL wParam, DWORD lParam )
 	{
-		OnNcPaint( (HRGN)0 );	
+		OnNcPaint( (HRGN)0 );
 	}
 
 	void OnStyleChanged( UINT wParam, LPSTYLESTRUCT lParam)
@@ -1019,6 +1023,8 @@ protected:
         
 		//是否要删除,m_hMenu
 		ASSERT(nRet);
+
+		SetMsgHandled(FALSE);
     }
 
 //    void SetWindowRgnEx(HRGN hRgn)
@@ -1089,12 +1095,12 @@ protected:
 		//OnFirstMessage();
 		//InitMenu( m_MenuBar.GetMenu() );
 		//OnFirstMessage();
-		if ( m_MenuBar.GetMenu() )
+		if ( m_MenuBar.GetMenu() && SIZE_MINIMIZED != nType)
 			m_MenuBar.CalcLayout();
         // TODO: 没有绘制正确
         // TODO: 没有得到正确的 Region in OnCreate
         // RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASENOW
-        RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+        //RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
     }
 
 	LRESULT OnEraseBkgnd(HDC hdc)
@@ -1147,7 +1153,7 @@ protected:
 		LRESULT lRet = pT->DefWindowProc();
 
 		//OnNcPaint( (HRGN)0 );	
-		TRACE("OnSetCursor \r\n");
+		//TRACE("OnSetCursor \r\n");
 		return lRet;
 		/*
 		ModifyStyle( WS_VISIBLE, 0 );

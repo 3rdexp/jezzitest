@@ -146,7 +146,7 @@ public:
 	BOOL InitSkin( HWND hWnd )
 	{
 		CString sClass( GetClassEx( hWnd ) ); // converts Afx class names into something more useful
-	
+	/*
 		if ( sClass.CompareNoCase(WC_TOOLBAR) == 0 )
 		{
 			CSkinHookBase* pSkinCtrl = GetSkinCtrl( hWnd );
@@ -160,7 +160,8 @@ public:
 				return TRUE;
 			}
 		} 
-		else if( sClass.Find(WC_CONTROLBAR) == 0 )
+		else*/
+		if( sClass.Find(WC_CONTROLBAR) == 0 )
 		{
 			SkinControlBar<ATL::CWindow>::InstallHook( hWnd );
 		}
@@ -321,9 +322,15 @@ public:
 			{
 				UnInstallSkin(msg.hwnd, msg);
 				RemovehWnd( msg.hwnd );
-				return TRUE;
+				//return TRUE;
+				break;
 			}
 			break;
+		case WM_NCPAINT:
+			{
+				TRACE("hook WM_NCPAINT  %p %d\n", msg.hwnd, msg.message);
+				break;
+			}
 		case WMS_SETSTYLE: //ÐÞ¸Ästyle
 			{
 				CSkinHookBase* pSkinCtrl = GetSkinCtrl( msg.hwnd );

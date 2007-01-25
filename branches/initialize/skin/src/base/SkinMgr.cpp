@@ -44,6 +44,7 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls//header.h"
 #include "../controls/statusbar.h"
 #include "../controls/toolbar.h"
+#include "../controls/hooktoolbar.h"
 #include "../controls//listview.h"
 #include "../controls/scrollbar.h"
 #include "../controls/combolbox.h"
@@ -170,15 +171,15 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
             _installed_type |= SKINCTL_MENU;
     }
 
-/*
+	
 	if (!(_installed_type & SKINCTL_TOOLBAR) && (dwType & SKINCTL_TOOLBAR) )
 	{
-		typedef SkinToolBarCtrl<WTL::CToolBarCtrl> skintoolbar;
+		typedef SkinHookToolBarCtrl<WTL::CToolBarCtrl> skintoolbar;
 		bool f = skintoolbar::Install(hInst);
 		if (f)
 			_installed_type |= SKINCTL_TOOLBAR;
 	}
-*/
+	
 
 	if (!(_installed_type & SKINCTL_LISTVIEW) && (dwType & SKINCTL_LISTVIEW) )
 	{
