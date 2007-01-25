@@ -271,6 +271,9 @@
 				RelativePath=".\controls\header.h">
 			</File>
 			<File
+				RelativePath=".\controls\hooktoolbar.h">
+			</File>
+			<File
 				RelativePath=".\controls\ipadress.h">
 			</File>
 			<File

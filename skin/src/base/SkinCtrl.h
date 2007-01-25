@@ -503,8 +503,11 @@ public:
             // 不用这个方法了，下面的更正确
             const _ATL_MSG* pOldMsg = safeptr->m_pCurrentMsg;
             safeptr->m_pCurrentMsg = &msg;
-
-			if (safeptr->_enable || uMsg == WMS_ENABLE)
+			if ( uMsg == WM_NCPAINT )
+			{
+				TRACE("WM_NCPAINT  %p %d\n", hWnd, uMsg);
+			}
+			if ( ( safeptr->_enable || uMsg == WMS_ENABLE ) && uMsg != WM_NCDESTROY )
 			{
                 bRet = safeptr->derived_type::ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
                 _ASSERTE(_CrtCheckMemory( ));
@@ -541,7 +544,9 @@ public:
 				}
 #endif
 			}
-            safeptr->m_pCurrentMsg = pOldMsg;
+			
+			if ( uMsg != WM_NCDESTROY)
+				safeptr->m_pCurrentMsg = pOldMsg;
 		}
 
 		if (!bRet)
@@ -550,8 +555,8 @@ public:
 			if(uMsg != WM_NCDESTROY)
 			{
 				WNDPROC dw = GetDefaultProc();
-				if (!dw)
-					dw = ::DefWindowProc;
+				//if (!dw)
+				//	dw = ::DefWindowProc;
 
 				lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
 			}
@@ -561,8 +566,8 @@ public:
 				LONG_PTR pfnWndProc = ::GetWindowLongPtr(hWnd, GWLP_WNDPROC);
 				
 				WNDPROC dw = GetDefaultProc();
-				if (!dw)
-					dw = ::DefWindowProc;
+				//if (!dw)
+				//	dw = ::DefWindowProc;
 
 				lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
 
@@ -570,7 +575,7 @@ public:
 				if (it != _hook_maps.end()) // 第一次创建之
 				{
 					//发现了
-					if(GetDefaultProc() != ::DefWindowProc && ::GetWindowLongPtr(hWnd, GWLP_WNDPROC) == pfnWndProc)
+					//if(GetDefaultProc() != ::DefWindowProc && ::GetWindowLongPtr(hWnd, GWLP_WNDPROC) == pfnWndProc)
 						::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)GetDefaultProc());
 				}
 				// mark window as destryed
@@ -579,6 +584,7 @@ public:
 				_handle_maps.erase(hWnd);
 
 				_hook_maps.erase(hWnd);
+				
 			}            
         }
 		

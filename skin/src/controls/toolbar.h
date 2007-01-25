@@ -94,7 +94,10 @@ namespace Skin {
 				return bRet;
 			}
 			WTL::CPaintDC dc(m_hWnd);
+			//EraseNonClient();
+
 			TOOLBAR_Refresh(dc);
+
 			return 0;
 		}
 
