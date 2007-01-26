@@ -49,7 +49,7 @@ BEGIN_MESSAGE_MAP(CSkinApp, CWinApp)
 END_MESSAGE_MAP()
 
 
-
+/*
 class SkinModule : public ATL::CAtlDllModuleT< SkinModule >
 {
 public :
@@ -58,6 +58,11 @@ public :
 };
 
 __declspec(selectany) SkinModule _AtlModule;
+*/
+ATL::CComModule _Module;
+
+
+
 
 // CSkinApp construction
 
@@ -77,7 +82,11 @@ CSkinApp theApp;
 BOOL CSkinApp::InitInstance()
 {
 	CWinApp::InitInstance();
-	BOOL ret = _AtlModule.DllMain(DLL_PROCESS_ATTACH, 0);
+
+//	BOOL ret = _AtlModule.DllMain(DLL_PROCESS_ATTACH, 0);
+
+	_Module.Init(0, m_hInstance);
+
 	CoInitialize(NULL);
 	init_library(m_hInstance);
 	return TRUE;
@@ -86,7 +95,10 @@ BOOL CSkinApp::InitInstance()
 int CSkinApp::ExitInstance()
 {
 	CWinApp::ExitInstance();
-	BOOL ret = _AtlModule.DllMain(DLL_PROCESS_DETACH, 0);
+
+	//BOOL ret = _AtlModule.DllMain(DLL_PROCESS_DETACH, 0);
+
+	_Module.Term();
 
 	uninit_library(m_hInstance);
 	CoInitialize(NULL);

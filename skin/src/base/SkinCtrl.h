@@ -51,10 +51,23 @@ public:
 		// ASSERT( proc == (WNDPROC)GetControlProc() );
 		return proc!=0;
 	}
+
 	WNDPROC GetDefaultProc()
 	{
 		return _defaultproc;
 	}
+
+	LONG_PTR GetCurrProc( HWND hWnd )
+	{
+		LONG_PTR pfnWndProc = ::GetWindowLongPtr(hWnd, GWLP_WNDPROC);
+		return pfnWndProc;
+	}
+
+	void SetProc( HWND hWnd, LONG_PTR pnProc)
+	{
+		::SetWindowLongPtr(hWnd, GWLP_WNDPROC, pnProc);
+	}
+
 private:
 	WNDPROC _defaultproc;
 };
@@ -100,6 +113,17 @@ public:
     {
         return _defaultproc;
     }
+
+	LONG_PTR GetCurrProc( HWND hWnd )
+	{
+		LONG_PTR pfnWndProc = ::GetClassLongPtr(hWnd, GCLP_WNDPROC);
+		return pfnWndProc;
+	}
+
+	void SetProc( HWND hWnd, LONG_PTR pnProc)
+	{
+		::SetClassLongPtr(hWnd, GCLP_WNDPROC, pnProc);
+	}
 private:
     WNDPROC _defaultproc;
 };
@@ -143,6 +167,17 @@ public:
     {
         return _defaultproc;
     }
+
+	LONG_PTR GetCurrProc( HWND hWnd )
+	{
+		LONG_PTR pfnWndProc = ::GetClassLongPtr(hWnd, GCLP_WNDPROC);
+		return pfnWndProc;
+	}
+
+	void SetProc( HWND hWnd, LONG_PTR pnProc)
+	{
+		::SetClassLongPtr(hWnd, GCLP_WNDPROC, pnProc);
+	}
 private:
     WNDPROC _defaultproc;
 };
@@ -338,6 +373,13 @@ protected:
 public: // 需要被模版派生类访问
 	static WNDPROC GetDefaultProc() { return _installer.GetDefaultProc(); }
 
+	static LONG_PTR GetCurrProc( HWND hWnd ) { return _installer.GetCurrProc(hWnd); }
+
+	static void SetProc( HWND hWnd, LONG_PTR pnProc) 
+	{
+		_installer.SetProc( hWnd, pnProc ); 
+	}
+
 	// 和 ATL::CWindowImplBaseT::GetWindowProc 类似
 	// 如果命名为 GetWindowProc 可能有warning(some BaseT)
 	static WNDPROC GetControlProc() { return (WNDPROC)ControlProc; }
@@ -503,11 +545,8 @@ public:
             // 不用这个方法了，下面的更正确
             const _ATL_MSG* pOldMsg = safeptr->m_pCurrentMsg;
             safeptr->m_pCurrentMsg = &msg;
-			if ( uMsg == WM_NCPAINT )
-			{
-				TRACE("WM_NCPAINT  %p %d\n", hWnd, uMsg);
-			}
-			if ( ( safeptr->_enable || uMsg == WMS_ENABLE ) && uMsg != WM_NCDESTROY )
+
+			if ( ( safeptr->_enable || uMsg == WMS_ENABLE ) )
 			{
                 bRet = safeptr->derived_type::ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lRes, 0);
                 _ASSERTE(_CrtCheckMemory( ));
@@ -545,7 +584,7 @@ public:
 #endif
 			}
 			
-			if ( uMsg != WM_NCDESTROY)
+			//if ( uMsg != WM_NCDESTROY)
 				safeptr->m_pCurrentMsg = pOldMsg;
 		}
 
@@ -555,19 +594,20 @@ public:
 			if(uMsg != WM_NCDESTROY)
 			{
 				WNDPROC dw = GetDefaultProc();
-				//if (!dw)
-				//	dw = ::DefWindowProc;
+				if (!dw)
+					dw = ::DefWindowProc;
 
 				lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
 			}
 			else
 			{
 				// unsubclass, if needed
-				LONG_PTR pfnWndProc = ::GetWindowLongPtr(hWnd, GWLP_WNDPROC);
+				//LONG_PTR pfnWndProc = ::GetWindowLongPtr(hWnd, GWLP_WNDPROC);
+				LONG_PTR pfnWndProc = GetCurrProc( hWnd );
 				
 				WNDPROC dw = GetDefaultProc();
-				//if (!dw)
-				//	dw = ::DefWindowProc;
+				if (!dw)
+					dw = ::DefWindowProc;
 
 				lRes = ::CallWindowProc(dw, hWnd, uMsg, wParam, lParam);
 
@@ -575,8 +615,11 @@ public:
 				if (it != _hook_maps.end()) // 第一次创建之
 				{
 					//发现了
-					//if(GetDefaultProc() != ::DefWindowProc && ::GetWindowLongPtr(hWnd, GWLP_WNDPROC) == pfnWndProc)
-						::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)GetDefaultProc());
+					if(GetDefaultProc() != ::DefWindowProc && GetCurrProc( hWnd ) == pfnWndProc)
+					{
+						SetProc( hWnd, (LONG_PTR)GetDefaultProc());
+					}
+					//::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)GetDefaultProc());
 				}
 				// mark window as destryed
 				safeptr->m_hWnd = 0;

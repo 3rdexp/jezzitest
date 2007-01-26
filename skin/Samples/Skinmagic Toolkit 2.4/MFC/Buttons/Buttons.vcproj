@@ -13,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
+			OutputDirectory="..\..\..\..\release\"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="1"
 			UseOfMFC="1"
@@ -23,7 +23,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\..\include"
+				AdditionalIncludeDirectories="../../../../src;../../../../examples/common;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -41,8 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\Lib\SkinMagicTrial.lib"
-				OutputFile="..\..\..\Bin\Buttons.exe"
+				OutputFile="..\..\..\..\release\Buttons.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile=".\Release/Buttons.pdb"

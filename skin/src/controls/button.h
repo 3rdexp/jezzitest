@@ -58,7 +58,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 	LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		return 0 ;
+		return 1 ;
 	}
 	
 	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -285,8 +285,13 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         ICONINFO iconInfo;
         if (::GetIconInfo(hIcon, &iconInfo))
         {
-            resSize.cx = iconInfo.xHotspot;
-            resSize.cy = iconInfo.yHotspot;
+			BITMAP bm;
+			GetObject(iconInfo.hbmColor, sizeof(bm), &bm);
+            resSize.cx = bm.bmWidth;//iconInfo.xHotspot;
+            resSize.cy = bm.bmHeight;//iconInfo.yHotspot;
+			
+			::DeleteObject( iconInfo.hbmColor );
+			::DeleteObject( iconInfo.hbmMask );
         }
         return resSize;
     }
@@ -801,10 +806,10 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         {
             if (_scheme)
                 _scheme->DrawBackground(memdc, _classid, m_nPart, nState, &rc, NULL );
-
+			
             // icon / bitmap ( TODO: button should have bitmap itself
             // text
-
+			
 			// 判断是否有系统的icon
 			HICON hIcon = (HICON)::SendMessage(m_hWnd, BM_GETIMAGE, IMAGE_ICON, 0L);
 			if ( hIcon )
@@ -812,7 +817,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				SIZE szIcon = SizeIcon(hIcon);
 				int nIconX = (rc.right - rc.left - szIcon.cx) / 2;
 				int nIconY = (rc.bottom - rc.top - szIcon.cy) / 2;
-				BOOL bRet = DrawIconEx(memdc, nIconX, nIconY, hIcon, szIcon.cx, szIcon.cy, 0, NULL, DI_NORMAL);
+				BOOL bRet = DrawIconEx(memdc, nIconX, nIconY, hIcon, szIcon.cx, szIcon.cy, 0, NULL, DI_NORMAL);	
 				return S_OK;
 			}
 
@@ -833,6 +838,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				::ReleaseDC(m_hWnd, cdc);
 				return S_OK;
 			}
+			
             // if exist icon
 			/*
             if (m_hIcon)

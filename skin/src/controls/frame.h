@@ -545,7 +545,7 @@ protected:
 			kkk = 0;
 		}
         MSG_WM_NCACTIVATE(OnNcActivate)
-		MSG_WM_ACTIVATE(OnActivate)
+		//MSG_WM_ACTIVATE(OnActivate)
 		MSG_WM_ACTIVATEAPP(OnActivateApp)
         MSG_WM_NCPAINT(OnNcPaint)
 		//MSG_WM_PAINT(OnPaint)
@@ -601,8 +601,10 @@ protected:
 */
 	LRESULT OnSetText( LPCTSTR lParam )
 	{
+		ControlT * pT1 = static_cast<ControlT*>(this);
+		LRESULT ret = pT1->DefWindowProc();			
 		OnNcPaint( (HRGN)0 );	
-		return 0;
+		return ret;
 	}
 	void OnActivateApp( BOOL wParam, DWORD lParam )
 	{
@@ -1067,14 +1069,15 @@ protected:
     {
         // 注意Region是 Windows's Rect，而不是 Client's Rect
         SetMsgHandled(FALSE);
-        
+        /*
         if(SIZE_MAXIMIZED == nType && _rgn)
         {
             // SetWindowRgn(0);
             // 填充边角
             SetWindowRgn(NULL);
         }
-        else if(_rgn)
+        else*/ 
+		if(_rgn)
         {
             WTL::CRect rcw;
             GetWindowRect(&rcw);
