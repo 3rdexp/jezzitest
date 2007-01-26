@@ -17,7 +17,7 @@
 			IntermediateDirectory="..\Debug\Skin"
 			ConfigurationType="2"
 			UseOfMFC="2"
-			UseOfATL="2"
+			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
@@ -84,11 +84,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
+			OutputDirectory="..\Release"
 			IntermediateDirectory="..\Release\skin"
 			ConfigurationType="2"
 			UseOfMFC="2"
-			UseOfATL="1"
+			UseOfATL="2"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
@@ -109,10 +109,12 @@
 				IgnoreDefaultLibraryNames="LIBCMT"
 				ModuleDefinitionFile="dll\Skin.def"
 				GenerateDebugInformation="TRUE"
+				AssemblyDebug="1"
+				GenerateMapFile="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/Skin.lib"
+				ImportLibrary="..\lib/Skin.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -359,24 +361,6 @@
 			Filter="">
 			<File
 				RelativePath=".\base\CacheDC.h">
-			</File>
-			<File
-				RelativePath=".\base\CDibData.cpp">
-			</File>
-			<File
-				RelativePath=".\base\CDibData.h">
-			</File>
-			<File
-				RelativePath=".\base\MyTrace.cpp">
-			</File>
-			<File
-				RelativePath=".\base\MyTrace.h">
-			</File>
-			<File
-				RelativePath=".\base\Quantize.cpp">
-			</File>
-			<File
-				RelativePath=".\base\Quantize.h">
 			</File>
 		</Filter>
 	</Files>

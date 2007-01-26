@@ -61,6 +61,9 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
+
+extern ATL::CComModule _Module;
+
 #define _WTL_NO_AUTOMATIC_NAMESPACE
 #include <atlapp.h>
 // #include <atlctrls.h>

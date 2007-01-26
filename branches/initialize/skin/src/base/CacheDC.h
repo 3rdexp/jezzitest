@@ -36,11 +36,12 @@ public:
 		_bmpSelected = (HBITMAP)SelectObject(_hdc, bmp);
 		ASSERT( _bmpSelected );
         _bmp = bmp;
-
+/*
 		_orghdc = CreateCompatibleDC( _hdc );
 		_orgBmp.CreateCompatibleBitmap(_hdc, _bm.bmWidth, _bm.bmHeight );
 		_hBmpOld = SelectObject(_orghdc, _orgBmp);
 		BitBlt( _orghdc, 0, 0, _bm.bmWidth, _bm.bmHeight, _hdc, 0, 0, SRCCOPY);
+*/
 	}
 	operator HDC()
 	{
@@ -70,6 +71,7 @@ public:
 		//int nPrecentBlue = GetBValue(clr) - 100;
 
 		//SetBitmap ( _bmp, _trans_color );
+		return;
 		WTL::CRect rc;
 		rc.left = 0;
 		rc.right = _bm.bmWidth;

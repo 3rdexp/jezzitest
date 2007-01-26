@@ -69,13 +69,14 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
+			OutputDirectory="..\..\..\..\release\"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="TRUE"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../../../../src;../../../../examples/common;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"

@@ -5,6 +5,7 @@
 #include "Buttons.h"
 #include "ButtonsDlg.h"
 #include <winuser.h>
+#include "skinmsg.h"
 //#define COMPILE_MULTIMON_STUBS
 //#include "multimon.h"
 
@@ -191,10 +192,12 @@ void CButtonsDlg::OnButton4()
 	static bFlag = TRUE;
 	if( bFlag )
 	{
+		::SendMessage( GetDlgItem(	IDC_BUTTON4 )->m_hWnd, WMS_SETSTYLE, 51, 0 );
 		//SetControlSkin( GetDlgItem(	IDC_BUTTON4 )->m_hWnd , "Button1" , "Dialog" );
 	}
 	else
 	{
+		::SendMessage( GetDlgItem(	IDC_BUTTON4 )->m_hWnd, WMS_SETSTYLE, 1, 0 );
 		//SetControlSkin( GetDlgItem(	IDC_BUTTON4 )->m_hWnd , "ButtonTemplate" , NULL );
 	}
 	bFlag = !bFlag ;
