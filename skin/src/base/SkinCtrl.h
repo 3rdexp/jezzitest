@@ -258,6 +258,11 @@ public:
         return rgn;
     }
 
+	COLORREF TranslateColor()
+	{
+		return _scheme->TranslateColor();
+	}
+
     BOOL Draw(HDC hdc, int iPartId, int iState, long dx, long dy, long dcx = 0, 
         long dcy = 0, DWORD dwRop = SRCCOPY)
     {

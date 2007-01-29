@@ -38,7 +38,7 @@ namespace Skin {
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
-			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+			//MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 		END_MSG_MAP()
 
@@ -101,15 +101,23 @@ namespace Skin {
 			WTL::CRect rc ;
 			GetClientRect( rc );
 
-			WTL::CClientDC	dc( m_hWnd );
+			WTL::CPaintDC dc(m_hWnd);
+			//WTL::CClientDC	dc( m_hWnd );
 
 			int nState = GetState();
 
-			LRESULT lRet = DefWindowProc();
+			WTL::CMemoryDC memdc(dc, rc);
+
+			//LRESULT lRet = DefWindowProc( WM_PAINT, );
 			//if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
 			//	_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
+			
+			DefWindowProc(WM_ERASEBKGND, (WPARAM)(HDC)memdc.m_hDC, 0); // TODO: ??
+			DefWindowProc(WM_PRINTCLIENT, (WPARAM)(HDC)memdc.m_hDC, PRF_ERASEBKGND | PRF_CLIENT);
 
-			DoPaint(dc, nState, rc);
+			//DefWindowProc(WM_PAINT, (WPARAM)(HDC)memdc.m_hDC, 0);
+
+			DoPaint(memdc.m_hDC, nState, rc);
 
 			return 0;
 		}
@@ -122,7 +130,17 @@ namespace Skin {
 			if( IsWindowEnabled() )
 			{
 				lRet = DefWindowProc();
-				Invalidate();
+
+
+				WTL::CRect rcLeft = GetLeftButtonRect();
+				WTL::CRect rcRight = GetRightButtonRect();
+
+				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+
+				if ( rcLeft.PtInRect(pt) )
+					InvalidateRect( rcLeft );
+				else if ( rcRight.PtInRect(pt) )
+					InvalidateRect( rcRight );
 				/*
 				WTL::CClientDC	dc( m_hWnd );
 
@@ -147,7 +165,26 @@ namespace Skin {
 			if( IsWindowEnabled() )
 			{
 				lRet = DefWindowProc();
-				Invalidate();
+				WTL::CRect rcLeft = GetLeftButtonRect();
+				WTL::CRect rcRight = GetRightButtonRect();
+
+				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+				
+				WTL::CClientDC	dc( m_hWnd );
+				if ( rcLeft.PtInRect(pt) )
+				{
+					WTL::CRect rc ;
+					GetClientRect( rc );
+					int nState = GetState();
+					DoPaint(dc.m_hDC, nState, rc);
+				}
+				else if ( rcRight.PtInRect(pt) )
+				{
+					WTL::CRect rc ;
+					GetClientRect( rc );
+					int nState = GetState();
+					DoPaint(dc.m_hDC, nState, rc);
+				}
 				/*
 
 				WTL::CClientDC	dc( m_hWnd );
@@ -315,22 +352,22 @@ namespace Skin {
 		{
 			const int EDGE = 1;
 
-			WTL::CDC dc;
-			dc.Attach(hdc);
+			//WTL::CDC dc;
+			//dc.Attach(hdc);
 
 			WTL::CRect rcButton;
 			//left
 			rcButton = GetLeftButtonRect();
 
 			if (_scheme)
-					_scheme->DrawBackground(dc, _classid, m_nPart, ABS_LEFTNORMAL, &rcButton, NULL );
+					_scheme->DrawBackground(hdc, _classid, m_nPart, ABS_LEFTNORMAL, &rcButton, NULL );
 
 			rcButton = GetRightButtonRect();
 
 			if (_scheme)
-				_scheme->DrawBackground(dc, _classid, m_nPart, ABS_RIGHTNORMAL, &rcButton, NULL );
+				_scheme->DrawBackground(hdc, _classid, m_nPart, ABS_RIGHTNORMAL, &rcButton, NULL );
 
-			dc.Detach();
+			//dc.Detach();
 
 		}
 
