@@ -656,6 +656,12 @@ public:
 		return f;
 	}
 
+	
+	STDMETHOD_(COLORREF, TranslateColor)()
+	{
+		return _spCache->TranslateColor();
+	}
+
 	STDMETHOD_(BOOL, ChangeSchemeColor)( COLORREF clr )
 	{
 		//

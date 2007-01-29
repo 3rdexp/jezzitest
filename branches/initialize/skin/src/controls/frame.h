@@ -224,6 +224,349 @@ protected:
         return CalcSysButtonRect(1);
     }
 #endif
+	//¼ÆËãrgn
+	//////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+	
+	HDC CreateMemDC(HDC hdc, const RECT *rc, HBITMAP *bmp, HBITMAP *oldbmp)
+	{
+		HDC memdc;
+		RECT tmp = *rc;
+
+		LPtoDP(hdc, (LPPOINT)&tmp, 2);
+
+		memdc = CreateCompatibleDC(hdc);
+		*bmp = CreateCompatibleBitmap(hdc, tmp.right - tmp.left, tmp.bottom - tmp.top);
+		*oldbmp = (HBITMAP)SelectObject(memdc, *bmp);
+		SetMapMode(memdc, GetMapMode(hdc));
+		SetWindowOrgEx(memdc, rc->left, rc->top, NULL);
+		return memdc;
+	}
+
+	void DeleteMemDC(HDC memdc, HBITMAP bmp, HBITMAP oldbmp)
+	{
+		SelectObject(memdc, oldbmp);
+		DeleteObject((HGDIOBJ)bmp);
+		DeleteDC(memdc);
+	}
+
+	static HRGN CreateRgnFromBitmap(HBITMAP hBmp, COLORREF color)
+	{
+		_ASSERTE(_CrtCheckMemory());
+		// get image properties
+		BITMAP bmp = { 0 };
+		GetObject( hBmp, sizeof(BITMAP), &bmp );
+		// allocate memory for extended image information
+		LPBITMAPINFO bi = (LPBITMAPINFO) new BYTE[ sizeof(BITMAPINFO) + 2 * sizeof(RGBQUAD)];
+		memset( bi, 0, sizeof(BITMAPINFO) + 8 );
+		bi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		// set window size
+		// create temporary dc
+		HDC dc = CreateIC( _T("DISPLAY"),NULL,NULL,NULL );
+		// get extended information about image (length, compression, length of color table if exist, ...)
+		DWORD res = GetDIBits( dc, hBmp, 0, bmp.bmHeight, 0, bi, DIB_RGB_COLORS );
+		// allocate memory for image data (colors)
+		LPBYTE pBits = new BYTE[ bi->bmiHeader.biSizeImage + 4 ];
+		// allocate memory for color table
+		if ( bi->bmiHeader.biBitCount == 8 )
+		{
+			// actually color table should be appended to this header(BITMAPINFO),
+			// so we have to reallocate and copy it
+			LPBITMAPINFO old_bi = bi;
+			// 255 - because there is one in BITMAPINFOHEADER
+			bi = (LPBITMAPINFO)new char[ sizeof(BITMAPINFO) + 255 * sizeof(RGBQUAD) ];
+			memcpy( bi, old_bi, sizeof(BITMAPINFO) );
+			// release old header
+			// delete old_bi;
+			_ASSERTE(_CrtCheckMemory());
+			delete [] (char *)old_bi;
+			_ASSERTE(_CrtCheckMemory());
+		}
+		// get bitmap info header
+		BITMAPINFOHEADER& bih = bi->bmiHeader;
+		// get color table (for 256 color mode contains 256 entries of RGBQUAD(=DWORD))
+		LPDWORD clr_tbl = (LPDWORD)&bi->bmiColors;
+		// fill bits buffer
+		res = GetDIBits( dc, hBmp, 0, bih.biHeight, pBits, bi, DIB_RGB_COLORS );
+		DeleteDC( dc );
+		_ASSERTE(_CrtCheckMemory());
+
+		BITMAP bm;
+		GetObject( hBmp, sizeof(BITMAP), &bm );
+		// shift bits and byte per pixel (for comparing colors)
+		LPBYTE pClr = (LPBYTE)&color;
+		// swap red and blue components
+		BYTE tmp = pClr[0]; pClr[0] = pClr[2]; pClr[2] = tmp;
+		// convert color if curent DC is 16-bit (5:6:5) or 15-bit (5:5:5)
+		if ( bih.biBitCount == 16 )
+		{
+			// for 16 bit
+			//color = ((DWORD)(pClr[0] & 0xf8) >> 3) |
+			//	((DWORD)(pClr[1] & 0xfc) << 3) |
+			//	((DWORD)(pClr[2] & 0xf8) << 8);
+			// for 15 bit
+			//		color = ((DWORD)(pClr[0] & 0xf8) >> 3) |
+			//				((DWORD)(pClr[1] & 0xf8) << 2) |
+			//				((DWORD)(pClr[2] & 0xf8) << 7);
+			pClr[0] = pClr[0] & 0x1F;
+			pClr[1] = pClr[1] & 0x3F;
+			pClr[2] = pClr[2] & 0x1F;			
+			color = (DWORD)((pClr[0]<<(5+6))|(pClr[1]<<5)|pClr[2]);
+		}
+
+		const DWORD RGNDATAHEADER_SIZE	= sizeof(RGNDATAHEADER);
+		const DWORD ADD_RECTS_COUNT		= 40;			// number of rects to be appended
+		// to region data buffer
+
+		// BitPerPixel
+		BYTE	Bpp = bih.biBitCount >> 3;				// bytes per pixel
+		// bytes per line in pBits is DWORD aligned and bmp.bmWidthBytes is WORD aligned
+		// so, both of them not
+		DWORD m_dwAlignedWidthBytes = (bmp.bmWidthBytes & ~0x3) + (!!(bmp.bmWidthBytes & 0x3) << 2);
+		// DIB image is flipped that's why we scan it from the last line
+		LPBYTE	pColor = pBits + (bih.biHeight - 1) * m_dwAlignedWidthBytes;
+		DWORD	dwLineBackLen = m_dwAlignedWidthBytes + bih.biWidth * Bpp;	// offset of previous scan line
+		// (after processing of current)
+		DWORD	dwRectsCount = bih.biHeight;			// number of rects in allocated buffer
+		INT		i, j;									// current position in mask image
+		INT		first = 0;								// left position of current scan line
+		// where mask was found
+		bool	wasfirst = false;						// set when mask has been found in current scan line
+		bool	ismask;									// set when current color is mask color
+
+		// allocate memory for region data
+		// region data here is set of regions that are rectangles with height 1 pixel (scan line)
+		// that's why first allocation is <bm.biHeight> RECTs - number of scan lines in image
+		RGNDATAHEADER* pRgnData = 
+			(RGNDATAHEADER*)new BYTE[ RGNDATAHEADER_SIZE + dwRectsCount * sizeof(RECT) ];
+		// get pointer to RECT table
+		LPRECT pRects = (LPRECT)((LPBYTE)pRgnData + RGNDATAHEADER_SIZE);
+		// zero region data header memory (header  part only)
+		memset( pRgnData, 0, RGNDATAHEADER_SIZE + dwRectsCount * sizeof(RECT) );
+		// fill it by default
+		pRgnData->dwSize	= RGNDATAHEADER_SIZE;
+		pRgnData->iType		= RDH_RECTANGLES;
+
+		_ASSERTE(_CrtCheckMemory());
+
+		for ( i = 0; i < bih.biHeight; i++ )
+		{
+			for ( j = 0; j < bih.biWidth; j++ )
+			{
+				// get color
+				switch ( bih.biBitCount )
+				{
+				case 8:
+					ismask = (clr_tbl[ *pColor ] != color);
+					break;
+				case 16:
+					ismask = (*(LPWORD)pColor != (WORD)color);
+					break;
+				case 24:
+					ismask = ((*(LPDWORD)pColor & 0x00ffffff) != color);
+					break;
+				case 32:
+					//ismask = (*(LPDWORD)pColor != color); //fix win98
+					ismask = ((*(LPDWORD)pColor & 0x00ffffff) != color);
+				}
+				// shift pointer to next color
+				pColor += Bpp;
+				// place part of scan line as RECT region if transparent color found after mask color or
+				// mask color found at the end of mask image
+				if ( wasfirst )
+				{
+					if ( !ismask )
+					{
+						// save current RECT
+						SetRect(&pRects[ pRgnData->nCount++ ] , first, i, j, i + 1 );
+						// if buffer full reallocate it with more room
+						if ( pRgnData->nCount >= dwRectsCount )
+						{
+							dwRectsCount += ADD_RECTS_COUNT;
+							// allocate new buffer
+							LPBYTE pRgnDataNew = new BYTE[ RGNDATAHEADER_SIZE + dwRectsCount * sizeof(RECT) ];
+							// copy current region data to it
+							memcpy( pRgnDataNew, pRgnData, RGNDATAHEADER_SIZE + pRgnData->nCount * sizeof(RECT) );
+							// delte old region data buffer
+							_ASSERTE(_CrtCheckMemory());
+							delete [] pRgnData;
+							_ASSERTE(_CrtCheckMemory());
+							// set pointer to new regiondata buffer to current
+							pRgnData = (RGNDATAHEADER*)pRgnDataNew;
+							// correct pointer to RECT table
+							pRects = (LPRECT)((LPBYTE)pRgnData + RGNDATAHEADER_SIZE);
+						}
+						wasfirst = false;
+					}
+				}
+				else if ( ismask )		// set wasfirst when mask is found
+				{
+					first = j;
+					wasfirst = true;
+				}
+			}
+
+			_ASSERTE(_CrtCheckMemory());
+
+			if ( wasfirst && ismask )
+			{
+				// save current RECT
+				SetRect(&pRects[ pRgnData->nCount++ ], first, i, j, i + 1 );
+				// if buffer full reallocate it with more room
+				if ( pRgnData->nCount >= dwRectsCount )
+				{
+					dwRectsCount += ADD_RECTS_COUNT;
+					// allocate new buffer
+					LPBYTE pRgnDataNew = new BYTE[ RGNDATAHEADER_SIZE + dwRectsCount * sizeof(RECT) ];
+					// copy current region data to it
+					memcpy( pRgnDataNew, pRgnData, RGNDATAHEADER_SIZE + pRgnData->nCount * sizeof(RECT) );
+					// delte old region data buffer
+					_ASSERTE(_CrtCheckMemory());
+					delete [] pRgnData;
+					_ASSERTE(_CrtCheckMemory());
+					// set pointer to new regiondata buffer to current
+					pRgnData = (RGNDATAHEADER*)pRgnDataNew;
+					// correct pointer to RECT table
+					pRects = (LPRECT)((LPBYTE)pRgnData + RGNDATAHEADER_SIZE);
+				}
+				wasfirst = false;
+			}
+
+			pColor -= dwLineBackLen;
+		}
+
+		_ASSERTE(_CrtCheckMemory());
+
+		// release image data
+		delete [] pBits;
+		_ASSERTE(_CrtCheckMemory());
+		delete [] bi;
+
+		_ASSERTE(_CrtCheckMemory());
+
+		// create region
+		HRGN hRgn = ExtCreateRegion( NULL, RGNDATAHEADER_SIZE + pRgnData->nCount * sizeof(RECT), (LPRGNDATA)pRgnData );
+		// release region data
+		_ASSERTE(_CrtCheckMemory());
+		delete [] pRgnData;
+
+		_ASSERTE(_CrtCheckMemory());
+
+		return hRgn;
+	}
+
+	HRGN GetFrameRgn()
+	{
+		WTL::CWindowDC dc( 0 );
+		WTL::CRect rect;
+		GetWindowRect(&rect);
+		OffsetRect(&rect, -rect.left, -rect.top);
+
+		ControlT * pT = static_cast<ControlT*>(this);
+
+		CAPTIONSTATES caption_state = ((_frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
+		int caption_height = pT->GetSchemeHeight(WP_CAPTION, caption_state);
+		int bottom_height = pT->GetSchemeHeight(WP_FRAMEBOTTOM, _frame_state);
+		int border_left_width = pT->GetSchemeWidth(WP_FRAMELEFT, _frame_state);
+		int border_right_width = pT->GetSchemeWidth(WP_FRAMERIGHT, _frame_state);
+
+		HDC memdc;
+		HBITMAP hMemBmp;
+		HBITMAP hMemOldBmp;
+
+		WTL::CRect rcRectRgn = rect;
+		rect.bottom = caption_height;
+
+		// top
+		memdc = CreateMemDC(dc, &rect, &hMemBmp, &hMemOldBmp);
+
+		WTL::CDCHandle dcHandle;
+		dcHandle.Attach( memdc );
+		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+
+		pT->Draw(memdc, WP_CAPTION, caption_state, rect.left, rect.top, rect.Width(), 0);
+
+		HRGN hRgnTop = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+
+		dcHandle.Detach();
+
+		DeleteMemDC(memdc, hMemBmp, hMemOldBmp);
+		
+		// left
+		rect = rcRectRgn;
+		rect.right = rect.left + border_left_width;
+		rect.bottom = rect.bottom - bottom_height - caption_height;
+
+		memdc = CreateMemDC(dc, &rect, &hMemBmp, &hMemOldBmp);
+
+		
+		dcHandle.Attach( memdc );
+		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+
+		pT->Draw(memdc, WP_FRAMELEFT, _frame_state, rect.left, rect.top, 0, rect.Height());
+
+		WTL::CRgn hRgnLeft = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+
+		dcHandle.Detach();
+
+		DeleteMemDC(memdc, hMemBmp, hMemOldBmp);
+
+		OffsetRgn(hRgnLeft, 0, caption_height);
+
+		// right
+		rect = rcRectRgn;
+		rect.right = rect.left + border_right_width;
+		rect.bottom = rect.bottom - bottom_height - caption_height;
+
+		memdc = CreateMemDC(dc, &rect, &hMemBmp, &hMemOldBmp);
+
+		dcHandle.Attach( memdc );
+		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+
+		pT->Draw(memdc, WP_FRAMERIGHT, _frame_state, rect.left, rect.top, 0, rect.Height());
+
+		WTL::CRgn hRgnRight = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+
+		dcHandle.Detach();
+
+		DeleteMemDC(memdc, hMemBmp, hMemOldBmp);
+		
+		OffsetRgn(hRgnRight, rcRectRgn.right - border_right_width, caption_height);
+
+		// bottom
+		rect = rcRectRgn;
+		rect.bottom = rect.top + bottom_height;
+
+		memdc = CreateMemDC(dc, &rect, &hMemBmp, &hMemOldBmp);
+
+		dcHandle.Attach( memdc );
+		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+
+		pT->Draw(memdc, WP_FRAMEBOTTOM, _frame_state, rect.left, rect.top, rect.Width(), 0);
+
+		WTL::CRgn hRgnBottom = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+
+		dcHandle.Detach();
+
+		DeleteMemDC(memdc, hMemBmp, hMemOldBmp);
+
+		OffsetRgn(hRgnBottom, 0, rcRectRgn.bottom - bottom_height);
+		
+		rcRectRgn.left = border_left_width;
+		rcRectRgn.right = rcRectRgn.right - border_right_width;
+		rcRectRgn.top = caption_height;
+		rcRectRgn.bottom = rcRectRgn.bottom - bottom_height;
+
+		WTL::CRgn rcRgn;
+		rcRgn.CreateRectRgnIndirect(&rcRectRgn);
+
+		::CombineRgn(hRgnTop, hRgnTop, rcRgn, RGN_OR);
+		::CombineRgn(hRgnTop, hRgnTop, hRgnLeft, RGN_OR);
+		::CombineRgn(hRgnTop, hRgnTop, hRgnRight, RGN_OR);
+		::CombineRgn(hRgnTop, hRgnTop, hRgnBottom, RGN_OR);
+
+		return hRgnTop;
+	}
 
     // DrawFrame = Draw nonClient area
     // 1 draw border = DrawFrameBorder
@@ -249,6 +592,10 @@ protected:
         ASSERT(pOldBmp);
 
         
+
+		WTL::CDCHandle dcHandle;
+		dcHandle.Attach( dcMem );
+		dcHandle.FillSolidRect(rcw, RGB(255, 0, 255));
 
         SystemButtonState sysbtn_state;
         sysbtn_state.initFromWindow(dwStyle, _frame_state == FS_ACTIVE);
@@ -1077,11 +1424,21 @@ protected:
             SetWindowRgn(NULL);
         }
         else*/ 
+		HRGN hrgn = GetFrameRgn();
+
+		// delete previous region object
+		//HRGN hrgnPrev = ::CreateRectRgn(0, 0, 0, 0);
+		//::GetWindowRgn(m_hWnd, hrgnPrev);
+		//int nRet = ::DeleteObject(hrgnPrev);
+		//ASSERT(nRet);
+
+		::SetWindowRgn(m_hWnd, hrgn, TRUE);
+		/*
 		if(_rgn)
         {
             WTL::CRect rcw;
             GetWindowRect(&rcw);
-
+	
             ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
             HRGN rgn_new = RegulateRegion(_rgn, &rcw.Size());
             ASSERT(OBJ_REGION == ::GetObjectType(rgn_new));
@@ -1094,7 +1451,7 @@ protected:
 
             SetWindowRgn(rgn_new, TRUE);
         }
-
+		*/
 		//OnFirstMessage();
 		//InitMenu( m_MenuBar.GetMenu() );
 		//OnFirstMessage();
@@ -1203,8 +1560,8 @@ protected:
 			CRect rcw;
 			GetWindowRect(&rcw);
 			rcw.OffsetRect(-rcw.left, -rcw.top);
-			_rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 10, 10);
-			ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
+			//_rgn = CreateRoundRectRgn(rcw.left, rcw.top, rcw.right, rcw.bottom, 10, 10);
+			//ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
 		}
 #endif  
 

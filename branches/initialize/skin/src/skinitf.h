@@ -412,6 +412,8 @@ DECLARE_INTERFACE_(ISkinScheme, IUnknown)
 
 	STDMETHOD_(BOOL, ChangeSchemeColor)( COLORREF clr ) PURE;
 	STDMETHOD_(BOOL, ClearSchemeColor)(  ) PURE;
+
+	STDMETHOD_(COLORREF, TranslateColor)(  ) PURE;
 };
 
 
