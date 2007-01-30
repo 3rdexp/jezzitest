@@ -14,6 +14,7 @@ public:
 		_bmpSelected = 0;
 
 		_orghdc = 0;
+		
 	}
 	~CCacheDC()
 	{
@@ -41,6 +42,48 @@ public:
 		_orgBmp.CreateCompatibleBitmap(_hdc, _bm.bmWidth, _bm.bmHeight );
 		_hBmpOld = SelectObject(_orghdc, _orgBmp);
 		BitBlt( _orghdc, 0, 0, _bm.bmWidth, _bm.bmHeight, _hdc, 0, 0, SRCCOPY);
+		
+		/*
+		BITMAPINFO  bmi = { 0 };
+		//////////////////////////////////////////
+		//构建DIB图片结构
+		bmi.bmiHeader.biSize            = sizeof(BITMAPINFOHEADER);
+		bmi.bmiHeader.biWidth           = _bm.bmWidth;
+		bmi.bmiHeader.biHeight          = _bm.bmHeight;
+		bmi.bmiHeader.biPlanes          = 1;
+		bmi.bmiHeader.biBitCount        = 24;
+		bmi.bmiHeader.biCompression     = BI_RGB;
+		bmi.bmiHeader.biSizeImage       = 0;
+		bmi.bmiHeader.biXPelsPerMeter   = 0;
+		bmi.bmiHeader.biYPelsPerMeter   = 0;
+		bmi.bmiHeader.biClrUsed         = 0;
+		bmi.bmiHeader.biClrImportant    = 0;
+
+		//计算
+		//	int nFileHeaderSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFO);
+		//	int nBits = 4 * ((bmi.bmiHeader.biBitCount * bmi.bmiHeader.biWidth + 31) / 32) * bmi.bmiHeader.biHeight;
+		//	int nFileSize = nFileHeaderSize + nBits;
+		//	int nStep = 4 * ((bmi.bmiHeader.biBitCount * bmi.bmiHeader.biWidth + 31) / 32);
+
+		m_hScrDIB = ::CreateDIBSection(0,
+			&bmi,
+			DIB_RGB_COLORS,
+			(VOID **)&m_pScrBit,
+			NULL,
+			0
+			);
+
+		HDC					hScreenDC = ::GetDC(NULL);
+
+		HDC MemDC = ::CreateCompatibleDC( hScreenDC );
+		HGDIOBJ hTemp = ::SelectObject(MemDC, m_hScrDIB);
+
+		BitBlt( MemDC, 0, 0, _bm.bmWidth, _bm.bmHeight, _hdc, 0, 0, SRCCOPY);
+
+		::SelectObject(MemDC, hTemp);
+		DeleteDC( MemDC );
+		::ReleaseDC(NULL,hScreenDC);
+		*/
 
 	}
 	operator HDC()
@@ -64,58 +107,117 @@ public:
 		BitBlt( _hdc, 0, 0, _bm.bmWidth, _bm.bmHeight, _orghdc, 0, 0, SRCCOPY);
 	}
 
+	void BitmapChangeColor( COLORREF cColor )
+	{
+		//if ( !m_pScrBit )
+		//	return ;
+
+		/*
+		HDC	hScreenDC = ::GetDC(NULL);
+		HDC MemDC	= ::CreateCompatibleDC( hScreenDC );
+		HGDIOBJ hTemp = ::SelectObject(MemDC, m_hScrDIB);
+
+		BitBlt( MemDC, 0, 0, _bm.bmWidth, _bm.bmHeight, _orghdc, 0, 0, SRCCOPY);
+
+		AlphaColor( m_pScrBit, _bm.bmWidth, _bm.bmHeight, cColor );
+
+		BitBlt( _hdc, 0, 0, _bm.bmWidth, _bm.bmHeight, MemDC, 0, 0, SRCCOPY);
+
+		::SelectObject(MemDC, hTemp);
+		DeleteDC( MemDC );
+		::ReleaseDC(NULL,hScreenDC);
+
+		*/
+		BITMAPINFO  bmi = { 0 };
+		//////////////////////////////////////////
+		//构建DIB图片结构
+		bmi.bmiHeader.biSize            = sizeof(BITMAPINFOHEADER);
+		bmi.bmiHeader.biWidth           = _bm.bmWidth;
+		bmi.bmiHeader.biHeight          = _bm.bmHeight;
+		bmi.bmiHeader.biPlanes          = 1;
+		bmi.bmiHeader.biBitCount        = 24;
+		bmi.bmiHeader.biCompression     = BI_RGB;
+		bmi.bmiHeader.biSizeImage       = 0;
+		bmi.bmiHeader.biXPelsPerMeter   = 0;
+		bmi.bmiHeader.biYPelsPerMeter   = 0;
+		bmi.bmiHeader.biClrUsed         = 0;
+		bmi.bmiHeader.biClrImportant    = 0;
+
+		//计算
+	//	int nFileHeaderSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFO);
+	//	int nBits = 4 * ((bmi.bmiHeader.biBitCount * bmi.bmiHeader.biWidth + 31) / 32) * bmi.bmiHeader.biHeight;
+	//	int nFileSize = nFileHeaderSize + nBits;
+	//	int nStep = 4 * ((bmi.bmiHeader.biBitCount * bmi.bmiHeader.biWidth + 31) / 32);
+
+
+
+		LPBYTE				pBits = NULL;
+		HDC					hScreenDC = ::GetDC(NULL);
+
+		HBITMAP hScrDIB = ::CreateDIBSection(0,
+			&bmi,
+			DIB_RGB_COLORS,
+			(VOID **)&pBits,
+			NULL,
+			0
+			);
+
+		HDC MemDC = ::CreateCompatibleDC( hScreenDC );
+		HGDIOBJ hTemp = ::SelectObject(MemDC, hScrDIB);
+
+		BitBlt( MemDC, 0, 0, _bm.bmWidth, _bm.bmHeight, _orghdc, 0, 0, SRCCOPY);
+
+		AlphaColor( pBits, _bm.bmWidth, _bm.bmHeight, cColor );
+
+		BitBlt( _hdc, 0, 0, _bm.bmWidth, _bm.bmHeight, MemDC, 0, 0, SRCCOPY);
+
+		::SelectObject(MemDC, hTemp);
+		DeleteDC( MemDC );
+		::ReleaseDC(NULL,hScreenDC);
+
+	}
+
+	void AlphaColor( LPBYTE lpScr,int nWidth,int nHeight,COLORREF clr)
+	{
+		//COLORREF	*pAlphaBmpColor = NULL;
+		COLORREF	clrTemp = 0;
+		RGBTRIPLE	*pScrColor = NULL;
+
+		//pAlphaBmpColor = (COLORREF*)(lpScr + sizeof(BITMAPINFOHEADER));//图片缓冲
+
+		RGBTRIPLE rtBK = {0};
+	
+		int nStep = 4 * ((24 * nWidth + 31) / 32);
+
+		for(int i = 0; i < nHeight; i++)//行
+		{
+			for(int j = 0; j < nWidth;j++)//像素
+			{
+				
+				pScrColor = (RGBTRIPLE*)(lpScr + (i  * nStep));
+				
+				rtBK = pScrColor[j];//屏幕像素,3字节对齐需要调整
+				if ( RGB(rtBK.rgbtRed, rtBK.rgbtGreen, rtBK.rgbtBlue) != TranslateColor() )
+				{
+					rtBK.rgbtBlue = 255 - (255 - rtBK.rgbtBlue) * (255 - GetRValue(clr))  /  255;
+					rtBK.rgbtGreen = 255 - (255 - rtBK.rgbtGreen) * (255 - GetGValue(clr))  /  255;
+					rtBK.rgbtRed = 255 - (255 - rtBK.rgbtRed) * (255 - GetBValue(clr))  /  255;
+
+					pScrColor[j] = rtBK;	
+				}				
+			}
+		}
+	}
+
 	void ChangeColor( COLORREF clr )
 	{
 		//int nPrecentRed = GetRValue(clr) - 100;
 		//int nPrecentGreen = GetGValue(clr) - 100;
 		//int nPrecentBlue = GetBValue(clr) - 100;
-
-		//SetBitmap ( _bmp, _trans_color );
-
-		WTL::CRect rc;
-		rc.left = 0;
-		rc.right = _bm.bmWidth;
-		rc.top = 0;
-		rc.bottom = _bm.bmHeight;
-
-		for ( int i = 0; i < _bm.bmWidth; i++ )
-		{
-			for ( int j = 0; j < _bm.bmHeight; j++ )
-			{
-				COLORREF clrGet = GetPixel( _orghdc, i, j );
-				if ( clrGet != TranslateColor() )
-				{
-					/*
-					int lR = GetRValue(clr) * ( 1 + nPrecentRed / 100 );
-					if ( lR < 0 )
-						lR = 0;
-					else if ( lR > 255 )
-						lR = 255;
-					
-					int lG = GetGValue(clr) * ( 1 + nPrecentGreen / 100 );
-					if ( lG < 0 )
-						lG = 0;
-					else if ( lG > 255 )
-						lG = 255;
-
-
-					int lB = GetBValue(clr) * ( 1 + nPrecentBlue / 100 );
-					if ( lB < 0 )
-						lB = 0;
-					else if ( lB > 255 )
-						lB = 255;
-					
-					*/
-					BYTE lR = 255 - (255 - GetRValue(clrGet)) * (255 - GetRValue(clr))  /  255;
-					BYTE lG = 255 - (255 - GetGValue(clrGet)) * (255 - GetGValue(clr))  /  255;
-					BYTE lB = 255 - (255 - GetBValue(clrGet)) * (255 - GetBValue(clr))  /  255;
-
-					SetPixel( _hdc, i, j, RGB( lR, lG, lB) );
-				}
-			}
-		}
-
-		//SetBitmap( GetBitmap(), TranslateColor() );
+		DWORD dwStart = GetTickCount();
+		TRACE("time start is %d \r\n", dwStart );
+		BitmapChangeColor( clr );
+		TRACE("time end is %d and run %d \r\n", GetTickCount(), GetTickCount() - dwStart );
 	}
 
 #if 0
@@ -134,6 +236,7 @@ protected:
 	HDC		_orghdc;
 	HGDIOBJ	_hBmpOld;
 
+
 	void Release()
 	{
 		if( _bmpSelected && _hdc )
@@ -146,6 +249,8 @@ protected:
 		{
 			DeleteObject( ::SelectObject(_orghdc, _hBmpOld) );
 		}
+
+		
 	}
 };
 
