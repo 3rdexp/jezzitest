@@ -43,6 +43,7 @@ public:
 // ISkinMgr
 	STDMETHOD(InitControls)(HINSTANCE hInst, DWORD dwType);
 	STDMETHOD(UninitControls)(HINSTANCE hInst, DWORD dwType);
+	STDMETHOD(InitMenuColor)(HINSTANCE hInst, DWORD dwType);
 
 	STDMETHOD(LoadTheme)(LPCSTR file);
 	STDMETHOD(GetScheme)(LPCSTR style, ISkinScheme ** ppScheme);

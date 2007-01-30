@@ -56,7 +56,8 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls/monthcal.h"
 #include "../libcoolsb/coolscroll.h"
 #include "../libcoolsb/coolsb_detours.h"
-#include "../base/SkinHook.h"
+//#include "../base/SkinHook.h"
+#include "../controls/skinmenu/SkinMenuMgr.h"
 #endif
 
 
@@ -162,7 +163,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 		if (f)
 			_installed_type |= SKINCTL_STATUS;
 	}
-
+/*
     if (!(_installed_type & SKINCTL_MENU) && (dwType & SKINCTL_MENU) )
     {
         typedef SkinMenu<> skinmenu;
@@ -170,7 +171,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
         if (f)
             _installed_type |= SKINCTL_MENU;
     }
-
+*/
 	
 	if (!(_installed_type & SKINCTL_TOOLBAR) && (dwType & SKINCTL_TOOLBAR) )
 	{
@@ -249,6 +250,9 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
     } 
 	*/
 
+	CSkinMenuMgr::Initialize(SKMS_FLAT, 8, FALSE);
+	InitMenuColor( hInst, dwType );
+
 	CSkinMenuBar::InitKeyAccess();
 	//bool f = SkinControlBar::Install(hInst);
 
@@ -262,7 +266,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
     _installed_type |= SKINCTL_WINDOW;
     
 	
-	CSkinHook::Initialize();
+	//CSkinHook::Initialize();
 
 	// value => type
 	// 1 => SkinButton
@@ -282,6 +286,32 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	return S_OK;
 }
 
+STDMETHODIMP SkinMgr::InitMenuColor(HINSTANCE hInst, DWORD dwType)
+{
+	CComPtr<ISkinScheme> scheme;
+	GetCurentScheme(&scheme);
+
+	if ( scheme )
+	{
+		COLORREF ret;
+		BOOL f = scheme->GetColor(MENU, 0, 0, TMT_MENU, &ret);
+		if ( f )
+			CSkinMenuMgr::SetColor(COLOR_MENU, ret);
+
+		f = scheme->GetColor(MENU, 0, 0, TMT_MENUTEXT, &ret);
+		if ( f )
+			CSkinMenuMgr::SetColor(COLOR_WINDOWTEXT, ret);
+
+		f = scheme->GetColor(MENU, 0, 0, TMT_MENUHILIGHT, &ret);
+		if ( f )
+			CSkinMenuMgr::SetColor(COLOR_HIGHLIGHTTEXT, ret);
+
+		f = scheme->GetColor(MENU, 0, 0, TMT_DKSHADOW3D, &ret);
+		if ( f )
+			CSkinMenuMgr::SetColor(COLOR_3DSHADOW, ret);
+	}
+	return S_OK;
+}
         // value => type
         // 1 => SkinButton
         // 2 => SkinEdit
@@ -396,7 +426,7 @@ HRESULT WINAPI ChangeCurrentSchemeColor( COLORREF clr )
 	if ( pss )
 		pss->ChangeSchemeColor( clr );
 
-	CSkinHook::RefreshUI();
+	CSkinMenuMgr::RefreshSkin();
 
 	return E_FAIL;
 }
@@ -414,7 +444,7 @@ HRESULT WINAPI ClearCurrentSchemeColor( )
 	if ( pss )
 		pss->ClearSchemeColor(  );
 
-	CSkinHook::RefreshUI();
+	CSkinMenuMgr::RefreshSkin();
 
 	return E_FAIL;
 }
@@ -427,7 +457,7 @@ HRESULT WINAPI LoadSkinFile( LPCTSTR pszFileName )
 
 	if (p && S_OK == p->LoadTheme( pszFileName ))
 	{
-		CSkinHook::RefreshUI();
+		CSkinMenuMgr::RefreshSkin();
 		return S_OK;
 	}
 
