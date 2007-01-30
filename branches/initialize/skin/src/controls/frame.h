@@ -482,11 +482,11 @@ protected:
 
 		WTL::CDCHandle dcHandle;
 		dcHandle.Attach( memdc );
-		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+		dcHandle.FillSolidRect(rect, pT->TranslateColor());
 
 		pT->Draw(memdc, WP_CAPTION, caption_state, rect.left, rect.top, rect.Width(), 0);
 
-		HRGN hRgnTop = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+		HRGN hRgnTop = CreateRgnFromBitmap( hMemBmp, pT->TranslateColor());
 
 		dcHandle.Detach();
 
@@ -501,11 +501,11 @@ protected:
 
 		
 		dcHandle.Attach( memdc );
-		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+		dcHandle.FillSolidRect(rect, pT->TranslateColor());
 
 		pT->Draw(memdc, WP_FRAMELEFT, _frame_state, rect.left, rect.top, 0, rect.Height());
 
-		WTL::CRgn hRgnLeft = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+		WTL::CRgn hRgnLeft = CreateRgnFromBitmap( hMemBmp, pT->TranslateColor());
 
 		dcHandle.Detach();
 
@@ -521,11 +521,11 @@ protected:
 		memdc = CreateMemDC(dc, &rect, &hMemBmp, &hMemOldBmp);
 
 		dcHandle.Attach( memdc );
-		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+		dcHandle.FillSolidRect(rect, pT->TranslateColor());
 
 		pT->Draw(memdc, WP_FRAMERIGHT, _frame_state, rect.left, rect.top, 0, rect.Height());
 
-		WTL::CRgn hRgnRight = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+		WTL::CRgn hRgnRight = CreateRgnFromBitmap( hMemBmp, pT->TranslateColor());
 
 		dcHandle.Detach();
 
@@ -540,11 +540,11 @@ protected:
 		memdc = CreateMemDC(dc, &rect, &hMemBmp, &hMemOldBmp);
 
 		dcHandle.Attach( memdc );
-		dcHandle.FillSolidRect(rect, RGB(255, 0, 255));
+		dcHandle.FillSolidRect(rect, pT->TranslateColor());
 
 		pT->Draw(memdc, WP_FRAMEBOTTOM, _frame_state, rect.left, rect.top, rect.Width(), 0);
 
-		WTL::CRgn hRgnBottom = CreateRgnFromBitmap( hMemBmp, RGB(255, 0, 255));
+		WTL::CRgn hRgnBottom = CreateRgnFromBitmap( hMemBmp, pT->TranslateColor());
 
 		dcHandle.Detach();
 
@@ -593,9 +593,9 @@ protected:
 
         
 
-		WTL::CDCHandle dcHandle;
-		dcHandle.Attach( dcMem );
-		dcHandle.FillSolidRect(rcw, RGB(255, 0, 255));
+		//WTL::CDCHandle dcHandle;
+		//dcHandle.Attach( dcMem );
+		//dcHandle.FillSolidRect(rcw, RGB(255, 0, 255));
 
         SystemButtonState sysbtn_state;
         sysbtn_state.initFromWindow(dwStyle, _frame_state == FS_ACTIVE);
@@ -1424,15 +1424,19 @@ protected:
             SetWindowRgn(NULL);
         }
         else*/ 
-		HRGN hrgn = GetFrameRgn();
+		if(GetStyle() & WS_DLGFRAME)
+		{
+			HRGN hrgn = GetFrameRgn();
 
-		// delete previous region object
-		//HRGN hrgnPrev = ::CreateRectRgn(0, 0, 0, 0);
-		//::GetWindowRgn(m_hWnd, hrgnPrev);
-		//int nRet = ::DeleteObject(hrgnPrev);
-		//ASSERT(nRet);
+			// delete previous region object
+			HRGN hrgnPrev = ::CreateRectRgn(0, 0, 0, 0);
+			::GetWindowRgn(m_hWnd, hrgnPrev);
+			int nRet = ::DeleteObject(hrgnPrev);
+			ASSERT(nRet);
 
-		::SetWindowRgn(m_hWnd, hrgn, TRUE);
+			::SetWindowRgn(m_hWnd, hrgn, TRUE);
+		}
+		
 		/*
 		if(_rgn)
         {
