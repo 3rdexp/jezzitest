@@ -909,7 +909,7 @@ LRESULT CMDIClientHook::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 		//		break;
 	}
 
-	return CSubclassWnd::WindowProc(nMsg, wParam, lParam);
+	return CSubclassWnd::WindowProc(NULL, nMsg, wParam, lParam);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -938,7 +938,7 @@ LRESULT CMainFrameHook::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 	// possible called when already this wnd destroyed (WM_NCACTIVATE is)
 	if (!::IsWindow(m_pMenuBar->GetSafeHwnd())) 
 	{
-		return CSubclassWnd::WindowProc(nMsg, wParam, lParam);
+		return CSubclassWnd::WindowProc( NULL, nMsg, wParam, lParam);
 	}
 
 	BOOL bSend = FALSE;
@@ -978,7 +978,7 @@ LRESULT CMainFrameHook::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 	//if (nMsg == CXPMenuBar::WM_GETMENU)
 	//	return (LRESULT)m_pMenuBar->m_hMenu;
 
-	return CSubclassWnd::WindowProc(nMsg, wParam, lParam);
+	return CSubclassWnd::WindowProc(NULL, nMsg, wParam, lParam);
 }
 
 CSkinMenuBar::CSkinMenuBar()

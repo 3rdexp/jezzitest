@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../base/skinctrl.h"
+//#include "../base/skinhookbase.h"
 
 extern long FindItemIDThatOwnsThisMenu (HMENU hMenuOwned,HWND* phwndOwner,
                                         BOOL* pfPopup,BOOL *pfSysMenu);
@@ -49,6 +50,10 @@ namespace Skin {
 
 template<class BaseT = CWindow>
 class SkinMenu : public SkinControlImpl<SkinMenu, BaseT>
+//class SkinMenu : public CSkinHookImpl<SkinMenu>
+//template<class BaseT = ATL::CWindow>
+//struct SkinMenu : public SkinControlImpl<SkinMenu, BaseT, HookPolicy>
+//class SkinMenu : public CSkinHookImpl<SkinMenu>
 {
 public:
     //enum { class_id = MENU };
@@ -64,8 +69,8 @@ public:
 	}
 
 
-    typedef SkinMenu<BaseT> this_type;
-    typedef SkinControlImpl<SkinMenu, BaseT> base_type;
+    //typedef SkinMenu<BaseT> this_type;
+    //typedef SkinControlImpl<SkinMenu, BaseT> base_type;
 
     SkinMenu()
         : m_nUpdateItem(-1)
@@ -76,7 +81,7 @@ public:
 		_classid = MENU;
 	}
 
-    BEGIN_MSG_MAP(this_type)
+    BEGIN_MSG_MAP(SkinMenu/*this_type*/)
 //        ATLASSERT(::IsWindow(m_hWnd));
 //        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
 //              && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
@@ -89,8 +94,9 @@ public:
 
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_PAINT(OnPaint)
-        MSG_MN_SELECTITEM(OnSelectItem)
-        MSG_WM_KEYDOWN(OnKeyDown)
+        //MSG_MN_SELECTITEM(OnSelectItem)
+        //MSG_WM_KEYDOWN(OnKeyDown)
+		//MSG_WM_PRINT(OnPrint)
 
 //        MSG_WM_PRINT()
 //        MSG_WM_PRINTCLIENT()
@@ -118,54 +124,72 @@ private:
 public:
     void OnNcPaint(HRGN)
     {
-        WTL::CRect rcw, rcc;
-        GetWindowRect(&rcw);
-        GetClientRect(&rcc);
-        ClientToScreen(&rcc);
-        rcc.OffsetRect(-rcw.left, -rcw.top);
-        rcw.OffsetRect(-rcw.left, -rcw.top);
-
-        WTL::CWindowDC dc(m_hWnd);
-
-//        WTL::CRect rcclip;
-//        dc.GetClipBox(&rcclip);
-
-        // memory dc
-        WTL::CDC dcMem;
-        dcMem.CreateCompatibleDC(dc);
-        ASSERT( dcMem );
-        HBITMAP bmpMemBg = ::CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
-        ASSERT( bmpMemBg );
-        HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
-        ASSERT( pOldBmp );
-
-        // dcMem.FillSolidRect(&rcw, 0x0000ff00);
-
-        WTL::CPen pen;
-        pen.CreatePen(PS_SOLID, 1, GetSchemeColor(0, 0, TMT_MENU));
-        HPEN old_pen = dcMem.SelectPen(pen);
-        dcMem.Rectangle(rcw);
-        dcMem.SelectPen(old_pen);
-
-
-        // draw back
-        int n = dc.SaveDC();
-        dc.ExcludeClipRect(&rcc);
-
-        ::BitBlt(dc, 0, 0, rcw.Width(), rcw.Height(), dcMem, rcw.left, rcw.top, SRCCOPY);
-
-        dc.RestoreDC(n);
-
-        // memory dc
-        ::SelectObject(dcMem, pOldBmp);
-        ::DeleteObject(bmpMemBg);
-        ::DeleteDC(dcMem);
+		WTL::CWindowDC dc(m_hWnd);
+		DoPaint( dc );
     }
 
+	void DoPaint( HDC hdc )
+	{
+		WTL::CRect rcw, rcc;
+		GetWindowRect(&rcw);
+		GetClientRect(&rcc);
+		ClientToScreen(&rcc);
+		rcc.OffsetRect(-rcw.left, -rcw.top);
+		rcw.OffsetRect(-rcw.left, -rcw.top);
+
+		
+
+		//        WTL::CRect rcclip;
+		//        dc.GetClipBox(&rcclip);
+
+		WTL::CDCHandle dc;
+		dc.Attach( hdc );
+		// memory dc
+		WTL::CDC dcMem;
+		dcMem.CreateCompatibleDC(dc);
+		ASSERT( dcMem );
+		HBITMAP bmpMemBg = ::CreateCompatibleBitmap(dc, rcw.Width(), rcw.Height());
+		ASSERT( bmpMemBg );
+		HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
+		ASSERT( pOldBmp );
+
+		// dcMem.FillSolidRect(&rcw, 0x0000ff00);
+
+		WTL::CPen pen;
+		pen.CreatePen(PS_SOLID, 1, GetSchemeColor(0, 0, TMT_MENU));
+		HPEN old_pen = dcMem.SelectPen(pen);
+		dcMem.Rectangle(rcw);
+		dcMem.SelectPen(old_pen);
+
+
+		// draw back
+		int n = dc.SaveDC();
+		dc.ExcludeClipRect(&rcc);
+
+		::BitBlt(dc, 0, 0, rcw.Width(), rcw.Height(), dcMem, rcw.left, rcw.top, SRCCOPY);
+
+		dc.RestoreDC(n);
+
+		// memory dc
+		::SelectObject(dcMem, pOldBmp);
+		::DeleteObject(bmpMemBg);
+		::DeleteDC(dcMem);
+	}
     void OnPaint(HDC)
     {
         WTL::CPaintDC dc(m_hWnd);
+		
+		int cItems = m_menu.GetMenuItemCount();
+		int i;
+		for (i=0;i<cItems;i++)
+		{
+			WTL::CRect rcItem;
+			BOOL bRet = GetMenuItemRect( NULL,m_menu.m_hMenu, i,  &rcItem );
+			rcItem.InflateRect( 0, -2 );
+			dc.DrawFocusRect( rcItem );
+		}
 
+		return;
         WTL::CRect rcc;
         GetClientRect(rcc);
 
@@ -208,6 +232,11 @@ public:
     }
 
 
+	void OnPrint( HDC wParam, UINT lParam )
+	{
+		LRESULT lRet = DefWindowProc();
+		DoPaint( wParam );
+	}
     void OnKeyDown(TCHAR, UINT, UINT)
     {
         ATLASSERT(::IsWindow(m_hWnd));

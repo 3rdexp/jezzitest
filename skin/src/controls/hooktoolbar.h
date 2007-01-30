@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../base/skinctrl.h"
-#include "../base/skinhookbase.h"
+//#include "../base/skinhookbase.h"
 #include "toolbar.h"
 #include <atlctrls.h>
 #include <atlwin.h>

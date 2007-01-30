@@ -213,10 +213,7 @@
 				RelativePath=".\base\SkinDraw.h">
 			</File>
 			<File
-				RelativePath=".\base\SkinHook.h">
-			</File>
-			<File
-				RelativePath=".\base\skinhookbase.h">
+				RelativePath=".\base\SkinHookbase.h">
 			</File>
 			<File
 				RelativePath=".\base\SkinMgr.cpp">
@@ -335,6 +332,52 @@
 			<File
 				RelativePath=".\controls\trackbar.h">
 			</File>
+			<Filter
+				Name="menu"
+				Filter="">
+				<File
+					RelativePath=".\controls\skinmenu\HookMgr.cpp">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\HookMgr.h">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinBase.cpp">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinBase.h">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinColors.h">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinGlobals.cpp">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinGlobals.h">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinGlobalsData.h">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinMenu.cpp">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinMenu.h">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinMenuMgr.cpp">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\SkinMenuMgr.h">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\WinClasses.cpp">
+				</File>
+				<File
+					RelativePath=".\controls\skinmenu\WinClasses.h">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="itf"

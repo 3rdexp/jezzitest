@@ -79,3 +79,5 @@ extern ATL::CComModule _Module;
 #ifndef TRACE
   #define TRACE ATLTRACE
 #endif
+
+#define NO_SKIN_INI
