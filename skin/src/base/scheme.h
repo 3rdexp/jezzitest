@@ -31,7 +31,8 @@ class scheme_data
 {
 public:
     typedef unsigned long key_type;
-    typedef boost::variant<area_t, color_t, font_t> value_type;
+    //typedef boost::variant<area_t, color_t, font_t> value_type;
+	typedef boost::variant<area_t, color_t> value_type;
     typedef std::hash_multimap<key_type, value_type> map_type;
 
     template<typename T>

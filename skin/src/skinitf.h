@@ -146,7 +146,7 @@ DECLARE_INTERFACE_(ISkinMgr, IUnknown)
 	STDMETHOD(InitControls)(HINSTANCE hInst, DWORD dwType) PURE;
 	STDMETHOD(UninitControls)(HINSTANCE hInst, DWORD dwType) PURE;
 	
-	STDMETHOD(InitMenuColor)(HINSTANCE hInst, DWORD dwType) PURE;
+	STDMETHOD(InitMenuColor)(COLORREF clr, BOOL bChange) PURE;
 
 	STDMETHOD(LoadTheme)(LPCSTR file) PURE;
 	// Scheme

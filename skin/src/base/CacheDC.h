@@ -27,6 +27,7 @@ public:
 	void SetBitmap(HBITMAP bmp, COLORREF trans)
 	{
 		Release();
+
 		if( 0 == bmp )
 			return;
 
@@ -186,7 +187,18 @@ public:
 		//pAlphaBmpColor = (COLORREF*)(lpScr + sizeof(BITMAPINFOHEADER));//图片缓冲
 
 		RGBTRIPLE rtBK = {0};
-	
+		RGBTRIPLE rtClr = {0};
+		
+		RGBTRIPLE rtTrans = {0};
+
+		rtTrans.rgbtRed = GetRValue(TranslateColor());
+		rtTrans.rgbtGreen = GetGValue(TranslateColor());
+		rtTrans.rgbtBlue  = GetBValue(TranslateColor());
+
+		rtClr.rgbtRed = GetRValue( clr );
+		rtClr.rgbtGreen = GetGValue( clr );
+		rtClr.rgbtBlue  = GetBValue( clr );
+
 		int nStep = 4 * ((24 * nWidth + 31) / 32);
 
 		for(int i = 0; i < nHeight; i++)//行
@@ -197,11 +209,12 @@ public:
 				pScrColor = (RGBTRIPLE*)(lpScr + (i  * nStep));
 				
 				rtBK = pScrColor[j];//屏幕像素,3字节对齐需要调整
-				if ( RGB(rtBK.rgbtRed, rtBK.rgbtGreen, rtBK.rgbtBlue) != TranslateColor() )
+
+				if ( rtTrans.rgbtBlue != rtBK.rgbtBlue || rtTrans.rgbtGreen != rtBK.rgbtGreen || rtTrans.rgbtRed != rtBK.rgbtRed)
 				{
-					rtBK.rgbtBlue = 255 - (255 - rtBK.rgbtBlue) * (255 - GetRValue(clr))  /  255;
-					rtBK.rgbtGreen = 255 - (255 - rtBK.rgbtGreen) * (255 - GetGValue(clr))  /  255;
-					rtBK.rgbtRed = 255 - (255 - rtBK.rgbtRed) * (255 - GetBValue(clr))  /  255;
+					rtBK.rgbtBlue = 255 - ( 255 - rtBK.rgbtBlue ) * ( 255 - rtClr.rgbtBlue )  /  255;
+					rtBK.rgbtGreen = 255 - ( 255 - rtBK.rgbtGreen ) * ( 255 - rtClr.rgbtGreen )  /  255;
+					rtBK.rgbtRed = 255 - ( 255 - rtBK.rgbtRed ) * ( 255 - rtClr.rgbtRed )  /  255;
 
 					pScrColor[j] = rtBK;	
 				}				
@@ -236,7 +249,6 @@ protected:
 	HDC		_orghdc;
 	HGDIOBJ	_hBmpOld;
 
-
 	void Release()
 	{
 		if( _bmpSelected && _hdc )
@@ -249,8 +261,6 @@ protected:
 		{
 			DeleteObject( ::SelectObject(_orghdc, _hBmpOld) );
 		}
-
-		
 	}
 };
 

@@ -251,7 +251,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	*/
 
 	CSkinMenuMgr::Initialize(SKMS_FLAT, 8, FALSE);
-	InitMenuColor( hInst, dwType );
+	InitMenuColor( RGB(0, 0, 0), FALSE );
 
 	CSkinMenuBar::InitKeyAccess();
 	//bool f = SkinControlBar::Install(hInst);
@@ -286,7 +286,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 	return S_OK;
 }
 
-STDMETHODIMP SkinMgr::InitMenuColor(HINSTANCE hInst, DWORD dwType)
+STDMETHODIMP SkinMgr::InitMenuColor(COLORREF clr, BOOL bChange)
 {
 	CComPtr<ISkinScheme> scheme;
 	GetCurentScheme(&scheme);
@@ -296,19 +296,55 @@ STDMETHODIMP SkinMgr::InitMenuColor(HINSTANCE hInst, DWORD dwType)
 		COLORREF ret;
 		BOOL f = scheme->GetColor(MENU, 0, 0, TMT_MENU, &ret);
 		if ( f )
+		{
+			if ( bChange )
+			{
+				BYTE rgbtBlue = 255 - (255 - GetBValue(ret)) * (255 - GetBValue(clr))  /  255;
+				BYTE rgbtGreen = 255 - (255 - GetGValue(ret)) * (255 - GetGValue(clr))  /  255;
+				BYTE rgbtRed = 255 - (255 - GetRValue(ret)) * (255 - GetRValue(clr))  /  255;
+				ret = RGB ( rgbtRed, rgbtGreen, rgbtBlue );
+			}
 			CSkinMenuMgr::SetColor(COLOR_MENU, ret);
+		}
 
 		f = scheme->GetColor(MENU, 0, 0, TMT_MENUTEXT, &ret);
 		if ( f )
+		{
+			if ( bChange )
+			{
+				BYTE rgbtBlue = 255 - (255 - GetBValue(ret)) * (255 - GetBValue(clr))  /  255;
+				BYTE rgbtGreen = 255 - (255 - GetGValue(ret)) * (255 - GetGValue(clr))  /  255;
+				BYTE rgbtRed = 255 - (255 - GetRValue(ret)) * (255 - GetRValue(clr))  /  255;
+				ret = RGB ( rgbtRed, rgbtGreen, rgbtBlue );
+			}
 			CSkinMenuMgr::SetColor(COLOR_WINDOWTEXT, ret);
+		}
 
 		f = scheme->GetColor(MENU, 0, 0, TMT_MENUHILIGHT, &ret);
 		if ( f )
+		{
+			if ( bChange )
+			{
+				BYTE rgbtBlue = 255 - (255 - GetBValue(ret)) * (255 - GetBValue(clr))  /  255;
+				BYTE rgbtGreen = 255 - (255 - GetGValue(ret)) * (255 - GetGValue(clr))  /  255;
+				BYTE rgbtRed = 255 - (255 - GetRValue(ret)) * (255 - GetRValue(clr))  /  255;
+				ret = RGB ( rgbtRed, rgbtGreen, rgbtBlue );
+			}
 			CSkinMenuMgr::SetColor(COLOR_HIGHLIGHTTEXT, ret);
+		}
 
 		f = scheme->GetColor(MENU, 0, 0, TMT_DKSHADOW3D, &ret);
 		if ( f )
+		{
+			if ( bChange )
+			{
+				BYTE rgbtBlue = 255 - (255 - GetBValue(ret)) * (255 - GetBValue(clr))  /  255;
+				BYTE rgbtGreen = 255 - (255 - GetGValue(ret)) * (255 - GetGValue(clr))  /  255;
+				BYTE rgbtRed = 255 - (255 - GetRValue(ret)) * (255 - GetRValue(clr))  /  255;
+				ret = RGB ( rgbtRed, rgbtGreen, rgbtBlue );
+			}
 			CSkinMenuMgr::SetColor(COLOR_3DSHADOW, ret);
+		}
 	}
 	return S_OK;
 }
@@ -421,12 +457,16 @@ HRESULT WINAPI ChangeCurrentSchemeColor( COLORREF clr )
 	CComPtr<ISkinScheme> pss;
 
 	if (p)
+	{
 		p->GetCurentScheme(&pss);
-
+		p->InitMenuColor( clr, TRUE );
+	}
 	if ( pss )
 		pss->ChangeSchemeColor( clr );
 
 	CSkinMenuMgr::RefreshSkin();
+	
+	
 
 	return E_FAIL;
 }
@@ -439,12 +479,16 @@ HRESULT WINAPI ClearCurrentSchemeColor( )
 	CComPtr<ISkinScheme> pss;
 
 	if (p)
+	{
 		p->GetCurentScheme(&pss);
-
+		p->InitMenuColor( RGB(0, 0, 0), FALSE );
+	}
 	if ( pss )
 		pss->ClearSchemeColor(  );
 
 	CSkinMenuMgr::RefreshSkin();
+
+	
 
 	return E_FAIL;
 }
@@ -458,6 +502,7 @@ HRESULT WINAPI LoadSkinFile( LPCTSTR pszFileName )
 	if (p && S_OK == p->LoadTheme( pszFileName ))
 	{
 		CSkinMenuMgr::RefreshSkin();
+		p->InitMenuColor( RGB(0, 0, 0), FALSE );
 		return S_OK;
 	}
 
