@@ -6,6 +6,9 @@
 #include <atlctrls.h>
 #include <atlwin.h>
 
+
+
+
 namespace Skin {
 
 #define DROPDOWN(item) ((WORD)-item)
@@ -37,7 +40,103 @@ namespace Skin {
 	/* vertical padding used in list mode when image is present */
 #define LISTPAD_CY 9
 	
-	
+
+	// ControlBar styles
+#define CBRS_ALIGN_LEFT     0x1000L
+#define CBRS_ALIGN_TOP      0x2000L
+#define CBRS_ALIGN_RIGHT    0x4000L
+#define CBRS_ALIGN_BOTTOM   0x8000L
+#define CBRS_ALIGN_ANY      0xF000L
+
+#define CBRS_BORDER_LEFT    0x0100L
+#define CBRS_BORDER_TOP     0x0200L
+#define CBRS_BORDER_RIGHT   0x0400L
+#define CBRS_BORDER_BOTTOM  0x0800L
+#define CBRS_BORDER_ANY     0x0F00L
+
+#define CBRS_TOOLTIPS       0x0010L
+#define CBRS_FLYBY          0x0020L
+#define CBRS_FLOAT_MULTI    0x0040L
+#define CBRS_BORDER_3D      0x0080L
+#define CBRS_HIDE_INPLACE   0x0008L
+#define CBRS_SIZE_DYNAMIC   0x0004L
+#define CBRS_SIZE_FIXED     0x0002L
+#define CBRS_FLOATING       0x0001L
+
+#define CBRS_GRIPPER        0x00400000L
+
+#define CBRS_ORIENT_HORZ    (CBRS_ALIGN_TOP|CBRS_ALIGN_BOTTOM)
+#define CBRS_ORIENT_VERT    (CBRS_ALIGN_LEFT|CBRS_ALIGN_RIGHT)
+#define CBRS_ORIENT_ANY     (CBRS_ORIENT_HORZ|CBRS_ORIENT_VERT)
+
+#define CBRS_ALL            0x0040FFFFL
+
+#define CMB_MASKED              0x02
+#define TBSTATE_CHECKED         0x01
+#define TBSTATE_PRESSED         0x02
+#define TBSTATE_ENABLED         0x04
+#define TBSTATE_HIDDEN          0x08
+#define TBSTATE_INDETERMINATE   0x10
+#define TBSTATE_WRAP            0x20
+#if (_WIN32_IE >= 0x0300)
+#define TBSTATE_ELLIPSES        0x40
+#endif
+#if (_WIN32_IE >= 0x0400)
+#define TBSTATE_MARKED          0x80
+#endif
+
+#define TBSTYLE_BUTTON          0x0000  // obsolete; use BTNS_BUTTON instead
+#define TBSTYLE_SEP             0x0001  // obsolete; use BTNS_SEP instead
+#define TBSTYLE_CHECK           0x0002  // obsolete; use BTNS_CHECK instead
+#define TBSTYLE_GROUP           0x0004  // obsolete; use BTNS_GROUP instead
+#define TBSTYLE_CHECKGROUP      (TBSTYLE_GROUP | TBSTYLE_CHECK)     // obsolete; use BTNS_CHECKGROUP instead
+#if (_WIN32_IE >= 0x0300)
+#define TBSTYLE_DROPDOWN        0x0008  // obsolete; use BTNS_DROPDOWN instead
+#endif
+#if (_WIN32_IE >= 0x0400)
+#define TBSTYLE_AUTOSIZE        0x0010  // obsolete; use BTNS_AUTOSIZE instead
+#define TBSTYLE_NOPREFIX        0x0020  // obsolete; use BTNS_NOPREFIX instead
+#endif
+
+#define TBSTYLE_TOOLTIPS        0x0100
+#define TBSTYLE_WRAPABLE        0x0200
+#define TBSTYLE_ALTDRAG         0x0400
+#if (_WIN32_IE >= 0x0300)
+#define TBSTYLE_FLAT            0x0800
+#define TBSTYLE_LIST            0x1000
+#define TBSTYLE_CUSTOMERASE     0x2000
+#endif
+#if (_WIN32_IE >= 0x0400)
+#define TBSTYLE_REGISTERDROP    0x4000
+#define TBSTYLE_TRANSPARENT     0x8000
+#define TBSTYLE_EX_DRAWDDARROWS 0x00000001
+#endif
+
+#if (_WIN32_IE >= 0x0500)
+#define BTNS_BUTTON     TBSTYLE_BUTTON      // 0x0000
+#define BTNS_SEP        TBSTYLE_SEP         // 0x0001
+#define BTNS_CHECK      TBSTYLE_CHECK       // 0x0002
+#define BTNS_GROUP      TBSTYLE_GROUP       // 0x0004
+#define BTNS_CHECKGROUP TBSTYLE_CHECKGROUP  // (TBSTYLE_GROUP | TBSTYLE_CHECK)
+#define BTNS_DROPDOWN   TBSTYLE_DROPDOWN    // 0x0008
+#define BTNS_AUTOSIZE   TBSTYLE_AUTOSIZE    // 0x0010; automatically calculate the cx of the button
+#define BTNS_NOPREFIX   TBSTYLE_NOPREFIX    // 0x0020; this button should not have accel prefix
+#if (_WIN32_IE >= 0x0501)
+#define BTNS_SHOWTEXT   0x0040              // ignored unless TBSTYLE_EX_MIXEDBUTTONS is set
+#endif  // 0x0501
+#define BTNS_WHOLEDROPDOWN  0x0080          // draw drop-down arrow, but without split arrow section
+#endif
+
+#if (_WIN32_IE >= 0x0501)
+#define TBSTYLE_EX_MIXEDBUTTONS             0x00000008
+#define TBSTYLE_EX_HIDECLIPPEDBUTTONS       0x00000010  // don't show partially obscured buttons
+#endif  // 0x0501
+
+
+#if (_WIN32_WINNT >= 0x501)
+#define TBSTYLE_EX_DOUBLEBUFFER             0x00000080 // Double Buffer the toolbar
+#endif
+
 	class SkinToolBarCtrl : public CSkinHookImpl<SkinToolBarCtrl>
 
 	//template<class BaseT = ATL::CWindow>
@@ -114,7 +213,7 @@ namespace Skin {
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			return 1;
-			CRect rect;
+			WTL::CRect rect;
 			GetClientRect(&rect);
 			WTL::CDCHandle dc = (HDC)wParam;
 			//CMemoryDC dc ( (HDC)wParam, rect);
@@ -126,9 +225,9 @@ namespace Skin {
 		{
 			// get window DC that is clipped to the non-client area
 			WTL::CWindowDC dc( m_hWnd );
-			CRect rectClient;
+			WTL::CRect rectClient;
 			GetClientRect(rectClient);
-			CRect rectWindow;
+			WTL::CRect rectWindow;
 			GetWindowRect(rectWindow);
 			ScreenToClient(rectWindow);
 			rectClient.OffsetRect(-rectWindow.left, -rectWindow.top);
@@ -152,7 +251,7 @@ namespace Skin {
 		}
 
 
-		void DrawGripper(WTL::CWindowDC* dc,CRect rcWin)
+		void DrawGripper(WTL::CWindowDC* dc,WTL::CRect rcWin)
 		{
 			
 			DWORD dwStyle = GetStyle();

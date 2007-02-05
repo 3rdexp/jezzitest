@@ -13,7 +13,6 @@
 #include "SkinGlobals.h"
 #include "hookmgr.h"
 #include <map>
-#include <afxtempl.h>
 
 namespace Skin {
 
@@ -48,7 +47,9 @@ public:
 #endif
 
 protected:
-	CMap<HWND, HWND, CSkinMenu*, CSkinMenu*&> m_mapMenus;
+	std::map<HWND, CSkinMenu*> m_mapMenus;
+	typedef std::map<HWND, CSkinMenu*>::iterator MENUHWND_ITERATOR;
+
 	DWORD m_dwMenuStyle;
 	CSkinGlobals m_skGlobals;
 	int m_nSidebarWidth;

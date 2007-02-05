@@ -132,6 +132,7 @@ LRESULT CSubclassWnd::WindowProc(HWND hRealWnd, UINT msg, WPARAM wp, LPARAM lp)
 // Like calling base class WindowProc, but with no args, so individual
 // message handlers can do the default thing. Like CWnd::Default
 //
+/*
 LRESULT CSubclassWnd::Default()
 {
 	if (!::IsWindow(m_hWndHooked))
@@ -144,6 +145,7 @@ LRESULT CSubclassWnd::Default()
 	// recursion on virtual function
 	return CSubclassWnd::WindowProc(m_hWndHooked, curMsg.message, curMsg.wParam, curMsg.lParam);
 }
+*/
 
 //////////////////
 // Subclassed window proc for message hooks. Replaces AfxWndProc (or whatever
@@ -153,15 +155,16 @@ LRESULT CALLBACK CSubclassWnd::HookWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARA
 {
 #ifdef _USRDLL
 	// If this is a DLL, need to set up MFC state
-	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+//	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 #endif
 
 	// Set up MFC message state just in case anyone wants it
 	// This is just like AfxCallWindowProc, but we can't use that because
 	// a CSubclassWnd is not a CWnd.
 	//
-	MSG& curMsg = AfxGetThreadState()->m_lastSentMsg;
-	MSG  oldMsg = curMsg;   // save for nesting
+	//MSG& curMsg = AfxGetThreadState()->m_lastSentMsg;
+	//MSG  oldMsg = curMsg;   // save for nesting
+	MSG  curMsg; 
 	curMsg.hwnd		= hwnd;
 	curMsg.message = msg;
 	curMsg.wParam  = wp;
@@ -176,7 +179,8 @@ LRESULT CALLBACK CSubclassWnd::HookWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARA
 	// see if this is a re-entrant call
 	BOOL bInHookWndProc = FALSE;
 
-	VERIFY (theSafeMap.Lookup((void*)pSubclassWnd, (void*&)bInHookWndProc));
+	//VERIFY (theSafeMap.Lookup((void*)pSubclassWnd, (void*&)bInHookWndProc));
+	theSafeMap.Lookup((void*)pSubclassWnd, (void*&)bInHookWndProc);
 	ASSERT (!bInHookWndProc);
 
 	LRESULT lr;
@@ -215,7 +219,7 @@ LRESULT CALLBACK CSubclassWnd::HookWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARA
 
 	theSafeMap[(void*)pSubclassWnd] = NULL;
 
-	curMsg = oldMsg;			// pop state
+	//curMsg = oldMsg;			// pop state
 	return lr;
 }
 

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../base/skinctrl.h"
 //#include "../base/skinhookbase.h"
 namespace Skin {
@@ -75,7 +74,7 @@ namespace Skin {
 			return dwStyle&SBS_VERT;
 		}
 
-		UINT HitTest(CPoint pt)
+		UINT HitTest(WTL::CPoint pt)
 		{
 			WTL::CRect rcClient;
 			GetClientRect( rcClient );
@@ -241,7 +240,7 @@ namespace Skin {
 		{
 			SetCapture();
 
-			CPoint pt;
+			WTL::CPoint pt;
 			pt.x = (short)LOWORD(lParam);
 			pt.y = (short)HIWORD(lParam);
 
@@ -333,7 +332,7 @@ namespace Skin {
 		
 		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CPoint point;
+			WTL::CPoint point;
 			point.x = (short)LOWORD(lParam);
 			point.y = (short)HIWORD(lParam);
 
@@ -432,7 +431,7 @@ namespace Skin {
 			}
 			else if(m_uClicked!=-1)
 			{
-				CRect rc = GetRect(m_uClicked);
+				WTL::CRect rc = GetRect(m_uClicked);
 				if(!rc.PtInRect(point))
 				{
 					if(m_bNotify)
@@ -935,7 +934,7 @@ namespace Skin {
 
 
 		BOOL		m_bDrag;
-		CPoint		m_ptDrag;
+		WTL::CPoint		m_ptDrag;
 		int			m_nDragPos;
 		int			m_nTraceSize;
 

@@ -35,13 +35,13 @@ public:
 
 		GetObject( bmp, sizeof BITMAP, &_bm );
 
-		_bmpSelected = (HBITMAP)SelectObject(_hdc, bmp);
+		_bmpSelected = (HBITMAP)::SelectObject(_hdc, bmp);
 		ASSERT( _bmpSelected );
         _bmp = bmp;
 
-		_orghdc = CreateCompatibleDC( _hdc );
+		_orghdc = ::CreateCompatibleDC( _hdc );
 		_orgBmp.CreateCompatibleBitmap(_hdc, _bm.bmWidth, _bm.bmHeight );
-		_hBmpOld = SelectObject(_orghdc, _orgBmp);
+		_hBmpOld = ::SelectObject(_orghdc, _orgBmp);
 		BitBlt( _orghdc, 0, 0, _bm.bmWidth, _bm.bmHeight, _hdc, 0, 0, SRCCOPY);
 		
 		/*
@@ -166,14 +166,14 @@ public:
 		HDC MemDC = ::CreateCompatibleDC( hScreenDC );
 		HGDIOBJ hTemp = ::SelectObject(MemDC, hScrDIB);
 
-		BitBlt( MemDC, 0, 0, _bm.bmWidth, _bm.bmHeight, _orghdc, 0, 0, SRCCOPY);
+		::BitBlt( MemDC, 0, 0, _bm.bmWidth, _bm.bmHeight, _orghdc, 0, 0, SRCCOPY);
 
 		AlphaColor( pBits, _bm.bmWidth, _bm.bmHeight, cColor );
 
-		BitBlt( _hdc, 0, 0, _bm.bmWidth, _bm.bmHeight, MemDC, 0, 0, SRCCOPY);
+		::BitBlt( _hdc, 0, 0, _bm.bmWidth, _bm.bmHeight, MemDC, 0, 0, SRCCOPY);
 
 		::SelectObject(MemDC, hTemp);
-		DeleteDC( MemDC );
+		::DeleteDC( MemDC );
 		::ReleaseDC(NULL,hScreenDC);
 
 	}
@@ -253,13 +253,13 @@ protected:
 	{
 		if( _bmpSelected && _hdc )
 		{
-			DeleteObject( ::SelectObject(_hdc, _bmpSelected) );
+			::DeleteObject( ::SelectObject(_hdc, _bmpSelected) );
 			_bmpSelected = 0;
 		}
 
 		if ( _orghdc )
 		{
-			DeleteObject( ::SelectObject(_orghdc, _hBmpOld) );
+			::DeleteObject( ::SelectObject(_orghdc, _hBmpOld) );
 		}
 	}
 };

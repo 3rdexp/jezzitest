@@ -10,13 +10,7 @@
 //#define ACTIVATE_VIEWER
 //#include "imageviewer.h"
 
-#include <afxpriv.h>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 // for transparency
 typedef BOOL (WINAPI *LPSetLayeredWindowAttributes)
@@ -609,7 +603,7 @@ HRGN CSkinBase::BitmapToRegion(CBitmap* pBmp, COLORREF color)
 	return hRgn;
 }
 
-HMENU CSkinBase::MakeMenuCopy(const CMenu* pSrc)
+HMENU CSkinBase::MakeMenuCopy(const HMENU hSrc)
 {
 	if (!pSrc)
 		return NULL;
@@ -619,7 +613,7 @@ HMENU CSkinBase::MakeMenuCopy(const CMenu* pSrc)
 	VERIFY (menu.CreatePopupMenu());
 	ASSERT (::IsMenu(menu.m_hMenu));
 	
-	int nNumItems = pSrc->GetMenuItemCount();
+	int nNumItems = GetMenuItemCount( hSrc );
 	CString sLabel;
 	
 	MENUITEMINFO mii;
@@ -629,14 +623,14 @@ HMENU CSkinBase::MakeMenuCopy(const CMenu* pSrc)
 				
 	for (int nItem = 0; nItem < nNumItems; nItem++)
 	{
-		UINT uIDItem = pSrc->GetMenuItemID(nItem);
-		pSrc->GetMenuString(nItem, sLabel, MF_BYPOSITION);
+		UINT uIDItem = GetMenuItemID(hSrc, nItem);
+		GetMenuString(hSrc, nItem, sLabel, MF_BYPOSITION);
 		UINT uFlags = (uIDItem == 0) ? MF_SEPARATOR : (uIDItem == (UINT)-1) ? MF_POPUP : MF_STRING;
 		
 		// special case: if a popup menu we must copy it too
 		if (uFlags == MF_POPUP)
 		{
-			HMENU hPopup = MakeMenuCopy(pSrc->GetSubMenu(nItem));
+			HMENU hPopup = MakeMenuCopy(GetSubMenu(hSrc, nItem));
 			ASSERT (hPopup);
 			
 			uIDItem = (UINT)hPopup;
@@ -645,7 +639,7 @@ HMENU CSkinBase::MakeMenuCopy(const CMenu* pSrc)
 		menu.AppendMenu(uFlags, uIDItem, sLabel);
 		
 		// make sure we copy the state too
-		::GetMenuItemInfo(*pSrc, nItem, TRUE, &mii);
+		::GetMenuItemInfo(hSrc, nItem, TRUE, &mii);
 		::SetMenuItemInfo(menu, nItem, TRUE, &mii);
 	}
 	
@@ -653,24 +647,24 @@ HMENU CSkinBase::MakeMenuCopy(const CMenu* pSrc)
 }
 
 // this one copies the menu without deleting the root
-BOOL CSkinBase::CopyMenu(const CMenu* pSrc, CMenu* pDest)
+BOOL CSkinBase::CopyMenu(const HMENU hScr, HMENU hDest)
 {
-	ASSERT (::IsMenu(pDest->m_hMenu));
+	ASSERT (::IsMenu(hDest));
 	
-	if (!::IsMenu(pDest->m_hMenu))
+	if (!::IsMenu(hDest))
 		return FALSE;
 	
-	ASSERT (::IsMenu(pSrc->m_hMenu));
+	ASSERT (::IsMenu(hScr));
 	
-	if (!::IsMenu(pSrc->m_hMenu))
+	if (!::IsMenu(hScr))
 		return FALSE;
 	
 	// delete all the existing items
-	while (pDest->GetMenuItemCount())
-		pDest->DeleteMenu(0, MF_BYPOSITION);
+	while (GetMenuItemCount(hDest))
+		DeleteMenu(hDest, 0, MF_BYPOSITION);
 	
 	// copy across
-	int nNumItems = pSrc->GetMenuItemCount();
+	int nNumItems = GetMenuItemCount(hScr);
 	CString sLabel;
 	
 	MENUITEMINFO mii;
@@ -680,24 +674,24 @@ BOOL CSkinBase::CopyMenu(const CMenu* pSrc, CMenu* pDest)
 				
 	for (int nItem = 0; nItem < nNumItems; nItem++)
 	{
-		UINT uIDItem = pSrc->GetMenuItemID(nItem);
-		pSrc->GetMenuString(nItem, sLabel, MF_BYPOSITION);
+		UINT uIDItem = GetMenuItemID(hScr, nItem);
+		GetMenuString(hScr, nItem, sLabel, MF_BYPOSITION);
 		UINT uFlags = (uIDItem == 0) ? MF_SEPARATOR : (uIDItem == (UINT)-1) ? MF_POPUP : MF_STRING;
 		
 		// special case: if a popup menu we must copy it too
 		if (uFlags == MF_POPUP)
 		{
-			HMENU hPopup = MakeMenuCopy(pSrc->GetSubMenu(nItem));
+			HMENU hPopup = MakeMenuCopy(GetSubMenu(hScr, nItem));
 			ASSERT (hPopup);
 			
 			uIDItem = (UINT)hPopup;
 		}
 		
-		pDest->AppendMenu(uFlags, uIDItem, sLabel);
+		AppendMenu(hDest, uFlags, uIDItem, sLabel);
 		
 		// make sure we copy the state too
-		::GetMenuItemInfo(*pSrc, nItem, TRUE, &mii);
-		::SetMenuItemInfo(*pDest, nItem, TRUE, &mii);
+		::GetMenuItemInfo(hSrc, nItem, TRUE, &mii);
+		::SetMenuItemInfo(hDest, nItem, TRUE, &mii);
 	}
 	
 	return TRUE;
@@ -810,18 +804,18 @@ BOOL CSkinBase::ExtractResource(UINT nID, LPCTSTR szType, CString& sTempFilePath
 	return TRUE;
 }
 
-CWnd* CSkinBase::GetChildWnd(CWnd* pParent, LPCTSTR szClass, int nID)
+HWND CSkinBase::GetChildWnd(HWND pParent, LPCTSTR szClass, int nID)
 {
-	CWnd* pChild = pParent->GetWindow(GW_CHILD); 
+	HWND hChild = ::GetWindow(hParent, GW_CHILD); 
 	
-	while (pChild)	  
+	while (hChild)	  
 	{
-		if (CWinClasses::IsClass(*pChild, szClass))
+		if (CWinClasses::IsClass(hChild, szClass))
 		{
-			if (nID == -1 || pChild->GetDlgCtrlID() == nID)
-				return pChild;
+			if (nID == -1 || GetDlgCtrlID(hChild) == nID)
+				return hChild;
 		}
-		pChild = pChild->GetNextWindow();
+		hChild = GetNextWindow(hChild, GW_HWNDNEXT);
 	}
 	
 	return NULL;
@@ -951,12 +945,12 @@ BOOL CSkinBase::ConvertToGrayScale(CBitmap* pBitmap, COLORREF crMask)
 	return TRUE;
 }
 
-BOOL CSkinBase::DoSysMenu(CWnd* pWnd, CPoint ptCursor, LPRECT prExclude, BOOL bCopy)
+BOOL CSkinBase::DoSysMenu(HWND hWnd, CPoint ptCursor, LPRECT prExclude, BOOL bCopy)
 {
-	CMenu* pMenu = pWnd->GetSystemMenu(FALSE);
-	ASSERT (pMenu);
+	HMENU hMenu = GetSystemMenu(hWnd, FALSE);
+	ASSERT ( hMenu );
 	
-	if (pMenu)
+	if ( hMenu )
 	{
 		TPMPARAMS tpmp;
 		tpmp.cbSize = sizeof(tpmp);
@@ -971,46 +965,50 @@ BOOL CSkinBase::DoSysMenu(CWnd* pWnd, CPoint ptCursor, LPRECT prExclude, BOOL bC
 		
 		if (bCopy) // skinning
 		{
-			HMENU hSysMenu = CSkinBase::MakeMenuCopy(pMenu);
+			HMENU hSysMenu = CSkinBase::MakeMenuCopy(hMenu);
 			ASSERT (hSysMenu);
 			
 			if (hSysMenu)
 			{
-				InitSysMenu(CMenu::FromHandle(hSysMenu), pWnd);
+				InitSysMenu( hSysMenu, pWnd );
 				uID = ::TrackPopupMenuEx(hSysMenu, uAlignFlags, 
-										ptCursor.x, ptCursor.y, *pWnd, &tpmp);
+										ptCursor.x, ptCursor.y, hWnd, &tpmp);
 				
 				::DestroyMenu(hSysMenu); // cleanup
 			}
 		}
 		else
 		{
-			InitSysMenu(pMenu, pWnd);
-			uID = ::TrackPopupMenuEx(pMenu->GetSafeHmenu(), uAlignFlags, 
-									ptCursor.x, ptCursor.y, *pWnd, &tpmp);
+			InitSysMenu(hMenu, hWnd);
+			uID = ::TrackPopupMenuEx(hMenu, uAlignFlags, 
+									ptCursor.x, ptCursor.y, hWnd, &tpmp);
 		}
 		
 		if (uID & 0xf000) // syscommand
 		{
-			MSG& curMsg = AfxGetThreadState()->m_lastSentMsg;
+			//MSG& curMsg = AfxGetThreadState()->m_lastSentMsg;
 			
 			// always post this command to allow this function to unwind
 			// correctly before the command is handled
-			pWnd->PostMessage(WM_SYSCOMMAND, (uID & 0xfff0), MAKELPARAM(curMsg.pt.x, curMsg.pt.y));
+			//pWnd->PostMessage(WM_SYSCOMMAND, (uID & 0xfff0), MAKELPARAM(curMsg.pt.x, curMsg.pt.y));
+			PostMessage(hWnd, WM_SYSCOMMAND, (uID & 0xfff0), MAKELPARAM(ptCursor.x, ptCursor.y));
 		}
 	}
 	
 	return TRUE;
 }
 
-void CSkinBase::InitSysMenu(CMenu* pMenu, CWnd* pWnd)
+void CSkinBase::InitSysMenu(HMENU hMenu, HWND hWnd)
 {
 	// iterate all the menu items looking for something resembling a sys menu item
-	int nItem = pMenu->GetMenuItemCount();
+	int nItem = GetMenuItemCount(hMenu);
 	
+	CWindow cWnd;
+	cWnd.Attach( hWnd );
+
 	while (nItem--)
 	{
-		UINT uID = pMenu->GetMenuItemID(nItem);
+		UINT uID = GetMenuItemID(hMenu, nItem);
 		
 		if (uID >= 0xF000)
 		{
@@ -1019,29 +1017,29 @@ void CSkinBase::InitSysMenu(CMenu* pMenu, CWnd* pWnd)
 			switch (uID & 0xFFF0)
 			{
 			case SC_MINIMIZE:
-				bEnable = (pWnd->GetStyle() & WS_MINIMIZEBOX) && !pWnd->IsIconic();
+				bEnable = (cWnd.GetStyle() & WS_MINIMIZEBOX) && !cWnd.IsIconic();
 				break;
 				
 			case SC_MAXIMIZE:
-				bEnable = (pWnd->GetStyle() & WS_MAXIMIZEBOX) && !pWnd->IsZoomed();
+				bEnable = (cWnd.GetStyle() & WS_MAXIMIZEBOX) && !cWnd.IsZoomed();
 				break;
 				
 			case SC_RESTORE:
-				bEnable = pWnd->IsIconic() || pWnd->IsZoomed();
+				bEnable = cWnd.IsIconic() || cWnd.IsZoomed();
 				break;
 				
 			case SC_MOVE:
 			case SC_SIZE:
-				bEnable = !pWnd->IsIconic() && !pWnd->IsZoomed();
+				bEnable = !cWnd.IsIconic() && !cWnd.IsZoomed();
 				break;
 			}
 			
-			pMenu->EnableMenuItem(uID, bEnable ? MF_ENABLED : MF_GRAYED);
+			EnableMenuItem(hMenu, uID, bEnable ? MF_ENABLED : MF_GRAYED);
 		}
 	}
 	
 	// set close as default item
-	pMenu->SetDefaultItem(SC_CLOSE);
+	SetMenuDefaultItem(hMenu, SC_CLOSE, FALSE );
 }
 
 CSize CSkinBase::GetTextExtent(CDC* pDC, LPCTSTR szText)

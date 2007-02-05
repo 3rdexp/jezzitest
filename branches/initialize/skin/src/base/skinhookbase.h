@@ -67,7 +67,7 @@ namespace Skin {
 
 		SIZE GetSchemeSize(int iPartId, int iStateId = 0)
 		{
-			CRect rc = GetSchemeRect(iPartId, iStateId);
+			WTL::CRect rc = GetSchemeRect(iPartId, iStateId);
 			return rc.Size();
 		}
 

@@ -6,12 +6,18 @@
 namespace Skin {
 
 template<class BaseT = ATL::CWindow>
-struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, HookPolicy>
+//struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, HookPolicy>
+struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, RegisterPolicy>
 {
 public:
 	SkinControlBar()
 	{
 		_classid = CONTROLBAR;
+	}
+
+	static LPCTSTR GetWndClassName()
+	{
+		return _T(WC_CONTROLBAR);
 	}
 
 	~SkinControlBar()
@@ -26,7 +32,10 @@ public:
 
 	//enum { class_id = CONTROLBAR };
 
-	BEGIN_MSG_MAP(SkinControlBar)
+	typedef SkinControlBar<BaseT> this_type;
+	typedef SkinControlImpl<SkinControlBar, BaseT> base_type;
+
+	BEGIN_MSG_MAP(this_type)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)	
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)	
 		MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)	

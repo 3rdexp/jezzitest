@@ -10,7 +10,6 @@
 #endif // _MSC_VER > 1000
 
 #include "skinglobalsdata.h"
-#include <afxtempl.h>
 
 enum
 {

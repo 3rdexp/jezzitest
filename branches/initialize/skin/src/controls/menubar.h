@@ -24,6 +24,7 @@
 //#include "../base/SkinCtrl.h"
 
 #include <vector>
+#include <tmschema.h>
 #include "../skinitf.h"
 #include "../base/subclass.h"
 
@@ -32,6 +33,17 @@ namespace Skin {
 	using ATL::CComPtr;
 	using WTL::CDCHandle;
 	using WTL::CMenuHandle;
+	using namespace WTL;
+
+#define CBRS_ALIGN_LEFT     0x1000L
+#define CBRS_ALIGN_TOP      0x2000L
+#define CBRS_ALIGN_RIGHT    0x4000L
+#define CBRS_ALIGN_BOTTOM   0x8000L
+#define CBRS_ALIGN_ANY      0xF000L
+
+#define AFX_IDM_WINDOW_FIRST            0xE130
+#define AFX_IDM_WINDOW_LAST             0xE13F
+#define AFX_IDM_FIRST_MDICHILD          0xFF00  // window list starts here
 
 	enum FrameStyle
 	{
@@ -327,7 +339,7 @@ namespace Skin {
 			return (int) m_MenuLst.size();
 		}
 
-		CWnd* GetCmdSentOleWnd();
+		HWND GetCmdSentOleWnd();
 
 	public:
 		CSkinMenuBar();
@@ -587,7 +599,7 @@ namespace Skin {
 		void OnFrameNcActivate(BOOL bActive);
 		LRESULT OnSettingChange(WPARAM wParam, LPARAM lParam);
 		void DeleteItems();
-		void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
+		void OnInitMenuPopup(HMENU hPopupMenu, UINT nIndex, BOOL bSysMenu);
 		void GetClientRect(CRect& rc);
 		BOOL IsValidIndex(int nIndex);
 

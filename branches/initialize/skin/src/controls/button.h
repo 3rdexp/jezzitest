@@ -22,6 +22,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 		_classid		= BUTTON;
     }
 
+
 	void OnFirstMessage()
 	{
 		int i = 0;

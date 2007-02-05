@@ -5,7 +5,7 @@
 //
 #ifndef _SUBCLASSW_H
 #define _SUBCLASSW_H
-
+#include "mapptr.h"
 //////////////////
 // Generic class to hook messages on behalf of a CWnd.
 // Once hooked, all messages go to CSubclassWnd::WindowProc before going
@@ -55,7 +55,7 @@ public:
 	virtual BOOL IsValid() const { return IsValidHook(); }
 
 	inline HWND GetHwnd() const { return m_hWndHooked; }
-	inline CWnd* GetCWnd() const { return CWnd::FromHandle(m_hWndHooked); }
+	
 
 	static void SetCallback(ISubclassCallback* pCallback) { s_pCallback = pCallback; }
 
@@ -101,7 +101,7 @@ protected:
 	static BOOL IsValid(const CSubclassWnd* pScWnd);
 
 	virtual LRESULT WindowProc(HWND hRealWnd, UINT msg, WPARAM wp, LPARAM lp);
-	LRESULT Default(); // call this at the end of handler fns if you are happy with the defaults
+	//LRESULT Default(); // call this at the end of handler fns if you are happy with the defaults
 
 };
 
@@ -131,7 +131,7 @@ protected:
 	inline BOOL ScHookWindow(HWND hWnd) { return m_subclass.HookWindow(hWnd, GetTopSubclasser()); }
 	inline BOOL ScIsHooked() { return m_subclass.IsHooked(); }
 	inline BOOL ScIsValidHook() { return m_subclass.IsValidHook(); }
-	inline CWnd* ScGetCWnd() { return m_subclass.GetCWnd(); }
+	
 	inline HWND ScGetHwnd() { return m_subclass.GetHwnd(); }
 
 	inline BOOL ScPostMessage(UINT message, WPARAM wParam = 0, LPARAM lParam = 0)
@@ -144,11 +144,13 @@ protected:
 	CSubclassWnd m_subclass;
 
 protected:
+	/*
 	LRESULT ScDefault(HWND hRealWnd) 
 	{ 
 		ASSERT(hRealWnd == m_subclass.GetHwnd()); 
 		return m_subclass.Default(); 
 	} // in time we will have mutiple subclassed wnds
+	*/
 };
 
 #endif // _SUBCLASSW_H
