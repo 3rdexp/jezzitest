@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include <comdef.h>
-
+//#include <comdef.h>
+#include <commctrl.h>
 
 #ifndef SKIN_NO_NAMESPACE
 namespace Skin{

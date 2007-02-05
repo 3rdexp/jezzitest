@@ -75,7 +75,7 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CRect rc;
+			WTL::CRect rc;
 			GetClientRect( &rc );
 			WTL::CPaintDC dc(m_hWnd);
 			WTL::CMemoryDC memdc ( dc, rc );
@@ -140,17 +140,17 @@ namespace Skin {
 			WTL::CImageList imgList = GetImageList();
 			if ( !imgList.IsNull() )
 			{
-				CSize szImg;
+				WTL::CSize szImg;
 				imgList.GetIconSize(szImg);
 				if ( bVert )
 				{
-					BOOL bRet = imgList.Draw(hdc, tcItem.iImage, CPoint(rcItem.left, rcItem.top), ILD_TRANSPARENT);
+					BOOL bRet = imgList.Draw(hdc, tcItem.iImage, WTL::CPoint(rcItem.left, rcItem.top), ILD_TRANSPARENT);
 					if ( bRet )
 						rcItem.bottom = rcItem.bottom - szImg.cy - PADDING;
 				}
 				else
 				{
-					BOOL bRet = imgList.Draw(hdc, tcItem.iImage, CPoint(rcItem.left, rcItem.bottom - szImg.cy ), ILD_TRANSPARENT);
+					BOOL bRet = imgList.Draw(hdc, tcItem.iImage, WTL::CPoint(rcItem.left, rcItem.bottom - szImg.cy ), ILD_TRANSPARENT);
 					if ( bRet )
 						rcItem.left = rcItem.left + szImg.cx + PADDING;
 					

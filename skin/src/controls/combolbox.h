@@ -4,7 +4,7 @@
 
 namespace Skin {
 
-	class SkinComboLbox : public SkinControlImpl<SkinComboLbox, CWindow,
+	class SkinComboLbox : public SkinControlImpl<SkinComboLbox, ATL::CWindow,
 		ClassPolicy>
 	{
 	public:
@@ -28,7 +28,7 @@ namespace Skin {
 		}
 		//enum { class_id = COMBOBOX };
 
-		BEGIN_MSG_MAP(CWindow)
+		BEGIN_MSG_MAP(ATL::CWindow)
 			//if ( hWnd == m_hWnd && bPrint)
 			//	ATLTRACE("combolbox msg is %04x \n", uMsg);
 			MSG_WM_CREATE(OnCreate)
@@ -95,19 +95,19 @@ namespace Skin {
 			LONG lExStyle;
 			lExStyle = GetExStyle();
 
-			CRect rcw;
+			WTL::CRect rcw;
 			GetWindowRect(&rcw);
 			rcw.right -= rcw.left;
 			rcw.bottom -= rcw.top;
 			rcw.top = rcw.left = 0;
 
 			// 绘制外框
-			CBrush brBorder;
+			WTL::CBrush brBorder;
 			int nState = GetState();
 			COLORREF cr;
 			_scheme->GetColor(_classid, CP_DROPDOWNBUTTON, nState, TMT_BORDERCOLOR, &cr);
 			brBorder.CreateSolidBrush( cr ); 
-			FrameRect(hdc, CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
+			FrameRect(hdc, WTL::CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 			brBorder.DeleteObject();
 
 			// 绘制内框
@@ -116,7 +116,7 @@ namespace Skin {
 			{
 				InflateRect(&rcw, -1, -1);
 				LONG lStyle = GetStyle();			
-				CBrush brBorder;
+				WTL::CBrush brBorder;
 				_scheme->GetColor(_classid, CP_DROPDOWNBUTTON, nState, TMT_TEXTBORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
 				FrameRect(hdc, &rcw, (HBRUSH) brBorder);			

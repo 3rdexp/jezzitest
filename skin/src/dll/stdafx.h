@@ -1,69 +1,45 @@
-// stdafx.h : 标准系统包含文件的包含文件，
-// 或是常用但不常更改的项目特定的包含文件
-//
+// stdafx.h : include file for standard system include files,
+// or project specific include files that are used frequently,
+// but are changed infrequently
 
 #pragma once
-
-#ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
-#endif
 
 #ifndef STRICT
 #define STRICT
 #endif
 
-// 如果您必须使用下列所指定的平台之前的平台，则修改下面的定义。
-// 有关不同平台的相应值的最新信息，请参考 MSDN。
-#ifndef WINVER				// 允许使用特定于 Windows 95 和 Windows NT 4 或更高版本的功能。
-#define WINVER 0x0501		// 将此更改为针对于 Windows 98 和 Windows 2000 或更高版本的合适的值。
+// Modify the following defines if you have to target a platform prior to the ones specified below.
+// Refer to MSDN for the latest info on corresponding values for different platforms.
+#ifndef WINVER				// Allow use of features specific to Windows 95 and Windows NT 4 or later.
+#define WINVER 0x0500		// Change this to the appropriate value to target Windows 98 and Windows 2000 or later.
 #endif
 
-#ifndef _WIN32_WINNT		// 允许使用特定于 Windows NT 4 或更高版本的功能。
-#define _WIN32_WINNT 0x0501	// 将此更改为针对于 Windows 2000 或更高版本的合适的值。
+#ifndef _WIN32_WINNT		// Allow use of features specific to Windows NT 4 or later.
+#define _WIN32_WINNT 0x0501	// Change this to the appropriate value to target Windows 2000 or later.
 #endif						
 
-#ifndef _WIN32_WINDOWS		// 允许使用特定于 Windows 98 或更高版本的功能。
-#define _WIN32_WINDOWS 0x0410 // 将此更改为针对于 Windows Me 或更高版本的合适的值。
+#ifndef _WIN32_WINDOWS		// Allow use of features specific to Windows 98 or later.
+#define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
 #endif
 
-#ifndef _WIN32_IE			// 允许使用特定于 IE 4.0 或更高版本的功能。
-#define _WIN32_IE 0x0500	// 将此更改为针对于 IE 5.0 或更高版本的合适的值。
+#ifndef _WIN32_IE			// Allow use of features specific to IE 4.0 or later.
+#define _WIN32_IE 0x0500	// Change this to the appropriate value to target IE 5.0 or later.
 #endif
 
 #define _ATL_APARTMENT_THREADED
 #define _ATL_NO_AUTOMATIC_NAMESPACE
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// 某些 CString 构造函数将为显式的
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
 
-// 关闭 ATL 对某些常被安全忽略的常见警告消息的隐藏
+// turns off ATL's hiding of some common and often safely ignored warning messages
 #define _ATL_ALL_WARNINGS
 
-#include <afxwin.h>         // MFC core and standard components
-#include <afxext.h>         // MFC extensions
-#include <afxdisp.h>        // MFC Automation classes
-#include <afxcmn.h>			// MFC support for Windows Common Controls
 
-#if _WIN32_IE != 0x0500
-#pragma message( "check _WIN32_IE  version" )
-#endif
-
-#if _WIN32_WINNT != 0x0501
-#pragma message( "check _WIN32_WINNT version" )
-#endif
-
-#if WINVER != 0x0501
-#pragma message( "check WINVER version" )
-#endif
-
-#undef _WIN32_WCE
-#undef WIN32_WCE
-
+#include "resource.h"
 #include <atlbase.h>
 #include <atlcom.h>
 
-
-extern ATL::CComModule _Module;
-
+using namespace ATL;
 #define _WTL_NO_AUTOMATIC_NAMESPACE
 #include <atlapp.h>
 // #include <atlctrls.h>
@@ -71,13 +47,14 @@ extern ATL::CComModule _Module;
 
 #pragma warning(disable : 4996) // 'function': was declared deprecated
 
+#include <Windows.h>
 
 #ifndef ASSERT
-  #define ASSERT ATLASSERT
+#define ASSERT ATLASSERT
 #endif
 
 #ifndef TRACE
-  #define TRACE ATLTRACE
+#define TRACE ATLTRACE
 #endif
 
 #define NO_SKIN_INI

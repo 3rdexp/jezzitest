@@ -29,12 +29,15 @@ const int CXTEXTMARGIN = 5;
 
 static BOOL _InitCommonResources(BOOL bForce = FALSE)
 {
-	if (bForce == FALSE && _fontHorzMenu.m_hObject != NULL)
+	if (bForce == FALSE && !_fontHorzMenu.IsNull())
 		return TRUE;// no need to reinitialize
 
 	// clean up
-	_fontHorzMenu.DeleteObject();
-	_fontVertMenu.DeleteObject();
+	if ( !_fontHorzMenu.IsNull() )
+		_fontHorzMenu.DeleteObject();
+
+	if ( !_fontVertMenu.IsNull() )
+		_fontVertMenu.DeleteObject();
 
 	// create fonts
 	NONCLIENTMETRICS info; info.cbSize = sizeof(info);
@@ -94,9 +97,9 @@ static int _CalcTextWidth(const CString& strText)
 {
 	CWindowDC dc(NULL);
 	CRect rcText(0, 0, 0, 0);
-	CFont* pOldFont = dc.SelectObject(&_fontHorzMenu);
-	dc.DrawText(strText, &rcText, DT_SINGLELINE | DT_CALCRECT);
-	dc.SelectObject(pOldFont);
+	HFONT hOldFont = dc.SelectFont(_fontHorzMenu);
+	dc.DrawText(strText,strText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
+	dc.SelectFont(hOldFont);
 
 	return rcText.Width();
 }
@@ -130,7 +133,7 @@ CMenuIcon::CMenuIcon(CSkinMenuBar* pMenuBar)
 {
 	ASSERT(pMenuBar);
 	m_pMenuBar = pMenuBar;
-	m_hIconWinLogo = AfxGetApp()->LoadStandardIcon(IDI_WINLOGO);
+	m_hIconWinLogo = LoadIcon(NULL, IDI_WINLOGO);
 	ASSERT(m_hIconWinLogo);
 
 	m_fsStyle |= MISTYLE_TRACKABLE;
@@ -818,7 +821,7 @@ HWND CSkinMenuBar::OleMenuDescriptor(BOOL& bSend, UINT nMsg, WPARAM wParam, LPAR
 	return NULL;// send to frame
 }
 
-CWnd* CSkinMenuBar::GetCmdSentOleWnd()
+HWND CSkinMenuBar::GetCmdSentOleWnd()
 {
 	// *****fixed by VORGA, thanks!*****
 	/*
@@ -959,7 +962,7 @@ LRESULT CMainFrameHook::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_INITMENUPOPUP:
 		if (!HIWORD(lParam) && (HMENU)wParam == m_pMenuBar->m_hWindowMenu)
-			m_pMenuBar->OnInitMenuPopup(CMenu::FromHandle((HMENU)wParam),
+			m_pMenuBar->OnInitMenuPopup((HMENU)wParam,
 			LOWORD(lParam), (BOOL)HIWORD(lParam));
 		break;
 
@@ -1547,7 +1550,7 @@ HMENU CSkinMenuBar::LoadMenu(HMENU hMenu, HMENU hWindowMenu)
 	m_hMenu = hMenu;// menu is shared with MFC
 
 	// initialize Items 
-	VERIFY(InitItems());
+	InitItems();
 
 	if (hMenu) 
 	{
@@ -1602,7 +1605,7 @@ LRESULT CSkinMenuBar::OnSettingChange(WPARAM wParam, LPARAM lParam)
 		return FALSE;
 	}
 
-	VERIFY(InitItems());
+	InitItems();
 
 	//CFrameWnd* pFrame = GetParentFrame();
 	//ASSERT_VALID(pFrame);
@@ -1822,7 +1825,7 @@ void CSkinMenuBar::CalcItemLayout(int nCount, BOOL bVert)
 	}
 }
 
-void CSkinMenuBar::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
+void CSkinMenuBar::OnInitMenuPopup(HMENU hPopupMenu, UINT nIndex, BOOL bSysMenu)
 {
 	TRACE(_T("CXPMenuBar::OnInitMenuPopup\n"));
 	CMenu menu;
@@ -1871,8 +1874,10 @@ void CSkinMenuBar::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu
 
 		if (iWin < 10)
 		{
-			CWnd::FromHandle(hwnd)->GetWindowText(sWinName);
-			sMenuItem.Format(_T("&%d %s"), iWin, (LPCTSTR)sWinName);
+			char sCaption[256];//¿Ø¼þÎÄ×Ö
+			::GetWindowText(hwnd, sCaption,256);
+			//::GetWindowText(hwnd, sWinName);
+			sMenuItem.Format(_T("&%d %s"), iWin, sCaption);
 			menu.InsertMenu(iPos, MF_BYPOSITION, nID, sMenuItem);
 			if (hwnd == hwndActive)
 				menu.CheckMenuItem(iPos, MF_BYPOSITION | MF_CHECKED);
@@ -1957,7 +1962,7 @@ void CSkinMenuBar::UpdateBar(TrackingState nState, int nNewIndex)
 	}
 
 	m_bProcessRightArrow = m_bProcessLeftArrow = TRUE;
-	TRACE( "m_nCurIndex is %d\r\n", m_nCurIndex );
+	//TRACE( "m_nCurIndex is %d\r\n", m_nCurIndex );
 }
 
 int CSkinMenuBar::HitTestOnTrack(CPoint point)

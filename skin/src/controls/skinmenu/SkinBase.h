@@ -12,7 +12,7 @@
 #include <Mmsystem.h>
 
 #pragma comment(lib, "winmm.lib") // for PlaySound
-
+using namespace WTL;
 // os
 enum
 {
@@ -41,16 +41,16 @@ public:
 	static BOOL FontIsPresent(LPCTSTR szFaceName);
 	static int GetOS();
 	static HRGN BitmapToRegion(CBitmap* pBmp, COLORREF cTransparentColor);
-	static HMENU MakeMenuCopy(const CMenu* pSrc);
+	static HMENU MakeMenuCopy(const HMENU hSrc);
 	static BOOL CopyBitmap(const CBitmap* pSrc, CBitmap* pDest);
 	static BOOL CopyMenu(const CMenu* pSrc, CMenu* pDest);
 	static BOOL ExtractResource(UINT nID, LPCTSTR szType, CString& sTempFilePath, HINSTANCE hInst = NULL);
-	static CWnd* GetChildWnd(CWnd* pParent, LPCTSTR szClass, int nID = -1);
+	static HWND GetChildWnd(HWND pParent, LPCTSTR szClass, int nID = -1);
 	static CString GetTipText(LPCTSTR szText, BOOL bToolbar);
 	static BOOL ConvertToGrayScale(CBitmap* pBitmap, COLORREF crMask);
-	static BOOL DoSysMenu(CWnd* pWnd, CPoint ptCursor, LPRECT prExclude = NULL, BOOL bCopy = FALSE);
-	static void InitSysMenu(CMenu* pMenu, CWnd* pWnd);
-	static HICON GetWindowIcon(CWnd* pWnd);
+	static BOOL DoSysMenu(HWND hWnd, CPoint ptCursor, LPRECT prExclude = NULL, BOOL bCopy = FALSE);
+	static void InitSysMenu(HMENU hMenu, HWND hWnd);
+	static HICON GetWindowIcon(HWND pWnd);
 	static COLORREF BlendColors(COLORREF crA, COLORREF crB, float fAmountA = 0.5f);
 	static COLORREF VaryColor(COLORREF crColor, float fFactor);
 
@@ -196,7 +196,7 @@ struct SoundInfo
 	{
 #ifdef _USRDLL
 		// If this is a DLL, need to set up MFC state
-		AFX_MANAGE_STATE(AfxGetStaticModuleState());
+//		AFX_MANAGE_STATE(AfxGetStaticModuleState());
 #endif
 
 		UINT uFlags = SND_ASYNC | SND_NODEFAULT;

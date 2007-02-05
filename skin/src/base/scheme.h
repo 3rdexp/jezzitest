@@ -1,7 +1,7 @@
 #ifndef __SKIN__SCHEME_H__
 #define __SKIN__SCHEME_H__
 
-#include <wtypes.h>
+//#include <wtypes.h>
 
 #include <hash_map>
 #include <map>

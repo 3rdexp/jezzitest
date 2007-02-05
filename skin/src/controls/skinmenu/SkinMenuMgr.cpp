@@ -20,11 +20,7 @@ using namespace ATL;
 #include "skininifile.h"
 #endif
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
+
 
 
 namespace Skin {
@@ -45,23 +41,17 @@ CSkinMenuMgr::CSkinMenuMgr()
 CSkinMenuMgr::~CSkinMenuMgr()
 {
 	// cleanup any remaining windows
-	ASSERT (!m_mapMenus.GetCount());
+	//ASSERT (!m_mapMenus.GetCount());
 
-	if (m_mapMenus.GetCount() != 0)
+	MENUHWND_ITERATOR it = m_mapMenus.begin();
+
+	while( it != m_mapMenus.end() )
 	{
-		HWND hwnd;
-		CSkinMenu* pSkin;
-		POSITION pos = m_mapMenus.GetStartPosition();
-
-		while (pos)
-		{
-			m_mapMenus.GetNextAssoc(pos, hwnd, pSkin);
-
-			if (pSkin)
-				delete pSkin;
-		}
-
-		m_mapMenus.RemoveAll();
+		ASSERT(it->first);
+		CSkinMenu* pSkin = it->second; 
+		if ( pSkin )
+			delete pSkin;
+		it = m_mapMenus.erase(it);
 	}
 
 	m_skGlobals.Reset();
@@ -364,7 +354,13 @@ CSkinMenu* CSkinMenuMgr::GetSkinMenu(HWND hWnd)
 {
 	CSkinMenu* pSkin = NULL;
 	
-	m_mapMenus.Lookup(hWnd, pSkin);
+	MENUHWND_ITERATOR it = m_mapMenus.find( hWnd );
+
+	if( it != m_mapMenus.end() )
+	{
+		pSkin = it->second;
+	}
+
 	return pSkin;
 }
 
@@ -382,7 +378,11 @@ BOOL CSkinMenuMgr::Unskin(HWND hWnd)
 		return TRUE; // already done
 	
 	TRACE ("menu unskinned (%08X)\n", (UINT)hWnd);
-	m_mapMenus.RemoveKey(hWnd);
+	MENUHWND_ITERATOR it = m_mapMenus.find( hWnd );
+	if( it != m_mapMenus.end() )
+	{
+		m_mapMenus.erase(it);
+	}
 
 	pSkinMenu->DetachWindow();
 	delete pSkinMenu;
@@ -409,7 +409,8 @@ BOOL CSkinMenuMgr::Skin(HWND hWnd)
 		m_pCurSkinMenu->SetContextWnd(m_hCurContextWnd);
 		m_pCurSkinMenu->SetMenu(m_hCurMenu, GetParentSkinMenu(m_hCurMenu));
 
-		m_mapMenus[hWnd] = pSkinMenu;
+		m_mapMenus.insert( std::make_pair(hWnd, pSkinMenu) );
+		//m_mapMenus[hWnd] = pSkinMenu;
 
 		return TRUE;
 	}
@@ -428,11 +429,11 @@ CSkinMenu* CSkinMenuMgr::GetParentSkinMenu(HMENU hMenu)
 	// having this menu as a popup
 	HWND hwnd;
 	CSkinMenu* pSkin;
-	POSITION pos = m_mapMenus.GetStartPosition();
 
-	while (pos)
+	MENUHWND_ITERATOR it = m_mapMenus.begin();
+	for ( it = m_mapMenus.begin(); it != m_mapMenus.end(); it++)
 	{
-		m_mapMenus.GetNextAssoc(pos, hwnd, pSkin);
+		pSkin = it->second;
 
 		const HMENU hOther = pSkin->GetMenu();
 
@@ -448,7 +449,6 @@ CSkinMenu* CSkinMenuMgr::GetParentSkinMenu(HMENU hMenu)
 			}
 		}
 	}
-	
 	return NULL;
 }
 
@@ -478,7 +478,7 @@ BOOL CSkinMenuMgr::InitSkin( HWND hWnd )
 {
 	if( CWinClasses::IsClass(hWnd, WC_CONTROLBAR) )
 	{
-		SkinControlBar<ATL::CWindow>::InstallHook( hWnd );
+		//SkinControlBar<ATL::CWindow>::InstallHook( hWnd );
 	}
 
 	return TRUE;

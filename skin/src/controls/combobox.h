@@ -103,7 +103,7 @@ namespace Skin {
 
 				if ( wndLBox.m_hWnd )
 				{
-					CRect rLBox;
+					WTL::CRect rLBox;
 					wndLBox.GetWindowRect( rLBox );
 					wndLBox.ScreenToClient( rLBox );
 					wndLBox.MapWindowPoints( m_hWnd, rLBox );

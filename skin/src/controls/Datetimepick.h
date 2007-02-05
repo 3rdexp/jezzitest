@@ -54,7 +54,7 @@ namespace Skin {
 				//SetRedraw(TRUE);
 
 				WTL::CClientDC dc( m_hWnd );
-				CRect rcItem;
+				WTL::CRect rcItem;
 				GetClientRect( rcItem );
 				int nState = GetState();
 				DrawDropButton(dc, nState, rcItem );
@@ -175,7 +175,7 @@ namespace Skin {
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			CRect rc ;
+			WTL::CRect rc ;
 			GetClientRect( rc );
 
 			WTL::CPaintDC	dc( m_hWnd );
