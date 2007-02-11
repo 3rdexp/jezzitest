@@ -24,8 +24,8 @@ namespace Skin {
 		typedef SkinControlImpl<SkinListBox, BaseT> base_type;
 
 		BEGIN_MSG_MAP(this_type)
-			if ( hWnd == m_hWnd )
-				ATLTRACE(" msg is %04x \n", uMsg);
+			//if ( hWnd == m_hWnd )
+			//	ATLTRACE(" msg is %04x \n", uMsg);
 			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 			MSG_WM_CREATE(OnCreate)
 		END_MSG_MAP()

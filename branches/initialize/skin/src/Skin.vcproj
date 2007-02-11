@@ -16,7 +16,7 @@
 			OutputDirectory="..\Debug"
 			IntermediateDirectory="..\Debug\Skin"
 			ConfigurationType="2"
-			UseOfMFC="2"
+			UseOfMFC="1"
 			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
@@ -26,7 +26,7 @@
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="3"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -36,10 +36,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
+				AdditionalDependencies="Gdi32.lib"
 				OutputFile="$(OutDir)/Skin.dll"
 				LinkIncremental="2"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames="LIBCMTD"
+				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="dll\Skin.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
@@ -59,9 +60,7 @@
 				ProxyFileName="Skin_p.c"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="copy to examples"
-				CommandLine="echo copy $(OutDir)\$(TargetFileName) ..\examples\mfc\bin
-"/>
+				Description="copy to examples"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -87,14 +86,14 @@
 			OutputDirectory="..\Release"
 			IntermediateDirectory="..\Release\skin"
 			ConfigurationType="2"
-			UseOfMFC="2"
+			UseOfMFC="1"
 			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="3"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -104,9 +103,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
+				AdditionalDependencies="Gdi32.lib"
 				OutputFile="$(OutDir)/Skin.dll"
 				LinkIncremental="1"
-				IgnoreDefaultLibraryNames="LIBCMT"
+				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="dll\Skin.def"
 				GenerateDebugInformation="TRUE"
 				AssemblyDebug="1"
@@ -198,7 +198,10 @@
 		<Filter
 			Name="base">
 			<File
-				RelativePath=".\base\refresh.h">
+				RelativePath=".\base\mapptr.cpp">
+			</File>
+			<File
+				RelativePath=".\base\mapptr.h">
 			</File>
 			<File
 				RelativePath=".\base\scheme.cpp">
@@ -207,13 +210,19 @@
 				RelativePath=".\base\scheme.h">
 			</File>
 			<File
+				RelativePath=".\base\SkinConfig.h">
+			</File>
+			<File
 				RelativePath=".\base\SkinCtrl.h">
 			</File>
 			<File
-				RelativePath=".\base\SkinDraw.h">
+				RelativePath=".\base\SkinHook.h">
 			</File>
 			<File
-				RelativePath=".\base\SkinHookbase.h">
+				RelativePath=".\base\skinhookbase.h">
+			</File>
+			<File
+				RelativePath=".\base\skiniid.h">
 			</File>
 			<File
 				RelativePath=".\base\SkinMgr.cpp">
@@ -282,21 +291,6 @@
 				RelativePath=".\controls\listview.h">
 			</File>
 			<File
-				RelativePath=".\controls\menu.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\controls\menu.h">
 			</File>
 			<File
@@ -304,6 +298,9 @@
 			</File>
 			<File
 				RelativePath=".\controls\menubar.h">
+			</File>
+			<File
+				RelativePath=".\controls\menuhook.h">
 			</File>
 			<File
 				RelativePath=".\controls\monthcal.h">
@@ -316,6 +313,12 @@
 			</File>
 			<File
 				RelativePath=".\controls\scrollbar.h">
+			</File>
+			<File
+				RelativePath=".\controls\skindialog.h">
+			</File>
+			<File
+				RelativePath=".\controls\skinmenu.h">
 			</File>
 			<File
 				RelativePath=".\controls\spin.h">
@@ -335,48 +338,6 @@
 			<Filter
 				Name="menu"
 				Filter="">
-				<File
-					RelativePath=".\controls\skinmenu\HookMgr.cpp">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\HookMgr.h">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinBase.cpp">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinBase.h">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinColors.h">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinGlobals.cpp">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinGlobals.h">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinGlobalsData.h">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinMenu.cpp">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinMenu.h">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinMenuMgr.cpp">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\SkinMenuMgr.h">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\WinClasses.cpp">
-				</File>
-				<File
-					RelativePath=".\controls\skinmenu\WinClasses.h">
-				</File>
 			</Filter>
 		</Filter>
 		<Filter

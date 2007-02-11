@@ -56,7 +56,8 @@ WINCOMMCTRLAPI HRESULT WINAPI ImageList_WriteEx(HIMAGELIST himl, DWORD dwFlags, 
 #include "../controls/monthcal.h"
 #include "../libcoolsb/coolscroll.h"
 #include "../libcoolsb/coolsb_detours.h"
-//#include "../base/SkinHook.h"
+#include "../base/SkinHook.h"
+#include "../controls/menuhook.h"
 //#include "../controls/skinmenu/SkinMenuMgr.h"
 #endif
 
@@ -218,12 +219,12 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
 			_installed_type |= SKINCTL_IPADDRESS;
 	}
 
-	if (!(_installed_type & SKINCTL_DATATIMEPICKER) && (dwType & SKINCTL_DATATIMEPICKER) )
+	if (!(_installed_type & SKINCTL_DATETIMEPICKER) && (dwType & SKINCTL_DATETIMEPICKER) )
 	{
-		typedef SkinDataTimePickerCtrl<WTL::CDateTimePickerCtrl> skindata;
+		typedef SkinDateTimePickerCtrl<WTL::CDateTimePickerCtrl> skindata;
 		bool f = skindata::Install(hInst);
 		if (f)
-			_installed_type |= SKINCTL_DATATIMEPICKER;
+			_installed_type |= SKINCTL_DATETIMEPICKER;
 	}
 
 	if (!(_installed_type & SKINCTL_MONTHCALCTL) && (dwType & SKINCTL_MONTHCALCTL) )
@@ -273,7 +274,7 @@ STDMETHODIMP SkinMgr::InitControls(HINSTANCE hInst, DWORD dwType)
     _installed_type |= SKINCTL_WINDOW;
     
 	
-	//CSkinHook::Initialize();
+	CSkinHook::Initialize();
 
 	// value => type
 	// 1 => SkinButton

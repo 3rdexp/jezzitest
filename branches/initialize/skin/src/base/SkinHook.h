@@ -4,7 +4,7 @@
 #include "../controls/toolbar.h"
 //#include "../controls/skindialog.h"
 #include "../controls/frame.h"
-
+#include "../controls/menu.h"
 namespace Skin {
 class CSkinHook
 {
@@ -57,55 +57,6 @@ public:
 		return CString(szWndClass);
 	}
 
-	CString GetClassEx(HWND hWnd)
-	{
-		CString sClass = GetClass(hWnd);
-
-		if (sClass.Find("Afx") == 0) // its an mfc framework base or derived class
-		{
-			// can do the check if pWnd is permanent else mfc will not yet
-			// have hooked up
-
-			CWnd* pWnd = CWnd::FromHandlePermanent(hWnd);
-			//CWnd* pWnd = CWnd::FromHandle(hWnd);
-			
-			if (pWnd)
-			{
-				// must do the check in order of most derived class first
-				if (pWnd->IsKindOf(RUNTIME_CLASS(CView)))
-					return WC_MFCVIEW;
-
-				else if (pWnd->IsKindOf(RUNTIME_CLASS(CMDIFrameWnd)))
-					return WC_MFCMDIFRAME;
-
-				else if (pWnd->IsKindOf(RUNTIME_CLASS(CMDIChildWnd)))
-					return WC_MFCMDICHILD;
-
-//				else if (pWnd->IsKindOf(RUNTIME_CLASS(CMiniDockFrameWnd)))
-//					return WC_MFCMINIDOCKFRAME;
-
-				else if (pWnd->IsKindOf(RUNTIME_CLASS(CMiniFrameWnd)))
-					return WC_MFCMINIFRAME;
-
-				else if (pWnd->IsKindOf(RUNTIME_CLASS(CFrameWnd))) // this is the catch all for frame wnds
-					return WC_MFCFRAME;
-
-				else if (pWnd->IsKindOf(RUNTIME_CLASS(CSplitterWnd)))
-					return WC_MFCSPLITTER;
-
-				else if (pWnd->IsKindOf(RUNTIME_CLASS(CDialogBar)))
-					return WC_MFCDIALOGBAR;
-
-				else if (pWnd->IsKindOf(RUNTIME_CLASS(CControlBar)))
-					return WC_CONTROLBAR;
-
-				else 
-					return WC_MFCWND; // catch all for all window classes
-			}
-		}
-
-		return sClass;
-	}
 
 	
 	CSkinHookBase* GetSkinCtrl( HWND hWnd )
@@ -145,7 +96,7 @@ public:
 	
 	BOOL InitSkin( HWND hWnd )
 	{
-		CString sClass( GetClassEx( hWnd ) ); // converts Afx class names into something more useful
+		CString sClass( GetClass( hWnd ) ); // converts Afx class names into something more useful
 	/*
 		if ( sClass.CompareNoCase(WC_TOOLBAR) == 0 )
 		{
@@ -160,11 +111,12 @@ public:
 				return TRUE;
 			}
 		} 
-		else*/
+		else
 		if( sClass.Find(WC_CONTROLBAR) == 0 )
 		{
 			SkinControlBar<ATL::CWindow>::InstallHook( hWnd );
 		}
+		*/
 		
 		return TRUE;
 		/*
@@ -231,7 +183,7 @@ public:
 	void RemovehWnd( HWND hWnd )
 	{
 		SKINHWND_ITERATOR it = _hwnd_maps.find( hWnd );
-		if( it == _hwnd_maps.end() )
+		if( it != _hwnd_maps.end() )
 		{
 			_hwnd_maps.erase(it);
 		}
@@ -271,10 +223,80 @@ public:
 		return CallNextHookEx(GetInstance()._hCallWndHook, nCode, wParam, lParam);
 	}
 
+	bool IgnoreThisMenu(HMENU hMenu)
+	{
+		// if we receive a menu which has separators which have a non-zero value, then its
+		// a menu we should not make ownerdrawm
+		// determine whether this is such a menu
+		bool ignoreMenu = false;
+
+		int itemCount = ::GetMenuItemCount(hMenu);
+		for (int item = 0; item < itemCount && !ignoreMenu; item++)
+		{
+			MENUITEMINFO    itemInfo;    
+			memset(&itemInfo, 0, sizeof(MENUITEMINFO));
+			itemInfo.cbSize = sizeof(MENUITEMINFO);
+
+			itemInfo.fMask = MIIM_TYPE | MIIM_ID | MIIM_SUBMENU;
+			::GetMenuItemInfo(hMenu, item, TRUE, &itemInfo);
+
+			int itemID = itemInfo.wID;
+
+			if ((itemInfo.fType & MFT_SEPARATOR) != 0 && itemID != 0)
+			{
+				// this is a menu type we need to ignore
+				ignoreMenu = true;
+			}
+			if (itemInfo.hSubMenu != NULL)
+			{
+				// do a recursive call on this popup menu
+				ignoreMenu = IgnoreThisMenu(itemInfo.hSubMenu);
+			}
+		}
+		return ignoreMenu;
+	}
+
 	BOOL OnCallWndProc(const MSG& msg)
 	{   
 		switch (msg.message)
 		{
+		case WM_INITMENUPOPUP:
+			{
+				break;
+				TRACE("WM_INITMENUPOPUP menu is %d \r\n ", msg.wParam );
+/*
+				CSkinHookBase* pSkinCtrl = GetSkinCtrl( msg.hwnd );
+				if ( !pSkinCtrl )
+				{
+					SkinMenu* pSkin = new SkinMenu();
+					pSkin->Install( msg.hwnd );
+					pSkin->OnInitMenuPopup( ( HMENU ) msg.wParam, LOWORD(msg.lParam), (BOOL) HIWORD(msg.lParam) );
+					_handle_maps.insert( std::make_pair(msg.hwnd, pSkin) );	
+				}	
+				else
+				{
+					SkinMenu* pSkin = (SkinMenu*)pSkinCtrl;
+					//pSkin->SetMenu( ( HMENU ) msg.wParam );
+					pSkin->OnInitMenuPopup( ( HMENU ) msg.wParam, LOWORD(msg.lParam), (BOOL) HIWORD(msg.lParam) );
+				}
+				//SkinMenu<ATL::CWindow>::InstallHook( msg.hwnd );
+				break;
+*/
+			}
+		case WM_UNINITMENUPOPUP:
+			{
+/*
+				TRACE("WM_UNINITMENUPOPUP menu is %d \r\n ", msg.wParam );
+				CSkinHookBase* pSkinCtrl = GetSkinCtrl( msg.hwnd );
+				if ( pSkinCtrl )
+				{
+					//SkinMenu* pSkin = (SkinMenu*)pSkinCtrl;
+					//pSkin->SetMenu( ( HMENU ) msg.wParam );
+					//pSkin->OnUnInitMenuPopup( ( HMENU ) msg.wParam );
+				}
+*/
+				break;
+			}
 		case WM_STYLECHANGED:
 			if (msg.wParam == GWL_STYLE)
 			{
@@ -328,7 +350,7 @@ public:
 			break;
 		case WM_NCPAINT:
 			{
-				TRACE("hook WM_NCPAINT  %p %d\n", msg.hwnd, msg.message);
+				//TRACE("hook WM_NCPAINT  %p %d\n", msg.hwnd, msg.message);
 				break;
 			}
 		case WMS_SETSTYLE: //ÐÞ¸Ästyle

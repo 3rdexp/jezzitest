@@ -65,7 +65,7 @@
 			OutputDirectory=".\..\lib"
 			IntermediateDirectory=".\..\Release\libcoolsb"
 			ConfigurationType="4"
-			UseOfMFC="0"
+			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
 			<Tool

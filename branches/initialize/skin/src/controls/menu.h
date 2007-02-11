@@ -4,6 +4,24 @@
 #include "../base/skinhookbase.h"
 
 /*
+CPlugInApp *pApp = static_cast<CPlugInApp*>(AfxGetApp());
+if (pApp)
+{
+TRACE("Enumerating application\n");
+EnumResourceNames(pApp->m_hInstance, RT_TOOLBAR,(ENUMRESNAMEPROC)EnumResNameProc, 0);
+
+// now enumerate all the plug-in DLL toolbars
+int dllCount = pApp->GetPlugInDLLCount();
+for(int dll = 0 ; dll < dllCount; dll++)
+{
+TRACE("Enumerating DLL %1d\n", dll);
+EnumResourceNames(pApp->GetDLL(dll)->GetHInstance(), RT_TOOLBAR,(ENUMRESNAMEPROC)EnumResNameProc, 0);
+}
+}
+
+*/
+
+/*
 0081 menu	WM_NCCREATE
 0083 menu	WM_NCCALCSIZE
 0001 menu	WM_CREATE
@@ -37,6 +55,12 @@ namespace Skin {
 
 
 
+#define IMGWIDTH 16
+#define IMGHEIGHT 16
+#define IMGPADDING 6
+#define TEXTPADDING 8
+#define TEXTPADDING_MNUBR 4
+#define SM_CXSHADOW 4
 
 #ifndef MN_SETHMENU
 
@@ -50,6 +74,9 @@ namespace Skin {
 #define MN_SELECTITEM            0x01E5
 #define MN_CANCELMENUS           0x01E6
 #define MN_SELECTFIRSTVALIDITEM  0x01E7
+
+#define MN_BUTTONUP				 0x01EF
+
 //;MN_GETPPOPUPMENU       = 01EAh ;Win32
 //;MN_FINDMENUWINDOWFROMPOINT = 01EBh ;Win32
 //;MN_SHOWPOPUPWINDOW     = 01ECh ;Win32
@@ -72,18 +99,27 @@ namespace Skin {
     }
 #endif // #ifndef MSG_MN_SELECTITEM
 
+
+
 // 1 要让系统处理，MN_SELECTITEM,不然会死得很难看
 // GetCurrentSelectedIndex
 
-template<class BaseT = CWindow>
-class SkinMenu : public SkinControlImpl<SkinMenu, BaseT>
+//template<class BaseT = CWindow>
+//class SkinMenu : public SkinControlImpl<SkinMenu, BaseT, HookPolicy>
 //class SkinMenu : public CSkinHookImpl<SkinMenu>
-//template<class BaseT = ATL::CWindow>
-//struct SkinMenu : public SkinControlImpl<SkinMenu, BaseT, HookPolicy>
+template<class BaseT = ATL::CWindow>
+struct SkinMenu : public SkinControlImpl<SkinMenu, BaseT>
 //class SkinMenu : public CSkinHookImpl<SkinMenu>
 {
 public:
     //enum { class_id = MENU };
+
+	typedef struct
+	{
+		HMENU hMenu;
+		int nID;
+		UINT nType;
+	} OLDMENUITEM; 
 
 	enum { REDRAWALL = -2 };
 
@@ -98,14 +134,10 @@ public:
 	}
 
 
-    typedef SkinMenu<BaseT> this_type;
-    typedef SkinControlImpl<SkinMenu, BaseT> base_type;
+    //typedef SkinMenu<BaseT> this_type;
+    //typedef SkinControlImpl<SkinMenu, BaseT> base_type;
 
     SkinMenu()
-        : m_nUpdateItem(-1)
-        , m_nSelectedItem(-1)
-        , m_fSysMenu(FALSE)
-        , m_fPopup(FALSE)
     {
 		_classid = MENU;
 		m_bFirstRedraw = TRUE;
@@ -117,11 +149,17 @@ public:
 		_fontHorzMenu.CreateFontIndirect(&info.lfMenuFont);
 
 		_spaceIcon = 4;
-		_spaceText = 32;
+		_spaceText = 20;
+		m_bSysMenu = FALSE;
+		m_minSystemMenuWidth = 0;
+
+		m_nSelIndex = REDRAWALL;
+		m_nUpdateItem = -1;
+		m_bLButtonUp = FALSE;
 
 	}
 
-    BEGIN_MSG_MAP(/*SkinMenu*/this_type)
+    BEGIN_MSG_MAP(SkinMenu /*this_type*/)
 //        ATLASSERT(::IsWindow(m_hWnd));
 //        if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
 //              && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
@@ -131,22 +169,40 @@ public:
 //        {
 //          m_menu = GetHMenu();
 //        }
-
-		//ATLTRACE("%04x menu\n", uMsg);
+/*
+		if ( m_menu.IsNull() && m_hWnd )
+		{
+			HMENU hm = GetHMenu();
+			if ( hm )
+				m_menu = hm;
+			if ( !m_menu.IsNull() )
+			{
+				InitMenu();
+			}
+		}
+*/	
+		ATLTRACE("%04x menu\n", uMsg);
         MSG_WM_NCPAINT(OnNcPaint)
         MSG_WM_PAINT(OnPaint)
         MSG_MN_SELECTITEM(OnSelectItem)
-        //MSG_WM_KEYDOWN(OnKeyDown)
+        MSG_WM_KEYDOWN(OnKeyDown)
 		MSG_WM_PRINT(OnPrint)
-		MSG_WM_ERASEBKGND(OnEraseBkgnd)
-		MSG_WM_PRINTCLIENT(OnPrintClient)
-		//MSG_WM_SIZE(OnSize)
+	//	MSG_WM_ERASEBKGND(OnEraseBkgnd)
+
+		MESSAGE_HANDLER( MN_BUTTONUP, OnLButtonUp)
+
+		MSG_WM_WINDOWPOSCHANGING( OnWindowPosChange )
+
+//		MSG_WM_PRINTCLIENT(OnPrintClient)
+//		MSG_WM_SIZE(OnSize)
 //        MSG_WM_PRINT()
 //        MSG_WM_PRINTCLIENT()
 //        MSG_WM_NCCALCSIZE
 //        MSG_WM_WINDOWPOSCHANGING
 //        MSG_WM_ERASEBKGND
-//        MSG_WM_CREATE(OnCreate)
+      //  MSG_WM_CREATE(OnCreate)
+//		MSG_WM_DRAWITEM( OnDrawItem )
+//		MSG_WM_MEASUREITEM( OnMeasureItem )
     END_MSG_MAP()
 
 private:
@@ -225,11 +281,207 @@ private:
 		}
 	}
 
+
+	int GetCurSel()
+	{
+		int nItem = GetMenuItemCount( m_menu.m_hMenu );
+
+		while (nItem--)
+		{
+			if (GetMenuState(m_menu.m_hMenu, nItem, MF_BYPOSITION) & MF_HILITE)
+				return nItem;
+		}
+
+		return -1; // nothing selected
+	}
 public:
+
+	// 绘制每一个item
+	void DrawItem( HDC hdc, int nID, CRect& rcItem )
+	{
+		CDCHandle dc;
+		dc.Attach( hdc );
+		
+			// 0 判断状态
+		int nState = 1;
+
+		UINT  nMenuState = GetMenuState( m_menu.m_hMenu, nID, MF_BYPOSITION );
+
+		if ( (nMenuState & MF_DISABLED ) )
+		{
+			nState = 4;
+		}
+		else if ( (nMenuState & MF_HILITE ) )
+		{
+			nState = 2;
+		}
+
+		// 1 判断类型
+		MENUITEMINFO mii = { sizeof MENUITEMINFO, MIIM_TYPE };
+		::GetMenuItemInfo (m_menu.m_hMenu, nID, TRUE, &mii);
+		if ( (mii.fType & MFT_SEPARATOR) )
+		{
+			if (_scheme)
+				_scheme->DrawBackground(dc, _classid, 1, nState, &rcItem, NULL );
+
+			int nSepHeight = GetSchemeHeight( 2, 1 );
+			WTL::CRect rcSep = rcItem;
+			rcSep.top = rcItem.top + ( rcItem.Height() - nSepHeight ) / 2 ;
+			rcSep.bottom = rcSep.top + nSepHeight;
+			if (_scheme)
+				_scheme->DrawBackground(dc, _classid, 2, 1, &rcSep, NULL );
+		}
+		/*else if ( (mii.fType & MFT_OWNERDRAW) )
+		{
+			TRACE( "DrawItem MFT_OWNERDRAW \r\n ");
+		}*/
+		else
+		{
+			const int string_size = m_menu.GetMenuString(nID, 0, 0, MF_BYPOSITION);
+			if ( string_size == 0 && (mii.fType & MFT_OWNERDRAW) )
+			{
+				TRACE( "DrawItem MFT_OWNERDRAW \r\n ");
+			}
+			else
+			{
+				if (_scheme)
+					_scheme->DrawBackground(dc, _classid, 1, nState, &rcItem, NULL );
+			}
+		
+			HFONT hOldFont = 0;
+			WTL::CFont fontBold;
+			// 判断是否是黑体
+			if( (nMenuState & MFS_DEFAULT) != 0 ) 
+			{
+				// Need bold version of font
+				LOGFONT lf;
+				_fontHorzMenu.GetLogFont(lf);
+				lf.lfWeight += 200;
+				fontBold.CreateFontIndirect(&lf);
+				ATLASSERT(!fontBold.IsNull());
+				hOldFont = dc.SelectFont(fontBold);
+			}
+			else
+			{
+				hOldFont = dc.SelectFont( _fontHorzMenu.m_hFont );
+			}
+
+			// 绘制图片 radio/check/hbitmap
+			WTL::CBitmapHandle hBitmap;
+			if ( ( nMenuState & MFS_CHECKED ) )
+			{
+				MENUITEMINFO   mbmp;   
+				ZeroMemory(&mbmp,sizeof(mbmp));   
+				mbmp.cbSize=sizeof(mbmp);   
+				mbmp.fMask=MIIM_CHECKMARKS;
+				::GetMenuItemInfo (m_menu.m_hMenu, nID, TRUE, &mbmp);
+				if ( mbmp.hbmpChecked )
+				{
+					hBitmap.Attach( mbmp.hbmpChecked );
+				}
+				else
+				{
+					if ( (mii.fType & MFT_RADIOCHECK) )
+					{
+						// todo raido
+					}
+				}
+			}
+			else if ( ( nMenuState & MFS_UNCHECKED ) )
+			{
+				MENUITEMINFO mbmp = { sizeof MENUITEMINFO, MIIM_CHECKMARKS | MIIM_TYPE  };
+				::GetMenuItemInfo (m_menu.m_hMenu, nID, TRUE, &mbmp);
+				if ( mbmp.hbmpUnchecked )
+				{
+					hBitmap.Attach( mbmp.hbmpUnchecked );
+				}
+			}
+			else if ( ( mii.fType & MFT_BITMAP ) )
+			{
+				MENUITEMINFO mbmp ;//= { sizeof MENUITEMINFO,  MIIM_TYPE | MIIM_BITMAP  }; 
+				ZeroMemory(&mbmp, sizeof(mbmp));  
+				mbmp.cbSize = sizeof(mbmp);
+				mbmp.fMask =  MIIM_BITMAP ;
+				m_menu.GetMenuItemInfo ( nID, TRUE, &mbmp );
+				if ( mbmp.fType & MFT_BITMAP)
+				{
+					if ( mbmp.hbmpItem )
+					{
+						hBitmap.Attach( mbmp.hbmpItem );
+					}
+				}
+			}
+
+			// draw icon
+			if ( !hBitmap.IsNull() )
+			{
+				SIZE sz;
+				hBitmap.GetSize(sz);
+				int nX = _spaceIcon;
+				int nY = (rcItem.Height() - sz.cy) / 2;
+
+				WTL::CClientDC cdc(m_hWnd);
+				HDC hDC = ::CreateCompatibleDC(cdc.m_hDC);
+				HBITMAP pOldBitmapImage = (HBITMAP)SelectObject(hDC, hBitmap);
+				::BitBlt(dc.m_hDC, nX, nY, sz.cx, sz.cy, hDC, 0, 0, SRCCOPY);
+				SelectObject(hDC, pOldBitmapImage);
+				::DeleteObject(hDC);
+				::ReleaseDC(m_hWnd, cdc);
+			}
+
+			
+			if (string_size > 0)
+			{
+				char* sz = new char[string_size + 1];
+				int n = m_menu.GetMenuString(nID, sz, string_size  + 1, MF_BYPOSITION);
+				ASSERT(n == string_size);
+				if (n)
+				{
+					int nTab = -1;
+					for( int j = 0; j < ::lstrlen(sz); j++ ) 
+					{
+						if( sz[j] == _T('\t')) 
+						{
+							nTab = j;
+							break;
+						}
+					}
+
+					COLORREF clr =  GetSchemeColor( 1, nState, TMT_TEXTCOLOR );
+
+					COLORREF clrOldText = ::SetTextColor( dc.m_hDC, clr );
+
+					int mode = SetBkMode(dc.m_hDC, TRANSPARENT);
+
+					UINT uFlags = DT_SINGLELINE | DT_VCENTER;
+					//uFlags |= DT_HIDEPREFIX;
+
+					rcItem.left += _spaceText;
+					rcItem.right -= _spaceText;
+					
+					dc.DrawText(sz, nTab, &rcItem, DT_LEFT | uFlags);
+					if( nTab >= 0 ) 
+						dc.DrawText(&sz[nTab + 1], -1, &rcItem, DT_RIGHT | uFlags);
+
+					::SetTextColor( dc.m_hDC, clrOldText );
+					SetBkMode(dc.m_hDC, mode);
+					//dc.DrawText(sz, n, (LPRECT)&rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+				}
+				delete [] sz;
+			}	
+
+			dc.SelectFont(hOldFont);
+
+		}
+
+	}
+	void SetMenu( HMENU hMenu )
+	{
+		m_menu = hMenu;
+	}
 
 	void DoNcPaint(HDC hdc)
 	{
-
 		CRect rWindow, rClient;
 		GetDrawRect(rWindow, rClient);
 
@@ -245,244 +497,21 @@ public:
 		dc.RestoreDC(nSaveDC);
 	}
 
-
-
-	void DoPaint( HDC hdc, BOOL bClient = TRUE )
-	{
-		if (m_menu.IsNull() && m_hWnd)
-			m_menu = GetHMenu();
-
-		CRect rcw;
-		GetWindowRect( rcw );
-		rcw.OffsetRect( -rcw.left, -rcw.top );
-		CRect rcc;
-		GetClientRect( rcc );
-		int nTop = (rcw.Height() - rcc.Height()) / 2;
-		int nLeft = (rcw.Width() - rcc.Width() ) / 2;
-
-		CDCHandle dc;
-		dc.Attach( hdc );
-
-		int cItems = m_menu.GetMenuItemCount();
-
-		int mode = SetBkMode(dc.m_hDC, TRANSPARENT);
-		for ( int i = 0; i < cItems ;i++ )
-		{
-			WTL::CRect rcItem;
-			BOOL b = FALSE;
-			if ( bClient )
-			{
-				b = GetMenuItemRect(NULL, m_menu.m_hMenu, i, &rcItem);
-				if ( !b )
-				{
-					TRACE("rect is %d,%d,%d,%d\r\n", rcItem.left, rcItem.top, rcItem.right, rcItem.bottom );
-					m_menu.GetMenuItemRect(m_hWnd, i, &rcItem);
-					TRACE("rect is %d,%d,%d,%d\r\n", rcItem.left, rcItem.top, rcItem.right, rcItem.bottom );
-					rcItem.OffsetRect( nLeft, nTop );
-				}
-			}
-			else
-			{
-				m_menu.GetMenuItemRect(m_hWnd, i, &rcItem);
-				TRACE("rect is %d,%d,%d,%d\r\n", rcItem.left, rcItem.top, rcItem.right, rcItem.bottom );
-				rcItem.OffsetRect( nLeft, nTop );
-			}
-			
-			ScreenToClient(&rcItem);
-			TRACE("rect is %d,%d,%d,%d\r\n", rcItem.left, rcItem.top, rcItem.right, rcItem.bottom );
-			
-			// 0 判断状态
-			int nState = 1;
-
-			UINT  nType = GetMenuState( m_menu.m_hMenu, i, MF_BYPOSITION );
-			if ( (nType & MF_DISABLED ) )
-			{
-				nState = 4;
-			}
-			else if ( (nType & MF_HILITE ) )
-			{
-				nState = 2;
-			}
-
-			if (_scheme)
-				_scheme->DrawBackground(dc, _classid, 1, nState, &rcItem, NULL );
-
-			// 1 判断类型
-			MENUITEMINFO mii = { sizeof MENUITEMINFO, MIIM_TYPE };
-			::GetMenuItemInfo (m_menu.m_hMenu, i, TRUE, &mii);
-			
-			if ( (mii.fType & MFT_SEPARATOR) )
-			{
-				int nSepHeight = GetSchemeHeight( 2, 1 );
-				WTL::CRect rcSep = rcItem;
-				rcSep.top = rcItem.top + ( rcItem.Height() - nSepHeight ) / 2 ;
-				rcSep.bottom = rcSep.top + nSepHeight;
-				if (_scheme)
-					_scheme->DrawBackground(dc, _classid, 2, 1, &rcSep, NULL );
-			}
-			else
-			{
-				HFONT hOldFont = 0;
-				WTL::CFont fontBold;
-				// 判断是否是黑体
-				if( (nType & MFS_DEFAULT) != 0 ) 
-				{
-					// Need bold version of font
-					LOGFONT lf;
-					_fontHorzMenu.GetLogFont(lf);
-					lf.lfWeight += 200;
-					fontBold.CreateFontIndirect(&lf);
-					ATLASSERT(!fontBold.IsNull());
-					hOldFont = dc.SelectFont(fontBold);
-				}
-				else
-				{
-					hOldFont = dc.SelectFont( _fontHorzMenu.m_hFont );
-				}
-				// 绘制图片 radio/check/hbitmap
-				WTL::CBitmapHandle hBitmap;
-				if ( ( nType & MFS_CHECKED ) )
-				{
-					MENUITEMINFO   mbmp;   
-					ZeroMemory(&mbmp,sizeof(mbmp));   
-					mbmp.cbSize=sizeof(mbmp);   
-					mbmp.fMask=MIIM_CHECKMARKS;
-					::GetMenuItemInfo (m_menu.m_hMenu, i, TRUE, &mbmp);
-					if ( mbmp.hbmpChecked )
-					{
-						hBitmap.Attach( mbmp.hbmpChecked );
-					}
-					else
-					{
-						if ( (mii.fType & MFT_RADIOCHECK) )
-						{
-							// todo raido
-						}
-					}
-				}
-				else if ( ( nType & MFS_UNCHECKED ) )
-				{
-					MENUITEMINFO mbmp = { sizeof MENUITEMINFO, MIIM_CHECKMARKS | MIIM_TYPE  };
-					::GetMenuItemInfo (m_menu.m_hMenu, i, TRUE, &mbmp);
-					if ( mbmp.hbmpUnchecked )
-					{
-						hBitmap.Attach( mbmp.hbmpUnchecked );
-					}
-				}
-				else
-				{
-					MENUITEMINFO mbmp = { sizeof MENUITEMINFO, 0x00000080 | MIIM_TYPE  };
-					::GetMenuItemInfo (m_menu.m_hMenu, i, TRUE, &mbmp);
-					if ( mbmp.hbmpItem )
-					{
-						hBitmap.Attach( mbmp.hbmpItem );
-					}
-				}
-				
-				// draw icon
-				if ( !hBitmap.IsNull() )
-				{
-					SIZE sz;
-					hBitmap.GetSize(sz);
-					int nX = _spaceIcon;
-					int nY = (rcItem.Height() - sz.cy) / 2;
-
-					WTL::CClientDC cdc(m_hWnd);
-					HDC hDC = ::CreateCompatibleDC(cdc.m_hDC);
-					HBITMAP pOldBitmapImage = (HBITMAP)SelectObject(hDC, hBitmap);
-					::BitBlt(dc.m_hDC, nX, nY, sz.cx, sz.cy, hDC, 0, 0, SRCCOPY);
-					SelectObject(hDC, pOldBitmapImage);
-					::DeleteObject(hDC);
-					::ReleaseDC(m_hWnd, cdc);
-				}
-
-				//else if ( (mii.fType & MFT_STRING ) || (mii.fType & MIIM_STRING ))
-				const int string_size = m_menu.GetMenuString(i, 0, 0, MF_BYPOSITION);
-				if (string_size > 0)
-				{
-					char* sz = new char[string_size + 1];
-					int n = m_menu.GetMenuString(i, sz, string_size  + 1, MF_BYPOSITION);
-					ASSERT(n == string_size);
-					if (n)
-					{
-						int nTab = -1;
-						for( int j = 0; j < ::lstrlen(sz); j++ ) 
-						{
-							if( sz[j] == _T('\t')) 
-							{
-								nTab = j;
-								break;
-							}
-						}
-						
-						COLORREF clr =  GetSchemeColor( 1, nState, TMT_TEXTCOLOR );
-
-						COLORREF clrOldText = ::SetTextColor( dc.m_hDC, clr );
-
-						UINT uFlags = DT_SINGLELINE | DT_VCENTER;
-						//uFlags |= DT_HIDEPREFIX;
-
-						rcItem.left += _spaceText;
-						rcItem.right -= _spaceText;
-
-						dc.DrawText(sz, nTab, &rcItem, DT_LEFT | uFlags);
-						if( nTab >= 0 ) 
-							dc.DrawText(&sz[nTab + 1], -1, &rcItem, DT_RIGHT | uFlags);
-
-						::SetTextColor( dc.m_hDC, clrOldText );
-
-						//dc.DrawText(sz, n, (LPRECT)&rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-					}
-					delete [] sz;
-				}	
-
-				dc.SelectFont(hOldFont);
-
-			}
-		}
-
-		
-		SetBkMode(dc.m_hDC, mode);
-		return;
-	}
-
-
-	void DoPrint( HDC hdc )
-	{
-		CRect rClient;
-		GetClientRect( rClient );
-
-		CRect rcw;
-		GetWindowRect( rcw );
-		rcw.OffsetRect( -rcw.left, -rcw.top );
-
-		WTL::CDCHandle dc ;
-		dc.Attach( hdc );
-
-		if (_scheme)
-			_scheme->DrawBackground(dc, _classid, 0, 1, &rcw, NULL );
-		//dc.FillSolidRect( rcw, RGB( 255, 0, 5));
-
-		DoPaint( dc.m_hDC, FALSE );
-		return;
-	}
-
-
 	LRESULT OnEraseBkgnd( HDC hdc )
 	{
-		//DoPaint( hdc );
-
 		return 1;
 	}
 
-	void OnPrintClient( HDC hdc, UINT lParam )
-	{
-		DoPaint( hdc );
-	}
-
-
     void OnNcPaint(HRGN)
     {
+		TRACE( "OnNcPaint \r\n ");
+
+		WTL::CWindowDC dc(m_hWnd);
+
+		DoNcPaint( dc.m_hDC );
+
+		return;
+		/*
 		if (!m_bAnimatedMenus || !m_bFirstRedraw)
 		{
 			WTL::CWindowDC dc(m_hWnd);
@@ -495,37 +524,201 @@ public:
 		{
 			DefWindowProc();
 		}
+		*/
     }
 
 
+	LRESULT OnLButtonUp( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+	{
+
+		LRESULT lRet = DefWindowProc();
+		m_bLButtonUp = TRUE;
+		
+		return lRet;
+	}
+
+
+	void OnWindowPosChange( LPWINDOWPOS lp )
+	{
+		if ( m_bLButtonUp )
+		{
+			WTL::CRect rc;
+			WTL::CClientDC dc ( m_hWnd );
+			WTL::CMemoryDC memdc ( dc.m_hDC, rc );
+
+			int cItems = m_menu.GetMenuItemCount();
+			for ( int i = 0; i < cItems ;i++ )
+			{
+				WTL::CRect rcItem;
+				BOOL bRet = GetMenuItemRect(NULL, m_menu.m_hMenu, i, &rcItem);
+				//ASSERT ( bRet );
+				ScreenToClient(&rcItem);
+				DrawItem( memdc.m_hDC, i, rcItem );
+			}
+		}
+		
+		DefWindowProc();
+	}
+
+	
 	void OnPaint(HDC)
     {
-		
-        WTL::CPaintDC paintdc(m_hWnd);
+		TRACE( "OnPaint  \r\n ");
+		if (m_menu.IsNull())
+			m_menu = GetHMenu();
 
-		DoPaint( paintdc.m_hDC );
+		WTL::CRect rc;
+		GetClientRect( rc );
+
+		WTL::CPaintDC paintdc(m_hWnd);
+		
+		WTL::CMemoryDC dc ( paintdc.m_hDC, rc );
+
+		DefWindowProc( WM_PRINTCLIENT,(WPARAM)dc.m_hDC, (LPARAM)PRF_CLIENT ); //| WM_PRINTCLIENT | PRF_OWNED );
+
+		int cItems = m_menu.GetMenuItemCount();
+		for ( int i = 0; i < cItems ;i++ )
+		{
+			WTL::CRect rcItem;
+			BOOL bRet = GetMenuItemRect(NULL, m_menu.m_hMenu, i, &rcItem);
+			ASSERT ( bRet );
+			ScreenToClient(&rcItem);
+			DrawItem( dc.m_hDC, i, rcItem );
+		}
 		return;
     }
 
 
 	void OnPrint( HDC wParam, UINT lParam )
 	{
+		if (m_menu.IsNull())
+			m_menu = GetHMenu();
+		//DefWindowProc();
+		TRACE( "OnPrint lParam is %d \r\n ", lParam);
 
-		DoPrint( wParam );
-		return;
+		//DoNcPaint( wParam );
+		
+		WTL::CRect rect;
+		GetWindowRect( rect );
 
-		if ( lParam & PRF_CLIENT  )
+		WTL::CRect rcw = rect;
+		rcw.OffsetRect( - rcw.left, -rcw.top );
+
+		WTL::CMemoryDC dc ( wParam, rcw );
+
+		WTL::CRect rc;
+		GetClientRect( rc );
+
+		if (_scheme)
+			_scheme->DrawBackground(dc.m_hDC, _classid, 0, 1, &rcw, NULL );
+
+		HDC dcMem = ::CreateCompatibleDC(dc.m_hDC);
+		ASSERT(dcMem);
+		HBITMAP bmpMemBg = ::CreateCompatibleBitmap(dc.m_hDC, rc.Width(), rc.Height());
+		ASSERT(bmpMemBg);
+		HGDIOBJ pOldBmp = ::SelectObject(dcMem, bmpMemBg);
+		ASSERT(pOldBmp);
+
+		DefWindowProc( WM_PRINTCLIENT,(WPARAM)dcMem, (LPARAM)lParam );
+
+		CPoint wndOffset(0,0);
+		ClientToScreen( &wndOffset );
+		wndOffset -= rect.TopLeft();
+
+		int cItems = m_menu.GetMenuItemCount();
+
+		for ( int i = 0; i < cItems ;i++ )
 		{
-			DoPrint( wParam );
+			WTL::CRect rcItem;
+			BOOL bRet = GetMenuItemRect(m_hWnd, m_menu.m_hMenu, i, &rcItem);
+			ASSERT ( bRet );
+			ScreenToClient(&rcItem);
+			DrawItem( dcMem, i, rcItem );
 		}
-		else if ( lParam & PRF_NONCLIENT )
-			DoNcPaint( wParam );
-		else
-			DoPrint( wParam );
+
+		::BitBlt( dc.m_hDC, wndOffset.x, wndOffset.y, rc.Width(), rc.Height(), dcMem,0, 0, SRCCOPY);	
+
+		::SelectObject(dcMem, pOldBmp);
+		::DeleteObject(bmpMemBg);
+		::DeleteDC(dcMem);
+
+		
+		return;
 	}
 
-    void OnKeyDown(TCHAR, UINT, UINT)
+
+    void OnKeyDown(TCHAR wp, UINT, UINT)
     {
+		TRACE( "OnKeyDown char is %d \r\n ", wp);
+		LRESULT lr = 0;
+		switch (wp)
+		{
+		case VK_UP:
+		case VK_DOWN:
+		case VK_RIGHT:
+			// left is much trickier because if the currently selected item
+			// has a popup menu then left will close that submenu, and if
+			// we prevent the default redrawing then the submenu is not correctly
+			// removed from the screen.
+			// so we must always do the default drawing and follow it up with our own.
+		case VK_LEFT:
+			if ( !m_menu.IsMenu() )
+			{
+				if (wp != VK_LEFT) 
+					SetRedraw(FALSE);
+
+				lr = DefWindowProc();
+
+				if (wp != VK_LEFT) 
+					SetRedraw(TRUE);
+
+				//					TRACE ("Invalidating entire menu in response to a cursor keypress\n");
+
+				m_nSelIndex = -1; // reset current selection because its too risky to 
+				// try to figure it out for ourselves
+				Invalidate(FALSE);
+				UpdateWindow( );
+
+				m_bFirstRedraw = FALSE;
+			}
+			else // have menu handle
+			{
+				int nPrevSel = GetCurSel();
+
+				if (wp != VK_LEFT) 
+					SetRedraw(FALSE);
+
+				lr = DefWindowProc();
+
+				if (wp != VK_LEFT) 
+					SetRedraw(TRUE);
+
+				// if we have the handle of the menu then 
+				// we can do a selective redraw else we must redraw all
+				m_nSelIndex = GetCurSel();
+
+				if (m_nSelIndex != nPrevSel)
+				{
+					CRect rInvalid;
+					GetInvalidRect(m_nSelIndex, nPrevSel, rInvalid);
+
+					//						TRACE ("Invalidating menu items %d & %d in response to a cursor keypress\n", m_nSelIndex, nPrevSel);
+
+					InvalidateRect( rInvalid, FALSE );
+					//UpdateWindow( );
+
+					m_bFirstRedraw = FALSE;
+				}
+			}
+			if (m_bAnimatedMenus && m_bFirstRedraw)
+			{
+				CWindowDC dc( m_hWnd );
+				DoNcPaint( dc.m_hDC );
+			}
+			return ;
+		}
+		DefWindowProc();
+		/*
         ATLASSERT(::IsWindow(m_hWnd));
         DefWindowProc();
 
@@ -547,6 +740,7 @@ public:
                 m_nUpdateItem = nUpdateItem;
             }
         }
+		*/
 
         return;
     }
@@ -557,6 +751,7 @@ public:
         if (m_menu.IsNull())
             m_menu = GetHMenu();
 
+		TRACE("OnSelectItem \r\n");
 		
 		//CClientDC dc ( m_hWnd );
 		//DoPaint( dc.m_hDC );
@@ -600,59 +795,24 @@ public:
         return 0;
     }
 
-private:
-    int GetCurrentSelectedIndex() const
-    {
-        int cItems = m_menu.GetMenuItemCount();
-        int i;
-        WTL::CMenuItemInfo mii;
-        mii.fMask = MIIM_STATE;
-        for (i=0;i<cItems;i++)
-        {
-            m_menu.GetMenuItemInfo(i, TRUE, &mii);
-            if (mii.fState & MFS_HILITE)
-                return i;
-        }
-        return -1;
-    }
-/*
-    void InvalidItem(int idItem)
-    {
-		WTL::CRect rc;
-		if ( m_menu.GetMenuItemCount() == 1 )
-		{
-			return;
-			GetWindowRect(rc);
-			rc.OffsetRect( -rc.left, -rc.top );
-			InvalidateRect(&rc, TRUE);
-			UpdateWindow();
-			
-		}
-		
-		//return;
-        
-        BOOL r = m_menu.GetMenuItemRect(m_hWnd, idItem, &rc);
-		//r = m_menu.GetMenuItemRect(GetParent(), idItem, &rc);
-		r = m_menu.GetMenuItemRect(NULL, idItem, &rc);
-        ScreenToClient(&rc);
 
-		TRACE("InvalidItem is %d,%d,%d,%d\r\n", rc.left, rc.top, rc.right, rc.bottom );
-	
-        InvalidateRect(&rc, FALSE);
-    }
-*/
 private:
-    int m_nUpdateItem;
-    int m_nSelectedItem;
+   
+    
     WTL::CMenuHandle m_menu;
-    BOOL m_fSysMenu;
-    BOOL m_fPopup;
+    
 	BOOL	m_bFirstRedraw;
 	BOOL	m_bAnimatedMenus;
-
+	int		m_nUpdateItem;
 	WTL::CFont _fontHorzMenu;
-	int	 _spaceIcon;
-	int  _spaceText;
+	int		_spaceIcon;
+	int		_spaceText;
+	BOOL	m_bSysMenu;
+	int		m_minSystemMenuWidth;
+	int		m_nSelIndex;
+
+	BOOL	m_bLButtonUp;
+	//typedef std::map< OLDMENUITEM* , HMENU >::iterator OWNER_ITERATOR;
 };
 
 }; // namespace
