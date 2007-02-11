@@ -9,6 +9,7 @@
 // WPARAM: TRUE for enable, FALSE disable
 #define WMS_ENABLE          WM_APP + 100
 
+#define WMS_MENU			WM_APP + 101
 
 
 

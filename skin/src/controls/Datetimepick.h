@@ -9,16 +9,17 @@ namespace Skin {
 	const UINT TIMER_DROP = 1;
 
 	template<class BaseT = WTL::CDateTimePickerCtrl>
-	struct SkinDataTimePickerCtrl : public SkinControlImpl<SkinDataTimePickerCtrl, BaseT>
+	struct SkinDateTimePickerCtrl : public SkinControlImpl<SkinDateTimePickerCtrl, BaseT>
 	{
 		//enum { class_id = DATATIMEPICKER };
 
-		SkinDataTimePickerCtrl()
+		SkinDateTimePickerCtrl()
 		{
 			m_nPart		= CP_DROPDOWNBUTTON;
 			m_bLBtnDown	= FALSE;
 			m_bRefresh  = FALSE;
-			_classid	= DATATIMEPICKER;
+			_classid	= DATETIMEPICKER;
+			m_nMess     = 0;
 		}
 
 		void OnFirstMessage()
@@ -26,26 +27,96 @@ namespace Skin {
 			int i = 0;
 		}
 
-		typedef SkinDataTimePickerCtrl<BaseT> this_type;
-		typedef SkinControlImpl<SkinDataTimePickerCtrl, BaseT> base_type;
+		typedef SkinDateTimePickerCtrl<BaseT> this_type;
+		typedef SkinControlImpl<SkinDateTimePickerCtrl, BaseT> base_type;
 
 		BEGIN_MSG_MAP(this_type)
 		//	if ( hWnd == m_hWnd )
-		//		ATLTRACE("datatimepick msg is %04x \n", uMsg);
-			MESSAGE_HANDLER(WM_PAINT, OnPaint)
-			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
-			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
-			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
-			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
+			ATLTRACE("%d datetimepick msg is %04x \n",m_nMess, uMsg);
+			m_nMess ++;
+//			MESSAGE_HANDLER(WM_PAINT, OnPaint)
+//			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+//			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+//			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
+//			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 
-			MESSAGE_HANDLER(WM_TIMER, OnTimer)
+//			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
+//			MESSAGE_HANDLER(WM_NCHITTEST, OnNcHitTest)
+//			MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+			MSG_WM_NOTIFY( OnNotify )
+			//MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			
 			//NOTIFY_CODE_HANDLER(DTN_DROPDOWN, OnDropDown)
 			//NOTIFY_CODE_HANDLER(DTN_CLOSEUP, OnDropClose)
 			//NOTIFY_CODE_HANDLER(DTN_DATETIMECHANGE, OnDataTimeChange)
 
 		END_MSG_MAP()
+		
+		LRESULT OnNotify( int wParam, LPNMHDR lParam )
+		{
+			LRESULT lRet = DefWindowProc();
+			return lRet;
+		}
 
+		LRESULT OnDropDown( int wParam, LPNMHDR lParam, BOOL bHandled)
+		{
+			return DefWindowProc();
+		}
+		
+		LRESULT OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+		{
+			if ( m_bRefresh )
+			{
+				SetRedraw( FALSE );
+			}
+			LRESULT lRet = DefWindowProc();
+			if ( m_bRefresh )
+			{
+				SetRedraw( TRUE );
+			}
+			return lRet;
+		}
+
+		LRESULT OnNcHitTest( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+		{
+			if ( m_bRefresh )
+				return 0 ;
+
+			LRESULT lRet = DefWindowProc();
+			return lRet;
+			if ( m_bRefresh )
+			{
+				WTL::CClientDC dc( m_hWnd );
+
+				WTL::CRect rcItem;
+				GetClientRect( rcItem );
+
+				int nState = GetState();
+				DrawDropButton(dc, nState, rcItem );
+				TRACE( "OnNcHitTest draw \r\n" );
+			}
+			return lRet;
+		}
+		
+		LRESULT OnMouseMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+		{
+			if ( m_bRefresh )
+				return 0 ;
+			LRESULT lRet = DefWindowProc();
+			return lRet;
+			if ( m_bRefresh )
+			{
+				WTL::CClientDC dc( m_hWnd );
+
+				WTL::CRect rcItem;
+				GetClientRect( rcItem );
+
+				int nState = GetState();
+				DrawDropButton(dc, nState, rcItem );
+				TRACE( "OnMouseMove draw \r\n" );
+			}
+			return lRet;
+		}
 
 		LRESULT OnTimer( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 		{
@@ -200,17 +271,36 @@ namespace Skin {
 			if( IsWindowEnabled() )
 			{
 
-				//SetRedraw(FALSE);
-				SetTimer(TIMER_DROP, 10, NULL);
+				WTL::CRect rcButton;
+				rcButton = getDropButtonRect();
 
-				lRet = DefWindowProc();
 
-				//SetRedraw(TRUE);
-				KillTimer(TIMER_DROP);
+				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+
+				if ( rcButton.PtInRect(pt) )
+				{
+					//SetRedraw(FALSE);
+					//SetTimer(TIMER_DROP, 10, NULL);
+					m_bRefresh = TRUE;
+					lRet = DefWindowProc();
+
+					//SetRedraw(TRUE);
+
+					//InvalidateRect( rcButton, FALSE );
+
+				}
+				else
+				{
+					lRet = DefWindowProc();
+				}
+				
+				//KillTimer(TIMER_DROP);
 
 				return lRet;
-
-
+			}
+			else 
+				return DefWindowProc();
+/*
 				WTL::CRect rcItem;
 				GetClientRect( rcItem );
 
@@ -239,7 +329,7 @@ namespace Skin {
 						monthcal_pos.x = rcButton.left - 
 						(rcMonthCal.right - rcMonthCal.left);
 					else
-						/* FIXME: this should be after the area reserved for the checkbox */
+						// FIXME: this should be after the area reserved for the checkbox 
 						monthcal_pos.x = rcItem.left;
 
 					monthcal_pos.y = rcItem.bottom;
@@ -271,12 +361,13 @@ namespace Skin {
 				
 				
 			}
+	*/		
 			
-			return lRet;
 		}
 
 		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
+			m_bRefresh = FALSE;
 			LRESULT lRet = 0;
 			m_bLBtnDown = FALSE;
 			//Invalidate();
@@ -361,6 +452,7 @@ namespace Skin {
 		BOOL	m_bLBtnDown;
 		BOOL	m_bRefresh;
 
+		int m_nMess;
 		enum
 		{
 			ICON_SPACE = 2,
