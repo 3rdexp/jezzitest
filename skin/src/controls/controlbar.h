@@ -7,7 +7,7 @@ namespace Skin {
 
 template<class BaseT = ATL::CWindow>
 //struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, HookPolicy>
-struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, RegisterPolicy>
+struct SkinControlBar : public SkinControlImpl<SkinControlBar, BaseT, HookPolicy>
 {
 public:
 	SkinControlBar()

@@ -358,6 +358,7 @@ public:
 		return FALSE;
 	}
 
+	
 
 protected:
     SkinControlImpl() 
@@ -388,6 +389,32 @@ public: // 需要被模版派生类访问
 	// 和 ATL::CWindowImplBaseT::GetWindowProc 类似
 	// 如果命名为 GetWindowProc 可能有warning(some BaseT)
 	static WNDPROC GetControlProc() { return (WNDPROC)ControlProc; }
+
+	static void UpdateWindowRgn()
+	{
+		handle_map::iterator it = _handle_maps.begin();
+		for ( it = _handle_maps.begin(); it != _handle_maps.end(); it ++ )
+		{
+			boost::shared_ptr<derived_type> safeptr;
+			safeptr = it->second;
+			safeptr->UpdateWindowRgn( );
+		}
+	}
+
+	static void	NotifyReflect( HWND hWnd, NMHDR* pNMHDR, LRESULT& lrParent )
+	{
+		handle_map::const_iterator it = _handle_maps.lower_bound( hWnd );
+		if (it == _handle_maps.end()) // 
+			return ;
+		else
+		{
+			boost::shared_ptr<derived_type> safeptr;
+			safeptr = it->second;
+			safeptr->OnNotifyReflect( pNMHDR, lrParent );
+			//return (ControlT*) safeptr;
+
+		}
+	}
 
 	const _ATL_MSG* GetCurrentMessage() const
 	{
@@ -458,6 +485,12 @@ public: // 需要被模版派生类访问
 		}
 		return S_OK;
 	}
+	
+	HRESULT UnInstallScrollBar()
+	{
+		return UninitializeCoolSB ( m_hWnd );
+	}
+
 
 	BEGIN_MSG_MAP(this_type)
 		MESSAGE_HANDLER(WMS_ENABLE, OnEnable)

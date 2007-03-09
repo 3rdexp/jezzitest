@@ -5,6 +5,7 @@
 //#include "../controls/skindialog.h"
 #include "../controls/frame.h"
 #include "../controls/menu.h"
+#include "../controls/Datetimepick.h"
 namespace Skin {
 class CSkinHook
 {
@@ -191,9 +192,15 @@ public:
 
 	void UpdateUI()
 	{
+		SkinSDIFrame::UpdateWindowRgn();
+		SkinMDIFrame::UpdateWindowRgn();
+		SkinFrame::UpdateWindowRgn();
+		SkinDialog::UpdateWindowRgn();
+
 		SKINHWND_ITERATOR it = _hwnd_maps.begin();
 		for ( it = _hwnd_maps.begin(); it != _hwnd_maps.end(); it++)
 		{
+			//需要把Dialog, Frame都处理一下
 			::SendMessage ( it->first, WM_NCACTIVATE, 1, 0 );
 			//::InvalidateRect( it->first, NULL, TRUE);
 			RedrawWindow(it->first, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
@@ -214,10 +221,13 @@ public:
 			CWPSTRUCT* pwp = (CWPSTRUCT*)lParam;
 
 			MSG msg = { pwp->hwnd, pwp->message, pwp->wParam, pwp->lParam, 0, { 0, 0 } };
-
-			BOOL bRet = GetInstance().OnCallWndProc(msg);
-			//if ( bRet )
-			//	return 0;
+			LRESULT lReturn = 0;
+			BOOL bRet = GetInstance().OnCallWndProc(msg, lReturn);
+			if ( bRet )
+			{
+				//CallNextHookEx(GetInstance()._hCallWndHook, nCode, wParam, lParam);
+				return lReturn;
+			}
 		}
 
 		return CallNextHookEx(GetInstance()._hCallWndHook, nCode, wParam, lParam);
@@ -256,45 +266,38 @@ public:
 		return ignoreMenu;
 	}
 
-	BOOL OnCallWndProc(const MSG& msg)
+	BOOL OnCallWndProc(const MSG& msg, LRESULT& lReturn)
 	{   
 		switch (msg.message)
 		{
-		case WM_INITMENUPOPUP:
+		case WM_NOTIFY:
 			{
-				break;
-				TRACE("WM_INITMENUPOPUP menu is %d \r\n ", msg.wParam );
-/*
-				CSkinHookBase* pSkinCtrl = GetSkinCtrl( msg.hwnd );
-				if ( !pSkinCtrl )
+				//搞这个消息是为了CDateTimePickerCtrl 所以就判断这个就可以了
+				NMHDR* pNMHDR = (NMHDR*)msg.lParam;
+				CString strClass = GetClass( pNMHDR->hwndFrom );
+				if ( strClass.CompareNoCase( WC_DATETIMEPICK ) == 0 )
 				{
-					SkinMenu* pSkin = new SkinMenu();
-					pSkin->Install( msg.hwnd );
-					pSkin->OnInitMenuPopup( ( HMENU ) msg.wParam, LOWORD(msg.lParam), (BOOL) HIWORD(msg.lParam) );
-					_handle_maps.insert( std::make_pair(msg.hwnd, pSkin) );	
-				}	
-				else
-				{
-					SkinMenu* pSkin = (SkinMenu*)pSkinCtrl;
-					//pSkin->SetMenu( ( HMENU ) msg.wParam );
-					pSkin->OnInitMenuPopup( ( HMENU ) msg.wParam, LOWORD(msg.lParam), (BOOL) HIWORD(msg.lParam) );
+					
+					if (pNMHDR->code != NM_CUSTOMDRAW)
+					{
+						//SkinDateTimePickerCtrl<WTL::CDateTimePickerCtrl>* pSkin = NULL;
+
+						SkinDateTimePickerCtrl<WTL::CDateTimePickerCtrl> skindata;
+						LRESULT lRet;
+						skindata.NotifyReflect( pNMHDR->hwndFrom, pNMHDR, lRet );
+						
+					}
 				}
-				//SkinMenu<ATL::CWindow>::InstallHook( msg.hwnd );
-				break;
-*/
-			}
-		case WM_UNINITMENUPOPUP:
-			{
-/*
-				TRACE("WM_UNINITMENUPOPUP menu is %d \r\n ", msg.wParam );
-				CSkinHookBase* pSkinCtrl = GetSkinCtrl( msg.hwnd );
-				if ( pSkinCtrl )
+
+				/*
+				if ( ((LPNMHDR)msg.lParam)->code == NM_COOLSB_CUSTOMDRAW )
 				{
-					//SkinMenu* pSkin = (SkinMenu*)pSkinCtrl;
-					//pSkin->SetMenu( ( HMENU ) msg.wParam );
-					//pSkin->OnUnInitMenuPopup( ( HMENU ) msg.wParam );
+					lReturn =  HandleCustomDraw(msg.wParam, (NMCSBCUSTOMDRAW *)msg.lParam);
+					return TRUE;
 				}
-*/
+				*/
+				
+
 				break;
 			}
 		case WM_STYLECHANGED:

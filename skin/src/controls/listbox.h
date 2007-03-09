@@ -8,8 +8,6 @@ namespace Skin {
 	template<class BaseT = CListBox>
 	struct SkinListBox : public SkinControlImpl<SkinListBox, BaseT>
 	{
-		//enum { class_id = LISTVIEW };
-
 		SkinListBox()
 		{
 			_classid = LISTVIEW;
@@ -17,7 +15,6 @@ namespace Skin {
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		typedef SkinListBox<BaseT> this_type;
@@ -32,9 +29,7 @@ namespace Skin {
 
 		BOOL OnCreate(LPCREATESTRUCT)
 		{
-			m_nPart = LVP_LISTITEM;
-			m_bInit = FALSE;
-			//InstallScrollBar();
+			_nPart = LVP_LISTITEM;
 			InstallScrollBar();
 			SetMsgHandled(FALSE);
 			return TRUE;
@@ -42,11 +37,6 @@ namespace Skin {
 
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			if ( !m_bInit )
-			{
-				m_bInit = TRUE;
-			}
-
 			LONG lExStyle;
 			lExStyle = GetExStyle();
 			if (( GetStyle() & WS_BORDER) ||
@@ -64,7 +54,7 @@ namespace Skin {
 				WTL::CBrush brBorder;
 				int nState = GetState();
 				COLORREF cr;
-				_scheme->GetColor( _classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+				_scheme->GetColor( _classid, _nPart, nState, TMT_BORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
 				FrameRect(hdc, WTL::CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 				brBorder.DeleteObject();
@@ -76,7 +66,7 @@ namespace Skin {
 					InflateRect(&rcw, -1, -1);
 					LONG lStyle = GetStyle();			
 					WTL::CBrush brBorder;
-					_scheme->GetColor( _classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+					_scheme->GetColor( _classid, _nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 					brBorder.CreateSolidBrush( cr ); 
 					FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
 					if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))
@@ -103,8 +93,7 @@ namespace Skin {
 			return LIS_NORMAL;
 		}
 	private:
-		int m_nPart;
-		BOOL m_bInit;
+		int _nPart;
 	};
 
 }; // namespace 

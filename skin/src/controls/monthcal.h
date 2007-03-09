@@ -14,7 +14,6 @@ namespace Skin {
 		
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 		
 		//enum { class_id = MONTHCALCTL };
@@ -129,8 +128,9 @@ namespace Skin {
 			m_bLBtnDown = TRUE;
 			if( IsWindowEnabled() )
 			{
+				SetRedraw( FALSE );
 				lRet = DefWindowProc();
-
+				SetRedraw( TRUE );
 
 				WTL::CRect rcLeft = GetLeftButtonRect();
 				WTL::CRect rcRight = GetRightButtonRect();
@@ -164,7 +164,9 @@ namespace Skin {
 			m_bLBtnDown = FALSE;
 			if( IsWindowEnabled() )
 			{
+				SetRedraw( FALSE );
 				lRet = DefWindowProc();
+				SetRedraw( TRUE );
 				WTL::CRect rcLeft = GetLeftButtonRect();
 				WTL::CRect rcRight = GetRightButtonRect();
 

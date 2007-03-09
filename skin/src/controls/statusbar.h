@@ -5,9 +5,7 @@
 namespace Skin {
 	template<class BaseT = WTL::CStatusBarCtrl>
 	struct SkinStatusBarCtrl : public SkinControlImpl<SkinStatusBarCtrl, BaseT>
-	{
-		//enum { class_id = STATUS };
-		
+	{	
 		SkinStatusBarCtrl()
 		{
 			_classid = STATUS;
@@ -15,7 +13,6 @@ namespace Skin {
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		

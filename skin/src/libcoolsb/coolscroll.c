@@ -684,6 +684,7 @@ static LRESULT PostCustomPrePostPaint0(HWND hwnd, HDC hdc, SCROLLBAR *sb, UINT d
 {
 #ifdef CUSTOM_DRAW
 	NMCSBCUSTOMDRAW	nmcd;
+	LRESULT lRet = 0;
 
 	CoolSB_ZeroMemory(&nmcd, sizeof nmcd);
 	nmcd.hdr.hwndFrom = hwnd;
@@ -694,7 +695,8 @@ static LRESULT PostCustomPrePostPaint0(HWND hwnd, HDC hdc, SCROLLBAR *sb, UINT d
 	nmcd.hdc		  = hdc;
 
 	//hwnd = GetParent(hwnd);
-	return SendMessage(hwnd, WM_NOTIFY, 0, (LPARAM)&nmcd);
+	lRet =  SendMessage(hwnd, WM_NOTIFY, 0, (LPARAM)&nmcd);
+	return lRet;
 #else
 	return 0;
 #endif
@@ -812,6 +814,7 @@ static LRESULT NCDrawHScrollbar(SCROLLBAR *sb, HWND hwnd, HDC hdc, const RECT *r
 	UINT uLeftButFlags  = DFCS_SCROLLLEFT;
 	UINT uRightButFlags = DFCS_SCROLLRIGHT;
 
+	LRESULT  lPostCustom = 0;
 	if(scrollwidth <= 0)
 		return 0;
 
@@ -852,7 +855,8 @@ static LRESULT NCDrawHScrollbar(SCROLLBAR *sb, HWND hwnd, HDC hdc, const RECT *r
 
 
 #ifdef CUSTOM_DRAW
-	fCustomDraw = ((PostCustomPrePostPaint(hwnd, hdc, sb, CDDS_PREPAINT)) == CDRF_SKIPDEFAULT);
+	lPostCustom = (PostCustomPrePostPaint(hwnd, hdc, sb, CDDS_PREPAINT));
+	fCustomDraw = ( lPostCustom == CDRF_SKIPDEFAULT);
 #endif
 
 	//

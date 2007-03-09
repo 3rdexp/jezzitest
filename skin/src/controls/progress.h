@@ -16,7 +16,6 @@ namespace Skin {
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		//enum { class_id = PROGRESS };

@@ -700,7 +700,7 @@ void CMenuControl::DrawControl(CDCHandle dc, int nIndex, BOOL bPressed)
 		nState = 3;
 	if ( m_pMenuBar )
 	{
-		m_pMenuBar->DrawBackground( dc.m_hDC, nIndex + 2, nState, rc, NULL );
+		m_pMenuBar->DrawBackground( dc.m_hDC, nIndex + 3, nState, rc, NULL );
 	}
 }
 
@@ -872,7 +872,7 @@ BOOL CMDIClientHook::Install(CSkinMenuBar* pMenuBar, HWND hWndToHook)
 	ASSERT(pMenuBar);
 	ASSERT(m_pMenuBar == NULL);
 	m_pMenuBar = pMenuBar;
-	return HookWindow(hWndToHook);
+	return HookWindow( hWndToHook );
 }
 
 CMDIClientHook::~CMDIClientHook()
@@ -912,7 +912,7 @@ LRESULT CMDIClientHook::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 		//		break;
 	}
 
-	return CSubclassWnd::WindowProc(NULL, nMsg, wParam, lParam);
+	return CSubclassWnd::WindowProc( nMsg, wParam, lParam);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -927,7 +927,7 @@ BOOL CMainFrameHook::Install(CSkinMenuBar* pMenuBar, HWND hWndToHook)
 	ASSERT(pMenuBar);
 	ASSERT(m_pMenuBar == NULL);
 	m_pMenuBar = pMenuBar;
-	return HookWindow(hWndToHook);
+	return HookWindow( hWndToHook );
 }
 
 CMainFrameHook::~CMainFrameHook()
@@ -941,7 +941,7 @@ LRESULT CMainFrameHook::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 	// possible called when already this wnd destroyed (WM_NCACTIVATE is)
 	if (!::IsWindow(m_pMenuBar->GetSafeHwnd())) 
 	{
-		return CSubclassWnd::WindowProc( NULL, nMsg, wParam, lParam);
+		return CSubclassWnd::WindowProc( nMsg, wParam, lParam);
 	}
 
 	BOOL bSend = FALSE;
@@ -981,7 +981,7 @@ LRESULT CMainFrameHook::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 	//if (nMsg == CXPMenuBar::WM_GETMENU)
 	//	return (LRESULT)m_pMenuBar->m_hMenu;
 
-	return CSubclassWnd::WindowProc(NULL, nMsg, wParam, lParam);
+	return CSubclassWnd::WindowProc( nMsg, wParam, lParam);
 }
 
 CSkinMenuBar::CSkinMenuBar()
@@ -2050,7 +2050,14 @@ void CSkinMenuBar::OnLButtonUp(UINT nFlags, WTL::CPoint point)
 
 void CSkinMenuBar::OnMouseLeave()
 {
-	//UpdateBar();
+	UpdateBar();
+	return;
+
+	if ( m_nCurIndex != -1 ) 
+	{// if other button
+		UpdateBar(none, m_nCurIndex);// button made hot with mouse
+		m_nCurIndex = -1;
+	}
 }
 
 
@@ -2082,7 +2089,7 @@ void CSkinMenuBar::DoPaint(CDCHandle dc)
 
 	//br.CreateSolidBrush(cr);
 	//dc.FillRect(&rcmb, br);
-
+	//TRACE( " menu background height is %d  top is %d rcw top is %d \r\n ", rcmb.Height(), rcmb.top, rcw.top );
 	if ( m_scheme )
 		m_scheme->DrawBackground(dc.m_hDC, MENU, 0, 1, &rcmb, NULL );
 	// draw items

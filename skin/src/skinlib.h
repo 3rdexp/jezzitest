@@ -6,7 +6,7 @@ HMODULE hLibSkin = 0;
 void LoadSkinDll()
 {
     if (!hLibSkin)
-        hLibSkin = LoadLibrary("skin.dll");
+        hLibSkin = LoadLibraryA("skin.dll");
 }
 
 void UnloadSkinDll()

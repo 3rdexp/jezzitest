@@ -107,16 +107,6 @@ HRESULT CFormViewDemoView::OnScrollCustomDraw(UINT wParam, NMHDR* lParam, LRESUL
 
 BOOL CFormViewDemoView::PreTranslateMessage(MSG* pMsg)
 {
-	if ( pMsg->message == WM_NOTIFY )
-	{
-		LPARAM  lParam = pMsg->lParam;
-		if ( NM_COOLSB_CUSTOMDRAW == ((LPNMHDR)lParam)->code )
-		{
-			LRESULT bRet;
-			OnScrollCustomDraw(	pMsg->wParam, (LPNMHDR)pMsg->lParam, &bRet);
-		}
-		
-	}
 	return CFormView::PreTranslateMessage(pMsg);
 }
 /////////////////////////////////////////////////////////////////////////////
@@ -175,6 +165,7 @@ LRESULT CFormViewDemoView::DefWindowProc(UINT message, WPARAM wParam, LPARAM lPa
 {
 	// TODO: Add your specialized code here and/or call the base class
 	
+/*
 	if ( message == WM_NOTIFY )
 	{
 		if ( NM_COOLSB_CUSTOMDRAW == ((LPNMHDR)lParam)->code )
@@ -183,7 +174,8 @@ LRESULT CFormViewDemoView::DefWindowProc(UINT message, WPARAM wParam, LPARAM lPa
 			return OnScrollCustomDraw(	wParam, (LPNMHDR)lParam, &bRet);
 		}
 
-	}
+	}*/
+
 	return CFormView::DefWindowProc(message, wParam, lParam);
 }
 

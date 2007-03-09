@@ -24,7 +24,9 @@ namespace Skin {
 
 		SkinTabCtrl()
 		{
-			_classid = TAB;	
+			_classid	= TAB;	
+			_nOverIndex	= -1;
+			_fMouseOver = 0;
 		}
 
 		void OnFirstMessage()
@@ -59,6 +61,8 @@ namespace Skin {
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 			MESSAGE_HANDLER(WM_PRINTCLIENT, OnPrintClient)
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
+			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
+			MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
 			//MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 		END_MSG_MAP()
 
@@ -81,6 +85,66 @@ namespace Skin {
 			WTL::CMemoryDC memdc ( dc, rc );
 			TAB_Refresh( memdc );
 			return 0;
+		}
+
+		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			//if(GetCapture() == m_hWnd)
+			{
+				POINT ptCursor = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+				TCHITTESTINFO tinfo;
+				tinfo.pt = ptCursor;
+				tinfo.flags = TCHT_ONITEM | TCHT_ONITEMICON | TCHT_ONITEMLABEL;
+				int nIndex = HitTest ( &tinfo );
+				if ( _nOverIndex != nIndex )
+				{
+					WTL::CRect rc1;
+					BOOL bRet = GetItemRect( _nOverIndex, &rc1 );
+
+					WTL::CRect rc2;
+					GetItemRect( nIndex, &rc2 );
+					
+					_nOverIndex = nIndex;
+
+					InvalidateRect( rc1 );
+					InvalidateRect( rc2 );
+					//InvalidateRect(NULL, TRUE);
+					//UpdateWindow();
+				}
+			}
+			if( _fMouseOver == 0 )
+			{
+				_fMouseOver = 1;
+				//InvalidateRect(NULL, TRUE);
+				//UpdateWindow();
+				StartTrackMouseLeave();
+			}
+			return DefWindowProc();
+		}
+
+		LRESULT OnMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if(_fMouseOver == 1)
+			{
+				WTL::CRect rc1;
+				BOOL bRet = GetItemRect( _nOverIndex, &rc1 );
+
+				_fMouseOver = 0;
+				_nOverIndex = -1;
+				//InvalidateRect(NULL, TRUE);
+				//UpdateWindow();
+				InvalidateRect( rc1 );
+			}
+			return 0;
+		}
+
+		BOOL StartTrackMouseLeave()
+		{
+			TRACKMOUSEEVENT tme = { 0 };
+			tme.cbSize = sizeof(tme);
+			tme.dwFlags = TME_LEAVE;
+			tme.hwndTrack = m_hWnd;
+			return _TrackMouseEvent(&tme);
 		}
 
 		static HFONT GetCtrlFont(HWND hwnd)
@@ -119,7 +183,7 @@ namespace Skin {
 				nState = bVert ? TTIS_DISABLED : TIS_DISABLED;
 			else if ( GetCurSel() == iItem )
 				nState = bVert ? TTIS_SELECTED : TIS_SELECTED;
-			else if ( tcItem.dwState & TCIS_HIGHLIGHTED )
+			else if ( tcItem.dwState & TCIS_HIGHLIGHTED || _nOverIndex == iItem )
 				nState = bVert ? TTIS_HOT : TIS_HOT;
 			else if ( GetCurFocus() == iItem )
 				nState = bVert ? TTIS_FOCUSED : TIS_FOCUSED;
@@ -306,7 +370,8 @@ namespace Skin {
 			return ETS_NORMAL;
 		}
 	private:
-		
+		int			_nOverIndex;
+		unsigned	_fMouseOver  : 1;
 	};
 
 }; // namespace 

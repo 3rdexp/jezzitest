@@ -300,9 +300,6 @@
 				RelativePath=".\controls\menubar.h">
 			</File>
 			<File
-				RelativePath=".\controls\menuhook.h">
-			</File>
-			<File
 				RelativePath=".\controls\monthcal.h">
 			</File>
 			<File
@@ -313,12 +310,6 @@
 			</File>
 			<File
 				RelativePath=".\controls\scrollbar.h">
-			</File>
-			<File
-				RelativePath=".\controls\skindialog.h">
-			</File>
-			<File
-				RelativePath=".\controls\skinmenu.h">
 			</File>
 			<File
 				RelativePath=".\controls\spin.h">

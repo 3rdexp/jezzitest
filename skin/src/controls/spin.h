@@ -16,7 +16,6 @@ namespace Skin {
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		typedef SkinUpDownCtrl<BaseT> this_type;
@@ -138,7 +137,7 @@ namespace Skin {
 			return nState;
 		}
 	private:
-		int m_nPart;
+		
 	};
 
 }; // namespace 
