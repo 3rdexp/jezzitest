@@ -18,16 +18,13 @@ public:
 	{	
 		_classid = DIALOG;
 	}
-	//enum { class_id = DIALOG };
-
+	
     typedef SkinDialog this_type;
     typedef SkinFrameImpl<SkinDialog> framebase_type;
 
 	void OnFirstMessage()
 	{
-		return ;
 	}
-
 
     BEGIN_MSG_MAP(this_type)
         //if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)

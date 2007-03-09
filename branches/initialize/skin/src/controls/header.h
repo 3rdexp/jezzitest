@@ -10,18 +10,16 @@ namespace Skin {
 
 		SkinHeaderCtrl()
 		{
-			m_bInItem   = FALSE;
-			m_nItem		= -1;
-			m_bCapture  = FALSE;
-			//m_bSort     = FALSE;
-			m_nSortItem = -1;
-			m_isAscSort = TRUE;
-			_classid		= HEADER; 
+			_bInItem	= FALSE;
+			_nItem		= -1;
+			_bCapture	= FALSE;
+			_nSortItem	= -1;
+			_isAscSort	= TRUE;
+			_classid	= HEADER; 
 		}
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		typedef SkinHeaderCtrl<BaseT> this_type;
@@ -40,7 +38,7 @@ namespace Skin {
 
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			bHandled = FALSE;
+			//bHandled = FALSE;
 			return 1;
 		}	
 
@@ -69,8 +67,10 @@ namespace Skin {
 			{
 				bSort = TRUE;
 			}
+
 			if(!bSort)
 				return 0;
+			
 			testInfo.pt = pt;
 			if(SendMessage(m_hWnd, HDM_HITTEST, NULL, (LPARAM)&testInfo)==-1)
 				return 0;
@@ -78,22 +78,22 @@ namespace Skin {
 			if(testInfo.flags != HHT_ONDIVIDER)
 			{
 				RECT	Itemrc;
-				m_bCapture = TRUE;
-				m_bInItem  = TRUE;
-				m_nItem	   = testInfo.iItem;
+				_bCapture = TRUE;
+				_bInItem  = TRUE;
+				_nItem	   = testInfo.iItem;
 
-				if(m_nSortItem == m_nItem)
-					m_isAscSort = !m_isAscSort;
+				if(_nSortItem == _nItem)
+					_isAscSort = !_isAscSort;
 				else
-					m_isAscSort = TRUE;
+					_isAscSort = TRUE;
 		
 				RECT	rc;
-				if(m_nSortItem != m_nItem)
+				if(_nSortItem != _nItem)
 				{
 					//更新
-					GetItemRect(m_nSortItem,&rc);
+					GetItemRect(_nSortItem,&rc);
 					InvalidateRect(&rc);
-					m_nSortItem = m_nItem;
+					_nSortItem = _nItem;
 				}
 				//更新
 				GetItemRect(testInfo.iItem,&Itemrc);
@@ -107,17 +107,17 @@ namespace Skin {
 
 		LRESULT OnLbuttonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			if(m_bCapture)
+			if(_bCapture)
 			{
 				RECT	Itemrc;
 
 				//更新
-				GetItemRect(m_nItem,&Itemrc);
+				GetItemRect(_nItem,&Itemrc);
 				InvalidateRect(&Itemrc,FALSE);
 
-				m_bInItem  = FALSE;
-				m_bCapture = FALSE;
-				m_nItem	   = -1;
+				_bInItem  = FALSE;
+				_bCapture = FALSE;
+				_nItem	   = -1;
 
 				UpdateWindow();
 			}
@@ -144,23 +144,23 @@ namespace Skin {
 		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			POINT			pt		= { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-			BOOL			bInItem	= m_bInItem;
+			BOOL			bInItem	= _bInItem;
 
 			bHandled = FALSE;
-			//if(!m_bCapture)
+			//if(!_bCapture)
 			//	return 0;
 			{
 				HD_HITTESTINFO	testInfo= {0};
-				m_bInItem = FALSE;
+				_bInItem = FALSE;
 				testInfo.pt = pt;
 				if( SendMessage(m_hWnd, HDM_HITTEST, NULL,(LPARAM)&testInfo) == -1 )
 					return 0;
-				if ( m_bInItem )
+				if ( _bInItem )
 				{
-					if( testInfo.iItem != m_nItem )
+					if( testInfo.iItem != _nItem )
 					{
-						int nOld = m_nItem;
-						m_nItem = testInfo.iItem;
+						int nOld = _nItem;
+						_nItem = testInfo.iItem;
 						RECT	Itemrc;
 						//更新
 						GetItemRect(nOld,&Itemrc);
@@ -168,26 +168,26 @@ namespace Skin {
 					}
 				}
 				else
-					m_nItem = testInfo.iItem;
+					_nItem = testInfo.iItem;
 
-				m_bInItem = TRUE;
+				_bInItem = TRUE;
 
 				/*
-				if(testInfo.iItem!=m_nItem)
+				if(testInfo.iItem!=_nItem)
 				{
-					m_bInItem = FALSE;
+					_bInItem = FALSE;
 				}
 				else
 				*/
 				
 			}
 
-			//if(m_bInItem != bInItem)
+			//if(_bInItem != bInItem)
 			{
 				RECT	Itemrc;
 
 				//更新
-				GetItemRect(m_nItem,&Itemrc);
+				GetItemRect(_nItem,&Itemrc);
 				InvalidateRect(&Itemrc,FALSE);
 				//UpdateWindow();
 			}
@@ -201,11 +201,11 @@ namespace Skin {
 
 		LRESULT OnMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			if ( m_bInItem )
+			if ( _bInItem )
 			{
-				m_bInItem = FALSE;
-				int nOld = m_nItem;
-				m_nItem = -1;
+				_bInItem = FALSE;
+				int nOld = _nItem;
+				_nItem = -1;
 				RECT	Itemrc;
 				//更新
 				GetItemRect(nOld,&Itemrc);
@@ -232,6 +232,7 @@ namespace Skin {
 				_scheme->DrawBackground(memdc, _classid, nPart, nState, &rc, NULL);
 
 			int nCount = GetItemCount();
+
 			for ( int i = 0; i < nCount; i++)
 			{
 
@@ -259,16 +260,16 @@ namespace Skin {
 			RECT rcClient = rc;
 			// draw left
 			nPart = HP_HEADERITEMLEFT;
-			if ( m_bCapture )
+			if ( _bCapture )
 			{
-				if ( m_bInItem && i == m_nItem )
+				if ( _bInItem && i == _nItem )
 					nState = HILS_PRESSED;
 				else
 					nState = HILS_NORMAL;
 			}
 			else
 			{
-				if ( m_bInItem && i == m_nItem )
+				if ( _bInItem && i == _nItem )
 					nState = HILS_HOT;
 				else
 					nState = HILS_NORMAL;
@@ -283,16 +284,16 @@ namespace Skin {
 			// draw right
 
 			nPart = HP_HEADERITEMRIGHT;
-			if ( m_bCapture )
+			if ( _bCapture )
 			{
-				if ( m_bInItem && i == m_nItem )
+				if ( _bInItem && i == _nItem )
 					nState = HIRS_PRESSED;
 				else
 					nState = HIRS_NORMAL;
 			}
 			else
 			{
-				if ( m_bInItem && i == m_nItem )
+				if ( _bInItem && i == _nItem )
 					nState = HIRS_HOT;
 				else
 					nState = HIRS_NORMAL;
@@ -306,16 +307,16 @@ namespace Skin {
 
 			// draw center
 			nPart = HP_HEADERITEM;
-			if ( m_bCapture )
+			if ( _bCapture )
 			{
-				if ( m_bInItem && i == m_nItem )
+				if ( _bInItem && i == _nItem )
 					nState = HIS_PRESSED;
 				else
 					nState = HIS_NORMAL;
 			}
 			else
 			{
-				if ( m_bInItem && i == m_nItem )
+				if ( _bInItem && i == _nItem )
 					nState = HIS_HOT;
 				else
 					nState = HIS_NORMAL;
@@ -355,11 +356,11 @@ namespace Skin {
 			int nArrowWidth = 0;
 			int nArrowHeight = 0;
 			RECT rcText = { 0 };
-			if( bSort && m_nSortItem==i )
+			if( bSort && _nSortItem==i )
 			{
 				bItemSort = TRUE;
-				nArrowWidth = GetSchemeWidth(HP_HEADERSORTARROW, m_isAscSort ? HSAS_SORTEDUP : HSAS_SORTEDDOWN);
-				nArrowHeight = GetSchemeHeight(HP_HEADERSORTARROW, m_isAscSort ? HSAS_SORTEDUP : HSAS_SORTEDDOWN);
+				nArrowWidth = GetSchemeWidth(HP_HEADERSORTARROW, _isAscSort ? HSAS_SORTEDUP : HSAS_SORTEDDOWN);
+				nArrowHeight = GetSchemeHeight(HP_HEADERSORTARROW, _isAscSort ? HSAS_SORTEDUP : HSAS_SORTEDDOWN);
 
 				rcClient.right -= nArrowWidth;
 
@@ -387,7 +388,7 @@ namespace Skin {
 				uFormat |= DT_LEFT;
 			}
 
-			if( m_bCapture && m_nItem==i && m_bInItem)
+			if( _bCapture && _nItem==i && _bInItem)
 			{
 				//被选中,字体往下移动  是否有必要?
 				rcClient.top += 1;
@@ -428,7 +429,7 @@ namespace Skin {
 				rcArrow.bottom = rcArrow.top + nArrowHeight;
 				
 				nPart = HP_HEADERSORTARROW;
-				nState = m_isAscSort ? HSAS_SORTEDUP : HSAS_SORTEDDOWN;
+				nState = _isAscSort ? HSAS_SORTEDUP : HSAS_SORTEDDOWN;
 
 				if (_scheme)
 					_scheme->TransparentDraw(memdc, _classid, nPart, nState, rcArrow.left, rcArrow.top);
@@ -447,12 +448,12 @@ namespace Skin {
 		}
 	private:
 
-	BOOL	m_bInItem ;
-	int		m_nItem	;
-	BOOL	m_bCapture ;
+	BOOL	_bInItem ;
+	int		_nItem	;
+	BOOL	_bCapture ;
 	BOOL	m_bSort    ;
-	int		m_nSortItem ;
-	BOOL	m_isAscSort ;
+	int		_nSortItem ;
+	BOOL	_isAscSort ;
 
 	};
 

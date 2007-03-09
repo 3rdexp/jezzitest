@@ -189,9 +189,10 @@ public:
 		MSG_WM_PRINT(OnPrint)
 	//	MSG_WM_ERASEBKGND(OnEraseBkgnd)
 
-		MESSAGE_HANDLER( MN_BUTTONUP, OnLButtonUp)
+		//MESSAGE_HANDLER( MN_BUTTONUP, OnLButtonUp)
 
-		MSG_WM_WINDOWPOSCHANGING( OnWindowPosChange )
+		//MSG_WM_WINDOWPOSCHANGING( OnWindowPosChange )
+		//MSG_WM_WINDOWPOSCHANGED( OnWindowPosChanged )
 
 //		MSG_WM_PRINTCLIENT(OnPrintClient)
 //		MSG_WM_SIZE(OnSize)
@@ -307,7 +308,7 @@ public:
 
 		UINT  nMenuState = GetMenuState( m_menu.m_hMenu, nID, MF_BYPOSITION );
 
-		if ( (nMenuState & MF_DISABLED ) )
+		if ( (nMenuState & MF_DISABLED ) || (nMenuState & MF_GRAYED ) )
 		{
 			nState = 4;
 		}
@@ -317,7 +318,7 @@ public:
 		}
 
 		// 1 判断类型
-		MENUITEMINFO mii = { sizeof MENUITEMINFO, MIIM_TYPE };
+		MENUITEMINFO mii = { sizeof MENUITEMINFO, MIIM_TYPE | MIIM_SUBMENU };
 		::GetMenuItemInfo (m_menu.m_hMenu, nID, TRUE, &mii);
 		if ( (mii.fType & MFT_SEPARATOR) )
 		{
@@ -346,6 +347,23 @@ public:
 			{
 				if (_scheme)
 					_scheme->DrawBackground(dc, _classid, 1, nState, &rcItem, NULL );
+
+				if ( mii.hSubMenu )
+				{
+					// 绘制
+					// 如果有 hSubMenu  那么就绘制右箭头
+					WTL::CRect rcIcon;
+					if (_scheme)
+					{
+						rcIcon = GetSchemeRect( 8, 1 );
+
+						int nX = _spaceIcon + rcIcon.Width() ;
+						int nY = (rcItem.Height() - rcIcon.Height()) / 2;
+						rcIcon.OffsetRect(  rcItem.right - nX - rcIcon.left, nY - rcIcon.top + rcItem.top ); 
+
+						_scheme->TransparentDraw(dc, _classid, 8, 1, &rcIcon );
+					}
+				}
 			}
 		
 			HFONT hOldFont = 0;
@@ -384,6 +402,32 @@ public:
 					if ( (mii.fType & MFT_RADIOCHECK) )
 					{
 						// todo raido
+						WTL::CRect rcIcon;
+						if (_scheme)
+						{
+							rcIcon = GetSchemeRect( 7, 1 );
+							rcIcon.OffsetRect( -rcIcon.left, -rcIcon.top );
+
+							int nX = _spaceIcon;
+							int nY = (rcItem.Height() - rcIcon.Height()) / 2;
+							rcIcon.OffsetRect( nX, nY ); 
+					
+							_scheme->TransparentDraw(dc, _classid, 7, 1, &rcIcon );
+						}
+					}
+					else
+					{
+						WTL::CRect rcIcon;
+						if (_scheme)
+						{
+							rcIcon = GetSchemeRect( 6, 1 );
+
+							int nX = _spaceIcon;
+							int nY = (rcItem.Height() - rcIcon.Height()) / 2;
+							rcIcon.OffsetRect( nX -rcIcon.left + rcItem.left , nY - rcIcon.top + rcItem.top ); 
+
+							_scheme->TransparentDraw(dc, _classid, 6, 1, &rcIcon );
+						}
 					}
 				}
 			}
@@ -394,6 +438,21 @@ public:
 				if ( mbmp.hbmpUnchecked )
 				{
 					hBitmap.Attach( mbmp.hbmpUnchecked );
+				}
+				else
+				{
+					WTL::CRect rcIcon;
+					if (_scheme)
+					{
+						rcIcon = GetSchemeRect( 6, 2 );
+						rcIcon.OffsetRect( -rcIcon.left, -rcIcon.top );
+
+						int nX = _spaceIcon;
+						int nY = (rcItem.Height() - rcIcon.Height()) / 2;
+						rcIcon.OffsetRect( nX, nY ); 
+
+						_scheme->TransparentDraw(dc, _classid, 6, 2, &rcIcon );
+					}
 				}
 			}
 			else if ( ( mii.fType & MFT_BITMAP ) )
@@ -429,6 +488,9 @@ public:
 				::ReleaseDC(m_hWnd, cdc);
 			}
 
+			
+			
+			
 			
 			if (string_size > 0)
 			{
@@ -530,10 +592,9 @@ public:
 
 	LRESULT OnLButtonUp( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 	{
-
-		LRESULT lRet = DefWindowProc();
 		m_bLButtonUp = TRUE;
-		
+		//ShowWindow( SW_HIDE );
+		LRESULT lRet = DefWindowProc();
 		return lRet;
 	}
 
@@ -541,9 +602,14 @@ public:
 	void OnWindowPosChange( LPWINDOWPOS lp )
 	{
 		if ( m_bLButtonUp )
+			ShowWindow( SW_HIDE );
+
+		DefWindowProc();
+/*
+		if ( m_bLButtonUp )
 		{
 			WTL::CRect rc;
-			WTL::CClientDC dc ( m_hWnd );
+			WTL::CWindowDC dc ( m_hWnd );
 			WTL::CMemoryDC memdc ( dc.m_hDC, rc );
 
 			int cItems = m_menu.GetMenuItemCount();
@@ -556,11 +622,36 @@ public:
 				DrawItem( memdc.m_hDC, i, rcItem );
 			}
 		}
-		
-		DefWindowProc();
+*/		
 	}
 
 	
+	void OnWindowPosChanged( LPWINDOWPOS lParam )
+	{
+		if ( m_bLButtonUp )
+			ShowWindow( SW_HIDE );
+
+		DefWindowProc();
+/*
+		if ( m_bLButtonUp )
+		{
+			WTL::CRect rc;
+			WTL::CWindowDC dc ( m_hWnd );
+			WTL::CMemoryDC memdc ( dc.m_hDC, rc );
+
+			int cItems = m_menu.GetMenuItemCount();
+			for ( int i = 0; i < cItems ;i++ )
+			{
+				WTL::CRect rcItem;
+				BOOL bRet = GetMenuItemRect(NULL, m_menu.m_hMenu, i, &rcItem);
+				//ASSERT ( bRet );
+				ScreenToClient(&rcItem);
+				DrawItem( memdc.m_hDC, i, rcItem );
+			}
+		}
+*/
+	}
+
 	void OnPaint(HDC)
     {
 		TRACE( "OnPaint  \r\n ");

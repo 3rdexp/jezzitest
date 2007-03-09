@@ -9,35 +9,32 @@ namespace Skin {
 
 #define TB_THUMBPOSCHANGED      1
 #define TB_THUMBSIZECHANGED     2
-#define TB_THUMBCHANGED 	(TB_THUMBPOSCHANGED | TB_THUMBSIZECHANGED)
+#define TB_THUMBCHANGED 		(TB_THUMBPOSCHANGED | TB_THUMBSIZECHANGED)
 #define TB_SELECTIONCHANGED     4
 #define TB_DRAG_MODE            8     /* we're dragging the slider */
-#define TB_AUTO_PAGE_LEFT	16
-#define TB_AUTO_PAGE_RIGHT	32
-#define TB_AUTO_PAGE		(TB_AUTO_PAGE_LEFT | TB_AUTO_PAGE_RIGHT)
+#define TB_AUTO_PAGE_LEFT		16
+#define TB_AUTO_PAGE_RIGHT		32
+#define TB_AUTO_PAGE			(TB_AUTO_PAGE_LEFT | TB_AUTO_PAGE_RIGHT)
 #define TB_THUMB_HOT            64    /* mouse hovers above thumb */
 
 	template<class BaseT = WTL::CTrackBarCtrl>
 	struct SkinTrackBarCtrl : public SkinControlImpl<SkinTrackBarCtrl, BaseT>
 	{
-		//enum { class_id = TRACKBAR };
-
 		SkinTrackBarCtrl()
 		{
-			m_flags		= 0;
+			_flags		= 0;
 			_classid	= TRACKBAR;
 		}
 
 		void OnFirstMessage()
 		{
-			int i = 0;
+
 		}
 
 		typedef SkinTrackBarCtrl<BaseT> this_type;
 		typedef SkinControlImpl<SkinTrackBarCtrl, BaseT> base_type;
 
 		BEGIN_MSG_MAP(this_type)
-			//REFLECTED_NOTIFY_CODE_HANDLER_EX( NM_CUSTOMDRAW, OnCustomDraw )
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 			MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
@@ -48,7 +45,7 @@ namespace Skin {
 
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			return 0 ;
+			return 1 ;
 		}
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -61,11 +58,11 @@ namespace Skin {
 		{
 			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			LRESULT lRet = DefWindowProc();	
-			if (!(m_flags & TB_DRAG_MODE)) 
+			if (!(_flags & TB_DRAG_MODE)) 
 			{
 				RECT rcThumb;
-				GetThumbRect( & rcThumb );
-				DWORD oldFlags = m_flags;
+				GetThumbRect( &rcThumb );
+				DWORD oldFlags = _flags;
 
 				if (PtInRect (&rcThumb, pt))
 				{
@@ -74,7 +71,7 @@ namespace Skin {
 					tme.dwFlags = TME_LEAVE;
 					tme.hwndTrack = m_hWnd;
 					TrackMouseEvent( &tme );
-					m_flags |= TB_THUMB_HOT;
+					_flags |= TB_THUMB_HOT;
 				}
 				else
 				{
@@ -83,9 +80,9 @@ namespace Skin {
 					tme.dwFlags = TME_CANCEL;
 					tme.hwndTrack = m_hWnd;
 					TrackMouseEvent( &tme );
-					m_flags &= ~TB_THUMB_HOT; 
+					_flags &= ~TB_THUMB_HOT; 
 				}
-				if (oldFlags != m_flags) 
+				if (oldFlags != _flags) 
 					InvalidateRect ( &rcThumb, FALSE);
 
 			}
@@ -95,7 +92,7 @@ namespace Skin {
 		LRESULT OnMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			LRESULT lRet = DefWindowProc();	
-			m_flags &= ~TB_THUMB_HOT; 
+			_flags &= ~TB_THUMB_HOT; 
 			return lRet;
 		}
 
@@ -107,7 +104,7 @@ namespace Skin {
 			GetThumbRect( &rcThumb );
 			if (PtInRect(&rcThumb, pt)) 
 			{
-				m_flags |= TB_DRAG_MODE;
+				_flags |= TB_DRAG_MODE;
 				InvalidateRect ( &rcThumb, FALSE);
 			}
 			return lRet;
@@ -116,9 +113,9 @@ namespace Skin {
 		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			LRESULT lRet = DefWindowProc();	
-			if (m_flags & TB_DRAG_MODE)
+			if (_flags & TB_DRAG_MODE)
 			{
-				m_flags &= ~TB_DRAG_MODE; 
+				_flags &= ~TB_DRAG_MODE; 
 				RECT rcThumb;
 				GetThumbRect( &rcThumb );
 				InvalidateRect ( &rcThumb, FALSE);
@@ -135,13 +132,13 @@ namespace Skin {
 			}
 			else
 			{
-				if (m_flags & TB_DRAG_MODE)
+				if (_flags & TB_DRAG_MODE)
 				{
 					nState = bVert ? TUVS_PRESSED : TUS_PRESSED;
 				}
 				else
 				{
-					if (m_flags & TB_THUMB_HOT)
+					if (_flags & TB_THUMB_HOT)
 					{
 						nState = bVert ? TUVS_HOT : TUS_HOT;
 					}
@@ -295,7 +292,7 @@ namespace Skin {
 				if (gcdrf & CDRF_NOTIFYITEMDRAW)
 				{
 					nmcd.dwItemSpec = TBCD_THUMB;
-					nmcd.uItemState = m_flags & TB_DRAG_MODE ? CDIS_HOT : CDIS_DEFAULT;
+					nmcd.uItemState = _flags & TB_DRAG_MODE ? CDIS_HOT : CDIS_DEFAULT;
 					GetThumbRect( &nmcd.rc );// = infoPtr->rcThumb;
 					icdrf = notify_customdraw( &nmcd, CDDS_ITEMPREPAINT);
 				}
@@ -322,7 +319,7 @@ namespace Skin {
 
 private:
 
-	int	m_flags;
+	int	_flags;
 
 
 	};

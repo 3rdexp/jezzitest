@@ -8,17 +8,14 @@ namespace Skin {
 		ClassPolicy>
 	{
 	public:
-		BOOL bPrint;
 
 		SkinComboLbox()
 		{
-			bPrint		= FALSE;
 			_classid	= COMBOBOX;
 		}
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 
@@ -75,7 +72,6 @@ namespace Skin {
 		{
 			if (lParam & PRF_NONCLIENT)
 			{
-				bPrint = TRUE;
 				// base class first
 				LRESULT lRet = DefWindowProc();
 

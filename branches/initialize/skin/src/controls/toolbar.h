@@ -6,9 +6,6 @@
 #include <atlctrls.h>
 #include <atlwin.h>
 
-
-
-
 namespace Skin {
 
 #define DROPDOWN(item) ((WORD)-item)
@@ -149,8 +146,8 @@ namespace Skin {
 		
 		SkinToolBarCtrl()
 		{
-			m_iListGap	= DEFLISTGAP;
-			m_bHorz		= TRUE;
+			_iListGap	= DEFLISTGAP;
+			_bHorz		= TRUE;
 			_classid	= TOOLBAR;
 		}
 
@@ -185,10 +182,10 @@ namespace Skin {
 			//CToolBar* pToolbar = NULL;
 			//pToolbar = (CToolBar*)CWnd::FromHandle( m_hWnd ); 
 			//TRACE("toolbar count is %d \r\n", pToolbar->GetCount());
-			if ( m_bHorz != IsHorz() )
+			if ( _bHorz != IsHorz() )
 			{
 				LRESULT bRet = DefWindowProc();
-				m_bHorz = IsHorz();
+				_bHorz = IsHorz();
 				Invalidate();
 				return bRet;
 			}
@@ -391,11 +388,6 @@ namespace Skin {
 					continue;
 				}
 
-				if ( nCount == 5 )
-				{
-					int n;
-					n = 1;
-				}
 				bool bOver = nHotItem == i && IS_ENABLED(tbbutton);
 				bool bPressed = false;
 
@@ -622,7 +614,7 @@ namespace Skin {
 						}
 						else
 						{
-							ptButton.x =  rcButton.left + GetSystemMetrics(SM_CXEDGE) + m_iListGap / 2;
+							ptButton.x =  rcButton.left + GetSystemMetrics(SM_CXEDGE) + _iListGap / 2;
 							ptButton.y  = rcButton.top + sizePad.cy / 2;
 						}
 
@@ -635,7 +627,7 @@ namespace Skin {
 						// draw Text
 						if ( bHasBitmap )
 						{
-							rcButton.left = rcButton.left + GetSystemMetrics(SM_CXEDGE) + m_iListGap + szImg.cx + 2;
+							rcButton.left = rcButton.left + GetSystemMetrics(SM_CXEDGE) + _iListGap + szImg.cx + 2;
 						}
 						else
 						{
@@ -844,8 +836,8 @@ namespace Skin {
 		}
 
 	private:
-		int		m_iListGap;
-		BOOL	m_bHorz;
+		int		_iListGap;
+		BOOL	_bHorz;
 	};
 
 }; // namespace 

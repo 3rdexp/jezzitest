@@ -473,7 +473,7 @@ HRESULT WINAPI ChangeCurrentSchemeColor( COLORREF clr )
 		pss->ChangeSchemeColor( clr );
 
 	//CSkinMenuMgr::RefreshSkin();
-	
+	CSkinHook::RefreshUI();
 	
 
 	return E_FAIL;
@@ -495,7 +495,7 @@ HRESULT WINAPI ClearCurrentSchemeColor( )
 		pss->ClearSchemeColor(  );
 
 	//CSkinMenuMgr::RefreshSkin();
-
+	CSkinHook::RefreshUI();
 	
 
 	return E_FAIL;
@@ -510,6 +510,7 @@ HRESULT WINAPI LoadSkinFile( LPCTSTR pszFileName )
 	if (p && S_OK == p->LoadTheme( pszFileName ))
 	{
 		//CSkinMenuMgr::RefreshSkin();
+		CSkinHook::RefreshUI();
 		p->InitMenuColor( RGB(0, 0, 0), FALSE );
 		return S_OK;
 	}

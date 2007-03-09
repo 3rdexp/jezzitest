@@ -371,7 +371,7 @@ namespace Skin {
 			m_hWnd = hWnd;
 			// 做两个事情
 			BOOL bFind = FALSE;
-			for ( int i = 0; i < m_MenuBarlst.size(); i++)
+			for ( int i = 0; i < (int)m_MenuBarlst.size(); i++)
 			{
 				if ( m_MenuBarlst[i] == this )
 				{

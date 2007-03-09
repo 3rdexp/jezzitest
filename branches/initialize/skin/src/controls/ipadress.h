@@ -7,22 +7,18 @@ namespace Skin {
 	template<class BaseT = CIPAddressCtrl>
 	struct SkinIpAddress : public SkinControlImpl<SkinIpAddress, BaseT>
 	{
-		//enum { class_id = IPADDRESS };
-
 		SkinIpAddress()
 		{
-			m_nPart		= EP_EDITTEXT;
+			_nPart		= EP_EDITTEXT;
 			_classid	= IPADDRESS;
 		}
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		typedef SkinIpAddress<BaseT> this_type;
 		typedef SkinControlImpl<SkinIpAddress, BaseT> base_type;
-
 		BEGIN_MSG_MAP(this_type)
 			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
 		END_MSG_MAP()		
@@ -46,7 +42,7 @@ namespace Skin {
 				WTL::CBrush brBorder;
 				int nState = GetState();
 				COLORREF cr;
-				_scheme->GetColor(_classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+				_scheme->GetColor(_classid, _nPart, nState, TMT_BORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
 				FrameRect(hdc, WTL::CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 				brBorder.DeleteObject();
@@ -58,7 +54,7 @@ namespace Skin {
 					InflateRect(&rcw, -1, -1);
 					LONG lStyle = GetStyle();			
 					WTL::CBrush brBorder;
-					_scheme->GetColor(_classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+					_scheme->GetColor(_classid, _nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 					brBorder.CreateSolidBrush( cr ); 
 					FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
 					if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))
@@ -86,7 +82,7 @@ namespace Skin {
 		}
 
 	private:
-		int m_nPart;
+		int _nPart;
 	};
 
 }; // namespace 

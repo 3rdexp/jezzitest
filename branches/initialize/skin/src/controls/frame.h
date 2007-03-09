@@ -4,7 +4,9 @@
 
 #include "SkinCtrl.h"
 #include "menubar.h"
-
+#include "controlbar.h"
+#include "../base/wclassdefines.h"
+#include "../base/skinctrl.h"
 namespace Skin {
 
 using WTL::CDCHandle;
@@ -48,8 +50,6 @@ template<class ControlT, class WindowT = ATL::CWindow>
 class SkinFrameImpl : public WindowT
 {
 protected:
-    int nMsg ;
-	BOOL bLog;
     SkinFrameImpl() 
         // 注意：在 WM_NCCALCSIZE 消息前就要初始化
         : _frame_state(FS_ACTIVE)
@@ -57,10 +57,8 @@ protected:
         , _anchorDown(0) , _anchorHover(0)
         , _rgn(0)
     {
-		bLog = FALSE;
-		nMsg = 0;
-		m_frameStyle = DIALOG_STYLE;
-		_bNoStyleChangeProcessing = FALSE;
+		_frameStyle					= DIALOG_STYLE;
+		_bNoStyleChangeProcessing	= FALSE;
 	}
 
     // TODO: 似乎应该缓存 border 宽度作为类成员
@@ -83,11 +81,11 @@ protected:
             disabled = 4,
             inactive = 5
         };
-        unsigned long _close    : 4;
-        unsigned long _max        : 4;
-        unsigned long _restore    : 4;
-        unsigned long _min        : 4;
-        unsigned long _help        : 4;
+        unsigned long _close		: 4;
+        unsigned long _max			: 4;
+        unsigned long _restore		: 4;
+        unsigned long _min			: 4;
+        unsigned long _help			: 4;
 
         SystemButtonState() : _close(hidden), _max(hidden), _restore(hidden), _min(hidden), _help(hidden) {}
         void initFromWindow(DWORD dwStyle, bool fWinActivate)
@@ -96,6 +94,11 @@ protected:
             _close = normal;
             _restore = hidden;
             _max = hidden;
+
+			if ( dwStyle & DS_CONTEXTHELP )
+			{
+				_help = normal;
+			}
 
             // 窗口最小化了
             if (dwStyle & WS_MINIMIZE)
@@ -179,6 +182,7 @@ protected:
 	// 需要处理菜单显示不全的情况???
     int CalcMenuBarHeight()
     {
+		//TRACE( "m_MenuBar.CalcMenuBarHeight() is %d \r\n", m_MenuBar.CalcMenuBarHeight() );
 		return m_MenuBar.CalcMenuBarHeight();
     }
 
@@ -411,7 +415,7 @@ protected:
 			if ( wasfirst && ismask )
 			{
 				// save current RECT
-				SetRect(&pRects[ pRgnData->nCount++ ], first, i, j, i + 1 );
+				SetRect( &pRects[ pRgnData->nCount++ ], first, i, j, i + 1 );
 				// if buffer full reallocate it with more room
 				if ( pRgnData->nCount >= dwRectsCount )
 				{
@@ -806,6 +810,10 @@ protected:
 
         int count_sys_button = 0;
 
+		//CAPTIONSTATES caption_state = ((_frame_state == FS_ACTIVE) ? CS_ACTIVE : CS_INACTIVE);
+
+		//pT->Draw(dcmem, WP_CAPTION, caption_state, rcw.left, rcw.top, CaptionHeight(), 0);
+
         // 2 Button 表面
         if (sysbtn_state.hasclose())
         {
@@ -859,10 +867,36 @@ protected:
         dcmem.SelectBitmap(bmpold);
     }
 
-    BEGIN_MSG_MAP_EX(SkinFrameImpl)
+    
+	void DoNcPaint()
+	{
+		ControlT * pT = static_cast<ControlT*>(this);
+		if( ! (pT->GetStyle() & WS_CAPTION) ) // 是否有 TitleBar
+		{
+			return ;
+		}
+
+		WTL::CWindowDC dc(m_hWnd);
+
+		WTL::CRect rcw, rcc;
+
+		GetWindowRect(&rcw);
+		GetClientRect(&rcc);
+
+		ClientToScreen(&rcc);
+		rcc.OffsetRect(-rcw.left, -rcw.top);
+
+		rcw.OffsetRect(-rcw.left, -rcw.top);
+
+		//dc.FillSolidRect( rcw, RGB( 255, 0, 5));
+		//return;
+		if ( rcw.Width() > 0 && rcw.Height() > 0 )
+			DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
+	}
+	BEGIN_MSG_MAP_EX(SkinFrameImpl)
     //    if ((uMsg < WM_MOUSEFIRST || uMsg > WM_MOUSELAST)
     //        && uMsg != WM_NCHITTEST && uMsg != WM_SETCURSOR)
-    //        ATLTRACE("%04x frame\n", uMsg);
+            ATLTRACE("%04x frame\n", uMsg);
     // if (uMsg == WM_COMMAND)
     //    __asm nop;
 		//if ( bLog )
@@ -886,11 +920,7 @@ protected:
 
 		if (uMsg == 0x00ae)
 			return 1;
-		if ( uMsg == WM_NCDESTROY )
-		{
-			int kkk;
-			kkk = 0;
-		}
+
         MSG_WM_NCACTIVATE(OnNcActivate)
 		//MSG_WM_ACTIVATE(OnActivate)
 		MSG_WM_ACTIVATEAPP(OnActivateApp)
@@ -924,6 +954,7 @@ protected:
         // MSG_WM_NCLBUTTONDBLCLK(OnNcLButtonDblClk)
         MSG_WM_NCMOUSEMOVE(OnNcMouseMove)
 		MSG_WM_STYLECHANGED(OnStyleChanged)
+		//NOTIFY_CODE_HANDLER(NM_COOLSB_CUSTOMDRAW, OnScrollCustomDraw)
 		//MSG_WM_MOUSEMOVE(OnMouseMove)
 
         //MSG_WM_MENUSELECT(OnMenuSelect)
@@ -950,12 +981,12 @@ protected:
 	{
 		ControlT * pT1 = static_cast<ControlT*>(this);
 		LRESULT ret = pT1->DefWindowProc();			
-		OnNcPaint( (HRGN)0 );	
+		DoNcPaint( );	
 		return ret;
 	}
 	void OnActivateApp( BOOL wParam, DWORD lParam )
 	{
-		OnNcPaint( (HRGN)0 );
+		DoNcPaint( );	
 	}
 
 	void OnStyleChanged( UINT wParam, LPSTYLESTRUCT lParam)
@@ -965,7 +996,7 @@ protected:
 		if (! _bNoStyleChangeProcessing ) 
 		{
 			LRESULT ret = pT1->DefWindowProc();			
-			OnNcPaint( (HRGN)0 );	
+			DoNcPaint( );	
 		}
 		else
 		{
@@ -982,16 +1013,16 @@ protected:
 		//ControlT * pT1 = static_cast<ControlT*>(this);
 		//LRESULT ret = pT1->DefWindowProc();
 
-		OnNcPaint( (HRGN)0 );	
+		DoNcPaint( );	
 	}
 
     BOOL OnNcActivate(BOOL bActive)
     {
-        TRACE("WM_NCACTIVATE %d\n", bActive);
+        //TRACE("WM_NCACTIVATE %d\n", bActive);
         
 		_frame_state = bActive ? FS_ACTIVE : FS_INACTIVE;
 		
-		OnNcPaint( (HRGN)0 );
+		DoNcPaint( );	
 
 		return TRUE;
 		//ControlT * pT1 = static_cast<ControlT*>(this);
@@ -1015,6 +1046,8 @@ protected:
     {
         TRACE("%s (%d,%d)-(%d,%d)\n", name, prc->left, prc->top, prc->right, prc->bottom);
     }
+
+
 
     LRESULT OnNcCalcSize(BOOL bCalcValidRects, LPARAM lParam)
     {
@@ -1055,7 +1088,9 @@ protected:
         WTL::CRect rc1 = lpncsp_->rgrc[0];
         
         ControlT * pT1 = static_cast<ControlT*>(this);
-        LRESULT ret = pT1->DefWindowProc();
+		
+        //LRESULT ret = pT1->DefWindowProc();
+		
         WTL::CRect rc2 = lpncsp_->rgrc[0];
         RECT & new_rcc = lpncsp_->rgrc[0];
         
@@ -1064,6 +1099,9 @@ protected:
     //    TRACE("return %d\n", ret);
 
         DWORD dwStyle = GetStyle();
+
+		//if ( !( dwStyle & WS_CAPTION ) ) 
+		//	return 0;
 
         int c_top = 0;
         if (dwStyle & WS_DLGFRAME)
@@ -1093,7 +1131,7 @@ protected:
         new_rcc.right = rc1.right - c_right;
         new_rcc.bottom = rc1.bottom - c_bottom;
 
-        return ret;
+        return 0;
 #else
         // If wParam is FALSE, lParam points to a RECT structure. On entry, the structure contains 
         // the proposed window rectangle for the window. On exit, the structure should contain the 
@@ -1231,7 +1269,7 @@ protected:
         {
             // system button
             int index = -1;
-            for (int i=0; i<4; i++)
+            for ( int i = 0; i < 4; i++ )
             {
                 WTL::CRect rc = CalcSysButtonRect(rcw, i);
                 if (rc.PtInRect(point))
@@ -1280,9 +1318,8 @@ protected:
             if (rc_caption.PtInRect(point))
                 return HTMENU; // TODO: 
         }
-		
-		
-		return HTCLIENT;
+	
+		return HTERROR;
         // TODO: menu 后半部分 返回啥？
         ASSERT(false);
         return HTNOWHERE;
@@ -1465,6 +1502,11 @@ protected:
         // TODO: 没有得到正确的 Region in OnCreate
         // RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASENOW
         //RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+
+		//ControlT * pT = static_cast<ControlT*>(this);
+		//pT->UnInstallScrollBar();
+		//pT->InstallScrollBar();
+		
     }
 
 	LRESULT OnEraseBkgnd(HDC hdc)
@@ -1532,8 +1574,37 @@ protected:
 		*/
 	}
 
+	CString GetClass(HWND hWnd)
+	{
+		static char szWndClass[128] = "";
+
+		if (hWnd)
+			::GetClassName(hWnd, szWndClass, 127);
+
+		return CString(szWndClass);
+	}
+
+	void UpdateWindowRgn()
+	{
+		if(GetStyle() & WS_DLGFRAME)
+		{
+			HRGN hrgn = GetFrameRgn();
+
+			// delete previous region object
+			HRGN hrgnPrev = ::CreateRectRgn(0, 0, 0, 0);
+			::GetWindowRgn(m_hWnd, hrgnPrev);
+			int nRet = ::DeleteObject(hrgnPrev);
+			ASSERT(nRet);
+
+			::SetWindowRgn(m_hWnd, hrgn, TRUE);
+		}
+	}
+
 	void OnFirstMessage()
 	{
+		ControlT * pT = static_cast<ControlT*>(this);
+		pT->InstallScrollBar();
+
 		HMENU hm = GetMenu();
 		if ( hm )
 		{
@@ -1541,7 +1612,7 @@ protected:
 			_frame_state = FS_ACTIVE;
 
 			m_MenuBar.SetFrameState( &_frame_state );
-			m_MenuBar.SetWnd( m_hWnd, m_frameStyle );
+			m_MenuBar.SetWnd( m_hWnd, _frameStyle );
 			m_MenuBar.SetMenu( hm );
 			//m_MenuBar.m_pselectedMenuItem = &_selectedMenuItem;
 			m_MenuBar.InitItems();
@@ -1551,6 +1622,20 @@ protected:
 		}
 		// 计算rgn
 
+		// 把AfxControlBar70sd 这样的类处理了.怎么处理,直接得到这个类的child.判断是否匹配AfxControlBar
+		HWND hControlBar = ::GetWindow( m_hWnd, GW_CHILD ); 
+		while ( ::IsWindow(hControlBar) ) 
+		{
+			CString strClassName = GetClass( hControlBar );
+			if ( strClassName.Find(WC_CONTROLBAR) == 0 )
+			{
+				// 找到了
+				SkinControlBar<ATL::CWindow>::InstallHook( hControlBar );
+			}
+			// 继续寻找下一个窗口 
+			hControlBar = ::GetWindow( hControlBar, GW_HWNDNEXT );
+		}
+
 #if 0
 		if(GetStyle() & WS_DLGFRAME)
 		{
@@ -1558,7 +1643,7 @@ protected:
 			_rgn = pT->GetSchemeRegion(0, 0);
 			ASSERT(OBJ_REGION == ::GetObjectType(_rgn));
 		}
-#else
+
 		if(GetStyle() & WS_DLGFRAME)
 		{
 			CRect rcw;
@@ -1573,27 +1658,20 @@ protected:
 
     void OnNcPaint(HRGN)
     {
-        WTL::CWindowDC dc(m_hWnd);
-
-        WTL::CRect rcw, rcc;
-
-        GetWindowRect(&rcw);
-        GetClientRect(&rcc);
-
-        ClientToScreen(&rcc);
-        rcc.OffsetRect(-rcw.left, -rcw.top);
-
-        rcw.OffsetRect(-rcw.left, -rcw.top);
-
-		//dc.FillSolidRect( rcw, RGB( 255, 0, 5));
-		//return;
-		if ( rcw.Width() > 0 && rcw.Height() > 0 )
-			DrawFrame(dc, rcw, rcc, GetStyle(), _frame_state);
+		ControlT * pT = static_cast<ControlT*>(this);
+		if( GetStyle() & WS_CAPTION ) // 是否有 TitleBar
+		{
+			DoNcPaint();
+		}
+		else
+			pT->DefWindowProc();
     }
 
     void OnNcMouseMove(UINT nHitTest, WTL::CPoint point)
     {
-        if(nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE
+		SetMsgHandled( FALSE );
+
+        if(nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON || nHitTest == HTCLOSE || nHitTest == HTHELP
             || HTMENU == nHitTest )
         {
             if(_anchorDown && _anchorDown != nHitTest)
@@ -1614,9 +1692,9 @@ protected:
             }
         }
         else 
-            return;
-
-		m_MenuBar.OnMouseMove( nHitTest, point );
+			return;
+		if ( HTMENU == nHitTest )
+			m_MenuBar.OnMouseMove( nHitTest, point );
 		/*
         if ( HTMENU == nHitTest )
         {
@@ -1665,11 +1743,11 @@ protected:
                     sbState._min = SystemButtonState::hot;
             }
 
-            //WTL::CWindowDC dc(m_hWnd);
-            //WTL::CRect rcw;
-            //GetWindowRect(&rcw);
-            //rcw.OffsetRect(-rcw.left, -rcw.top);
-            //EtchedSysButton((HDC)dc, rcw, sbState);
+            WTL::CWindowDC dc(m_hWnd);
+            WTL::CRect rcw;
+            GetWindowRect(&rcw);
+            rcw.OffsetRect(-rcw.left, -rcw.top);
+            EtchedSysButton((HDC)dc, rcw, sbState);
         }
         
         // if(HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
@@ -1681,8 +1759,6 @@ protected:
     
     void OnNcLButtonDown(UINT nHitTest, WTL::CPoint point)
     {
-		bLog = TRUE;
-
         if (nHitTest == HTMINBUTTON || nHitTest == HTMAXBUTTON 
             || nHitTest == HTCLOSE || nHitTest == HTHELP)
         {
@@ -1732,6 +1808,10 @@ protected:
                 else
                     sysbtn_state._min = SystemButtonState::pushed;
             }
+			else if (HTHELP == nHitTest)
+			{
+				sysbtn_state._help = SystemButtonState::pushed;
+			}
 
             WTL::CWindowDC dc(m_hWnd);
             WTL::CRect rcw;
@@ -1741,7 +1821,7 @@ protected:
             EtchedSysButton((HDC)dc, rcw, sysbtn_state);
   
 		}
-        if ( HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
+        if ( HTHELP != nHitTest && HTCLOSE != nHitTest && HTMAXBUTTON != nHitTest && HTMINBUTTON != nHitTest)
         {
             SetMsgHandled(FALSE);
             //CallWindowProc(gDialogProc, hWnd, WM_NCLBUTTONDOWN, (WPARAM)(UINT)(nHitTest),
@@ -1779,6 +1859,8 @@ protected:
         }
         else if (HTCLOSE == nHitTest)
             PostMessage(WM_SYSCOMMAND, SC_CLOSE, -1);
+		else if (HTHELP == nHitTest)
+			PostMessage(WM_SYSCOMMAND, SC_CONTEXTHELP, -1);
 		//else 
     }
 
@@ -1970,7 +2052,7 @@ private:
 
 public:
 
-	FrameStyle		m_frameStyle;
+	FrameStyle		_frameStyle;
 
 };
 
@@ -1987,7 +2069,7 @@ public:
 	
 	SkinFrame()
 	{
-		m_frameStyle	= NORMAL_STYLE;
+		_frameStyle		= NORMAL_STYLE;
 		_classid		= WINDOW;
 	}
 
@@ -2008,7 +2090,7 @@ public:
 
 	SkinSDIFrame()
 	{
-		m_frameStyle	= SDI_STYLE;
+		_frameStyle		= SDI_STYLE;
 		_classid		= WINDOW; 
 	}
 
@@ -2031,7 +2113,7 @@ public:
 
 	SkinMDIFrame()
 	{
-		m_frameStyle	= MDI_STYLE;
+		_frameStyle		= MDI_STYLE;
 		_classid		= WINDOW; 
 	}
 

@@ -4,23 +4,20 @@
 #include "../base/skinctrl.h"
 #include "../base/wclassdefines.h"
 
-
 namespace Skin {
 
 	template<class BaseT = WTL::CComboBox>
 	struct SkinComboBox : public SkinControlImpl<SkinComboBox, BaseT>
 	{
-		//enum { class_id = COMBOBOX };
 		SkinComboBox()
 		{
-			m_nPart		= CP_DROPDOWNBUTTON;
-			m_bLBtnDown	= FALSE;
+			_nPart		= CP_DROPDOWNBUTTON;
+			_bLBtnDown	= FALSE;
 			_classid	= COMBOBOX;
 		}
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		typedef SkinComboBox<BaseT> this_type;
@@ -44,7 +41,7 @@ namespace Skin {
 			int nState = GetState();
 
 			LRESULT lRet = DefWindowProc();
-			//if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, m_nPart, nState))
+			//if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(class_id, _nPart, nState))
 			//	_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
 			DoPaint(dc, nState, rc);
@@ -56,7 +53,7 @@ namespace Skin {
 		{
 			LRESULT lRet = 0;
 			
-			m_bLBtnDown = TRUE;
+			_bLBtnDown = TRUE;
 			
 			if( IsWindowEnabled() )
 			{
@@ -71,7 +68,7 @@ namespace Skin {
 		{
 			LRESULT lRet = 0;
 			
-			m_bLBtnDown = FALSE;
+			_bLBtnDown = FALSE;
 			
 			Invalidate();
 			
@@ -93,7 +90,7 @@ namespace Skin {
 			// Cover up dark 3D shadow.
 			
 			COLORREF cr;
-			_scheme->GetColor(_classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+			_scheme->GetColor(_classid, _nPart, nState, TMT_BORDERCOLOR, &cr);
 			
 			int nType = (GetStyle() & 0xf);
 
@@ -124,7 +121,7 @@ namespace Skin {
 			}
 			else 
 			{
-				_scheme->GetColor(_classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+				_scheme->GetColor(_classid, _nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 				dc.Draw3dRect(rcItem, cr, cr); 
 			}
 
@@ -145,7 +142,7 @@ namespace Skin {
 				rcButton.bottom = rcItem.bottom - 1;
 
 				if (_scheme)
-					_scheme->DrawBackground(dc, _classid, m_nPart, nState, &rcButton, NULL );
+					_scheme->DrawBackground(dc, _classid, _nPart, nState, &rcButton, NULL );
 			}
 			
 			dc.Detach();
@@ -160,20 +157,16 @@ namespace Skin {
 				nState = CBXS_DISABLED;
 			else
 			{
-				if (m_bLBtnDown)
+				if (_bLBtnDown)
 					nState = CBXS_PRESSED;
 			}
 
 			return nState;
 		}
-	private:
-		int		m_nPart;
-		BOOL	m_bLBtnDown;
 
-		enum
-		{
-			ICON_SPACE = 2,
-		};
+	private:
+		int		_nPart;
+		BOOL	_bLBtnDown;
 	};
 
 }; // namespace 

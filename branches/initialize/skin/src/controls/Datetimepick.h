@@ -7,12 +7,13 @@
 namespace Skin {
 	
 	const UINT TIMER_DROP = 1;
+	const int SCROLLCX = ::GetSystemMetrics(SM_CXHSCROLL);
 
 	template<class BaseT = WTL::CDateTimePickerCtrl>
 	struct SkinDateTimePickerCtrl : public SkinControlImpl<SkinDateTimePickerCtrl, BaseT>
 	{
 		//enum { class_id = DATATIMEPICKER };
-
+		
 		SkinDateTimePickerCtrl()
 		{
 			m_nPart		= CP_DROPDOWNBUTTON;
@@ -31,184 +32,138 @@ namespace Skin {
 		typedef SkinControlImpl<SkinDateTimePickerCtrl, BaseT> base_type;
 
 		BEGIN_MSG_MAP(this_type)
-		//	if ( hWnd == m_hWnd )
-			ATLTRACE("%d datetimepick msg is %04x \n",m_nMess, uMsg);
-			m_nMess ++;
-//			MESSAGE_HANDLER(WM_PAINT, OnPaint)
-//			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
-//			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
-//			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
-//			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 
-//			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
-//			MESSAGE_HANDLER(WM_NCHITTEST, OnNcHitTest)
-//			MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
-			MSG_WM_NOTIFY( OnNotify )
-			//MESSAGE_HANDLER(WM_TIMER, OnTimer)
-			
-			//NOTIFY_CODE_HANDLER(DTN_DROPDOWN, OnDropDown)
-			//NOTIFY_CODE_HANDLER(DTN_CLOSEUP, OnDropClose)
-			//NOTIFY_CODE_HANDLER(DTN_DATETIMECHANGE, OnDataTimeChange)
+			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 
+			MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
+			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
+			MESSAGE_HANDLER(WM_TIMER, OnTimer)
+			MESSAGE_HANDLER( WM_SETFOCUS, OnSetFocus )
 		END_MSG_MAP()
-		
-		LRESULT OnNotify( int wParam, LPNMHDR lParam )
+
+		void GetDrawRect( LPRECT pWindow, LPRECT pClient )
 		{
-			LRESULT lRet = DefWindowProc();
-			return lRet;
+			CRect rWindow;
+			GetWindowRect(rWindow);
+
+			if (pClient)
+			{
+				GetClientRect(pClient);
+				ClientToScreen(pClient);
+				::OffsetRect(pClient, -rWindow.left, -rWindow.top);
+			}
+
+			if (pWindow)
+			{
+				rWindow.OffsetRect(-rWindow.TopLeft());
+				*pWindow = rWindow;
+			}
 		}
 
-		LRESULT OnDropDown( int wParam, LPNMHDR lParam, BOOL bHandled)
+		LRESULT OnSetFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			return DefWindowProc();
-		}
-		
-		LRESULT OnSetCursor( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-		{
-			if ( m_bRefresh )
-			{
-				SetRedraw( FALSE );
-			}
 			LRESULT lRet = DefWindowProc();
-			if ( m_bRefresh )
-			{
-				SetRedraw( TRUE );
-			}
-			return lRet;
-		}
-
-		LRESULT OnNcHitTest( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-		{
-			if ( m_bRefresh )
-				return 0 ;
-
-			LRESULT lRet = DefWindowProc();
-			return lRet;
-			if ( m_bRefresh )
-			{
-				WTL::CClientDC dc( m_hWnd );
-
-				WTL::CRect rcItem;
-				GetClientRect( rcItem );
-
-				int nState = GetState();
-				DrawDropButton(dc, nState, rcItem );
-				TRACE( "OnNcHitTest draw \r\n" );
-			}
+			Invalidate();
 			return lRet;
 		}
 		
-		LRESULT OnMouseMove( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+		void	OnNotifyReflect( NMHDR* pNMHDR, LRESULT& lrParent )
 		{
-			if ( m_bRefresh )
-				return 0 ;
-			LRESULT lRet = DefWindowProc();
-			return lRet;
-			if ( m_bRefresh )
+
+			switch (pNMHDR->code)
 			{
-				WTL::CClientDC dc( m_hWnd );
+			case DTN_DROPDOWN:
+				m_bLBtnDown = TRUE;
+				//SendMessage(WM_PAINT);
+				SetRedraw(FALSE);
+				SetTimer(TIMER_DROP, 10, NULL);
+				break;
 
-				WTL::CRect rcItem;
-				GetClientRect( rcItem );
+			case DTN_CLOSEUP:
+				m_bLBtnDown = FALSE;
+				SetRedraw(TRUE);
+				KillTimer(TIMER_DROP);
+				//DelayRedraw(200);
+				break;
 
-				int nState = GetState();
-				DrawDropButton(dc, nState, rcItem );
-				TRACE( "OnMouseMove draw \r\n" );
+			case DTN_DATETIMECHANGE:
+				Invalidate(FALSE);
+				break;
 			}
-			return lRet;
+
+			return;
 		}
 
+		
 		LRESULT OnTimer( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 		{
-			if ( wParam == TIMER_DROP )
+			if (wParam == TIMER_DROP)
 			{
-				//SetRedraw(TRUE);
+				if (m_bLBtnDown)
+				{
+					SetRedraw(TRUE);
 
-				WTL::CClientDC dc( m_hWnd );
-				WTL::CRect rcItem;
-				GetClientRect( rcItem );
-				int nState = GetState();
-				DrawDropButton(dc, nState, rcItem );
+					WTL::CWindowDC dc( m_hWnd );
+
+					WTL::CRect rcWindow, rClient;
+					GetDrawRect(rcWindow, rClient);
+
+					int nState = GetState();
+					
+					DrawDropButton(dc, nState, rClient );
+				}
+				else
+				{
+					KillTimer(TIMER_DROP);
+					SetRedraw(TRUE);
+				}
 			}
-			
 
 			bHandled = FALSE;
 			return 0;
 		}
 
-		LRESULT OnDropDown( int wParam, LPNMHDR lParam, BOOL& bHandled)
-		{
-			m_bLBtnDown = TRUE;
-			SendMessage(WM_NCPAINT);
-			SetRedraw(FALSE);
-			SetTimer(TIMER_DROP, 10, NULL);
-			Invalidate();
-			return 0;
-		}
 		
-		LRESULT OnDropClose( int wParam, LPNMHDR lParam, BOOL& bHandled)
-		{
-			m_bLBtnDown = FALSE;
-			SetRedraw(TRUE);
-			KillTimer(TIMER_DROP);
-			Invalidate();
-			return 0;
-		}
-
-		LRESULT OnDataTimeChange( int wParam, LPNMHDR lParam, BOOL& bHandled)
-		{
-			Invalidate(FALSE);
-			return 0;
-		}
-
-		WTL::CRect getDropButtonRect()
-		{
-			WTL::CRect rcItem;
-			GetClientRect(&rcItem);
-
-			WTL::CRect rcButton;
-			rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 1;
-			rcButton.right = rcItem.right - 1;
-			rcButton.top = rcItem.top + 1;
-			rcButton.bottom = rcItem.bottom - 1;
-
-			return rcButton;
-		}
-
-		void DrawDropButton( HDC hdc, int nState, WTL::CRect rcItem )
-		{
-			WTL::CRect rcButton;
-			rcButton.left = rcItem.right - ::GetSystemMetrics(SM_CXHTHUMB) - 2;
-			rcButton.right = rcItem.right;
-			rcButton.top = rcItem.top + 1;
-			rcButton.bottom = rcItem.bottom - 1;
-
-			// fix icon combox draw
-			FillRect(hdc, &rcButton, (HBRUSH)GetStockObject(WHITE_BRUSH));
-
-			rcButton =  getDropButtonRect();
-
-			if (_scheme)
-				_scheme->DrawBackground(hdc, _classid, m_nPart, nState, &rcButton, NULL );
-		}
-
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			return 0;
 		}
 
+
+
+	
+
+		void DrawDropButton( HDC hdc, int nState, WTL::CRect& rClient )
+		{
+			rClient.left = rClient.right - ::GetSystemMetrics(SM_CXHTHUMB) - 2;
+			rClient.right = rClient.right;
+			
+			
+			// fix icon combox draw
+			FillRect(hdc, &rClient, (HBRUSH)GetStockObject(WHITE_BRUSH));
+
+			rClient.top = rClient.top + 1;
+			rClient.bottom = rClient.bottom - 1;
+
+			if (_scheme)
+				_scheme->DrawBackground(hdc, _classid, m_nPart, nState, &rClient, NULL );
+
+		}
+
+		
+
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-
 			HDC hdc = GetWindowDC( );
-			WTL::CDC dc;
+
+			WTL::CDCHandle dc;
 			dc.Attach(hdc);
 
-			WTL::CRect rcItem;
-			GetWindowRect(&rcItem);
-			rcItem.right -= rcItem.left;
-			rcItem.bottom -= rcItem.top;
-			rcItem.top = rcItem.left = 0;
+			WTL::CRect rcItem, rClient;
+			GetDrawRect(rcItem, rClient);
+
+			int nSaveDC = dc.SaveDC( ); // must restore dc to original state
+			dc.ExcludeClipRect(rClient);
 
 			int nState = GetState();
 
@@ -232,13 +187,13 @@ namespace Skin {
 				_scheme->GetColor(_classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 				dc.Draw3dRect(rcItem, cr, cr); 
 			}
-/*
+
 			if (!(GetStyle() & DTS_UPDOWN))
 			{
-				DrawDropButton( dc, nState, rcItem );
+				DrawDropButton( dc, nState, rClient );
 			}	
-*/
-			dc.Detach();
+
+			dc.RestoreDC(nSaveDC);
 
 			ReleaseDC( hdc );
 			return 0;
@@ -262,137 +217,11 @@ namespace Skin {
 			return 0;
 		}
 
-		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			LRESULT lRet = 0;
-
-			m_bLBtnDown = TRUE;
-
-			if( IsWindowEnabled() )
-			{
-
-				WTL::CRect rcButton;
-				rcButton = getDropButtonRect();
-
-
-				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-
-				if ( rcButton.PtInRect(pt) )
-				{
-					//SetRedraw(FALSE);
-					//SetTimer(TIMER_DROP, 10, NULL);
-					m_bRefresh = TRUE;
-					lRet = DefWindowProc();
-
-					//SetRedraw(TRUE);
-
-					//InvalidateRect( rcButton, FALSE );
-
-				}
-				else
-				{
-					lRet = DefWindowProc();
-				}
-				
-				//KillTimer(TIMER_DROP);
-
-				return lRet;
-			}
-			else 
-				return DefWindowProc();
-/*
-				WTL::CRect rcItem;
-				GetClientRect( rcItem );
-
-				WTL::CClientDC dc( m_hWnd );
-
-				int nState = GetState();
-				DrawDropButton(dc, nState, rcItem );
-
-				return lRet;
-
-				WTL::CRect rcButton;
-				rcButton = getDropButtonRect();
-
-
-				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-
-				if ( rcButton.PtInRect(pt) )
-				{
-					WTL::CMonthCalendarCtrl hMonthCal = GetMonthCal();
-
-					RECT rcMonthCal;
-					hMonthCal.SendMessage(MCM_GETMINREQRECT, 0, (LPARAM)&rcMonthCal);
-					
-					POINT monthcal_pos;
-					if(GetStyle() & DTS_RIGHTALIGN)
-						monthcal_pos.x = rcButton.left - 
-						(rcMonthCal.right - rcMonthCal.left);
-					else
-						// FIXME: this should be after the area reserved for the checkbox 
-						monthcal_pos.x = rcItem.left;
-
-					monthcal_pos.y = rcItem.bottom;
-					ClientToScreen ( &monthcal_pos );
-
-					
-					hMonthCal.SetWindowPos(0, monthcal_pos.x,
-						monthcal_pos.y, rcMonthCal.right - rcMonthCal.left,
-						rcMonthCal.bottom - rcMonthCal.top, 0);
-
-					if(hMonthCal.IsWindowVisible()) 
-					{
-						hMonthCal.ShowWindow( SW_HIDE );
-					}
-					else
-					{
-						SYSTEMTIME SysTime;
-						GetSystemTime(&SysTime); 
-
-						TRACE("update calendar %04d/%02d/%02d\n", 
-							SysTime.wYear, SysTime.wMonth, SysTime.wDay);
-						
-						hMonthCal.SendMessage(MCM_SETCURSEL, 0, (LPARAM)(&SysTime));
-						hMonthCal.ShowWindow(SW_SHOW);
-					}
-
-					Invalidate();
-				}
-				
-				
-			}
-	*/		
-			
-		}
-
-		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			m_bRefresh = FALSE;
-			LRESULT lRet = 0;
-			m_bLBtnDown = FALSE;
-			//Invalidate();
-			if( IsWindowEnabled() ) 
-				lRet = DefWindowProc();
-			
-			WTL::CClientDC dc( m_hWnd );
-
-			WTL::CRect rcItem;
-			GetClientRect( rcItem );
-
-			int nState = GetState();
-			DrawDropButton(dc, nState, rcItem );
-
-			//InvalidateRect(NULL, FALSE);
-			return lRet;
-		}
-
-
-
 		void DoPaint(HDC hdc, int nState, RECT *pRect)
 		{
 			const int EDGE = 1;
 
-			WTL::CDC dc;
+			WTL::CDCHandle dc;
 			dc.Attach(hdc);
 
 			WTL::CRect rcItem(*pRect);
@@ -417,9 +246,6 @@ namespace Skin {
 			{
 				DrawDropButton(dc, nState, rcItem );
 			}	
-
-			dc.Detach();
-
 		}
 
 		static HFONT GetCtrlFont(HWND hwnd)

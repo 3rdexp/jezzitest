@@ -2,31 +2,29 @@
 
 #include "../base/skinctrl.h"
 
-
 namespace Skin {
 
-#define GROUPBOX_TEXT_SPACE                7    //groupbox文字与左（右）边框距离
 
 template<class BaseT = WTL::CButton>
 struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 {
-    //enum { class_id = BUTTON };
-	
+ 
     SkinButton()
     {
-        m_fMouseOver	= 0;
-        m_fFocus		= 0;
-        m_fPressed		= 0;
-
-        m_hIcon         = 0;
+        _fMouseOver		= 0;
+        _fFocus			= 0;
+        _fPressed		= 0;
 		_classid		= BUTTON;
     }
 
-
 	void OnFirstMessage()
 	{
-		int i = 0;
 	}
+
+//Message 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
     typedef SkinButton<BaseT> this_type;
     typedef SkinControlImpl<SkinButton, BaseT> base_type;
@@ -52,7 +50,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     BOOL OnCreate(LPCREATESTRUCT)
     {
-        m_nPart = GetButtonPart();
+        _nPart = GetButtonPart();
         SetMsgHandled(FALSE);
         return TRUE;
     }
@@ -64,7 +62,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 	
 	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if ( BP_USERBUTTON == m_nPart )
+		if ( BP_USERBUTTON == _nPart )
 			return DefWindowProc( WM_PAINT, wParam, lParam );
 
 		WTL::CPaintDC dc(m_hWnd);
@@ -80,7 +78,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     LRESULT OnFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        m_fFocus = (uMsg == WM_SETFOCUS) ? 1 : 0;
+        _fFocus = (uMsg == WM_SETFOCUS) ? 1 : 0;
         InvalidateRect(NULL, TRUE);
         UpdateWindow();
         bHandled = FALSE;
@@ -89,7 +87,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        if (m_nPart == BP_PUSHBUTTON)
+        if (_nPart == BP_PUSHBUTTON)
         {
             LRESULT lRet = 0;
             
@@ -100,7 +98,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
             if(GetCapture() == m_hWnd)
             {
-                m_fPressed = 1;
+                _fPressed = 1;
                 InvalidateRect(NULL, TRUE);
                 UpdateWindow();
             }
@@ -115,7 +113,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             if(GetCapture() == m_hWnd)
             {
                 lRet = DefWindowProc();
-                m_fPressed = 1;
+                _fPressed = 1;
                 InvalidateRect(NULL, TRUE);
                 UpdateWindow();
             }
@@ -126,7 +124,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     LRESULT OnLButtonDblClk(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        if (m_nPart == BP_PUSHBUTTON)
+        if (_nPart == BP_PUSHBUTTON)
         {
             LRESULT lRet = 0;
 
@@ -136,9 +134,9 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 			if(GetCapture() != m_hWnd)
                 SetCapture();
             
-			if(m_fPressed == 0)
+			if(_fPressed == 0)
             {
-                m_fPressed = 1;
+                _fPressed = 1;
                 InvalidateRect(NULL, TRUE);
                 UpdateWindow();
             }
@@ -152,10 +150,10 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 			if(GetCapture() != m_hWnd)
                 SetCapture();
             
-			if(m_fPressed == 0)
+			if(_fPressed == 0)
             {
                 lRet = DefWindowProc();
-                m_fPressed = 1;
+                _fPressed = 1;
                 InvalidateRect(NULL, TRUE);
                 UpdateWindow();
             }
@@ -166,7 +164,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
     }
     LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        if (m_nPart == BP_PUSHBUTTON)
+        if (_nPart == BP_PUSHBUTTON)
         {
             LRESULT lRet = 0;
             
@@ -177,7 +175,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             
 			if(GetCapture() == m_hWnd)
             {
-                if(bHover && m_fPressed == 1)
+                if(bHover && _fPressed == 1)
                     ::PostMessage(GetParent(), WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(), BN_CLICKED), (LPARAM)m_hWnd);
                 ::ReleaseCapture();
             }
@@ -203,9 +201,9 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     LRESULT OnCaptureChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        if(m_fPressed == 1)
+        if(_fPressed == 1)
         {
-            m_fPressed = 0;
+            _fPressed = 0;
             InvalidateRect(NULL, TRUE);
             UpdateWindow();
         }
@@ -237,16 +235,16 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             RECT rect = { 0 };
             GetWindowRect(&rect);
             unsigned int uPressed = ::PtInRect(&rect, ptCursor) ? 1 : 0;
-            if(m_fPressed != uPressed)
+            if(_fPressed != uPressed)
             {
-                m_fPressed = uPressed;
+                _fPressed = uPressed;
                 InvalidateRect(NULL, TRUE);
                 UpdateWindow();
             }
         }
-        else if(IsHoverMode() && m_fMouseOver == 0)
+        else if(IsHoverMode() && _fMouseOver == 0)
         {
-            m_fMouseOver = 1;
+            _fMouseOver = 1;
             InvalidateRect(NULL, TRUE);
             UpdateWindow();
             StartTrackMouseLeave();
@@ -256,9 +254,9 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     LRESULT OnMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        if(m_fMouseOver == 1)
+        if(_fMouseOver == 1)
         {
-            m_fMouseOver = 0;
+            _fMouseOver = 0;
             InvalidateRect(NULL, TRUE);
             UpdateWindow();
         }
@@ -279,23 +277,20 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         return DefWindowProc();
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    SIZE SizeIcon(HICON hIcon)
-    {
-        SIZE resSize = {0,0};
-        ICONINFO iconInfo;
-        if (::GetIconInfo(hIcon, &iconInfo))
-        {
-			BITMAP bm;
-			GetObject(iconInfo.hbmColor, sizeof(bm), &bm);
-            resSize.cx = bm.bmWidth;//iconInfo.xHotspot;
-            resSize.cy = bm.bmHeight;//iconInfo.yHotspot;
-			
-			::DeleteObject( iconInfo.hbmColor );
-			::DeleteObject( iconInfo.hbmMask );
-        }
-        return resSize;
-    }
+	BOOL StartTrackMouseLeave()
+	{
+		TRACKMOUSEEVENT tme = { 0 };
+		tme.cbSize = sizeof(tme);
+		tme.dwFlags = TME_LEAVE;
+		tme.hwndTrack = m_hWnd;
+		return _TrackMouseEvent(&tme);
+	}
+
+
+//Function
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
     /********************************************************************
     * 函  数：GetButtonTextFormat()                                        *
@@ -354,7 +349,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
                 uFormat |= DT_LEFT;
             else//缺省，x中
             {
-                if ( m_nPart == BP_PUSHBUTTON )
+                if ( _nPart == BP_PUSHBUTTON )
                     uFormat |= DT_CENTER;
                 else
                     uFormat |= BS_LEFT;
@@ -446,12 +441,30 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         return BP_PUSHBUTTON;
     }
 
-    void GetCheckImgRect(const WTL::CRect& rcClient, int nState,  WTL::CRect& rcImg, WTL::CRect& rcText)
+    
+	SIZE SizeIcon(HICON hIcon)
+	{
+		SIZE resSize = {0,0};
+		ICONINFO iconInfo;
+		if (::GetIconInfo(hIcon, &iconInfo))
+		{
+			BITMAP bm;
+			GetObject(iconInfo.hbmColor, sizeof(bm), &bm);
+			resSize.cx = bm.bmWidth;//iconInfo.xHotspot;
+			resSize.cy = bm.bmHeight;//iconInfo.yHotspot;
+
+			::DeleteObject( iconInfo.hbmColor );
+			::DeleteObject( iconInfo.hbmMask );
+		}
+		return resSize;
+	}
+
+	void GetCheckImgRect(const WTL::CRect& rcClient, int nState,  WTL::CRect& rcImg, WTL::CRect& rcText)
     {
         long lStyle = GetStyle();
 
-        int nCheckWidth =  GetSchemeWidth( m_nPart, nState );
-        int nCheckHeight = GetSchemeHeight( m_nPart, nState );
+        int nCheckWidth =  GetSchemeWidth( _nPart, nState );
+        int nCheckHeight = GetSchemeHeight( _nPart, nState );
 
         UINT nVertical = GetVertAlignmentFormat(lStyle);
         //y方向
@@ -514,14 +527,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         }
     }
 
-    BOOL StartTrackMouseLeave()
-    {
-        TRACKMOUSEEVENT tme = { 0 };
-        tme.cbSize = sizeof(tme);
-        tme.dwFlags = TME_LEAVE;
-        tme.hwndTrack = m_hWnd;
-        return _TrackMouseEvent(&tme);
-    }
+
 
     bool IsHoverMode()
     {
@@ -530,7 +536,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
     int  GetState()
     {
-        if (m_nPart == BP_PUSHBUTTON)
+        if (_nPart == BP_PUSHBUTTON)
         {
             LONG lStyle = GetStyle();
             BOOL bEnabled = !(lStyle & WS_DISABLED);//是否被禁止
@@ -538,9 +544,9 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
             bool bHover = IsHoverMode();
 
-            if (m_fPressed == 1)
+            if (_fPressed == 1)
                 return PBS_PRESSED;
-            else if((!bHover && m_fFocus == 1) || (bHover && m_fMouseOver == 1))
+            else if((!bHover && _fFocus == 1) || (bHover && _fMouseOver == 1))
                 return PBS_HOT;
             else if(!bEnabled)
                 return PBS_DISABLED;
@@ -549,7 +555,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             else
                 return PBS_NORMAL;
         }
-        else if (m_nPart == BP_CHECKBOX)
+        else if (_nPart == BP_CHECKBOX)
         {
             LONG lStyle = GetStyle();
             BOOL bEnabled = !(lStyle & WS_DISABLED);//是否被禁止
@@ -561,15 +567,15 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             }
             else
             {
-                if (m_fPressed == 1)
+                if (_fPressed == 1)
                     return bChecked ?  CBS_CHECKEDPRESSED:CBS_UNCHECKEDPRESSED;
-                else if((!bHover && m_fFocus == 1) || (bHover && m_fMouseOver == 1))
+                else if((!bHover && _fFocus == 1) || (bHover && _fMouseOver == 1))
                     return bChecked ?  CBS_CHECKEDHOT:CBS_UNCHECKEDHOT;
                 else
                     return bChecked ?  CBS_CHECKEDNORMAL:CBS_UNCHECKEDNORMAL;
             }
         }
-        else if (m_nPart == BP_GROUPBOX)
+        else if (_nPart == BP_GROUPBOX)
         {
             LONG lStyle = GetStyle();
             BOOL bEnabled = !(lStyle & WS_DISABLED);//是否被禁止
@@ -578,7 +584,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             else
                 return GBS_NORMAL;
         }
-        else if (m_nPart == BP_RADIOBUTTON)
+        else if (_nPart == BP_RADIOBUTTON)
         {
             LONG lStyle = GetStyle();
             BOOL bEnabled = !(lStyle & WS_DISABLED);//是否被禁止
@@ -590,9 +596,9 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             }
             else
             {
-                if (m_fPressed == 1)
+                if (_fPressed == 1)
                     return bChecked ?  RBS_CHECKEDPRESSED:RBS_UNCHECKEDPRESSED;
-                else if((!bHover && m_fFocus == 1) || (bHover && m_fMouseOver == 1))
+                else if((!bHover && _fFocus == 1) || (bHover && _fMouseOver == 1))
                     return bChecked ?  RBS_CHECKEDHOT:RBS_UNCHECKEDHOT;
                 else
                     return bChecked ?  RBS_CHECKEDNORMAL:RBS_UNCHECKEDNORMAL;
@@ -611,7 +617,12 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         return hFont;
     }
 
-    void DrawGroup(HDC hdc)
+    
+//绘制函数
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+	void DrawGroup(HDC hdc)
     {
         WTL::CDC dc;
         dc.Attach(hdc);
@@ -620,9 +631,10 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
         rect.bottom --;
         rect.right --;
-        WTL::CPen pen;
-        pen.CreatePen(PS_SOLID,1,0xBFD0D0);//边框笔
-        HPEN hOldPen = dc.SelectPen(pen.m_hPen);
+
+        //WTL::CPen pen;
+        //pen.CreatePen(PS_SOLID,1,0xBFD0D0);//边框笔
+        //HPEN hOldPen = dc.SelectPen(pen.m_hPen);
 
         char sCaption[256];//控件文字
         GetWindowText(sCaption,256);
@@ -630,17 +642,6 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         {
 			if (_scheme)
 				_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
-
-			/*
-            dc.MoveTo(rect.left,rect.top);
-            dc.LineTo(rect.right,rect.top);
-            dc.LineTo(rect.right,rect.bottom);
-            dc.LineTo(rect.left,rect.bottom);
-            dc.LineTo(rect.left,rect.top);
-
-            dc.SelectPen(hOldPen);
-            dc.Detach();
-            */
 			return;
         }
 
@@ -668,15 +669,6 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 				
 				dc.SelectClipRgn( NULL );
-				/*
-                dc.MoveTo(ptText.x-1, rect.top);
-                dc.LineTo(rect.left,rect.top);
-                dc.LineTo(rect.left,rect.bottom);
-                dc.LineTo(rect.right,rect.bottom);
-                dc.LineTo(rect.right,rect.top);
-                //由于是居中，既然没超过左边界，那一定也没有超过右边界
-                dc.LineTo(ptText.x+Extent.cx,rect.top);
-				*/
             }
             else//文字超过了左边界，左右边界从文字底下开始画
             {
@@ -685,25 +677,11 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				rectDraw.top = nYTop + 1;
 				if (_scheme)
 					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rectDraw );
-				/*
-                dc.MoveTo(rect.left,nYTop+1);
-                dc.LineTo(rect.left,rect.bottom);
-                dc.LineTo(rect.right,rect.bottom);
-                dc.LineTo(rect.right,nYTop);
-				*/
             }
         }
         else if ( (lStyle & BS_RIGHT)==BS_RIGHT )//x方向，文字右对齐
         {
             ptText.x = rect.right - GROUPBOX_TEXT_SPACE - Extent.cx;//文字左上角x坐标
-
-			/*
-            //右对齐，保证右边的正常
-            dc.MoveTo(rect.right-GROUPBOX_TEXT_SPACE,rect.top);
-            dc.LineTo(rect.right,rect.top);
-            dc.LineTo(rect.right,rect.bottom);
-            dc.LineTo(rect.left,rect.bottom);
-			*/
 
             if ( ptText.x > rect.left )//文字左边没超过控件左边界
             {
@@ -713,10 +691,6 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
-				/*
-                dc.LineTo(rect.left,rect.top);
-                dc.LineTo(ptText.x,rect.top);
-				*/
             }
             else//文字左边超过了控件左边界
 			{
@@ -726,23 +700,11 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
-
-				/*
-                dc.LineTo(rect.left,ptText.y+Extent.cy);
-				*/
 			}
         }
         else//x方向，文字左对齐（缺省）
         {
             ptText.x = rect.left + GROUPBOX_TEXT_SPACE;//文字左上角x坐标
-
-			/*
-            //文字左对齐，保证左边正常画出来
-            dc.MoveTo(rect.left+GROUPBOX_TEXT_SPACE-1,rect.top);
-            dc.LineTo(rect.left,rect.top);
-            dc.LineTo(rect.left,rect.bottom);
-            dc.LineTo(rect.right,rect.bottom);
-			*/
 
             if ( ptText.x+Extent.cx < rect.right)//文字没超过控件右边界
             {
@@ -752,10 +714,6 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
-				/*
-                dc.LineTo(rect.right,rect.top);
-                dc.LineTo(ptText.x + Extent.cx,rect.top);
-				*/
             }
             else//文字超过控件右边界
 			{
@@ -766,10 +724,6 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 					_scheme->TransparentDraw(dc, _classid, BP_GROUPBOX, GBS_NORMAL, &rect );
 
 				dc.SelectClipRgn( NULL );
-
-				/*
-                dc.LineTo(rect.right,ptText.y+Extent.cy);
-				*/
 			}
         }
 
@@ -782,10 +736,8 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
         dc.DrawText(sCaption, lstrlen(sCaption),rcText,DT_LEFT|DT_TOP|DT_SINGLELINE);
 
         dc.SelectFont(hOldFont);
-        dc.SelectPen(hOldPen);
         dc.Detach();
     }
-    
     LRESULT DoPaint( HDC dc )
     {
         WTL::CRect rc;
@@ -795,18 +747,18 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 		int nState = GetState();
 
-		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, m_nPart, nState))
+		if(_scheme && _scheme->IsThemeBackgroundPartiallyTransparent(_classid, _nPart, nState))
 			_scheme->DrawParentBackground(m_hWnd, memdc, &rc);
 
-		if ( BP_GROUPBOX == m_nPart )
+		if ( BP_GROUPBOX == _nPart )
 			BitBlt( memdc, 0, 0, rc.Width(), rc.Height(), dc, 0, 0, SRCCOPY);
 
         LONG lStyle = GetStyle();
 
-        if (m_nPart == BP_PUSHBUTTON)
+        if (_nPart == BP_PUSHBUTTON)
         {
             if (_scheme)
-                _scheme->DrawBackground(memdc, _classid, m_nPart, nState, &rc, NULL );
+                _scheme->DrawBackground(memdc, _classid, _nPart, nState, &rc, NULL );
 			
             // icon / bitmap ( TODO: button should have bitmap itself
             // text
@@ -839,26 +791,13 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 				::ReleaseDC(m_hWnd, cdc);
 				return S_OK;
 			}
-			
-            // if exist icon
-			/*
-            if (m_hIcon)
-            {
-                SIZE szIcon = SizeIcon(m_hIcon);
-                int nIconX = rc.left + ICON_LEFT;
-                int nIconY = (rc.bottom - rc.top - szIcon.cy) / 2;
-                BOOL bRet = DrawIconEx(memdc, nIconX, nIconY, m_hIcon, szIcon.cx, szIcon.cy, 0, NULL, DI_NORMAL);
-                rc.left = rc.left + szIcon.cx + ICON_LEFT;
-            }
-			*/
-
 			const int nLen = GetWindowTextLength();
 			TCHAR * szText = new TCHAR[nLen + 1];
 			int nTextLen = GetWindowText(szText, nLen + 1);
 
 			HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
 			if (_scheme)
-				_scheme->DrawText(memdc, _classid, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
+				_scheme->DrawText(memdc, _classid, _nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
 
 			_ASSERTE( _CrtCheckMemory( ) );
 			delete [] szText;
@@ -867,7 +806,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 			memdc.SelectFont(hOldFont);
 
         }
-        else if ( m_nPart == BP_CHECKBOX || m_nPart == BP_RADIOBUTTON )
+        else if ( _nPart == BP_CHECKBOX || _nPart == BP_RADIOBUTTON )
         {
             // 1 计算前面[o]的位置和文字的位置
             WTL::CRect rcImg;
@@ -875,7 +814,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
             GetCheckImgRect( rc, nState, rcImg, rcText );
 
             if (_scheme)
-                _scheme->TransparentDraw(memdc, _classid, m_nPart, nState, rcImg.left, rcImg.top);
+                _scheme->TransparentDraw(memdc, _classid, _nPart, nState, rcImg.left, rcImg.top);
 
             rc = rcText;
 
@@ -886,7 +825,7 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 
 			HFONT hOldFont = memdc.SelectFont(GetCtrlFont(m_hWnd));
 			if (_scheme)
-				_scheme->DrawText(memdc, _classid, m_nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
+				_scheme->DrawText(memdc, _classid, _nPart, nState, szText, GetButtonTextFormat(lStyle), 0, &rc);
 
 			_ASSERTE( _CrtCheckMemory( ) );
 			delete [] szText;
@@ -895,30 +834,25 @@ struct SkinButton : public SkinControlImpl<SkinButton, BaseT>
 			memdc.SelectFont(hOldFont);
 
         }
-        else if ( m_nPart == BP_GROUPBOX )
+        else if ( _nPart == BP_GROUPBOX )
         {
             DrawGroup(memdc);
 			//DefWindowProc();
         }
-#if 0
-        HDC d = ::GetDC(0);
-        BitBlt(d, 0, 0, 100, 100, memdc, 0, 0, SRCCOPY);
-        ::ReleaseDC(0, d);
-#endif
         return S_OK;
     }
 
 private:
-    unsigned m_fMouseOver  : 1;
-    unsigned m_fFocus      : 1;
-    unsigned m_fPressed       : 1;
-    HICON m_hIcon;
-    unsigned m_uFormat;
-    int m_nPart;
+    unsigned	_fMouseOver  : 1;
+    unsigned	_fFocus      : 1;
+    unsigned	_fPressed    : 1;
+    unsigned	_uFormat;
+    int			_nPart;
 
     enum
     {
         ICON_LEFT = 5,
+		GROUPBOX_TEXT_SPACE	= 7, //    //groupbox文字与左（右）边框距离
     };
 };
 

@@ -10,13 +10,12 @@ namespace Skin {
 		//enum { class_id = EDIT };
 		SkinEdit()
 		{
-			m_nPart		= EP_EDITTEXT;
+			_nPart		= EP_EDITTEXT;
 			_classid	= EDIT; 
 		}
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		typedef SkinEdit<BaseT> this_type;
@@ -29,7 +28,7 @@ namespace Skin {
 
 		BOOL OnCreate(LPCREATESTRUCT)
 		{
-			m_nPart = EP_EDITTEXT;
+			_nPart = EP_EDITTEXT;
 
 			TCHAR className[256];
 			GetClassName(GetParent(), className, sizeof(className));
@@ -52,9 +51,7 @@ namespace Skin {
 			{		
 				WTL::CRect rcw;
 				GetWindowRect(&rcw);
-				rcw.right -= rcw.left;
-				rcw.bottom -= rcw.top;
-				rcw.top = rcw.left = 0;
+				rcw.OffsetRect( -rcw.left, -rcw.top );
 
 				HDC hdc = GetWindowDC(  );
 
@@ -62,7 +59,7 @@ namespace Skin {
 				WTL::CBrush brBorder;
 				int nState = GetState();
 				COLORREF cr;
-				_scheme->GetColor(_classid, m_nPart, nState, TMT_BORDERCOLOR, &cr);
+				_scheme->GetColor(_classid, _nPart, nState, TMT_BORDERCOLOR, &cr);
 				brBorder.CreateSolidBrush( cr ); 
 				FrameRect(hdc, WTL::CRect(0, 0, rcw.Width(), rcw.Height()), (HBRUSH)brBorder);
 				brBorder.DeleteObject();
@@ -74,7 +71,7 @@ namespace Skin {
 					InflateRect(&rcw, -1, -1);
 					LONG lStyle = GetStyle();			
 					WTL::CBrush brBorder;
-					_scheme->GetColor(_classid, m_nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
+					_scheme->GetColor(_classid, _nPart, nState, TMT_TEXTBORDERCOLOR, &cr);
 					brBorder.CreateSolidBrush( cr ); 
 					FrameRect(hdc, &rcw, (HBRUSH) brBorder);			
 					if ((lExStyle & WS_EX_CLIENTEDGE) && (lExStyle & WS_EX_STATICEDGE))
@@ -101,7 +98,7 @@ namespace Skin {
 			return ETS_NORMAL;
 		}
 	private:
-		int m_nPart;
+		int _nPart;
 	};
 
 }; // namespace 

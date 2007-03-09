@@ -12,8 +12,6 @@ namespace Skin {
 	struct SkinHookToolBarCtrl : public SkinControlImpl<SkinHookToolBarCtrl, BaseT>
 	{
 	public:
-		//enum { class_id = TOOLBAR };
-
 		SkinHookToolBarCtrl()
 		{
 			_classid	= TOOLBAR;
@@ -21,13 +19,11 @@ namespace Skin {
 		}
 
 		void OnFirstMessage()
-		{
-			
+		{	
 		}
 
 		~SkinHookToolBarCtrl()
 		{
-			//UnInstallHook( m_hWnd );
 		}
 
 		//typedef SkinToolBarCtrl<BaseT> this_type;

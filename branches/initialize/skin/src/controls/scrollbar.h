@@ -26,7 +26,6 @@ namespace Skin {
 
 		void OnFirstMessage()
 		{
-			int i = 0;
 		}
 
 		SkinScrollBar()
@@ -74,6 +73,30 @@ namespace Skin {
 			return dwStyle&SBS_VERT;
 		}
 
+		void MyGetScrollBarInfo ( SCROLLBARINFO* pBar )
+		{
+			BOOL bVert =  (GetStyle() & SBS_VERT );
+			BOOL bRet = GetScrollBarInfo( pBar );
+			if ( !bRet )
+			{
+				//获取失败了
+				if ( bVert )
+				{
+					pBar->dxyLineButton = ::GetSystemMetrics( SM_CYVSCROLL );
+					pBar->xyThumbTop    = ::GetSystemMetrics( SM_CYVSCROLL );
+					pBar->xyThumbBottom = ::GetSystemMetrics( SM_CYVTHUMB ) + ::GetSystemMetrics( SM_CYVSCROLL );
+					GetClientRect( &pBar->rcScrollBar );
+				}
+				else
+				{
+					pBar->dxyLineButton = ::GetSystemMetrics( SM_CXHSCROLL );
+					pBar->xyThumbTop    = ::GetSystemMetrics( SM_CXHSCROLL );
+					pBar->xyThumbBottom = ::GetSystemMetrics( SM_CXHTHUMB ) + ::GetSystemMetrics( SM_CXHSCROLL );
+					GetClientRect( &pBar->rcScrollBar );
+				}
+			}
+		}
+
 		UINT HitTest(WTL::CPoint pt)
 		{
 			WTL::CRect rcClient;
@@ -84,7 +107,7 @@ namespace Skin {
 
 			SCROLLBARINFO sbar;
 			sbar.cbSize = sizeof( sbar );
-			scrollbar.GetScrollBarInfo( &sbar );
+			MyGetScrollBarInfo( &sbar );
 
 			BOOL bVert =  IsVertical();
 
@@ -257,7 +280,7 @@ namespace Skin {
 
 				SCROLLBARINFO sbar;
 				sbar.cbSize = sizeof( sbar );
-				GetScrollBarInfo( &sbar );
+				MyGetScrollBarInfo( &sbar );
 
 				BOOL bVert = IsVertical();
 
@@ -272,7 +295,10 @@ namespace Skin {
 						nOldPos = sbar.dxyLineButton + (sbar.rcScrollBar.right - sbar.rcScrollBar.left - 2 * sbar.dxyLineButton - sbar.xyThumbBottom + sbar.xyThumbTop) * ( m_nDragPos - m_si.nMin) / (m_si.nMax - m_si.nMin);
 					}
 				}
-
+				else
+				{
+					nOldPos = sbar.dxyLineButton;
+				}
 				m_nTraceSize = nOldPos;
 
 				//::SendMessage( GetParent(), WM_SYSCOMMAND,IsVertical() ? SC_VSCROLL : SC_HSCROLL, 0 );
@@ -354,11 +380,11 @@ namespace Skin {
 
 				SCROLLBARINFO sbar;
 				sbar.cbSize = sizeof( sbar );
-				scrollbar.GetScrollBarInfo( &sbar );
+				MyGetScrollBarInfo( &sbar );
 
 				BOOL bVert = IsVertical();
 		
-				int nOldPos = 0;
+				int nOldPos = sbar.dxyLineButton;
 
 				if ( m_si.nMax - m_si.nMin > 0 )
 				{
@@ -456,7 +482,7 @@ namespace Skin {
 			}
 			else
 			{
-				UINT uHit=HitTest(point);
+				UINT uHit = HitTest(point);
 				if(uHit!=m_uHtPrev)
 				{
 					if(m_uHtPrev!=-1)
@@ -487,7 +513,7 @@ namespace Skin {
 
 		LRESULT OnEraseBkgnd(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			return 0 ;
+			return 1 ;
 		}
 
 		LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -514,7 +540,7 @@ namespace Skin {
 
 			SCROLLBARINFO sbar;
 			sbar.cbSize = sizeof( sbar );
-			scrollbar.GetScrollBarInfo( &sbar );
+			MyGetScrollBarInfo( &sbar );
 
 			BOOL bVert =  IsVertical();
 		
@@ -675,9 +701,11 @@ namespace Skin {
 			WTL::CScrollBar scrollbar;
 			scrollbar = m_hWnd;
 
+			BOOL bVert =  (GetStyle() & SBS_VERT );
+
 			SCROLLBARINFO sbar;
 			sbar.cbSize = sizeof( sbar );
-			scrollbar.GetScrollBarInfo( &sbar );
+			MyGetScrollBarInfo( &sbar );
 
 			WTL::CMemoryDC memdc(dc, rc);
 
@@ -693,7 +721,7 @@ namespace Skin {
 				return 0;
 			}
 
-			BOOL bVert =  (GetStyle() & SBS_VERT );
+			
 
 			if ( GetStyle() & SBS_SIZEGRIP  )
 			{
@@ -702,8 +730,6 @@ namespace Skin {
 
 				return 0;
 			}
-
-			
 		
 			nPart = SBP_ARROWBTN;
 			if ( !IsWindowEnabled() )
