@@ -1,0 +1,218 @@
+发信人: xiaoyueer (晓月儿~石墨~红尘历练), 信区: VisualC
+标  题: 轻量级的HTML解析引擎 zz
+发信站: 北大未名站 (2001年10月30日12:31:13 星期二), 站内信件
+
+发信人: flier (小海->找啊找工作 :)), 信区: Programming
+标  题: 轻量级的HTML解析引擎
+发信站: 武汉白云黄鹤站 (2001年10月30日05:15:17 星期二), 站内信件
+
+轻量级的HTML解析引擎
+  IE自带的MSHTML那套COM库实际上提供了一个轻量级的HTML解析引擎，
+只是因为MS文档中少有提及，故而知道的人不多。昨天一个朋友提起如何解析
+HTML的问题，于是写了个例子，大概说明如何使用IE这套轻量级解析引擎。
+  主要功能是由IMarkupServices接口提供的，通过他解析HTML文档
+生成一系列的类似iterator的IMarkupPointer，以及类似container
+的IMarkupContainer接口。
+...
+  主要接口获取流程如下：
+...
+CLSID_HTMLDocument -> IHTMLDocument2 -> IPersistStreamInit
+-> IMarkupServices -> IMarkupContainer, IMarkupPointer
+-> IHTMLDocument2 -> IHTMLElement
+...
+  主要实现伪代码如下：
+...
+  CoCreateInstance IHTMLDocument2 from CLSID_HTMLDocument
+  QueryInterface IPersistStreamInit from IHTMLDocument2
+  spPersistStreamInit->InitNew()
+  QueryInterface IMarkupServices from IPersistStreamInit
+
+  IMarkupPointer spMkStart, spMkFinish
+  IMarkupContainer spMarkupContainer
+  IPersistStreamInit->CreateMarkupPointer(spMkStart)
+  IPersistStreamInit->CreateMarkupPointer(spMkFinish)
+
+  IMarkupServices->ParseString(strHTML, 0,
+    &spMarkupContainer, spMkStart, spMkFinish)
+...
+  然后，可以通过两种方式对解析后的代码进行访问。
+  一是通过IMarkupPointer本身进行遍历访问(a stream-based model)
+二是解析后通过DOM树进行访问(a tree-based model)。前者功能较强，
+因为某些HTML无法解析为树状结构，(如Where do <B>you <I>want
+to</B> go</I> today? 存在交叉的情况)；而后者使用起来简单一些，
+一下示例为简便起见，使用DOM树进行简单遍历（可以递归了，呵呵）
+btw:因为用了自己写的一个模板库(ftl那些东东)，有些代码可能比较含糊。
+如CComContext g_ComContext;是一个简单的COM环境初始化类
+struct CComContext {
+  CComContext() { ::CoInitialize(NULL); }
+  ~CComContext() { ::CoUninitialize(); }
+};
+  其他的代码较长，略去，只把功能大概提及一下，因为不设计关键代码
+编译不通过的删去即可。其中ComCheck使用较多，其实就是检测返回值
+出错则抛出一个自定义异常（带自动错误报告功能）。
+inline HRESULT ComCheck(HRESULT hr)
+{ if(FAILED(hr)) throw CComError(hr); return hr; }
+  再就是log是一个自定义的Message Tracer，用于日志文件输出。
+
+开发环境：Win2K srv sp2 + VC6 sp5 + IE6
+完整代码如下：
+
+// MarkupSvc.cpp : Defines the entry point for the console application.
+//
+#include "stdafx.h"
+#include <iostream>
+#include <sstream>
+using namespace std;
+#include <assert.h>
+#include <windows.h>
+#include <mshtml.h>
+#include <atlbase.h>
+#include <atlconv.h>
+#include "ftl.h"
+using namespace ftl;
+CComContext g_ComContext;
+CExceptionHandler<CConsoleProvider> g_ExceptionHandler;
+CMsgTracer<CConsoleProvider> log;
+void printElement(const CComPtr<IHTMLElement>& spElement, int nLevel)
+{
+  CComBSTR bstrTagName, bstrClassName, bstrID;
+  ComCheck(spElement->get_tagName(&bstrTagName));
+  ComCheck(spElement->get_className(&bstrClassName));
+  ComCheck(spElement->get_id(&bstrID));
+  USES_CONVERSION;
+  string strIndent(nLevel * 2, ' '),
+         strTagName(W2A(bstrTagName)), strClassName, strID;
+  if(bstrClassName)
+  {
+    strClassName = " class=\"";
+    strClassName += W2A(bstrClassName);
+    strClassName += "\"";
+  }
+  else
+    strClassName = "";
+
+  if(bstrID)
+  {
+    strID = " id=\"";
+    strID += W2A(bstrID);
+    strID += "\"";
+  }
+  else
+    strID = "";
+  CComPtr<IDispatch> spDispatch;
+  CComPtr<IHTMLElementCollection> spHTMLElementCollection;
+  ComCheck(spElement->get_children(&spDispatch));
+  ComCheck(spDispatch.QueryInterface(&spHTMLElementCollection));
+  long lLength = 0;
+  ComCheck(spHTMLElementCollection->get_length(&lLength));
+  cout << strIndent << '<' << strTagName << strClassName << strID;
+  if(!lLength)
+  {
+    CComBSTR bstrInnerText;
+    ComCheck(spElement->get_innerText(&bstrInnerText));
+    if(bstrInnerText)
+    {
+      cout << '>' << endl
+           << strIndent << "  " << W2A(bstrInnerText) << endl
+           << strIndent << "</" << strTagName << '>' << endl;
+    }
+    else
+    {
+      cout << "/>" << endl;
+    }
+  }
+  else
+  {
+    cout << '>' << endl;
+    CComVariant varName, varIndex;
+    CComPtr<IHTMLElement> spChildElement;
+    for(int i=0; i<lLength; i++, varName = varIndex = i)
+    {
+      spDispatch.Release();
+      ComCheck(spHTMLElementCollection->item(varName, varIndex,
+&spDispatch));
+
+      spChildElement.Release();
+      ComCheck(spDispatch.QueryInterface(&spChildElement));
+      if(spChildElement)
+        printElement(spChildElement, nLevel+1);
+    }
+    cout << strIndent << "</" << strTagName << '>' << endl;
+  }
+}
+void print(const CComPtr<IMarkupContainer>& spMarkupContainer)
+{
+  log << "-+ Enter print @ " << tmd::timestamp << " +-" << endl << endm;
+  CComPtr<IHTMLDocument2> spHTMLDocument2;
+  ComCheck(spMarkupContainer.QueryInterface(&spHTMLDocument2));
+  log << "Query interface IHTMLDocument2 from IMarkupContainer OK!" << endl
+<<
+ endm;
+  CComPtr<IHTMLElement> spBody;
+  ComCheck(spHTMLDocument2->get_body(&spBody));
+  printElement(spBody, 0);
+  log << "-+ Leave print @ " << tmd::timestamp << " +-" << endl << endm;
+}
+void parse(const char *szFileName)
+{
+  log << "-+ Enter parse @ " << tmd::timestamp << " +-" << endl << endm;
+  CComPtr<IHTMLDocument2> spHTMLDocument2;
+  ComCheck(spHTMLDocument2.CoCreateInstance(CLSID_HTMLDocument));
+  log << "Create interface IHTMLDocument2 from CLSID_HTMLDocument OK!" <<
+endl
+ << endm;
+  CComPtr<IPersistStreamInit> spPersistStreamInit;
+  ComCheck(spHTMLDocument2.QueryInterface(&spPersistStreamInit));
+  log << "Query interface IPersistStreamInit from IHTMLDocument2 OK!" <<
+endl
+<< endm;
+  ComCheck(spPersistStreamInit->InitNew());
+  log << "Initialize interface IPersistStreamInit OK!" << endl << endm;
+  CComPtr<IMarkupServices> spMarkupServices;
+  ComCheck(spPersistStreamInit->QueryInterface(&spMarkupServices));
+  log << "Query interface IMarkupServices from IPersistStreamInit OK!" <<
+endl
+ << endm;
+  CComPtr<IMarkupPointer> spMkStart, spMkFinish;
+  ComCheck(spMarkupServices->CreateMarkupPointer(&spMkStart));
+  ComCheck(spMarkupServices->CreateMarkupPointer(&spMkFinish));
+  log << "Create interface IMarkupPointer with IMarkupServices OK!" << endl
+<<
+ endm;
+  ifstream is(szFileName);
+  stringstream ss;
+  ss << is.rdbuf();
+  log << "Read the HTML from " << szFileName << " [size:" << ss.tellp() <<
+"]
+file OK!" << endl << endm;
+  CComPtr<IMarkupContainer> spMarkupContainer;
+  ComCheck(spMarkupServices->ParseString(CComBSTR(ss.str().c_str()), 0,
+    &spMarkupContainer, spMkStart, spMkFinish));
+  log << "ParseString HTML from " << szFileName << " with IMarkupServices
+OK!"
+ << endl << endm;
+  print(spMarkupContainer);
+  log << "-+ Leave parse @ " << tmd::timestamp << " +-" << endl << endm;
+}
+int main(int argc, char* argv[])
+{
+  log << "-= begin @ " << tmd::timestamp << " OK =-" << endl << endm;
+  if(argc == 1)
+  {
+    cout << ExtractFileName(string(argv[0])) << " [html filename]" << endl;
+    return 1;
+  }
+  parse(argv[1]);
+  log << "-= end @ " << tmd::timestamp << " OK =-" << endl << endm;
+    return 0;
+}
+
+--
+ .  生命的意义在于   /\   ____\ /\_ \   /\_\                                 .
+ .      希望         \ \  \___/_\/\ \   \/_/__     __    _ _★               .
+ .      工作          \ \   ____\\ \ \    /\  \  /'__ \ /\`'_\               .
+ .    爱你的人         \ \  \___/ \ \ \___\ \  \/\  __//\ \ \/               .
+ .   和你爱的人         \ \___\    \ \_____\ \__\ \____\ \ \_\               .
+ .      ……             \/___/     \/_____/\/__/\/____/  \/_/ @126.com      .
+
+--

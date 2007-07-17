@@ -1,0 +1,522 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "atlres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\InfoStudio.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG  0, 0, 187, 102
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
+    CTEXT           "InfoStudio Application v1.0\n\n(c) Copyright 2007",
+                    IDC_STATIC,25,57,78,32
+    ICON            IDR_MAINFRAME,IDC_STATIC,55,26,18,20
+    GROUPBOX        "",IDC_STATIC,7,7,115,88
+END
+
+IDD_MAINDLG DIALOGEX 0, 0, 565, 297
+STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU | 
+    WS_THICKFRAME
+CAPTION "InfoStudio"
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+END
+
+IDD_VALIDATEDLG DIALOGEX 0, 0, 219, 114
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "验证码"
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,97,93,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,162,93,50,14
+    LTEXT           "输入验证码：",IDC_STATIC,7,7,57,8
+    CONTROL         "",IDC_WEB,"Static",SS_BLACKFRAME,7,19,107,59
+    EDITTEXT        IDC_EDIT_VALIDATE,122,38,80,20,ES_AUTOHSCROLL
+END
+
+IDD_LEFTDLG DIALOGEX 0, 0, 179, 268
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | 
+                    TVS_NOSCROLL | NOT WS_VISIBLE | WS_TABSTOP,11,206,162,33
+    PUSHBUTTON      "公司信息",IDC_BUTTON1,19,14,97,19
+    PUSHBUTTON      "黄页登录",IDC_BUTTON2,20,41,97,19
+    PUSHBUTTON      "供求发布",IDC_BUTTON3,20,67,97,19
+    PUSHBUTTON      "论坛群发",IDC_BUTTON4,21,93,97,19
+    PUSHBUTTON      "产品发布",IDC_BUTTON5,21,118,97,19
+    PUSHBUTTON      "计划任务",IDC_BUTTON6,21,147,97,19
+END
+
+IDD_RIGHTDLG DIALOGEX 0, 0, 186, 218
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x86
+BEGIN
+END
+
+IDD_LISTVIEWDLG DIALOGEX 0, 0, 186, 90
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+END
+
+IDD_INFODLG DIALOGEX 0, 0, 186, 120
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+END
+
+IDD_YELLOWPAGEDLG DIALOGEX 0, 0, 399, 181
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+END
+
+IDD_LEFTSORTDLG DIALOGEX 0, 0, 186, 183
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | WS_TABSTOP,37,31,108,
+                    114
+END
+
+IDD_WEBINFODLG DIALOGEX 0, 0, 186, 212
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+END
+
+IDD_WEBLISTDLG DIALOGEX 0, 0, 186, 90
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | 
+                    WS_TABSTOP,0,0,75,41
+END
+
+IDD_BACKBASEDLG DIALOGEX 0, 0, 320, 170
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    LTEXT           "网站名称：",IDC_STATIC,14,15,42,10
+    EDITTEXT        IDC_EDIT_NAME,56,13,104,14,ES_AUTOHSCROLL
+    LTEXT           "网站首页：",IDC_STATIC,14,31,42,10
+    EDITTEXT        IDC_EDIT_HOMEPAGE,56,29,104,14,ES_AUTOHSCROLL
+    LTEXT           "语言：",IDC_STATIC,15,51,42,10
+    COMBOBOX        IDC_COMBO_LANGUAGE,56,48,103,86,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL
+    CONTROL         "是否再用",IDC_CHECK_USE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,18,67,54,11
+    CONTROL         "试用版是否可用",IDC_CHECK_DEMO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,81,67,81,11
+    LTEXT           "备注：",IDC_STATIC,17,81,42,10
+    EDITTEXT        IDC_EDIT_REMARK,16,91,297,72,ES_AUTOHSCROLL
+    LTEXT           "评分：",IDC_STATIC,169,51,42,10
+    COMBOBOX        IDC_COMBO_GRADE,210,47,103,94,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE,183,17,57,14
+    PUSHBUTTON      "添加",IDC_BUTTON_ADD,245,18,57,14
+END
+
+IDD_BACKLOGINDLG DIALOGEX 0, 0, 477, 284
+STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    LTEXT           "登录入口：",IDC_STATIC,15,89,41,11
+    EDITTEXT        IDC_EDIT_WEB,65,87,139,14,ES_AUTOHSCROLL
+    LTEXT           "提交页面：",IDC_STATIC,15,110,41,11
+    EDITTEXT        IDC_EDIT_POSTURL,65,108,139,14,ES_AUTOHSCROLL
+    LTEXT           "验证内容：",IDC_STATIC,17,131,41,11
+    EDITTEXT        IDC_EDIT_VALIDATE,66,129,139,14,ES_AUTOHSCROLL
+    LTEXT           "用户名：",IDC_STATIC,18,152,41,11
+    EDITTEXT        IDC_EDIT_USER,68,150,107,14,ES_AUTOHSCROLL
+    LTEXT           "密码：",IDC_STATIC,182,150,41,11
+    EDITTEXT        IDC_EDIT_PASS,207,147,90,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "修改用户名密码",IDC_BUTTON_CHANGEPASS,308,145,62,18
+    PUSHBUTTON      "删除用户名密码",IDC_BUTTON_CHANGEPASS2,378,145,62,18
+    LTEXT           "提交参数：",IDC_STATIC,21,227,41,11
+    EDITTEXT        IDC_EDIT_PARAM,67,228,403,46,ES_AUTOHSCROLL
+    LTEXT           "HTTP头设置：",IDC_STATIC,15,169,50,11
+    EDITTEXT        IDC_EDIT_HEADER,66,170,404,46,ES_AUTOHSCROLL
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | 
+                    WS_TABSTOP,7,7,463,65
+    LTEXT           "验证码地址：",IDC_STATIC,215,85,70,11
+    EDITTEXT        IDC_EDIT_VALIDATEURL,292,83,139,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "WEB获取",IDC_BUTTON_WEB,221,109,62,18
+    PUSHBUTTON      "ADD",IDC_BUTTON_ADD,300,109,59,18
+    PUSHBUTTON      "EDIT",IDC_BUTTON_EDIT,381,109,59,18
+END
+
+IDD_COLLECTDLG DIALOGEX 0, 0, 564, 398
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_URL,7,1,401,17,ES_AUTOHSCROLL
+    PUSHBUTTON      "Button1",IDOK,417,0,38,19
+    LISTBOX         IDC_LIST_FORM,7,37,107,246,LBS_NOINTEGRALHEIGHT | 
+                    LBS_EXTENDEDSEL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Static",IDC_IE,118,22,439,260,NOT WS_VISIBLE
+    COMBOBOX        IDC_COMBO_FORM,7,19,107,127,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "提交页面地址：",IDC_STATIC,7,295,59,12
+    EDITTEXT        IDC_EDIT_POSTURL,73,292,312,14,ES_AUTOHSCROLL
+    LTEXT           "提交页面参数：",IDC_STATIC,7,314,59,12
+    EDITTEXT        IDC_EDIT_PARAM,72,312,314,35,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL
+    LTEXT           "当前字段：",IDC_STATIC,390,292,41,12
+    EDITTEXT        IDC_EDIT_FIELD,430,290,85,14,ES_AUTOHSCROLL
+    LTEXT           "字段值：",IDC_STATIC,391,311,41,12
+    COMBOBOX        IDC_COMBO_LIST,431,308,86,13,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "成功标示：",IDC_STATIC,393,340,41,12
+    EDITTEXT        IDC_EDIT_SUCC,433,337,85,14,ES_AUTOHSCROLL
+    LTEXT           "提交方式：",IDC_STATIC,393,361,41,12
+    COMBOBOX        IDC_COMBO_POSTMETHOD,433,358,86,13,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "编码格式：",IDC_STATIC,393,379,41,12
+    COMBOBOX        IDC_COMBO_ENCODE,433,376,86,13,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "生成提交参数",IDC_BUTTON_PARAM,7,327,48,15
+    LTEXT           "验证码地址：",IDC_STATIC,7,355,59,12
+    EDITTEXT        IDC_EDIT_VALIDATEURL,74,353,312,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "生成提交参数",IDC_BUTTON_IMGURL,465,324,48,11
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVEINFO,459,2,32,15
+    PUSHBUTTON      "保存",IDC_BUTTON_ADDINFO,494,1,32,15
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 180
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 95
+    END
+
+    IDD_MAINDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 558
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 290
+    END
+
+    IDD_VALIDATEDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 212
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_RIGHTDLG, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 217
+    END
+
+    IDD_INFODLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 113
+    END
+
+    IDD_YELLOWPAGEDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 392
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 174
+    END
+
+    IDD_LEFTSORTDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 176
+    END
+
+    IDD_BACKBASEDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 163
+    END
+
+    IDD_BACKLOGINDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 470
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 277
+    END
+
+    IDD_COLLECTDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 557
+        BOTTOMMARGIN, 391
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "InfoStudio Module"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "InfoStudio"
+            VALUE "LegalCopyright", "Copyright 2007"
+            VALUE "OriginalFilename", "InfoStudio.exe"
+            VALUE "ProductName", "InfoStudio Module"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "InfoStudio"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCSIZE          "Change the window size"
+    ATL_IDS_SCMOVE          "Change the window position"
+    ATL_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    ATL_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    ATL_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    ATL_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    ATL_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCRESTORE       "Restore the window to normal size"
+    ATL_IDS_SCTASKLIST      "Activate Task List"
+    ATL_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_MRU_FILE        "Open this document"
+END
+
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""atlres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST ""res\\\\InfoStudio.exe.manifest""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\InfoStudio.exe.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

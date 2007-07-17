@@ -1,0 +1,342 @@
+bool CMyInternetExplorer::WaitTillLoaded (int nTimeout)
+{
+    READYSTATE result;
+    DWORD nFirstTick = GetTickCount ();
+
+    do
+    {
+        m_pWebBrowser->get_ReadyState (&result);
+        
+        if (result != READYSTATE_COMPLETE)
+            Sleep (250);
+        
+        if (nTimeout > 0)
+        {
+            if ((GetTickCount () - nFirstTick) > nTimeout)
+                break;
+        }
+    } while (result != READYSTATE_COMPLETE);
+
+    if (result == READYSTATE_COMPLETE)
+        return true;
+    else
+        return false;
+}
+
+
+
+BOOL   CPreTranslateMsgView::PreTranslateMessage(MSG*   pMsg)     
+  {   
+    if   ((pMsg->message   ==   WM_RBUTTONDOWN)||(pMsg->message   ==   WM_RBUTTONDBLCLK)){   
+      CPoint   point(pMsg->pt);   
+      ScreenToClient(&point);   
+    
+      IHTMLDocument2*   pdoc2=NULL;   
+      IHTMLElement*   pElement=NULL;   
+      IDispatch*   pDisp=NULL;   
+      pDisp=GetHtmlDocument();   
+      pDisp->QueryInterface(IID_IHTMLDocument2,(void**)&pdoc2);   
+      pDisp->Release();   
+    
+      pdoc2->elementFromPoint(point.x,point.y,&pElement);   
+      pdoc2->Release();   
+      if(pElement){   
+        BSTR   ID;   
+        pElement->get_id(&ID);   
+        pElement->Release();   
+        CString   str=(LPCTSTR)(_bstr_t)ID;   
+        if(str=="Layer1"){   
+          CMenu   menu;   
+          menu.LoadMenu(IDR_MENU1   );   
+          CMenu*   pmenu=menu.GetSubMenu(0);   
+          pmenu->TrackPopupMenu(0,pMsg->pt.x,pMsg->pt.y,this);   
+        }   
+      }   
+
+
+有一种方法是用连接点实现对html元素事件的捕获，然后弹出自己的菜单。
+
+
+
+CSDN首页 新闻 论坛 小组 Blog 文档 下载 读书 Tag 网摘 搜索 .NET Java 游戏 视频 人才 外包 第二书店 程序员 
+
+被过滤广告被过滤广告  
+搜索 | 收藏 | 打印 | 关闭 CSDN社区 >  VC/MFC >  HTML/XML 
+在CHtmlView生成的浏览器窗口内的鼠标右键弹出彩单如何操作？楼主scutie（Fire）2003-05-21 01:55:55 在 VC/MFC / HTML/XML 提问
+能否修改CHtmlView生成的浏览器窗口内的鼠标右键弹出菜单，   
+  包括菜单项名称，实现函数。   
+    
+  希望能给出例子，感激。   
+  
+问题点数：0、回复次数：6
+Top
+ 
+
+1 楼Pollux2008（撒加)(鄙视一切｜打击一切）回复于 2003-05-21 08:06:00 得分 0 有一种方法是子类化IE窗口并取得wm_oncontextmenu消息，然后弹出自己的菜单。   
+  有一种方法是用连接点实现对html元素事件的捕获，然后弹出自己的菜单。
+Top
+
+2 楼jiangsheng（蒋晟.Net[MVP]）回复于 2003-05-21 10:38:33 得分 0 MFC   Library   Reference         
+    
+  CHtmlView::OnShowContextMenuSee   Also   
+  CHtmlView   Overview   |   Class   Members   |   Hierarchy   Chart   |   CHtmlView::OnShowUI   |   CHtmlView::OnHideUI   |   CHtmlView::OnUpdateUI   
+  Called   from   Internet   Explorer   or   MSHTML   when   it   is   about   to   show   its   context   menu.   
+    
+  virtual   HRESULT   OnShowContextMenu(   
+        DWORD   dwID,   
+        LPPOINT   ppt,   
+        LPUNKNOWN   pcmdtReserved,   
+        LPDISPATCH   pdispReserved     
+  );   
+  Parameters   
+  dwID     
+  Identifier   of   the   context   menu   to   be   displayed.   See   IDocHostUIHandler::ShowContextMenu   in   the   Platform   SDK   for   a   list   of   values.     
+  ppt     
+  Screen   coordinates   for   the   menu.     
+  pcmdtReserved     
+  IOleCommandTarget   interface   used   to   query   command   status   and   execute   commands   on   this   object.     
+  pdispReserved     
+  IDispatch   interface   of   the   object   at   the   screen   coordinates.   This   allows   a   host   to   differentiate   particular   objects   to   provide   more   specific   context.     
+  Return   Value   
+  See   IDocHostUIHandler::ShowContextMenu   in   the   Platform   SDK   for   a   list   of   values.   
+    
+  Remarks   
+  Override   OnShowContextMenu   to   react   to   the   ShowContextMenu   notification   from   the   Microsoft   Web   Browser   control.   See   IDocHostUIHandler::ShowContextMenu   in   the   Platform   SDK   for   more   information.   
+    
+  See   Also   
+  CHtmlView   Overview   |   Class   Members   |   Hierarchy   Chart   |   CHtmlView::OnShowUI   |   CHtmlView::OnHideUI   |   CHtmlView::OnUpdateUI   
+    
+  
+Top
+
+3 楼kingcom_xu（冷羽）回复于 2003-05-21 10:49:35 得分 0 OnShowContextMenu是MFC7中的
+Top
+
+4 楼scutie（Fire）回复于 2003-05-21 11:53:35 得分 0 那在vc   6里面   
+  “有一种方法是子类化IE窗口并取得wm_oncontextmenu消息“   
+  怎么操作啊？   
+    
+  能否给出例子~！
+Top
+
+5 楼kingcom_xu（冷羽）回复于 2003-05-21 12:04:23 得分 0 1.常被人鄙视的方法(PreTranslateMessage)   
+    
+  经常见到有人问怎么屏蔽html的右键菜单,有人答用PreTranslateMessage函数拦截wm_rbuttondown消息,于是总会有人说这种方法怎么烂,@_@,我真不知道为什么,不过我想这也是一种方法呀,而且非常简单，所以还是列出来吧:)   
+    
+  BOOL   CPreTranslateMsgView::PreTranslateMessage(MSG*   pMsg)     
+  {   
+    if   ((pMsg->message   ==   WM_RBUTTONDOWN)||(pMsg->message   ==   WM_RBUTTONDBLCLK)){   
+      CPoint   point(pMsg->pt);   
+      ScreenToClient(&point);   
+    
+      IHTMLDocument2*   pdoc2=NULL;   
+      IHTMLElement*   pElement=NULL;   
+      IDispatch*   pDisp=NULL;   
+      pDisp=GetHtmlDocument();   
+      pDisp->QueryInterface(IID_IHTMLDocument2,(void**)&pdoc2);   
+      pDisp->Release();   
+    
+      pdoc2->elementFromPoint(point.x,point.y,&pElement);   
+      pdoc2->Release();   
+      if(pElement){   
+        BSTR   ID;   
+        pElement->get_id(&ID);   
+        pElement->Release();   
+        CString   str=(LPCTSTR)(_bstr_t)ID;   
+        if(str=="Layer1"){   
+          CMenu   menu;   
+          menu.LoadMenu(IDR_MENU1   );   
+          CMenu*   pmenu=menu.GetSubMenu(0);   
+          pmenu->TrackPopupMenu(0,pMsg->pt.x,pMsg->pt.y,this);   
+        }   
+      }   
+      return   TRUE;//如果想完全屏蔽掉,不显示任何菜单,直接返回TRUE就行,上面这些代码演示了怎么对html中特定ID的元素弹出自己想要显示的菜单     
+    }else   
+      return   CHtmlView::PreTranslateMessage(pMsg);   
+  }   
+    
+  2.通过子类化IE控件的窗口并处理WM_CONTEXTMENU消息   
+    
+    这是MSDN上介绍的方法,111222翻译了那文章,大家自己去看:   
+    屏蔽CHtmlView\CWebBrower2右键菜单的非官方方法         111222（翻译）。   
+    http://www.csdn.net/develop/Read_Article.asp?Id=10427   
+    
+  3.利用IDocHostUIHandler接口(官方提供的方法)   
+    VC.net中的CDHtmlDialog就是这种方法了，想自己实现的可以参考这篇文章：   
+    在对话框中显示网页，并屏蔽掉IE的弹出式菜单         wuya（原作）   
+      http://www.csdn.net/develop/Read_Article.asp?Id=8813   
+    
+  4.利用COM的连接点机制，直接处理html元素的事件   
+    
+    我们先看看在VB中想屏蔽掉右键菜单是怎么做的:   
+    
+    Dim   WithEvents   m_doc   As   HTMLDocument   
+    
+    Private   Function   m_doc_oncontextmenu()   As   Boolean   
+              m_doc_oncontextmenu   =   False   
+    End   Function   
+    
+    Private   Sub   WebBrowser1_DownloadComplete()   
+              Set   m_doc   =   WebBrowser1.Document   
+    End   Sub   
+      
+    呵呵，非常简单吧？处理HTMLDocument的oncontextmenu事件，视具体需要弹出自己的菜单，然后返回true或false就可以了。   
+    同理，我们在VC中如果能响应html页面元素对象的事件并做出处理的话也可以达到屏蔽右键菜单的目的了，在VB中响应COM的事件被封装起来，用一个WithEvents关键字就轻松搞定，在VC中怎么实现？？   
+    我们知道COM是通过连接点机制来实现事件的，VC中你得在程序中实现一个特定的接口，并把这个接口的指针通过一定的途径传送给COM对象并通知它需要订阅该对象的消息。   
+    
+    下面通过处理HTMLDocument2的oncontextmenu事件来演示具体怎么在MFC程序中实现屏蔽掉右键菜单，同理你可以处理其它的像DIV,Button等元素的事件来制定相应的右键菜单。   
+    通过查阅MSDN，可以知道要响应HTMLDocument2的事件必须在程序中实现HTMLDocumentEvents2接口，这个接口是Dispinterface类型的，而在MFC想实现一个IDispatch接口就简单的就是从CCmdTarget类派生一个新类并用DECLARE_DISPATCH_MAP，BEGIN_DISPATCH_MAP，DISP_FUNCTION_ID，END_DISPATCH_MAP等宏来添加接口函数，由于CHtmlView或是CDialog都是间接派生自CCmdTarget的，所以直接在这些类上实现这个接口就可以了，以对话框加IE控件为例（稍微改动可用于CHtmlView），实现如下：   
+    
+    1.新建基于对话框工程命名为HtmlDemoDialog,在主对话框中加入Microsoft   Web   Browser控件并生成包装类等。   
+    2.在主对话框类头文件CHtmlDemoDialogDlg.h中加入   
+      #include   <MsHTML.h>//定义了IHTMLDocument2等接口   
+      #include   <mshtmdid.h>//定义了HTMLDocumentEvents2接口的方法DISPID   
+      
+      class   CCHtmlDemoDialogDlg   :   public   CDialog   
+      {   
+      ...   
+        DECLARE_DISPATCH_MAP()//声明dispatch   map表   
+          
+      public:   
+        BOOL   onHtmlContextMenu(IHTMLEventObj   *pEvtObj);   
+        //事件处理函数,原型可以参考MSDN中关于HTMLDocumentEvents2的说明   
+        DWORD   m_dwCookie;   
+        //用于标记一个连接点   
+        IHTMLDocument2*   pDoc2;   
+        //想要处理事件的COM对象的指针   
+      ...   
+      }   
+    2.在对话框类实现文件CHtmlDemoDialogDlg.cpp中加入   
+      #include   <afxctl.h>//定义了AfxConnectionAdvise、AfxConnectionUnadvise等函数,等会连接到事件源时要用到   
+      ...   
+      //填充dispatch   map表，以供Invoke()调用   
+      BEGIN_DISPATCH_MAP(CCHtmlDemoDialogDlg,   CDialog)   
+        DISP_FUNCTION_ID(CCHtmlDemoDialogDlg,   "oncontextmenu",   DISPID_HTMLDOCUMENTEVENTS2_ONCONTEXTMENU,   onHtmlContextMenu,   VT_BOOL,   VTS_DISPATCH)   
+      END_DISPATCH_MAP()   
+      ...   
+    
+      CWebbrowserDlg::CWebbrowserDlg(CWnd*   pParent   /*=NULL*/)   
+      :   CDialog(CWebbrowserDlg::IDD,   pParent)   
+      {   
+        EnableAutomation();//必须有,否则等会用GetIDispatch()时会失败.   
+        ...   
+      }   
+    
+      BOOL   CCHtmlDemoDialogDlg::onHtmlContextMenu(IHTMLEventObj   *pEvtObj)   
+      {     
+        //在成功连接上事件源后,每次用户右击都会调用这个函数,你可以根据pEvtObj来判断当前光标位置等,然后决定是自己弹出菜单,让IE弹出菜单,还是什么都不做...   
+        return   FALSE;   
+      }   
+    
+      void   CCHtmlDemoDialogDlg::OnDocumentCompleteExplorer1(LPDISPATCH   pDisp,   VARIANT   FAR*   URL)     
+      {   
+        //处理WebBrowser控件的DocumentComplete事件,并初始化pDoc2指针和连接到事件源   
+        HRESULT   hr=m_wb.GetDocument()->QueryInterface(IID_IHTMLDocument2,(void**)&pDoc2);   
+        BOOL   Ret   =   AfxConnectionAdvise(     
+          pDoc2,     //可连接对象的接口指针   
+          DIID_HTMLDocumentEvents2,   //连接接口ID   
+          GetIDispatch(FALSE),   //把内嵌的IDispatch实现类的一个对象实例m_xDispatch传了出去   
+          FALSE,       //donod   addref   
+          &m_dwCookie   );     //cookie   to   break   connection   later...   
+        if(Ret){   
+          AfxMessageBox("成功挂接上");   
+        }   
+      }   
+    3.到这里,基本步骤都以完成,运行后如果没有什么灾难发生的话可以看到"成功挂接上"的消息框,并且在IE控件中点击右键不会弹出菜单,断开事件连接的代码如下:   
+      AfxConnectionUnadvise(pDoc2,     
+                      DIID_HTMLDocumentEvents2   ,     
+                      GetIDispatch(FALSE),       
+                      FALSE,     
+                      m_dwCookie   );   
+  其余的善后工作交给你去处理了.   
+  
+Top
+
+6 楼kingcom_xu（冷羽）回复于 2003-05-21 12:07:46 得分 0 http://skinart.y365.com/csdn/htmlcontextmenu.zip   
+    
+  如果是想弹出IE的菜单并在它的菜单里加菜单项的话.........还没研究.
+Top
+
+相关问题如何生成右键菜单? 
+如何生成右键菜单？ 
+※问CHtmlView 右键问题？ 
+CHtmlView中右键菜单的控制 
+动态生成的RicheditCtrl控件，如何让他响应右键点击消息 
+在线——急！——如何在生成的网页中实现右键屏蔽！ 
+向导生成的CHtmlView程序，CHtmlView对Web Browser封装了。 
+怎样在右键点击任务栏上的图标时生成菜单（鼠标坐标如何定位） 
+我的EASEVER服务器组件右键菜单为什么没有生成TLE/REG的项目啊 
+关键词.net 
+函数 
+连接 
+消息 
+sdk 
+chtmlview 
+右键 
+showcontextmenu 
+cchtmldemodialogdlg 
+htmldocumentevents 
+得分解答快速导航帖主：scutie 
+相关链接Visual C++类图书 
+Visual C++类源码下载 
+广告也精彩反馈请通过下述方式给我们反馈
+
+--------------------------------------------------------------------------------
+  
+网站简介－广告服务－网站地图－帮助－联系方式－诚聘英才－English－问题报告
+北京百联美达美数码科技有限公司  版权所有  京 ICP 证 020026 号
+Copyright ? 2000-2006, CSDN.NET, All Rights Reserved
+ 
+--------------------------------------------------------------------------------
+
+
+
+<PRE id=pre31 style="MARGIN-TOP: 0px">case DISPID_HTMLDOCUMENTEVENTS2_ONCLICK:
+    ATLTRACE(_T("HTMLDocumentEvents::onclick fired\n"));
+    {
+        CComPtr<IDISPATCH> spDisp;
+        spDisp = pDispParams->rgvarg[0].pdispVal;
+        if (spDisp)
+        {
+            CComQIPtr<IHTMLEVENTOBJ &IID_IHTMLEventObj,> spEventObj(spDisp);
+            if (spEventObj)
+            {
+                CComPtr<IHTMLELEMENT> 
+                spElem; HRESULT  hr=
+                spEventObj->get_srcElement(&spElem); 
+                if (SUCCEEDED(hr) &&spElem)
+                { 
+                    CComBSTR bsTagName; 
+                    while (1)
+                    {
+                        spElem->get_tagName(&bsTagName);
+                        bsTagName.ToUpper();
+
+                        if (bsTagName == L"BODY")
+                            break;    // did not click a link
+
+                        if (bsTagName == L"A" ||
+                            bsTagName == L"AREA" ||
+                            bsTagName == L"INPUT" ||
+                            bsTagName == L"IMG")
+                        {
+                            *m_pbUserClickedLink = TRUE;
+                            break;
+                        }
+
+                        CComPtr<IHTMLELEMENT> spParentElem;
+                        hr = spElem->get_parentElement(&spParentElem);
+                        if (FAILED(hr) || !spParentElem)
+                            break;
+                        spElem = spParentElem;
+                    }
+                }
+            }
+        }
+    }
+    break;</PRE>
+    
+    
+    
+    
+    
