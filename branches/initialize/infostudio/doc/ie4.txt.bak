@@ -1,0 +1,840 @@
+
+				
+// MyHttpConnection.h: interface for the CMyHttpConnection class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(AFX_MYHTTPCONNECTION_H__03D7272A_0B9D_42CE_B4CB_4A7B8EF7D396__INCLUDED_)
+#define AFX_MYHTTPCONNECTION_H__03D7272A_0B9D_42CE_B4CB_4A7B8EF7D396__INCLUDED_
+
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
+#include <afxinet.h>
+
+#define WEB_ACCESS_DONE1
+#define WEB_ACCESS_UNEXPECTED_ERROR -20
+#define WEB_ACCESS_QUERY_INFO_ERROR -21
+
+class CMyHttpConnection : public CInternetSession  
+{
+public:
+CMyHttpConnection(LPCTSTR pstrAgent = NULL,
+DWORD dwContext = 1,
+DWORD dwAccessType = PRE_CONFIG_INTERNET_ACCESS,
+LPCTSTR pstrProxyName = NULL,
+LPCTSTR pstrProxyBypass = NULL,
+DWORD dwFlags = 0);
+
+virtual ~CMyHttpConnection();
+
+virtual void OnStatusCallback(DWORD dwContext, DWORD dwInternetStatus, LPVOID lpvStatusInformation, DWORD dwStatusInformationLength);
+DWORD Get(CString strUrl, CString &strResult);
+DWORD Post(CString strUrl, CString strObject, CString &strResult);
+
+CString getServerUrl(){return m_szServerUrl;}
+CString getObjectUrl(){return m_szObjectUrl;}
+INTERNET_PORT getPort(){return m_nPort;}
+
+protected:
+void SplitUrl(CString strUrl);
+
+protected:
+BOOL m_bProxyEnable;
+CString m_szProxyServer;
+CString m_szProxyOverride;
+CString m_szServerUrl;
+CString m_szObjectUrl;
+CString m_szCallStatus;
+INTERNET_PORT m_nPort;
+};
+
+#endif // !defined(AFX_MYHTTPCONNECTION_H__03D7272A_0B9D_42CE_B4CB_4A7B8EF7D396__INCLUDED_)
+
+
+
+头文件
+
+			
+                 
+Top  
+nntt blackman   信誉： 100 2005-10-14 14:53:54 得分:  0 
+ 
+                  
+				
+// MyHttpConnection.cpp: implementation of the CMyHttpConnection class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "stdafx.h"
+#include "MyHttpConnection.h"
+
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+CMyHttpConnection::CMyHttpConnection(LPCTSTR pstrAgent /* = NULL */, DWORD dwContext /* = 1 */, DWORD dwAccessType /* = PRE_CONFIG_INTERNET_ACCESS */, LPCTSTR pstrProxyName /* = NULL */, LPCTSTR pstrProxyBypass /* = NULL */, DWORD dwFlags /* = 0 */)
+{
+DWORD dwProxyEnable;
+DWORD dwType = REG_DWORD;
+DWORD dwSize = sizeof(dwProxyEnable);
+TCHAR sz[255];
+
+HKEY hKey = NULL;
+LPCTSTR data_set = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings";
+if(ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_CURRENT_USER, data_set, 0, KEY_READ, &hKey))
+{
+if(ERROR_SUCCESS == ::RegQueryValueEx(hKey, "ProxyEnable", NULL, &dwType, (LPBYTE)&dwProxyEnable, &dwSize))
+{
+::RegCloseKey(hKey);
+}
+else
+{
+dwProxyEnable = 0;
+}
+}
+if(dwProxyEnable)
+{
+dwType = REG_SZ;
+dwSize = 255;
+m_bProxyEnable = TRUE;
+if(ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_CURRENT_USER, data_set, 0, KEY_READ, &hKey))
+{
+if(ERROR_SUCCESS == ::RegQueryValueEx(hKey, "ProxyOverride", NULL, &dwType, (LPBYTE)sz, &dwSize))
+{
+m_szProxyOverride = (CString)((LPCTSTR)sz);
+}
+else
+{
+m_szProxyOverride = "";
+}
+if(ERROR_SUCCESS == ::RegQueryValueEx(hKey, "ProxyServer", NULL, &dwType, (LPBYTE)sz, &dwSize))
+{
+m_szProxyServer = (CString)((LPCTSTR)sz);
+ }
+else
+{
+m_szProxyServer = "";
+}
+::RegCloseKey(hKey);
+ }
+}
+else
+{
+m_bProxyEnable = FALSE;
+m_szProxyServer = "";
+m_szProxyOverride = "";
+}
+m_szServerUrl = _T("");
+m_szObjectUrl = _T("");
+m_szCallStatus = _T("");
+m_nPort = INTERNET_DEFAULT_HTTP_PORT;
+
+EnableStatusCallback();
+}
+
+CMyHttpConnection::~CMyHttpConnection()
+{
+this->Close();
+}
+
+void CMyHttpConnection::SplitUrl(CString strUrl)
+{
+DWORD dwServerType;
+
+if(strUrl.GetLength() == 0)
+{
+return;
+}
+
+if(strUrl.Find(_T("http://")) < 0)
+{
+return;
+}
+
+AfxParseURL(strUrl, dwServerType, m_szServerUrl, m_szObjectUrl, m_nPort);
+}
+
+void CMyHttpConnection::OnStatusCallback(DWORD dwContext, DWORD dwInternetStatus, LPVOID lpvStatusInformation, DWORD dwStatusInformationLength)
+{
+AFX_MANAGE_STATE(AfxGetAppModuleState( ));
+
+switch(dwInternetStatus)
+{
+
+case INTERNET_STATUS_RESOLVING_NAME:
+m_szCallStatus.Format("Resolving name %s", lpvStatusInformation);
+break;
+
+case INTERNET_STATUS_NAME_RESOLVED:
+m_szCallStatus.Format("Name resolved %s", lpvStatusInformation);
+break;
+
+case INTERNET_STATUS_HANDLE_CREATED:
+m_szCallStatus.Format("Handle created");
+break;
+
+case INTERNET_STATUS_CONNECTING_TO_SERVER:
+m_szCallStatus.Format("Connecting to socket address");
+break;
+
+case INTERNET_STATUS_CONNECTED_TO_SERVER:
+m_szCallStatus.Format("Connected to socket address");
+break;
+
+case INTERNET_STATUS_SENDING_REQUEST:
+m_szCallStatus.Format("Sending request");
+break;
+
+case INTERNET_STATUS_REQUEST_SENT:
+m_szCallStatus.Format("Request sent");
+break;
+
+case INTERNET_STATUS_RECEIVING_RESPONSE:
+        return;
+m_szCallStatus.Format("Receiving response");
+break;
+
+case INTERNET_STATUS_RESPONSE_RECEIVED:
+m_szCallStatus.Format("Response received");
+break;
+
+case INTERNET_STATUS_CLOSING_CONNECTION:
+m_szCallStatus.Format("Closing the connection to the server");
+break;
+
+case INTERNET_STATUS_CONNECTION_CLOSED:
+m_szCallStatus.Format("Connection to the server closed");
+break;
+
+case INTERNET_STATUS_HANDLE_CLOSING:
+        return;
+m_szCallStatus.Format("Handle closed");
+break;
+
+case INTERNET_STATUS_REQUEST_COMPLETE:
+  m_szCallStatus.Format("Request complete");
+break;
+
+case INTERNET_STATUS_REDIRECT:
+m_szCallStatus.Format("Being redirected");
+break;
+
+default:
+m_szCallStatus.Format("Unknown status: %d", dwInternetStatus);
+break;
+}
+}
+
+DWORD CMyHttpConnection::Get(CString strUrl, CString &strResult)
+{
+CHttpConnection *pHttpConnection;
+CHttpFile *pHttpFile;
+SplitUrl(strUrl);
+
+try
+{
+if(m_nPort == INTERNET_DEFAULT_HTTP_PORT)
+{
+pHttpConnection = GetHttpConnection(m_szServerUrl);
+}
+else
+{
+pHttpConnection = GetHttpConnection(m_szServerUrl, AFX_INET_SERVICE_HTTP, m_nPort);
+}
+}
+catch(CInternetException *pException)
+{
+pException->Delete();
+return WEB_ACCESS_UNEXPECTED_ERROR;
+}
+
+try
+{
+pHttpFile = pHttpConnection->OpenRequest(CHttpConnection::HTTP_VERB_GET, m_szObjectUrl, NULL, 1, NULL, NULL, INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE);
+}
+catch(CInternetException *pException)
+{
+pException->Delete();
+return WEB_ACCESS_UNEXPECTED_ERROR;
+}
+
+try 
+{
+BOOL ret = pHttpFile->SendRequest();
+}
+catch(CInternetException *pException)
+{
+pException->Delete();
+return WEB_ACCESS_UNEXPECTED_ERROR;
+}
+
+DWORD retCode;
+BOOL ret = pHttpFile->QueryInfoStatusCode(retCode);
+if( FALSE == ret )
+{
+return WEB_ACCESS_QUERY_INFO_ERROR;
+}
+else if( HTTP_STATUS_OK != retCode )
+{
+return retCode;
+}
+
+char buf[2];
+int bytesRead;
+strResult = "";
+
+while( (bytesRead = pHttpFile->Read(buf, 1)) > 0 )
+{
+strResult += buf[0];
+}
+
+if(pHttpFile)
+{
+pHttpFile->Close();
+pHttpFile = NULL;
+}
+if(pHttpConnection)
+{
+pHttpConnection->Close();
+pHttpConnection = NULL;
+}
+
+return WEB_ACCESS_DONE;
+}
+
+DWORD CMyHttpConnection::Post(CString strUrl, CString strObject, CString &strResult)
+{
+CHttpConnection *pHttpConnection;
+CHttpFile *pHttpFile;
+CString strHeaders = _T("Content-Type: application/x-www-form-urlencoded");
+SplitUrl(strUrl);
+
+try
+{
+if(m_nPort == INTERNET_DEFAULT_HTTP_PORT)
+{
+pHttpConnection = GetHttpConnection(m_szServerUrl);
+}
+else
+{
+pHttpConnection = GetHttpConnection(m_szServerUrl, AFX_INET_SERVICE_HTTP, m_nPort);
+}
+}
+catch(CInternetException *pException)
+{
+pException->Delete();
+return WEB_ACCESS_UNEXPECTED_ERROR;
+}
+
+try
+{
+pHttpFile = pHttpConnection->OpenRequest(CHttpConnection::HTTP_VERB_POST, m_szObjectUrl, NULL, 1, NULL, NULL, INTERNET_FLAG_RELOAD|INTERNET_FLAG_DONT_CACHE);
+}
+catch(CInternetException *pException)
+{
+pException->Delete();
+return WEB_ACCESS_UNEXPECTED_ERROR;
+}
+
+try 
+{
+BOOL ret = pHttpFile->SendRequest(strHeaders, (LPVOID)(LPCSTR)strObject, strObject.GetLength());
+}
+catch(CInternetException *pException)
+{
+pException->Delete();
+return WEB_ACCESS_UNEXPECTED_ERROR;
+}
+
+DWORD retCode;
+BOOL ret = pHttpFile->QueryInfoStatusCode(retCode);
+if( FALSE == ret )
+{
+return WEB_ACCESS_QUERY_INFO_ERROR;
+}
+else if( HTTP_STATUS_OK != retCode )
+{
+return retCode;
+}
+
+char buf[2];
+int bytesRead;
+strResult = "";
+
+while( (bytesRead = pHttpFile->Read(buf, 1)) > 0 )
+{
+strResult += buf[0];
+}
+
+if(pHttpFile)
+{
+pHttpFile->Close();
+pHttpFile = NULL;
+}
+if(pHttpConnection)
+{
+pHttpConnection->Close();
+pHttpConnection = NULL;
+}
+
+return WEB_ACCESS_DONE;
+}
+
+实现文件
+ 
+ 
+ 
+ 
+ 
+分数是身外之物，你是我们之所以提供我们的建议和看法，是因为你提出的问题我们很感兴趣。对于不太感兴趣话题，即便很简单，我们也不愿意花时间的。
+    我很少用MFC，我一般使用ATL和WTL编程。我觉得你可能采用的是WebBrowser控件，或者是基于HTML的视图。控件也好视图也好，它们都提供了一个Navigate方法，这个方法有一些参数，
+object.Navigate( _
+    url As String, _
+    [Flags As Variant,] _
+    [TargetFrameName As Variant,] _
+    [PostData As Variant,] _
+    [Headers As Variant])
+只要Postdata不为null，控件就会向远程的服务器发送HTTP的Post请求，请求的URL地址（Action＝指出）赋值给url，PostData附提交的数据，对于提交的数据是有表单控件名称＝表单控件值用&符号连接而成。为了准确的获得提交的字符串，你可以采用一些HTTP协议的跟踪工具比如EffeTech HTTP Sniffer，使用IE浏览要浏览网页，截获IE向远程服务器提交的数据，然后使用构造HTTP头赋值给Headers，不过你在构造HTTP协议头的时候，一定要熟悉HTTP协议。对于Get请求，Postdata可以为空。对于Postdata，除了设置Postdata之外，还要设置Headers域中的Content_length字段等于提交数据的长度。并设置提交数据的格式.这个过程与你使用Socket发送请求或者XMLHTTP组件发送请求方法完全一样。
+下面是我编写的一个发送请求的片断供你参考：
+int SendHTTPByIE(LPCSTR URL,LPCSTR headers,const BYTE *Post, DWORD postLength)
+{
+		 HRESULT hr;
+		 USES_CONVERSION;
+         IWebBrowserApp* pWBApp = NULL; // Derived from IWebBrowser
+         BSTR bstrURL = NULL, bstrHeaders = NULL;
+         VARIANT vFlags = {0},
+         vTargetFrameName = {0},
+         vPostData = {0},
+            vHeaders = {0};   
+		 if (FAILED(hr = CoInitialize(NULL)))
+         {
+            return false;
+         }       
+		 if (FAILED(hr = CoCreateInstance(CLSID_InternetExplorer,
+            NULL,
+            CLSCTX_SERVER,
+            IID_IWebBrowserApp,
+            (LPVOID*)&pWBApp)))
+         {
+            goto Error;
+         } 
+		 bstrURL = SysAllocString(T2OLE(URL));
+         if (!bstrURL)
+         {
+            goto Error;
+         }  
+		 if(headers!=NULL){
+		 			bstrHeaders = SysAllocString(T2OLE(headers));
+			if (!bstrHeaders)
+			{
+	            goto Error;
+		     }    
+			 V_VT(&vHeaders) = VT_BSTR;
+			 V_BSTR(&vHeaders) = bstrHeaders;      
+		 }
+		 if(Post!=NULL){
+		 	hr = GetPostData(&vPostData,(LPCTSTR)Post,postLength);
+		 }
+         hr = pWBApp->Navigate(bstrURL, &vFlags,
+                  &vTargetFrameName, &vPostData, &vHeaders);
+         pWBApp->put_Visible(VARIANT_TRUE);  
+    Error:
+         if (bstrURL) SysFreeString(bstrURL);
+         if (bstrHeaders) SysFreeString(bstrHeaders);
+         if(Post!=NULL)VariantClear(&vPostData);
+         if (pWBApp){
+			 pWBApp->Release();
+			 pWBApp=NULL;
+		 }
+         CoUninitialize();
+		return true;
+}
+      HRESULT GetPostData(LPVARIANT pvPostData,LPCTSTR szPostData, DWORD postLength)
+      {
+         HRESULT hr;
+         LPSAFEARRAY psa;
+         
+         LPSTR pPostData;  
+		 if (!pvPostData)
+         {
+            return E_POINTER;
+         }  
+		 VariantInit(pvPostData); 
+		 psa = SafeArrayCreateVector(VT_UI1, 0, postLength);
+         if (!psa)
+         {
+            return E_OUTOFMEMORY;
+         } 
+		 hr = SafeArrayAccessData(psa, (LPVOID*)&pPostData);
+         memcpy(pPostData, szPostData, postLength);
+         hr = SafeArrayUnaccessData(psa);
+         V_VT(pvPostData) = VT_ARRAY | VT_UI1; 
+         V_ARRAY(pvPostData) = psa;
+         return NOERROR;
+      } 
+
+
+
+
+
+分数是身外之物，你是我们之所以提供我们的建议和看法，是因为你提出的问题我们很感兴趣。对于不太感兴趣话题，即便很简单，我们也不愿意花时间的。
+    我很少用MFC，我一般使用ATL和WTL编程。我觉得你可能采用的是WebBrowser控件，或者是基于HTML的视图。控件也好视图也好，它们都提供了一个Navigate方法，这个方法有一些参数，
+object.Navigate( _
+    url As String, _
+    [Flags As Variant,] _
+    [TargetFrameName As Variant,] _
+    [PostData As Variant,] _
+    [Headers As Variant])
+只要Postdata不为null，控件就会向远程的服务器发送HTTP的Post请求，请求的URL地址（Action＝指出）赋值给url，PostData附提交的数据，对于提交的数据是有表单控件名称＝表单控件值用&符号连接而成。为了准确的获得提交的字符串，你可以采用一些HTTP协议的跟踪工具比如EffeTech HTTP Sniffer，使用IE浏览要浏览网页，截获IE向远程服务器提交的数据，然后使用构造HTTP头赋值给Headers，不过你在构造HTTP协议头的时候，一定要熟悉HTTP协议。对于Get请求，Postdata可以为空。对于Postdata，除了设置Postdata之外，还要设置Headers域中的Content_length字段等于提交数据的长度。并设置提交数据的格式.这个过程与你使用Socket发送请求或者XMLHTTP组件发送请求方法完全一样。
+下面是我编写的一个发送请求的片断供你参考：
+int SendHTTPByIE(LPCSTR URL,LPCSTR headers,const BYTE *Post, DWORD postLength)
+{
+		 HRESULT hr;
+		 USES_CONVERSION;
+         IWebBrowserApp* pWBApp = NULL; // Derived from IWebBrowser
+         BSTR bstrURL = NULL, bstrHeaders = NULL;
+         VARIANT vFlags = {0},
+         vTargetFrameName = {0},
+         vPostData = {0},
+            vHeaders = {0};   
+		 if (FAILED(hr = CoInitialize(NULL)))
+         {
+            return false;
+         }       
+		 if (FAILED(hr = CoCreateInstance(CLSID_InternetExplorer,
+            NULL,
+            CLSCTX_SERVER,
+            IID_IWebBrowserApp,
+            (LPVOID*)&pWBApp)))
+         {
+            goto Error;
+         } 
+		 bstrURL = SysAllocString(T2OLE(URL));
+         if (!bstrURL)
+         {
+            goto Error;
+         }  
+		 if(headers!=NULL){
+		 			bstrHeaders = SysAllocString(T2OLE(headers));
+			if (!bstrHeaders)
+			{
+	            goto Error;
+		     }    
+			 V_VT(&vHeaders) = VT_BSTR;
+			 V_BSTR(&vHeaders) = bstrHeaders;      
+		 }
+		 if(Post!=NULL){
+		 	hr = GetPostData(&vPostData,(LPCTSTR)Post,postLength);
+		 }
+         hr = pWBApp->Navigate(bstrURL, &vFlags,
+                  &vTargetFrameName, &vPostData, &vHeaders);
+         pWBApp->put_Visible(VARIANT_TRUE);  
+    Error:
+         if (bstrURL) SysFreeString(bstrURL);
+         if (bstrHeaders) SysFreeString(bstrHeaders);
+         if(Post!=NULL)VariantClear(&vPostData);
+         if (pWBApp){
+			 pWBApp->Release();
+			 pWBApp=NULL;
+		 }
+         CoUninitialize();
+		return true;
+}
+      HRESULT GetPostData(LPVARIANT pvPostData,LPCTSTR szPostData, DWORD postLength)
+      {
+         HRESULT hr;
+         LPSAFEARRAY psa;
+         
+         LPSTR pPostData;  
+		 if (!pvPostData)
+         {
+            return E_POINTER;
+         }  
+		 VariantInit(pvPostData); 
+		 psa = SafeArrayCreateVector(VT_UI1, 0, postLength);
+         if (!psa)
+         {
+            return E_OUTOFMEMORY;
+         } 
+		 hr = SafeArrayAccessData(psa, (LPVOID*)&pPostData);
+         memcpy(pPostData, szPostData, postLength);
+         hr = SafeArrayUnaccessData(psa);
+         V_VT(pvPostData) = VT_ARRAY | VT_UI1; 
+         V_ARRAY(pvPostData) = psa;
+         return NOERROR;
+      } 
+
+
+
+
+#include <windows.h>
+      #define INITGUID
+      #include <initguid.h>
+      #include <exdisp.h>
+      #include <memory.h>
+
+      HRESULT GetPostData(LPVARIANT pvPostData);
+
+      void main()
+      {
+         HRESULT hr;
+         IWebBrowserApp* pWBApp = NULL; // Derived from IWebBrowser
+         BSTR bstrURL = NULL, bstrHeaders = NULL;
+         VARIANT vFlags = {0},
+            vTargetFrameName = {0},
+            vPostData = {0},
+            vHeaders = {0};
+
+         if (FAILED(hr = CoInitialize(NULL)))
+         {
+            return;
+         }
+
+         if (FAILED(hr = CoCreateInstance(CLSID_InternetExplorer,
+            NULL,
+            CLSCTX_SERVER,
+            IID_IWebBrowserApp,
+            (LPVOID*)&pWBApp)))
+         {
+            goto Error;
+         }
+
+         bstrURL = SysAllocString(L"http://<server>/scripts/navpost.asp");
+         if (!bstrURL)
+         {
+            goto Error;
+         }
+
+         bstrHeaders = SysAllocString(
+            L"Content-Type: application/x-www-form-urlencoded\r\n");
+         if (!bstrHeaders)
+         {
+            goto Error;
+         }
+
+         V_VT(&vHeaders) = VT_BSTR;
+         V_BSTR(&vHeaders) = bstrHeaders;
+
+         hr = GetPostData(&vPostData);
+         hr = pWBApp->Navigate(bstrURL, &vFlags,
+                  &vTargetFrameName, &vPostData, &vHeaders);
+         pWBApp->put_Visible(VARIANT_TRUE);
+
+      Error:
+         if (bstrURL) SysFreeString(bstrURL);
+         if (bstrHeaders) SysFreeString(bstrHeaders);
+         VariantClear(&vPostData);
+         if (pWBApp) pWBApp->Release();
+         CoUninitialize();
+      }
+
+      // Pack some data into a SAFEARRAY of BYTEs. Return in a VARIANT
+      HRESULT GetPostData(LPVARIANT pvPostData)
+      {
+         HRESULT hr;
+         LPSAFEARRAY psa;
+         LPCTSTR cszPostData = "FName=Matt&Flavor=Mocha+Chip";
+         UINT cElems = lstrlen(cszPostData);
+         LPSTR pPostData;
+
+         if (!pvPostData)
+         {
+            return E_POINTER;
+         }
+
+         VariantInit(pvPostData);
+
+         psa = SafeArrayCreateVector(VT_UI1, 0, cElems);
+         if (!psa)
+         {
+            return E_OUTOFMEMORY;
+         }
+
+         hr = SafeArrayAccessData(psa, (LPVOID*)&pPostData);
+         memcpy(pPostData, cszPostData, cElems);
+         hr = SafeArrayUnaccessData(psa);
+
+         V_VT(pvPostData) = VT_ARRAY | VT_UI1;#include <windows.h>
+      #define INITGUID
+      #include <initguid.h>
+      #include <exdisp.h>
+      #include <memory.h>
+
+      HRESULT GetPostData(LPVARIANT pvPostData);
+
+      void main()
+      {
+         HRESULT hr;
+         IWebBrowserApp* pWBApp = NULL; // Derived from IWebBrowser
+         BSTR bstrURL = NULL, bstrHeaders = NULL;
+         VARIANT vFlags = {0},
+            vTargetFrameName = {0},
+            vPostData = {0},
+            vHeaders = {0};
+
+         if (FAILED(hr = CoInitialize(NULL)))
+         {
+            return;
+         }
+
+         if (FAILED(hr = CoCreateInstance(CLSID_InternetExplorer,
+            NULL,
+            CLSCTX_SERVER,
+            IID_IWebBrowserApp,
+            (LPVOID*)&pWBApp)))
+         {
+            goto Error;
+         }
+
+         bstrURL = SysAllocString(L"http://<server>/scripts/navpost.asp");
+         if (!bstrURL)
+         {
+            goto Error;
+         }
+
+         bstrHeaders = SysAllocString(
+            L"Content-Type: application/x-www-form-urlencoded\r\n");
+         if (!bstrHeaders)
+         {
+            goto Error;
+         }
+
+         V_VT(&vHeaders) = VT_BSTR;
+         V_BSTR(&vHeaders) = bstrHeaders;
+
+         hr = GetPostData(&vPostData);
+         hr = pWBApp->Navigate(bstrURL, &vFlags,
+                  &vTargetFrameName, &vPostData, &vHeaders);
+         pWBApp->put_Visible(VARIANT_TRUE);
+
+      Error:
+         if (bstrURL) SysFreeString(bstrURL);
+         if (bstrHeaders) SysFreeString(bstrHeaders);
+         VariantClear(&vPostData);
+         if (pWBApp) pWBApp->Release();
+         CoUninitialize();
+      }
+
+      // Pack some data into a SAFEARRAY of BYTEs. Return in a VARIANT
+      HRESULT GetPostData(LPVARIANT pvPostData)
+      {
+         HRESULT hr;
+         LPSAFEARRAY psa;
+         LPCTSTR cszPostData = "FName=Matt&Flavor=Mocha+Chip";
+         UINT cElems = lstrlen(cszPostData);
+         LPSTR pPostData;
+
+         if (!pvPostData)
+         {
+            return E_POINTER;
+         }
+
+         VariantInit(pvPostData);
+
+         psa = SafeArrayCreateVector(VT_UI1, 0, cElems);
+         if (!psa)
+         {
+            return E_OUTOFMEMORY;
+         }
+
+         hr = SafeArrayAccessData(psa, (LPVOID*)&pPostData);
+         memcpy(pPostData, cszPostData, cElems);
+         hr = SafeArrayUnaccessData(psa);
+
+         V_VT(pvPostData) = VT_ARRAY | VT_UI1;
+         #include <windows.h>
+      #define INITGUID
+      #include <initguid.h>
+      #include <exdisp.h>
+      #include <memory.h>
+
+      HRESULT GetPostData(LPVARIANT pvPostData);
+
+      void main()
+      {
+         HRESULT hr;
+         IWebBrowserApp* pWBApp = NULL; // Derived from IWebBrowser
+         BSTR bstrURL = NULL, bstrHeaders = NULL;
+         VARIANT vFlags = {0},
+            vTargetFrameName = {0},
+            vPostData = {0},
+            vHeaders = {0};
+
+         if (FAILED(hr = CoInitialize(NULL)))
+         {
+            return;
+         }
+
+         if (FAILED(hr = CoCreateInstance(CLSID_InternetExplorer,
+            NULL,
+            CLSCTX_SERVER,
+            IID_IWebBrowserApp,
+            (LPVOID*)&pWBApp)))
+         {
+            goto Error;
+         }
+
+         bstrURL = SysAllocString(L"http://<server>/scripts/navpost.asp");
+         if (!bstrURL)
+         {
+            goto Error;
+         }
+
+         bstrHeaders = SysAllocString(
+            L"Content-Type: application/x-www-form-urlencoded\r\n");
+         if (!bstrHeaders)
+         {
+            goto Error;
+         }
+
+         V_VT(&vHeaders) = VT_BSTR;
+         V_BSTR(&vHeaders) = bstrHeaders;
+
+         hr = GetPostData(&vPostData);
+         hr = pWBApp->Navigate(bstrURL, &vFlags,
+                  &vTargetFrameName, &vPostData, &vHeaders);
+         pWBApp->put_Visible(VARIANT_TRUE);
+
+      Error:
+         if (bstrURL) SysFreeString(bstrURL);
+         if (bstrHeaders) SysFreeString(bstrHeaders);
+         VariantClear(&vPostData);
+         if (pWBApp) pWBApp->Release();
+         CoUninitialize();
+      }
+
+      // Pack some data into a SAFEARRAY of BYTEs. Return in a VARIANT
+      HRESULT GetPostData(LPVARIANT pvPostData)
+      {
+         HRESULT hr;
+         LPSAFEARRAY psa;
+         LPCTSTR cszPostData = "FName=Matt&Flavor=Mocha+Chip";
+         UINT cElems = lstrlen(cszPostData);
+         LPSTR pPostData;
+
+         if (!pvPostData)
+         {
+            return E_POINTER;
+         }
+
+         VariantInit(pvPostData);
+
+         psa = SafeArrayCreateVector(VT_UI1, 0, cElems);
+         if (!psa)
+         {
+            return E_OUTOFMEMORY;
+         }
+
+         hr = SafeArrayAccessData(psa, (LPVOID*)&pPostData);
+         memcpy(pPostData, cszPostData, cElems);
+         hr = SafeArrayUnaccessData(psa);
+
+         V_VT(pvPostData) = VT_ARRAY | VT_UI1;

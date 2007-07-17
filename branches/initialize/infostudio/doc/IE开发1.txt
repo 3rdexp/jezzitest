@@ -1,0 +1,443 @@
+......   
+  //     spDoc1   我忆找到...   
+  long   lgEleCount=0;   
+  MSHTML::IHTMLFramesCollection2   *pFrame;   
+  MSHTML::IHTMLElement   *pbody=NULL;   
+  //MSHTML::IHTMLElementCollection   *pAllElem2=NULL;   
+  spDoc1->get_frames(&pFrame);   
+  pFrame->get_length(&lgEleCount);   
+  VARIANT   vtLoop;     
+  for   (long   iLoop=0;iLoop<lgEleCount;iLoop++)   
+  {   
+            vtLoop.lVal=iLoop;       
+            HRESULT   hr=pFrame->raw_item(&vtLoop,(VARIANT   *)pbody);   
+            if   (SUCCEEDED(hr)==S_OK)     
+            {     
+  AfxMessageBox("正确返回");     
+            }   
+            if   (pbody!=NULL)     
+            {   
+  pFrame->QueryInterface(&pbody);     
+  AfxMessageBox("已找到");     
+            }   
+            else   AfxMessageBox("未找到");     
+  }   
+    
+  MSHTML::IHTMLElementCollectionPtr   pobjAllElement(pbody->Getall());   
+  long   lgCount=0;   
+  pobjAllElement->get_length(&lgCount);   
+  ......   
+  那位大虾，帮我分析下以上，看看错误到底出在哪？并希望您给我留下源码,本人将不胜感激,谢谢! 
+  
+  
+  
+  
+  先从页面上得到类型为frame的元素,   
+  然后ctrl   +   c下面的代码.   
+  IHTMLFrameBase*   pIFrameBase;   
+  pIElem->QueryInterface(IID_IHTMLFrameBase,(LPVOID*)   &pIFrameBase);   
+  BSTR   bstrFrameElemSrc,bstrFrameElemName;   
+  pIFrameBase->get_src   (&bstrFrameElemSrc);   
+  pIFrameBase->get_name   (&bstrFrameElemName);   
+  再打开bstrFrameElemSrc指向的url,枚举出里面的元素就可以了。
+  
+  
+  
+  
+IHTMLDocument2  *pDoc=NULL;
+pDoc=(IHTMLDocument2 *)GetHtmlDocument();    //这个是CHtmlView
+                                             //IWebBrowser2使用get_Document();
+IHTMLFramesCollection2 *pCol=NULL;
+HRESULT hr=pDoc->get_frames(&pCol);       //取得分贞的frame数组
+ASSERT(SUCCEEDED(hr));
+
+VARIANT vFrame,vIndex;
+vIndex.vt=VT_I4;    vIndex.lVal=0;  //准备取得第0号贞
+hr=pCol->get_item(&vIndex,&vFrame);
+ASSERT(SUCCEEDED(hr));
+
+//取得的这个接口指针，其实是IHTMLWindow2的接口指针。
+IHTMLWindow2 *pWin=(IHTMLWindow2 *)vFrame.pdispVal;
+IHTMLDocument2 *pDoc2=NULL;
+hr=pWin->get_document(&pDoc2);
+ASSERT(SUCCEEDED(hr));
+
+BSTR bstr=NULL;
+hr=pDoc2->get_URL(&bstr);  //举例，比如取得URL
+ASSERT(SUCCEEDED(hr))
+
+SysFreeString(bstr);
+pDoc2->Release();
+pWin->Release();
+pCol->Release();
+pDoc->Release(); 
+
+
+
+
+
+ void   CTryView::OnDocumentComplete(LPCTSTR   lpszURL)     
+  {   
+  //   TODO:   Add   your   specialized   code   here   and/or   call   the   base   class   
+    
+    
+    
+  IHTMLDocument2   *   pDoc   =   NULL;   
+  IHTMLWindow2   *pHTMLWnd   =   NULL;   
+  IHTMLDocument2   *   pFrameDoc=NULL;   
+  IHTMLFramesCollection2   *pFramesCollection=NULL;   
+  LPDISPATCH   lpDispatch;   
+    
+  long   p;   
+  VARIANT   varindex,varresult;   
+  varresult.vt=VT_DISPATCH;   
+  varindex.vt   =   VT_I4;   
+  try   
+  {   
+  pDoc   =   (IHTMLDocument2*)(GetHtmlDocument());   
+  if(pDoc!=NULL)   
+  {   
+  pDoc->get_frames(&pFramesCollection);   
+  if(pFramesCollection!=NULL)   
+  {   
+  pFramesCollection->get_length(&p);   
+  if(p>0)   
+  {   
+  for(int   i=0;   i<p;   i++)   
+  {   
+  varindex.lVal   =   i;   
+  if(pFramesCollection->item(&varindex,   &varresult)   ==S_OK)   
+  {   
+  lpDispatch=(LPDISPATCH)varresult.ppdispVal;   
+    
+  if   (SUCCEEDED(lpDispatch->QueryInterface(IID_IHTMLWindow2,   (LPVOID   *)&pHTMLWnd)))   
+  {   
+  if(SUCCEEDED(pHTMLWnd->get_document(   &pFrameDoc)))   
+  {   
+  CString   info;   
+  info.Format("%d",pFrameDoc);   
+  MessageBox(info);   
+    
+  pFrameDoc->Release();   
+  pFrameDoc=NULL;   
+    
+  }   
+  pHTMLWnd->Release();   
+  pHTMLWnd=NULL;   
+  }   
+    
+  }   
+  }   
+  }   
+  }   
+  }   
+  }   
+  catch(...)   
+  {   
+  };   
+    
+  try   
+  {   
+  if(pDoc   !=   NULL)   
+  pDoc->Release();   
+  if(pFramesCollection   !=   NULL)   
+  pFramesCollection->Release();   
+  }   
+  catch(...)   
+  {   
+  };   
+    
+    
+    
+  CHtmlView::OnDocumentComplete(lpszURL);   
+  }\
+  
+  
+  
+  
+  我用www.codeproject.com上的一个例子，结合Vckbase上扬老师的例子实现了这个要求，但是太慢了足足用了15-20秒。请高人指点
+------------------------------------------------------------------------------------ 
+不要访问IhtmlElementCollection::get_length，用IhtmlElementCollection::get__newEnum
+void ListAllLinkUrls(mshtml::htmlDocument *myDoc)
+{
+mshtml::IhtmlElementCollection *elementcollection =
+dynamic_cast<mshtml::IhtmlElementCollection*>(myDoc->all);
+if (elementcollection) {
+System::Collections::IEnumerator *ienum =
+elementcollection->GetEnumerator();
+while (ienum && ienum->MoveNext()) {
+mshtml::IhtmlElement *elem=dynamic_cast<mshtml::IhtmlElement
+*>(ienum->Current);
+if (elem) {
+if (elem->tagName->Equals(S"FRAME")) {
+mshtml::htmlFrameBase *fb = dynamic_cast<mshtml::htmlFrameBase*>(elem);
+mshtml::htmlDocument
+*myDoc2=dynamic_cast<mshtml::htmlDocument*>(fb->document);
+ListAllLinkUrls(myDoc2);
+}
+else if (elem->tagName->Equals(S"LINK")) {
+mshtml::htmlLinkElement *le =
+dynamic_cast<mshtml::htmlLinkElement*>(elem);
+Console::WriteLine("have link {0}",le->href);
+}
+}
+}
+}
+} // ListAllLinkUrls
+-------------------------------------------------------------------------------------- 自己写过一段，代码复杂，不如这个简单，MARK一下!
+-------------------------------------------------------------------------------------- to jiangsheng
+我用你的方法试了一下，分析www.5460.net用了将近6秒，
+用pIhtmlDocument2->get_frames( &spFramesCollection2 )和
+pIhtmlDocument2->get_forms( &spElementCollection );
+遍历用了不到1秒，但是用下面的代码得不出，正确的“IFRAME”中的“输入框”位置（需要吧IFRAME偏移加上才行）
+pElem->get_offsetHeight(&Height);
+pElem->get_offsetWidth(&Width);
+pElem->get_offsetLeft(&Left);
+pElem->get_offsetTop(&Top);
+pElem->get_offsetParent(&lpContainer);while ( lpContainer )
+{
+lpContainer->get_offsetLeft(&lValue); Left += lValue;
+lpContainer->get_offsetTop(&lValue); Top += lValue;
+lpContainer->get_offsetParent(&lpContainer);
+}
+我想问的是怎样由“IhtmlWindow2”得到IFRAME偏移（就是转成IhtmlElement）
+
+-------------------------------------------------------------------------------------- 用IhtmlFrameBase::get_marginWidth和IhtmlFrameBase::get_marginHeight
+//mshtml::htmlFrameBase *fb = dynamic_cast<mshtml::htmlFrameBase*>(elem);
+fb->marginWidth(...);
+fb->marginHeight(...);
+-------------------------------------------------------------------------------------- int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+{
+::CoInitialize(NULL);//初始化 COM 公寓
+
+EnumIE();//枚举浏览器
+
+::CoUninitialize();//释放 COM 公寓
+
+cout << _T("======完成======") << endl;
+getchar();//等待回车
+
+return 0;
+}
+
+void EnumIE( void )
+{
+cout << _T("开始扫描系统中正在运行的浏览器实例") << endl;
+
+CComPtr< IShellWindows > spShellWin;
+HRESULT hr = spShellWin.CoCreateInstance( CLSID_ShellWindows );
+if ( FAILED ( hr ) )
+{
+cout << _T("获取 IShellWindows 接口错误") << endl;
+return;
+}
+
+long nCount = 0;// 取得浏览器实例个数(Explorer 和 IExplorer)
+spShellWin->get_Count( &nCount );
+if( 0 == nCount )
+{
+cout << _T("没有在运行着的浏览器") << endl;
+return;
+}
+
+for(int i=0; i<nCount; i++)
+{
+CComPtr< IDispatch > spDispIE;
+hr=spShellWin->Item(CComVariant( (long)i ), &spDispIE );
+if ( FAILED ( hr ) )continue;
+
+CComQIPtr< IWebBrowser2 > spBrowser = spDispIE;
+if ( !spBrowser )continue;
+
+CComPtr < IDispatch > spDispDoc;
+hr = spBrowser->get_Document( &spDispDoc );
+if ( FAILED ( hr ) )continue;
+
+CComQIPtr< IhtmlDocument2 > spDocument2 = spDispDoc;
+if ( !spDocument2 )continue;
+
+// 程序运行到此，已经找到了 IhtmlDocument2 的接口指针
+
+// 删除下行语句的注释，把浏览器的背景改变看看
+// spDocument2->put_bgColor( CComVariant( "green" ) );
+DWORD dwStart = GetTickCount();
+EnumForm( spDocument2 );//枚举所有的表单
+DWORD dwEnd=GetTickCount() ;
+DWORD x=dwEnd-dwStart;
+
+}
+}
+
+void EnumFrame( IhtmlDocument2 * pIhtmlDocument2 )
+{
+if ( !pIhtmlDocument2 )return;
+
+HRESULT hr;
+
+CComPtr< IhtmlFramesCollection2 > spFramesCollection2;
+pIhtmlDocument2->get_frames( &spFramesCollection2 );//取得框架frame的集合
+
+long nFrameCount=0;//取得子框架个数
+hr = spFramesCollection2->get_length( &nFrameCount );
+if ( FAILED ( hr ) || 0 == nFrameCount )return;
+
+for(long i=0; i<nFrameCount; i++)
+{
+CComVariant vDispWin2;//取得子框架的自动化接口
+hr = spFramesCollection2->item( &CComVariant(i), &vDispWin2 );
+if ( FAILED ( hr ) )continue;
+
+CComQIPtr< IhtmlWindow2 > spWin2 = vDispWin2.pdispVal;
+CComQIPtr< IhtmlWindow4 > spWin4 = vDispWin2.pdispVal;
+
+if( !spWin2 )continue;//取得子框架的 IhtmlWindow2 接口
+if( !spWin4 )continue;
+CComQIPtr< IhtmlFrameBase> fbase;
+hr=spWin4->get_frameElement(&fbase);//fbase永远是NULL
+
+CComPtr < IhtmlDocument2 > spDoc2;
+spWin2->get_document( &spDoc2 );//取得字框架的 IhtmlDocument2 接口
+
+
+EnumForm( spDoc2 );//递归枚举当前子框架 IhtmlDocument2 上的表单form
+}
+}
+
+void EnumForm( IhtmlDocument2 * pIhtmlDocument2 )
+{
+if( !pIhtmlDocument2 )return;
+
+EnumFrame( pIhtmlDocument2 );//递归枚举当前 IhtmlDocument2 上的子框架fram
+
+HRESULT hr;
+CComBSTR bstrTitle;
+pIhtmlDocument2->get_title( &bstrTitle );//取得文档标题
+
+USES_CONVERSION;
+cout << _T("====================") << endl;
+cout << _T("开始枚举“") << OLE2CT( bstrTitle ) << _T("”的表单") << endl;
+cout << _T("====================") << endl;
+
+CComQIPtr< IhtmlElementCollection > spElementCollection;
+hr = pIhtmlDocument2->get_forms( &spElementCollection );//取得表单集合
+if ( FAILED( hr ) )
+{
+cout << _T("获取表单的集合 IhtmlElementCollection 错误") << endl;
+return;
+}
+
+long nFormCount=0;//取得表单数目
+hr = spElementCollection->get_length( &nFormCount );
+if ( FAILED( hr ) )
+{
+cout << _T("获取表单数目错误") << endl;
+return;
+}
+
+for(long i=0; i<nFormCount; i++)
+{
+IDispatch *pDisp = NULL;//取得第 i 项表单
+hr = spElementCollection->item( CComVariant( i ), CComVariant(), &pDisp );
+if ( FAILED( hr ) )continue;
+
+CComQIPtr< IhtmlFormElement > spFormElement = pDisp;
+pDisp->Release();
+
+long nElemCount=0;//取得表单中 域 的数目
+hr = spFormElement->get_length( &nElemCount );
+if ( FAILED( hr ) )continue;
+
+for(long j=0; j<nElemCount; j++)
+{
+CComDispatchDriver spInputElement;//取得第 j 项表单域
+hr = spFormElement->item( CComVariant( j ), CComVariant(), &spInputElement );
+if ( FAILED( hr ) )continue;
+
+CComVariant vName,vVal,vType;//取得表单域的 名，值，类型
+hr = spInputElement.GetPropertyByName( L"name", &vName );
+if( FAILED( hr ) )continue;
+hr = spInputElement.GetPropertyByName( L"value", &vVal );
+if( FAILED( hr ) )continue;
+hr = spInputElement.GetPropertyByName( L"type", &vType );
+if( FAILED( hr ) )continue;
+
+LPCTSTR lpName = vName.bstrVal?
+OLE2CT( vName.bstrVal ) : _T("NULL");//未知域名
+LPCTSTR lpVal = vVal.bstrVal?
+OLE2CT( vVal.bstrVal ) : _T("NULL");//空值，未输入
+LPCTSTR lpType = vType.bstrVal?
+OLE2CT( vType.bstrVal ) : _T("NULL");//未知类型
+
+cout << _T("[") << lpType << _T("] ");
+cout << lpName << _T(" = ") << lpVal << endl;
+}
+//想提交这个表单吗？删除下面语句的注释吧
+//pForm->submit();
+}
+}
+-------------------------------------------------------------------------------------- Frame元素支持IWebBrowser2接口
+-------------------------------------------------------------------------------------- to lion_wing
+用蒋老大的方法枚举复杂的网页太慢了，用我上面的方法快，但是得不出IhtmlFrameBase接口他永远是NULL
+-------------------------------------------------------------------------------------- to 蒋老大
+是的“Frame元素支持IWebBrowser2接口”但是得不出，正确的“Frame”中的“输入框”位（需要吧Frame偏移加上才行）
+
+-------------------------------------------------------------------------------------- CComPtr<IhtmlDocument3> pDoc3;
+hr = pDoc2->QueryInterface(IID_IhtmlDocument3,(void**)&pDoc3) ;
+if(hr==S_OK)
+{
+CComBSTR bstrName("FRAME");
+CComPtr<IhtmlElementCollection> pElemCollFrame;
+hr=pDoc3->getElementsByTagName(bstrName,&pElemCollFrame);
+if (hr==S_OK)
+{
+long pLength;
+hr=pElemCollFrame->get_length(&pLength);
+if(hr==S_OK)
+{
+for(int i=0;i<pLength;i++)
+{
+IDispatch *pDispFrame=NULL;
+CComVariant vIndex=i;
+hr=pElemCollFrame->item(vIndex,vIndex,&pDispFrame);
+if(hr==S_OK)
+{
+CComPtr<IhtmlElement> pElemFrame;
+hr=pDispFrame->QueryInterface(IID_IhtmlElement,(void**)&pElemFrame); 
+if(hr==S_OK)
+{
+CComPtr<IhtmlFrameBase2> pFrameBase2;
+hr=pElemFrame->QueryInterface(IID_IhtmlFrameBase2,(void**)&pFrameBase2);
+if(hr==S_OK)
+{
+CComPtr<IhtmlWindow2> pWindow2;
+hr=pFrameBase2->get_contentWindow(&pWindow2);
+if(hr==S_OK)
+{
+CComPtr<IhtmlDocument2> pDoc2Frame;
+hr=pWindow2->get_document(&pDoc2Frame);
+if (hr==S_OK)
+{
+//得到IhtmlDocument2
+}
+}
+}
+}
+}
+pDispFrame->Release();
+}
+}
+}
+}
+不好意思，代码没整理！
+-------------------------------------------------------------------------------------- 感谢俩位老大，问题解决，应该给你两位每人100分，但是我只有100分只好每人50分，
+再一次的感谢两位。
+-------------------------------------------------------------------------------------- 
+
+
+IHTMLDocument2::elementFromPoint   Method   
+  IHTMLElement::parentElement   Property   
+  QueryInterface
+  
+  ms-help://MS.MSDNQTR.2003FEB.2052/enu_kbie_dev/en-us/ie_dev/Q253915.htm
+  
+  dhtml event c++ 

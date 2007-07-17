@@ -1,0 +1,68 @@
+Q176420   that   said   "BUG:     
+  InternetSetOption   Does   Not   Set   Timeouts   Values".   
+  The   article   explains   howto   control   connection   timeout   by     
+  creating   secondary   thread   
+  ////////////////////////////////////////////   
+  //there   is   some   code   
+  int   timeout   =   0;   
+  int   connected   =   0;   
+    
+  //   check   timeout,   if   timeout   and   connected,   we   asume     
+  conection   is   not   valid   so   close   the   connection.   
+  if(   WaitForSingleObject   (   hThread,   dwTimeout   )   ==     
+  WAIT   TIMEOUT   )   
+  {   
+        timeout   =   1;   
+    
+        //   I   supose   InternetCloseHandle   is   a   non-blocking   call,     
+  but   only   Microsoft   knows       
+        if   (   g   hOpen   )   
+        {   
+                InternetCloseHandle   (   g   hOpen   );   
+                g   hOpen   =   NULL;   
+        }       
+  }   
+  else   
+  {   
+          timeout   =   0;   
+  }   
+  //   at   his   point   timeout   value   is   1   or   0   
+  //   check   thread's   finish,   if   the   thread   has   not   finished     
+  finish   it.   
+  if   (   !GetExitCodeThread(hThread,   &dwExitCode)   )   
+  {   
+          CloseHandle(hThread);   
+  }   
+  else   
+  {   
+          dwExitCode   =   1;   
+          TerminateThread(hThread,   dwExitCode);   
+          if   (   g   hOpen   )   
+          {   
+                InternetCloseHandle   (   g   hOpen   );   
+                g   hOpen   =   NULL;   
+          }   
+  }   
+  //   at   this   point   thread   must   have   finished.   
+  //   check   connection   if   the   timeout   has   been   reached   we     
+  asumed   that   connection   was   not   valid,   and   we   have   already     
+  made   InternetCloseHandle   
+  if   (   dwExitCode   )   
+  {   
+          connected   =   0;   
+  }   
+  else   
+  {   
+          if(   timeout   ==   0   )   
+          {   
+                  connected   =   1;   
+          }   
+          else   
+          {   
+                  connected   =   0;   
+          }   
+  }                     
+    
+  //   now   that   I   know   if   I   have   connected   before   timeout     
+  miliseconds   thread   has   finished   I   can   start   to   receive     
+  send   data   or   return   a   error   code;
