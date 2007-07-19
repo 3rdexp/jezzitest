@@ -4,7 +4,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <string>
-#include <set>
+#include <vector>
 
 // 支持任务级联的基类
 class Task
@@ -16,6 +16,7 @@ public:
 	int get_unique_id() { return unique_id_; }
 
 	void Start();
+    void Step();
 	int GetState() const { return state_; }
 	bool HasError() const { return (GetState() == STATE_ERROR); }
 	bool Blocked() const { return blocked_; }
@@ -69,7 +70,7 @@ private:
 
 	static int unique_id_seed_;
 
-	typedef std::set<Task *> ChildSet;
+	typedef std::vector<Task *> ChildSet;
 	boost::scoped_ptr<ChildSet> children_;
 };
 

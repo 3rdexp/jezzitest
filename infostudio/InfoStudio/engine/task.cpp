@@ -1,5 +1,6 @@
 
 #include <ctime>
+#include <algorithm>
 
 #include "task.h"
 
@@ -61,15 +62,74 @@ void Task::Start() {
 	if (state_ != STATE_INIT)
 		return;
 
-	// Set the start time before starting the task.  Otherwise if the task
-	// finishes quickly and deletes the Task object, setting start_time_
-	// will crash.
-	start_time_ = CurrentTime();
-	if (parent_)
-		parent_->Start();
-	else
+    // 如果有parent，应该从parent执行起
+    // 先执行子任务
+	
+	if (parent_) {
+        parent_->Start();
+        return;
+    }
+
+    // Set the start time before starting the task.  Otherwise if the task
+    // finishes quickly and deletes the Task object, setting start_time_
+    // will crash
+    start_time_ = CurrentTime();
+
+    // 只要不是全部 Blocked，就继续执行
+    int did_run = true;
+    while (did_run) 
+    {
+        did_run = false;
+        // use indexing instead of iterators because children_ may grow
+        for (size_t i = 0; i < children_->size(); ++i)
+        {
+            Task * p = children_->at(i);
+            while (!p->Blocked())
+            {
+                p->Step();
+                did_run = true;
+            }
+        }
+    }
+
+    // Tasks are deleted when running has paused
+    bool need_timeout_recalc = false;
+    for (size_t i = 0; i < children_->size(); ++i) {
+        Task* task = children_->at(i);
+        if (task->IsDone()) {
+//            if (next_timeout_task_ &&
+//                task->get_unique_id() == next_timeout_task_->get_unique_id()) {
+//                    next_timeout_task_ = NULL;
+//                    need_timeout_recalc = true;
+//                }
+
+                delete task;
+                children_->at(i) = NULL;
+        }
+    }
+
+    // Finally, remove nulls
+    std::vector<Task *>::iterator it;
+    it = std::remove(children_->begin(),
+        children_->end(),
+        reinterpret_cast<Task *>(NULL));
+
+    children_->erase(it, children_->end());
+
+    /*
+    while (!AllChildrenDone())
 	{
-		busy_ = true;
+        if (children_->size() > 0) {
+            ChildSet copy = *children_;
+            for (ChildSet::iterator it = copy.begin(); it != copy.end(); ++it) {
+                (*it)->Process();
+            }
+        }
+    }
+
+    while (!done_)
+    {
+        busy_ = true;
 		int new_state = Process(state_);
 		busy_ = false;
 	
@@ -95,6 +155,62 @@ void Task::Start() {
 			blocked_ = true;
 		}
 	}
+    */
+}
+
+void Task::Step() {
+    if (done_) {
+#ifdef DEBUG
+        // we do not know how !blocked_ happens when done_ - should be impossible.
+        // But it causes problems, so in retail build, we force blocked_, and
+        // under debug we assert.
+        assert(blocked_);
+#else
+        blocked_ = true;
+#endif
+        return;
+    }
+
+    // Async Error() was called
+    if (error_) {
+        done_ = true;
+        state_ = STATE_ERROR;
+        blocked_ = true;
+        Stop();
+        return;
+    }
+
+    busy_ = true;
+    int new_state = Process(state_);
+    busy_ = false;
+
+    if (aborted_) {
+        Abort();  // no need to wake because we're awake
+        return;
+    }
+
+    if (new_state == STATE_BLOCKED) {
+        blocked_ = true;
+        // Let the timeout continue
+    } else {
+        state_ = new_state;
+        blocked_ = false;
+        // ResetTimeout();
+    }
+
+    if (new_state == STATE_DONE) {
+        done_ = true;
+    } else if (new_state == STATE_ERROR) {
+        done_ = true;
+        error_ = true;
+    }
+
+    if (done_) {
+        //  obsolete - call this yourself
+        //    SignalDone();
+        Stop();
+        blocked_ = true;
+    }
 }
 
 int Task::Process(int state) {
@@ -127,7 +243,7 @@ int Task::Process(int state) {
 
 
 void Task::AddChild(Task *child) {
-	children_->insert(child);
+	children_->push_back(child);
 }
 
 bool Task::AllChildrenDone() {
@@ -156,7 +272,11 @@ void Task::AbortAllChildren() {
 void Task::OnChildStopped(Task *child) {
 	if (child->HasError())
 		child_error_ = true;
-	children_->erase(child);
+
+    ChildSet::iterator i = std::remove(children_->begin(),
+        children_->end(),child);
+
+    children_->erase(i, children_->end());
 }
 
 void Task::Stop() {
