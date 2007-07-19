@@ -1,5 +1,10 @@
 
-#include "sigslot.h"
+// #include "sigslot.h"
+
+#include <boost/cstdint.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <string>
+#include <set>
 
 // 支持任务级联的基类
 class Task
@@ -8,13 +13,14 @@ public:
 	Task(Task * parent);
 	virtual ~Task();
 
-	int32 get_unique_id() { return unique_id_; }
+	int get_unique_id() { return unique_id_; }
 
+	void Start();
 	int GetState() const { return state_; }
 	bool HasError() const { return (GetState() == STATE_ERROR); }
 	bool Blocked() const { return blocked_; }
 	bool IsDone() const { return done_; }
-	int64 ElapsedTime();
+	__int64 ElapsedTime();
 
 	Task *GetParent() { return parent_; }
 
@@ -58,15 +64,16 @@ private:
 	bool busy_;
 	bool error_;
 	bool child_error_;
-	int64 start_time_;
-	int32 unique_id_;
+	__int64 start_time_;
+	int unique_id_;
 
-	static int32 unique_id_seed_;
+	static int unique_id_seed_;
 
 	typedef std::set<Task *> ChildSet;
 	boost::scoped_ptr<ChildSet> children_;
 };
 
+#if 0
 class AsyncTask : public sigslot::has_slots<sigslot::multi_threaded_local>
 {
 public:
@@ -84,16 +91,6 @@ protected:
 };
 
 
-class MyTask : public Task
-{
-public:
-	virtual void ProcessStart()
-	{
-		// 启动一个 http 请求
-		Get("http://xxx.com/");
-	}
-	virtual void ProcessResponse()
-	{
-		const char * body = ResponseBody();
-	}
-};
+
+
+#endif
