@@ -1,4 +1,6 @@
 
+#ifndef __TASK_H__
+#define __TASK_H__
 // #include "sigslot.h"
 
 #include <boost/cstdint.hpp>
@@ -74,24 +76,5 @@ private:
 	boost::scoped_ptr<ChildSet> children_;
 };
 
-#if 0
-class AsyncTask : public sigslot::has_slots<sigslot::multi_threaded_local>
-{
-public:
-	AsyncTask();
-	virtual ~AsyncTask();
 
-	virtual void ProcessStart();
-	virtual void ProcessResponse();
-
-	bool PrepareGet();
-	bool PreparePost();
-
-protected:
-	// HINTERNET hConnection;
-};
-
-
-
-
-#endif
+#endif // __TASK_H__

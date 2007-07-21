@@ -63,12 +63,13 @@ void Task::Start() {
 		return;
 
     // 如果有parent，应该从parent执行起
-    // 先执行子任务
-	
 	if (parent_) {
         parent_->Start();
         return;
     }
+
+    // 先按顺序执行子任务
+    // 最后执行自己
 
     // Set the start time before starting the task.  Otherwise if the task
     // finishes quickly and deletes the Task object, setting start_time_
@@ -84,6 +85,17 @@ void Task::Start() {
         for (size_t i = 0; i < children_->size(); ++i)
         {
             Task * p = children_->at(i);
+            // TODO: 只执行两级
+            for (size_t j=0; j<p->children_->size(); ++j)
+            {
+                Task * q = p->children_->at(j);
+                while (!q->Blocked())
+                {
+                    q->Step();
+                    did_run = true;
+                }
+            }
+
             while (!p->Blocked())
             {
                 p->Step();
@@ -116,46 +128,12 @@ void Task::Start() {
 
     children_->erase(it, children_->end());
 
-    /*
-    while (!AllChildrenDone())
-	{
-        if (children_->size() > 0) {
-            ChildSet copy = *children_;
-            for (ChildSet::iterator it = copy.begin(); it != copy.end(); ++it) {
-                (*it)->Process();
-            }
-        }
-    }
-
-    while (!done_)
+    // 最后执行自己
+    if (!parent_)
     {
-        busy_ = true;
-		int new_state = Process(state_);
-		busy_ = false;
-	
-
-		if (new_state == STATE_BLOCKED) {
-			blocked_ = true;
-			// Let the timeout continue
-		} else {
-			state_ = new_state;
-			blocked_ = false;
-			// ResetTimeout();
-		}
-
-		if (new_state == STATE_DONE) {
-			done_ = true;
-		} else if (new_state == STATE_ERROR) {
-			done_ = true;
-			error_ = true;
-		}
-
-		if (done_) {
-			Stop();
-			blocked_ = true;
-		}
-	}
-    */
+        while (!Blocked())
+            Step();
+    }
 }
 
 void Task::Step() {
@@ -273,16 +251,17 @@ void Task::OnChildStopped(Task *child) {
 	if (child->HasError())
 		child_error_ = true;
 
-    ChildSet::iterator i = std::remove(children_->begin(),
-        children_->end(),child);
+//    ChildSet::iterator i = std::remove(children_->begin(),
+//        children_->end(),child);
 
-    children_->erase(i, children_->end());
+//    children_->erase(i, children_->end());
 }
 
 void Task::Stop() {
 	// No need to wake because we're either awake or in abort
 	AbortAllChildren();
-	parent_->OnChildStopped(this);
+    if (parent_)
+	    parent_->OnChildStopped(this);
 }
 
 std::string Task::GetStateName(int state) const {
