@@ -416,7 +416,7 @@ namespace sigslot {
 	{
 	private:
 		typedef std::set<_signal_base<mt_policy> *> sender_set;
-		typedef sender_set::const_iterator const_iterator;
+		typedef typename sender_set::const_iterator const_iterator;
 
 	public:
 		has_slots()
