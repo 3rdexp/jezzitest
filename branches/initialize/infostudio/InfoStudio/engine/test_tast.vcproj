@@ -111,6 +111,12 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\asynctask.cpp">
+		</File>
+		<File
+			RelativePath=".\asynctask.h">
+		</File>
+		<File
 			RelativePath=".\task.cpp">
 		</File>
 		<File

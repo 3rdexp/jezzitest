@@ -1,9 +1,8 @@
 
 #ifndef __TASK_H__
 #define __TASK_H__
-// #include "sigslot.h"
 
-#include <boost/cstdint.hpp>
+// #include <boost/cstdint.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <string>
 #include <vector>
