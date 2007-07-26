@@ -59,7 +59,7 @@ public:
     static int GetLogToDebug() { return dbg_sev_; }
     //  Stream: Any non-blocking stream interface.  LogMessage takes ownership of
     //   the stream.
-//    static void LogToStream(StreamInterface* stream, int min_sev);
+    static void LogToStream(std::ostream* stream, int min_sev);
     static int GetLogToStream() { return stream_sev_; }
 
     // Testing against MinLogSeverity allows code to avoid potentially expensive
@@ -92,7 +92,7 @@ private:
     static int min_sev_, dbg_sev_, stream_sev_, ctx_sev_;
 
     // The output stream, if any
-    static StreamInterface * stream_;
+    static std::ostream * stream_;
 
     // Flags for formatting options
     static bool thread_, timestamp_;
@@ -123,14 +123,14 @@ END_ENGINE_NAMESPACE
 #if LOGGING
 
 #define LOG(sev) \
-    if (talk_base::LogMessage::Loggable(talk_base::sev)) \
-    talk_base::LogMessage(__FILE__, __LINE__, talk_base::sev).stream()
+    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
+    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev).stream()
 
 // The _V version is for when a variable is passed in.  It doesn't do the
 // namespace concatination.
 #define LOG_V(sev) \
-    if (talk_base::LogMessage::Loggable(sev)) \
-    talk_base::LogMessage(__FILE__, __LINE__, sev).stream()
+    if (ENGINE_::LogMessage::Loggable(sev)) \
+    ENGINE_::LogMessage(__FILE__, __LINE__, sev).stream()
 
 // The _F version prefixes the message with the current function name.
 #define LOG_F(sev) LOG(sev) << __FUNCTION__ << ": "
@@ -139,9 +139,9 @@ END_ENGINE_NAMESPACE
 // sensitive operations whose sole purpose is to output logging data at the
 // desired level.
 #define LOG_CHECK_LEVEL(sev) \
-    talk_base::LogCheckLevel(talk_base::sev)
+    ENGINE_::LogCheckLevel(ENGINE_::sev)
 #define LOG_CHECK_LEVEL_V(sev) \
-    talk_base::LogCheckLevel(sev)
+    ENGINE_::LogCheckLevel(sev)
 inline bool LogCheckLevel(LoggingSeverity sev) {
     return (LogMessage::GetMinLogSeverity() <= sev);
 }
@@ -150,26 +150,26 @@ inline bool LogCheckLevel(LoggingSeverity sev) {
 // error.  LOG_ERR reads errno directly, so care must be taken to call it before
 // errno is reset.
 #define PLOG(sev, err) \
-    if (talk_base::LogMessage::Loggable(talk_base::sev)) \
-    talk_base::LogMessage(__FILE__, __LINE__, talk_base::sev, \
-    talk_base::ERRCTX_ERRNO, err).stream()
+    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
+    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
+    ENGINE_::ERRCTX_ERRNO, err).stream()
 #define LOG_ERR(sev) \
-    if (talk_base::LogMessage::Loggable(sev)) \
-    talk_base::LogMessage(__FILE__, __LINE__, talk_base::sev, \
-    talk_base::ERRCTX_ERRNO, errno).stream()
+    if (ENGINE_::LogMessage::Loggable(sev)) \
+    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
+    ENGINE_::ERRCTX_ERRNO, errno).stream()
 
 // LOG_GLE(M) attempt to provide a string description of the HRESULT returned
 // by GetLastError.  The second variant allows searching of a dll's string
 // table for the error description.
 #ifdef WIN32
 #define LOG_GLE(sev) \
-    if (talk_base::LogMessage::Loggable(talk_base::sev)) \
-    talk_base::LogMessage(__FILE__, __LINE__, talk_base::sev, \
-    talk_base::ERRCTX_HRESULT, GetLastError()).stream()
+    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
+    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
+    ENGINE_::ERRCTX_HRESULT, GetLastError()).stream()
 #define LOG_GLEM(sev, mod) \
-    if (talk_base::LogMessage::Loggable(talk_base::sev)) \
-    talk_base::LogMessage(__FILE__, __LINE__, talk_base::sev, \
-    talk_base::ERRCTX_HRESULT, GetLastError(), mod) \
+    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
+    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
+    ENGINE_::ERRCTX_HRESULT, GetLastError(), mod) \
     .stream()
 #endif  // WIN32
 
@@ -181,27 +181,27 @@ inline bool LogCheckLevel(LoggingSeverity sev) {
 // Note: syntax of "1 ? (void)0 : LogMessage" was causing errors in g++,
 //   converted to "while (false)"
 #define LOG(sev) \
-    while (false)talk_base:: LogMessage(NULL, 0, talk_base::sev).stream()
+    while (false)ENGINE_:: LogMessage(NULL, 0, ENGINE_::sev).stream()
 #define LOG_V(sev) \
-    while (false) talk_base::LogMessage(NULL, 0, sev).stream()
+    while (false) ENGINE_::LogMessage(NULL, 0, sev).stream()
 #define LOG_F(sev) LOG(sev) << __FUNCTION__ << ": "
 #define LOG_CHECK_LEVEL(sev) \
     false
 #define LOG_CHECK_LEVEL_V(sev) \
     false
 #define PLOG(sev, err) \
-    while (false) talk_base::LogMessage(NULL, 0, talk_base::sev, \
-    talk_base::ERRCTX_ERRNO, 0).stream()
+    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
+    ENGINE_::ERRCTX_ERRNO, 0).stream()
 #define LOG_ERR(sev) \
-    while (false) talk_base::LogMessage(NULL, 0, talk_base::sev, \
-    talk_base::ERRCTX_ERRNO, 0).stream()
+    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
+    ENGINE_::ERRCTX_ERRNO, 0).stream()
 #ifdef WIN32
 #define LOG_GLE(sev) \
-    while (false) talk_base::LogMessage(NULL, 0, talk_base::sev, \
-    talk_base::ERRCTX_HRESULT, 0).stream()
+    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
+    ENGINE_::ERRCTX_HRESULT, 0).stream()
 #define LOG_GLEM(sev, mod) \
-    while (false) talk_base::LogMessage(NULL, 0, talk_base::sev, \
-    talk_base::ERRCTX_HRESULT, 0).stream()
+    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
+    ENGINE_::ERRCTX_HRESULT, 0).stream()
 #endif  // WIN32
 
 #endif  // !LOGGING

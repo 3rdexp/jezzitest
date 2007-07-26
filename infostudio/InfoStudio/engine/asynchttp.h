@@ -5,11 +5,13 @@
 #include <windows.h>
 #include <wininet.h>
 #include <map>
+#include <vector>
 
 #include "criticalsection.h"
 
 #ifndef ASSERT
-#define ASSERT 
+    #include <cassert>
+    #define ASSERT assert
 #endif
 
 class AsyncInet;
@@ -31,18 +33,27 @@ protected:
         , DWORD dwInternetStatus, LPVOID lpvStatusInformation, DWORD dwStatusInformationLength);
     // 
     void HandleCreated(HINTERNET hInet);
-    BOOL NameResolved(LPCTSTR pszIpAddress);
-    BOOL Redirect(LPCTSTR szUrl, DWORD dwUrlLength);
-    BOOL ResponseReceived(DWORD dwBytes);
-    BOOL RequestComplete(DWORD dwResult, DWORD dwError);
+    bool NameResolved(LPCWSTR pszIpAddress);
+    bool Redirect(LPCWSTR szUrl, DWORD dwUrlLength);
+    bool ResponseReceived(DWORD dwBytes);
+    bool RequestComplete(DWORD dwResult, DWORD dwError);
+
+    virtual void RequestDone() {}
 
     // 1 对于简单任务，直接返回一个新的Connection
     // 2 对于复杂任务，可以一个站点公用一个Connection
-    virtual HINTERNET GetConnection(LPCTSTR szHost);
+    virtual HINTERNET GetConnection(LPCWSTR szHost)
+    {
+        return hConn_;
+    }
 
 protected:
-    HINTERNET _hConn;
-    HINTERNET _hRequest;
+    HINTERNET hConn_;
+    HINTERNET hRequest_;
+    std::wstring redirect_url_;
+    std::wstring ip_;
+    std::vector<char> buf_;
+    unsigned long content_length_;
 };
 
 
