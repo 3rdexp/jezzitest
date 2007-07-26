@@ -1,12 +1,20 @@
 
+#include <windows.h>
 
-#include "asynchttp.h"
 #include "urlcomp.h"
-#include "criticalsection.h"
+#include "logging.h"
+#include "asynchttp.h"
 
 #ifndef ASSERT
     #define ASSERT(x)
 #endif
+
+#ifdef _DEBUG
+    #include <iostream>
+    #define LOGTHREAD " [" << GetCurrentThreadId() << "]"
+#endif
+
+#pragma comment(lib, "wininet.lib")
 
 class AutoInternetHandle 
 {
@@ -29,11 +37,13 @@ static void CALLBACK InternetStatusCallback(HINTERNET hInternet, DWORD_PTR dwCon
     , DWORD dwInternetStatus, LPVOID lpvStatusInformation, DWORD dwStatusInformationLength)
 {
     AsyncHttp * p = (AsyncHttp*)dwContext;
-#if defined(VERBOSE_LEVEL) && (VERBOSE_LEVEL > 2)
-    std::cout << (void*)p->Handle() << " [" << GetCurrentThreadId() << "] :" 
-        << dwInternetStatus << " " << GetStatusText(dwInternetStatus) << " State:" << p->_state << "\n";
-#endif
-    if(!p) return;
+
+    LOG(LS_VERBOSE) << "AsyncHttp:" << (void*)p 
+        << " status:" << dwInternetStatus
+        << " ";
+    ASSERT(p);
+    if(!p) 
+        return;
 
     if(INTERNET_STATUS_HANDLE_CREATED == dwInternetStatus )
     {
@@ -41,7 +51,7 @@ static void CALLBACK InternetStatusCallback(HINTERNET hInternet, DWORD_PTR dwCon
     }
     else if( INTERNET_STATUS_REDIRECT == dwInternetStatus )
     {
-        p->Redirect((LPCTSTR)lpvStatusInformation, dwStatusInformationLength);
+        p->Redirect((LPCWSTR)lpvStatusInformation, dwStatusInformationLength);
     }
     else if( INTERNET_STATUS_RESPONSE_RECEIVED == dwInternetStatus )
     {
@@ -56,7 +66,7 @@ static void CALLBACK InternetStatusCallback(HINTERNET hInternet, DWORD_PTR dwCon
     }
     else if(INTERNET_STATUS_NAME_RESOLVED == dwInternetStatus)
     {
-        p->NameResolved((LPCTSTR)lpvStatusInformation);
+        p->NameResolved((LPCWSTR)lpvStatusInformation);
     }
     //		else if(INTERNET_STATUS_HANDLE_CLOSING == dwInternetStatus)
     //		{
@@ -69,7 +79,7 @@ static AsyncInet * gai = 0;
 
 AsyncInet & AsyncInet::GetInstance()
 {
-    if (gai != 0)
+    if (gai == 0)
     {
         // TODO: Lock
         gai = new AsyncInet();
@@ -109,7 +119,7 @@ bool AsyncInet::Open(const std::wstring & agent, DWORD dwAccessType, LPCWSTR lps
     ASSERT(hInet_);
     if(hInet_ && dwFlag & INTERNET_FLAG_ASYNC)
     {
-        InternetSetStatusCallback(hInet_, InternetStatusCallback);
+        InternetSetStatusCallbackW(hInet_, InternetStatusCallback);
     }
     return hInet_ != NULL;
 }
@@ -125,7 +135,8 @@ void AsyncInet::Close()
 //////////////////////////////////////////////////////////////////////////
 //
 AsyncHttp::AsyncHttp()
-    : _hConn(0)
+    : hConn_(0), hRequest_(0)
+    , content_length_(0)
 {
 }
 
@@ -139,37 +150,118 @@ bool AsyncHttp::PrepareGet(const std::wstring & url, const std::wstring & referr
     if (!uc.Crack(url.c_str()))
         return false;
 
-    ASSERT(!_hConn);
+    ASSERT(!hConn_);
 
     AsyncInet & ai = AsyncInet::GetInstance();
 
-    _hConn = InternetConnectW(ai.get(), uc.lpszHostName, uc.nPort, 
+    hConn_ = InternetConnectW(ai.get(), uc.lpszHostName, uc.nPort, 
         uc.lpszUserName, uc.lpszPassword, uc.nScheme, // INTERNET_SERVICE_HTTP )
         INTERNET_FLAG_PASSIVE, (DWORD_PTR)this);
-    ASSERT(_hConn);
+    ASSERT(hConn_);
+    if (!hConn_)
+        return false;
 
     LPCWSTR szAcceptType[] = { L"*.*", 0 };
 
-    _hRequest = HttpOpenRequestW(_hConn, L"GET", uc.lpszUrlPath, 
+    hRequest_ = HttpOpenRequestW(hConn_, L"GET", uc.lpszUrlPath, 
         NULL, // Version
         referrer.empty() ? NULL : referrer.c_str(), // Referrer
         szAcceptType,
         INTERNET_FLAG_NO_UI,
         (DWORD_PTR)this);
-    ASSERT(_hRequest);
+    ASSERT(hRequest_);
 
-    return true;
+    content_length_ = 0;
+
+    return hRequest_ != NULL;
 }
 
 bool AsyncHttp::PreparePost(const std::string & url, const std::string & content_type
                             , std::istream* request_doc)
 {
+    // TODO:
     return true;
 }
 
 bool AsyncHttp::SendRequest()
 {
-    HttpSendRequest(_hRequest, NULL, 0, NULL, 0);
+    ASSERT(hRequest_);
+    BOOL f = HttpSendRequest(hRequest_, NULL, 0, NULL, 0);
+    ASSERT(f || ERROR_IO_PENDING == GetLastError() );
     return true;
 }
+
+void AsyncHttp::HandleCreated(HINTERNET hInet)
+{
+    LOG(LS_VERBOSE) << "HandleCreated: ";
+}
+
+bool AsyncHttp::NameResolved(LPCWSTR pszIpAddress)
+{
+    LOG(LS_VERBOSE) << "NameResolved: ";
+    // ip_ = inet_addr(pszIpAddress);
+    // ASSERT(ip_ != INADDR_NONE)
+    ip_ = pszIpAddress;
+    return true;
+}
+
+bool AsyncHttp::Redirect(LPCWSTR szUrl, DWORD dwUrlLength)
+{
+    LOG(LS_VERBOSE) << "Redirect: ";
+
+    redirect_url_.assign(szUrl, dwUrlLength);
+    return true;
+}
+
+bool AsyncHttp::ResponseReceived(DWORD dwBytes)
+{
+    LOG(LS_VERBOSE) << "ResponseReceived: " << dwBytes;
+    return true;
+}
+
+bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
+{
+#if 1
+    LOG(LS_VERBOSE) << "RequestComplete: " << dwResult 
+        << " Error: " << dwError 
+       ;
+#endif
+
+    // 在回调中再调用 WinInet 函数不太好
+
+    INTERNET_BUFFERSA ib = {0};
+    ib.dwStructSize = sizeof(INTERNET_BUFFERSA);
+
+    const int grow = 0x1000;
+
+    do {
+        buf_.resize(content_length_ + grow);
+        ib.lpvBuffer = &buf_[0] + content_length_;
+        ib.dwBufferLength = grow;
+        ib.dwBufferTotal = buf_.size();
+
+        BOOL bOk = InternetReadFileExA(hRequest_, &ib, IRF_NO_WAIT, (LPARAM)this);
+        if (bOk)
+        {
+            content_length_ += ib.dwBufferLength;
+
+            if (ib.dwBufferLength == 0)
+            {
+                // 补0安全
+                buf_.resize(content_length_ + 1);
+                buf_[content_length_] = 0;
+                RequestDone();
+            }
+        }
+        else
+        {
+            ASSERT(GetLastError() == ERROR_IO_PENDING);
+            break;
+        }
+    } while(ib.dwBufferLength);
+
+
+    return true;
+}
+
 
