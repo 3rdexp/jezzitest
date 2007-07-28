@@ -123,6 +123,12 @@
 			RelativePath=".\base.h">
 		</File>
 		<File
+			RelativePath=".\httpcomm.cpp">
+		</File>
+		<File
+			RelativePath=".\httpcomm.h">
+		</File>
+		<File
 			RelativePath=".\logging.cpp">
 		</File>
 		<File

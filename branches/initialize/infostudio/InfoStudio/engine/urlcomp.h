@@ -3,13 +3,13 @@
 #include <wininet.h>
 
 // 可能占用内存多了一些，不要保存之, sizeof = 4736
-class UrlComponet : public URL_COMPONENTSW
+class UrlComponet : public URL_COMPONENTS
 {
 public:
 	UrlComponet()
 	{
-		ZeroMemory(this, sizeof URL_COMPONENTSW);
-		dwStructSize = sizeof URL_COMPONENTSW;
+		ZeroMemory(this, sizeof URL_COMPONENTS);
+		dwStructSize = sizeof URL_COMPONENTS;
 
 		dwSchemeLength = INTERNET_MAX_SCHEME_LENGTH;
 		dwHostNameLength = INTERNET_MAX_HOST_NAME_LENGTH;
@@ -24,37 +24,37 @@ public:
 		lpszUrlPath = _szPath;
 		lpszExtraInfo = _szExtraInfo;
 	}
-	BOOL Crack(LPCWSTR lpszUrl, DWORD dwUrlLength = 0, DWORD dwFlags = ICU_ESCAPE)
+	BOOL Crack(LPCSTR lpszUrl, DWORD dwUrlLength = 0, DWORD dwFlags = ICU_ESCAPE)
 	{
-		lstrcpynW(_szUrl, lpszUrl, sizeof _szUrl);
-		BOOL f = InternetCrackUrlW(lpszUrl, dwUrlLength, dwFlags, this);
+		lstrcpyn(_szUrl, lpszUrl, sizeof _szUrl);
+		BOOL f = InternetCrackUrl(lpszUrl, dwUrlLength, dwFlags, this);
 		return f;
 	}
-	BOOL Create(INTERNET_SCHEME nScheme, LPCWSTR lpszHostName, INTERNET_PORT nPort, 
-		LPCWSTR lpszUserName, LPCWSTR lpszPassword,
-		LPCWSTR lpszUrlPath, LPCWSTR lpszExtraInfo)
+	BOOL Create(INTERNET_SCHEME nScheme, LPCSTR lpszHostName, INTERNET_PORT nPort, 
+		LPCSTR lpszUserName, LPCSTR lpszPassword,
+		LPCSTR lpszUrlPath, LPCSTR lpszExtraInfo)
 	{
 		// this->lpszHostName = (LPTSTR)lpszHostName;
 		return 0;
 	}
-	LPCWSTR GetFileName() const
+	LPCSTR GetFileName() const
 	{
-		int n = lstrlenW(_szPath);
+		int n = lstrlen(_szPath);
 		if (n > 0)
 		{
-			LPCWSTR p = _szPath + (n - 1);
-			while ( *p != L'\\' && *p != L'/' )
+			LPCSTR p = _szPath + (n - 1);
+			while ( *p != '\\' && *p != '/' )
 				p --;
 			return p + 1;
 		}
 		return 0; 
 	}
 private:
-	wchar_t _szUrl[INTERNET_MAX_URL_LENGTH];
-	wchar_t _szHostName[INTERNET_MAX_HOST_NAME_LENGTH];
-	wchar_t _szUserName[INTERNET_MAX_USER_NAME_LENGTH];
-	wchar_t _szPassword[INTERNET_MAX_PASSWORD_LENGTH];
-	wchar_t _szPath[INTERNET_MAX_PATH_LENGTH];
-	wchar_t _szScheme[INTERNET_MAX_SCHEME_LENGTH];
-	wchar_t _szExtraInfo[INTERNET_MAX_PATH_LENGTH];
+	char _szUrl[INTERNET_MAX_URL_LENGTH];
+	char _szHostName[INTERNET_MAX_HOST_NAME_LENGTH];
+	char _szUserName[INTERNET_MAX_USER_NAME_LENGTH];
+	char _szPassword[INTERNET_MAX_PASSWORD_LENGTH];
+	char _szPath[INTERNET_MAX_PATH_LENGTH];
+	char _szScheme[INTERNET_MAX_SCHEME_LENGTH];
+	char _szExtraInfo[INTERNET_MAX_PATH_LENGTH];
 };

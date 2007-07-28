@@ -65,40 +65,37 @@ int main(int argc, char* argv[])
 
     AsyncInet::Init();
 
-    LPCWSTR urls[] = 
+    LPCSTR urls[] = 
     {
-        L"http://musicdata.dudu.com/search.php?id=mf7w0fxzIVfTFFa9",
-            L"http://www.codeproject.com",
-            L"http://news.sohu.com",
-            L"http://news.163.com",
-            L"http://www.google.com/intl/zh-CN/about.html",
-            L"http://www.google.com", // redirect
-            L"http://www.google.com/images/google_80wht.gif",
-            L"http://pack.google.com",
-            L"http://163.com",
-            L"http://ken.com",
-            L"http://bug/bugzilla",
-            L"http://news.sina.com.cn",
-            L"http://download.kuho.com/kuho/kuho.exe",
-            L"http://labs.google.com/",
-            L"http://reader.google.com/",
-            L"http://sourceforge.net/projects/libtorrent/",
-            L"http://sf.net/",
-            L"http://www.boost.org/",
-            L"http://bizsolutions.google.com/services/",
+        "http://musicdata.dudu.com/search.php?id=mf7w0fxzIVfTFFa9",
+            "http://www.codeproject.com",
+            "http://news.sohu.com",
+            "http://news.163.com",
+            "http://www.google.com/intl/zh-CN/about.html",
+            "http://www.google.com", // redirect
+            "http://www.google.com/images/google_80wht.gif",
+            "http://pack.google.com",
+            "http://163.com",
+            "http://ken.com",
+            "http://bug/bugzilla",
+            "http://news.sina.com.cn",
+            "http://download.kuho.com/kuho/kuho.exe",
+            "http://labs.google.com/",
+            "http://reader.google.com/",
+            "http://sourceforge.net/projects/libtorrent/",
+            "http://sf.net/",
+            "http://www.boost.org/",
+            "http://bizsolutions.google.com/services/",
     };
-#ifndef ARRAYSIZE
-    #define ARRAYSIZE(a)		(sizeof(a)/sizeof((a)[0]))
-#endif
 
-    LOG(LS_INFO) << "first log";
+
+    // LOG(LS_INFO) << "first log";
 
     // LogMessage::LogToStream(&std::cerr, LS_INFO);
     LogMessage::LogThreads(true);
     LogMessage::LogTimestamps(true);
 
-    LOG(LS_INFO) << "second log";
-
+    LogMessage::LogToDebug(LS_VERBOSE);
 
 
 #if 0
@@ -116,12 +113,67 @@ int main(int argc, char* argv[])
 
     // http://www.google.com/intl/en_ALL/images/logo.gif
 
+    
+
+#elif 0
+    AsyncHttp cp;
+    std::stringstream ss;
+    ss << "f1=v1&hell=god";
+//    AsyncInet::GetInstance().SetCookie("http://localhost/", ""
+//        , "Test=test_value; expires=Sat, 01-Jan-2008 00:00:00 GMT; path=/;");
+    cp.PreparePost("http://localhost:8080/info.php", "application/x-www-form-urlencoded", &ss);
+    cp.setHeader(HH_COOKIE, "fuck=you");
+    cp.changeHeader(HH_COOKIE, "you=wrong");
+    cp.SendRequest();    
+
+
+#elif 1
+    struct StringPair
+    {
+        const char * key;
+        const char * value;
+    };
+
+    StringPair form[] = {
+        {"ftext", "Your Name"},
+        {"诡异", "中 文"},
+        {"fpassword", "eeee"},
+        {"fradio", "0"},
+        {"ftext2", "long value 中文"},
+        {"fcheckbox", "on"},
+        {"fselect", "1"},
+        {"fselect", "3"},
+        {"fsubmit", "OK"},
+    };
+
+    RequestMap request;
+    const int c = ARRAYSIZE(form);
+    for (int i=0; i<c; ++i)
+        request.addParam(form[i].key, form[i].value, false);
+
+    std::string rm_ansi = request.build();
+    std::string rm_utf8 = request.build(RequestMap::CHARSET_UTF8);
+
+#endif
+
+    // get
+    // utf8
+    // ftext=Your+Name&%E8%AF%A1%E5%BC%82=%E4%B8%AD+%E6%96%87&fpassword=eeee&fradio=0&ftext2=long+value+%E4%B8%AD%E6%96%87&fcheckbox=on&fselect=1&fselect=3&fsubmit=OK
+    // gb2312
+    // ftext=Your+Name&%B9%EE%D2%EC=%D6%D0+%CE%C4&fpassword=eeee&fradio=0&ftext2=long+value+%D6%D0%CE%C4&fcheckbox=on&fselect=1&fselect=3&fsubmit=OK
+
+    // post
+    // utf8
+    // ftext=Your+Name&%E8%AF%A1%E5%BC%82=%E4%B8%AD+%E6%96%87&fpassword=eeee&fradio=0&ftext2=long+value+%E4%B8%AD%E6%96%87&fcheckbox=on&fselect=1&fselect=3&fsubmit=OK
+    // gb2312
+    // ftext=Your+Name&%B9%EE%D2%EC=%D6%D0+%CE%C4&fpassword=eeee&fradio=0&ftext2=long+value+%D6%D0%CE%C4&fcheckbox=on&fselect=1&fselect=3&fsubmit=OK
+
+
+    
+
     char ch;
     std::cin >> ch;
-
     AsyncInet::Release();
-#endif
 
 	return 0;
 }
-
