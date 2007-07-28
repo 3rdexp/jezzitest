@@ -2,6 +2,9 @@
 #ifndef __BASE_H__
 #define __BASE_H__
 
+
+//////////////////////////////////////////////////////////////////////////
+//
 #ifdef ENGINE_NAMESPACE
 
 #define BEGIN_ENGINE_NAMESPACE  namespace ENGINE_NAMESPACE {
@@ -17,6 +20,23 @@
 #endif // ENGINE_NAMESPACE
 
 
+
+//////////////////////////////////////////////////////////////////////////
+//
+
+#ifndef ARRAYSIZE
+    #define ARRAYSIZE(a)		(sizeof(a)/sizeof((a)[0]))
+#endif
+
+// TODO:
+#ifndef ASSERT
+    #include <cassert>
+    #define ASSERT assert
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////
+//
 // TODO(Ken): split to time.h
 
 BEGIN_ENGINE_NAMESPACE
