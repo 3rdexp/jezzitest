@@ -44,6 +44,9 @@ BEGIN_ENGINE_NAMESPACE
 typedef int int32;
 typedef unsigned int uint32;
 
+typedef __int64 int64;
+typedef unsigned __int64 uint64;
+
 uint32 Time();
 uint32 StartTime();
 int32 TimeDiff(uint32 later, uint32 earlier);

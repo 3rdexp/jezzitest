@@ -19,10 +19,11 @@ void InitLog()
 
 static int finished = 0;
 
-class MyTask : public Task
+// 同步
+class SyncTask : public Task
 {
 public:
-	MyTask(Task * parent) : Task(parent) {}
+	SyncTask(Task * parent) : Task(parent) {}
 	virtual int ProcessStart()
 	{
 		// 启动一个 http 请求
@@ -32,63 +33,111 @@ public:
 	}
 	virtual int ProcessResponse()
 	{
-        finished ++;
         std::clog << (void *) this << " ProcessResponse " << this->get_unique_id() << "\n";
-		// const char * body = ResponseBody();
 		return STATE_DONE;
 	}
+
+    virtual void Stop()
+    {
+        finished ++;
+    }
+};
+
+bool run = false;
+class SyncRunner : public TaskRunner
+{
+public:
+    virtual void WakeTasks()
+    {
+        if (run)
+            RunTasks();
+    }
+
+    virtual int64 CurrentTime()
+    {
+        return Time();
+    }
+};
+
+class SimplyGetTask : public AsyncTask
+{
+public:
+    SimplyGetTask(Task * parent, const std::string & url, const std::string & saveto)
+        : AsyncTask(parent), url_(url), outf_(saveto.c_str(), std::ios::binary)
+    {
+    }
+
+    int ProcessStart()
+    {
+        PrepareGet(url_);
+        SendRequest();
+        return STATE_BLOCKED;
+    }
+
+    void Stop()
+    {
+        LOG(INFO) << url_;
+        if (!buf_.empty())
+            std::copy(buf_.begin(), buf_.end(), std::ostream_iterator<char>(outf_));
+        outf_.close();
+    }
+
+    std::string url_;
+    std::ofstream outf_;
 };
 
 int main(int argc, char* argv[])
 {
 #if 0
-	MyTask root(0);
-    int all = 1;
+	SyncRunner root;
+    int all = 0;
     int c = rand() % 200;
     for (int i=0; i<c; ++i)
     {
-        MyTask * p = new MyTask(&root);
+        SyncTask * p = new SyncTask(&root);
         all ++;
         int r = rand() % 100;
         for (int j=0; j<r; ++j)
         {
-            MyTask * p2 = new MyTask(p);
+            SyncTask * p2 = new SyncTask(p);
             all ++;
+            root.StartTask(p2);
         }
+
+        root.StartTask(p);
     }
 
-	root.Start();
     std::cout << "all: " << all << std::endl;
     std::cout << "finished: " << finished << std::endl;
+
+    run = true;
+    root.RunTasks();
 #endif
-
-
 
     AsyncInet::Init();
 
     LPCSTR urls[] = 
     {
         "http://musicdata.dudu.com/search.php?id=mf7w0fxzIVfTFFa9",
-            "http://www.codeproject.com",
-            "http://news.sohu.com",
-            "http://news.163.com",
-            "http://www.google.com/intl/zh-CN/about.html",
-            "http://www.google.com", // redirect
-            "http://www.google.com/images/google_80wht.gif",
-            "http://pack.google.com",
-            "http://163.com",
-            "http://ken.com",
-            "http://bug/bugzilla",
-            "http://news.sina.com.cn",
-            "http://download.kuho.com/kuho/kuho.exe",
-            "http://labs.google.com/",
-            "http://reader.google.com/",
-            "http://sourceforge.net/projects/libtorrent/",
-            "http://sf.net/",
-            "http://www.boost.org/",
-            "http://bizsolutions.google.com/services/",
+        "http://www.codeproject.com",
+        "http://news.sohu.com",
+        "http://news.163.com",
+        "http://www.google.com/intl/zh-CN/about.html",
+        "http://www.google.com", // redirect
+        // "http://www.google.com/images/google_80wht.gif",
+        "http://pack.google.com",
+        "http://163.com",
+        "http://ken.com",
+        "http://bug/bugzilla",
+        "http://news.sina.com.cn",
+        "http://download.kuho.com/kuho/kuho.exe",
+        "http://labs.google.com/",
+        "http://reader.google.com/",
+        "http://sourceforge.net/projects/libtorrent/",
+        "http://sf.net/",
+        "http://www.boost.org/",
+        "http://bizsolutions.google.com/services/",
     };
-
 
     // LOG(LS_INFO) << "first log";
 
@@ -161,9 +210,25 @@ int main(int argc, char* argv[])
     cp.SendRequest();
 
 #elif 1
+    SyncRunner sr;
+    
+    for (int i=0; i<ARRAYSIZE(urls); ++i)
+    {
+        std::string fn = urls[i];
+        std::string::size_type p = std::string::npos;
+        do {
+            p = fn.find_first_of(":/?=&");
+            if (p != std::string::npos)
+                fn.replace(p, 1, "_");
+        } while(p != std::string::npos);
 
-    AsyncTask root(0);
-    root.Start();
+        fn.insert(0, "outdata\\");
+        
+        SimplyGetTask * pt = new SimplyGetTask(&sr, urls[i], fn);
+        sr.StartTask(pt);
+    }
+    run = true;
+    sr.RunTasks();
 #endif
 
     // get
