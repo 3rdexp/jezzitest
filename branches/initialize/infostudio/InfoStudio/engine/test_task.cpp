@@ -7,6 +7,7 @@
 #include "logging.h"
 #include "task.h"
 #include "asynchttp.h"
+#include "asynctask.h"
 
 
 void InitLog()
@@ -127,7 +128,7 @@ int main(int argc, char* argv[])
     cp.SendRequest();    
 
 
-#elif 1
+#elif 0
     struct StringPair
     {
         const char * key;
@@ -154,6 +155,15 @@ int main(int argc, char* argv[])
     std::string rm_ansi = request.build();
     std::string rm_utf8 = request.build(RequestMap::CHARSET_UTF8);
 
+    std::stringstream ss(rm_utf8);
+    AsyncHttp cp;
+    cp.PreparePost("http://localhost:8080/info.php", "application/x-www-form-urlencoded", &ss);
+    cp.SendRequest();
+
+#elif 1
+
+    AsyncTask root(0);
+    root.Start();
 #endif
 
     // get

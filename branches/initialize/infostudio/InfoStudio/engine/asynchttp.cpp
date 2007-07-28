@@ -6,16 +6,9 @@
 #include "logging.h"
 #include "asynchttp.h"
 
-#ifndef ASSERT
-    #define ASSERT(x)
-#endif
-
-#ifdef _DEBUG
-    #include <iostream>
-    #define LOGTHREAD " [" << GetCurrentThreadId() << "]"
-#endif
-
 #pragma comment(lib, "wininet.lib")
+
+BEGIN_ENGINE_NAMESPACE
 
 class AutoInternetHandle 
 {
@@ -429,3 +422,5 @@ AsyncHttp::setContent(const std::string& content_type, std::istream * document)
         setHeader(HH_TRANSFER_ENCODING, "chunked");
     }
 }
+
+END_ENGINE_NAMESPACE

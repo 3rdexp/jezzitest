@@ -2,16 +2,16 @@
 #include <ctime>
 #include <algorithm>
 
+#include "base.h"
 #include "task.h"
 
-#define ASSERT
-
 namespace {
-__int64 CurrentTime()
-{
+__int64 CurrentTime() {
 	return static_cast<__int64>(time(0));
 }
 }
+
+BEGIN_ENGINE_NAMESPACE
 
 int Task::unique_id_seed_ = 0;
 
@@ -59,8 +59,8 @@ __int64 Task::ElapsedTime() {
 }
 
 void Task::Start() {
-	if (state_ != STATE_INIT)
-		return;
+//	if (state_ != STATE_INIT)
+//		return;
 
     // 如果有parent，应该从parent执行起
 	if (parent_) {
@@ -104,6 +104,8 @@ void Task::Start() {
         }
     }
 
+    RecLock();
+
     // Tasks are deleted when running has paused
     bool need_timeout_recalc = false;
     for (size_t i = 0; i < children_->size(); ++i) {
@@ -127,6 +129,7 @@ void Task::Start() {
         reinterpret_cast<Task *>(NULL));
 
     children_->erase(it, children_->end());
+    Unlock();
 
     // 最后执行自己
     if (!parent_)
@@ -142,7 +145,7 @@ void Task::Step() {
         // we do not know how !blocked_ happens when done_ - should be impossible.
         // But it causes problems, so in retail build, we force blocked_, and
         // under debug we assert.
-        assert(blocked_);
+        ASSERT(blocked_);
 #else
         blocked_ = true;
 #endif
@@ -167,11 +170,12 @@ void Task::Step() {
         return;
     }
 
+    state_ = new_state;
+
     if (new_state == STATE_BLOCKED) {
         blocked_ = true;
         // Let the timeout continue
     } else {
-        state_ = new_state;
         blocked_ = false;
         // ResetTimeout();
     }
@@ -188,6 +192,16 @@ void Task::Step() {
         //    SignalDone();
         Stop();
         blocked_ = true;
+    }
+}
+
+
+void Task::Wake() {
+    if (done_)
+        return;
+    if (blocked_) {
+        blocked_ = false;
+        Start();
     }
 }
 
@@ -225,6 +239,7 @@ void Task::AddChild(Task *child) {
 }
 
 bool Task::AllChildrenDone() {
+    RecAutoLock lock(this);
 	for (ChildSet::iterator it = children_->begin();
 		it != children_->end();
 		++it) {
@@ -239,6 +254,7 @@ bool Task::AnyChildError() {
 }
 
 void Task::AbortAllChildren() {
+    RecAutoLock lock(this);
 	if (children_->size() > 0) {
 		ChildSet copy = *children_;
 		for (ChildSet::iterator it = copy.begin(); it != copy.end(); ++it) {
@@ -250,11 +266,6 @@ void Task::AbortAllChildren() {
 void Task::OnChildStopped(Task *child) {
 	if (child->HasError())
 		child_error_ = true;
-
-//    ChildSet::iterator i = std::remove(children_->begin(),
-//        children_->end(),child);
-
-//    children_->erase(i, children_->end());
 }
 
 void Task::Stop() {
@@ -283,4 +294,4 @@ std::string Task::GetStateName(int state) const {
 	return STR_HUH;
 }
 
-// #include <wininet.h>
+END_ENGINE_NAMESPACE

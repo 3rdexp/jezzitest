@@ -2,10 +2,11 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
-// #include <boost/cstdint.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <string>
 #include <vector>
+
+BEGIN_ENGINE_NAMESPACE
 
 // 支持任务级联的基类
 class Task
@@ -33,6 +34,8 @@ public:
 	bool AllChildrenDone();
 	bool AnyChildError();
 
+    void Wake();
+
 protected:
 
 	enum {
@@ -51,11 +54,25 @@ protected:
 	virtual int ProcessStart() = 0;
 	virtual int ProcessResponse() { return STATE_DONE; }
 
+    // 必须是可重入的锁
+    virtual void RecLock() {}
+    virtual void Unlock() {}
+
 	void AddChild(Task *child);
 	void AbortAllChildren();
 
 private:
 	void OnChildStopped(Task *child);
+
+    struct RecAutoLock {
+        RecAutoLock(Task* task) : task_(task) {
+            task_->RecLock();
+        }
+        ~RecAutoLock() {
+            task_->Unlock();
+        }
+        Task * task_;
+    };
 
 private:
 	int state_;
@@ -75,5 +92,6 @@ private:
 	boost::scoped_ptr<ChildSet> children_;
 };
 
+END_ENGINE_NAMESPACE
 
 #endif // __TASK_H__
