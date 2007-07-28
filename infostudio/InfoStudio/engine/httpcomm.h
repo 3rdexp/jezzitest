@@ -2,7 +2,10 @@
 
 #include <string>
 #include <map>
-typedef unsigned int uint32; 
+#include "base.h"
+
+BEGIN_ENGINE_NAMESPACE
+
 //////////////////////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////////////////////
@@ -133,5 +136,5 @@ public:
     std::string build(CHARSET ch = CHARSET_ANSI) const;
 };
 
-
+END_ENGINE_NAMESPACE
 

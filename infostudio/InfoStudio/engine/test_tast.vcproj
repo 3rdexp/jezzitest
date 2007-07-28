@@ -117,6 +117,12 @@
 			RelativePath=".\asynchttp.h">
 		</File>
 		<File
+			RelativePath=".\asynctask.cpp">
+		</File>
+		<File
+			RelativePath=".\asynctask.h">
+		</File>
+		<File
 			RelativePath=".\base.cpp">
 		</File>
 		<File

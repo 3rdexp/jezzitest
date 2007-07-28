@@ -2,6 +2,7 @@
 #include <sstream>
 #include "httpcomm.h"
 
+BEGIN_ENGINE_NAMESPACE
 
 //////////////////////////////////////////////////////////////////////
 // Enum - TODO: expose globally later?
@@ -228,3 +229,5 @@ std::string RequestMap::build(CHARSET charset) const
 
     return ret;
 }
+
+END_ENGINE_NAMESPACE

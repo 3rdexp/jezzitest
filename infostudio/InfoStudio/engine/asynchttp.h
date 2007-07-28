@@ -10,11 +10,9 @@
 
 #include "criticalsection.h"
 #include "httpcomm.h"
+#include "base.h"
 
-#ifndef ASSERT
-    #include <cassert>
-    #define ASSERT assert
-#endif
+BEGIN_ENGINE_NAMESPACE
 
 class AsyncInet;
 
@@ -140,5 +138,6 @@ private:
     CriticalSection csConn_;
 };
 
+END_ENGINE_NAMESPACE
 
 #endif // __ASYNCHTTP_H__
