@@ -130,6 +130,7 @@ public:
         , bool overwrite = false);
     void clear(const std::string& name);
     bool hasParam(const std::string& name, std::string* value) const;
+    bool parse(const std::string & s);
 
     enum CHARSET { CHARSET_UTF8, CHARSET_ANSI };
 

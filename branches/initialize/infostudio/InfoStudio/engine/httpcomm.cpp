@@ -1,5 +1,7 @@
 
 #include <sstream>
+#include <vector>
+
 #include "httpcomm.h"
 
 BEGIN_ENGINE_NAMESPACE
@@ -188,7 +190,10 @@ void RequestMap::addParam(const std::string& name, const std::string& value
 
 void RequestMap::clear(const std::string& name)
 {
-    erase(name);
+    if (name.empty())
+        std::multimap<std::string, std::string, iless>::clear();
+    else
+        erase(name);
 }
 
 bool RequestMap::hasParam(const std::string& name, std::string* value) const
@@ -228,6 +233,34 @@ std::string RequestMap::build(CHARSET charset) const
         ret.resize(ret.size() - 1);
 
     return ret;
+}
+
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
+#include "unescape.h"
+
+bool RequestMap::parse(const std::string & s)
+{
+    using namespace std;
+
+    UrlQueryUnEscape une;
+
+    vector<string> vec;
+    boost::split(vec, s, boost::is_any_of("&"));
+    if (!vec.empty())
+    {
+        for (vector<string>::const_iterator i = vec.begin(); i != vec.end(); ++i)
+        {
+            vector<string> v2;
+            boost::split(v2, *i, boost::is_any_of("="));
+            if (v2.size() == 2)
+            {
+                addParam(une(v2[0]), une(v2[1]));
+            }
+        }
+    }
+    return true;
 }
 
 END_ENGINE_NAMESPACE
