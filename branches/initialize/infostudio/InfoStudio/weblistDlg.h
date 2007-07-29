@@ -129,14 +129,14 @@ public:
 	void InsertWebInfo( CWebInfo* pWebInfo )
 	{
 		CString strField;
-		strField.Format( "%d", pWebInfo->_id );
+		strField.Format( _T("%d"), pWebInfo->_id );
 
 		LVITEM lvitem;			
 		lvitem.mask = LVIF_TEXT | LVIF_IMAGE;
 		lvitem.iItem = _listView.GetItemCount();
 		lvitem.iSubItem = 0;				
 		lvitem.iImage = 0;	
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		int iPos = _listView.InsertItem(&lvitem);
 
 		_listView.SetItemData(iPos, (DWORD_PTR) pWebInfo );
@@ -145,49 +145,49 @@ public:
 		lvitem.mask = LVIF_TEXT;
 		lvitem.iItem = iPos;		
 		lvitem.iSubItem = 1;
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		_listView.SetItem(&lvitem);
 
 		strField = pWebInfo->_strWebUrl;
 		lvitem.mask = LVIF_TEXT;
 		lvitem.iItem = iPos;		
 		lvitem.iSubItem = 2;
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		_listView.SetItem(&lvitem);
 
 		strField = pWebInfo->_strType;
 		lvitem.mask = LVIF_TEXT;
 		lvitem.iItem = iPos;		
 		lvitem.iSubItem = 3;
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		_listView.SetItem(&lvitem);
 
-		strField.Format( "%d", pWebInfo->_grade ) ;
+		strField.Format( _T("%d"), pWebInfo->_grade ) ;
 		lvitem.mask = LVIF_TEXT;
 		lvitem.iItem = iPos;		
 		lvitem.iSubItem = 4;
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		_listView.SetItem(&lvitem);
 
 		strField = pWebInfo->_strUser;
 		lvitem.mask = LVIF_TEXT;
 		lvitem.iItem = iPos;		
 		lvitem.iSubItem = 5;
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		_listView.SetItem(&lvitem);
 
 		strField = pWebInfo->_strRegisterTime;
 		lvitem.mask = LVIF_TEXT;
 		lvitem.iItem = iPos;		
 		lvitem.iSubItem = 6;
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		_listView.SetItem(&lvitem);
 
 		strField = pWebInfo->_strState;
 		lvitem.mask = LVIF_TEXT;
 		lvitem.iItem = iPos;		
 		lvitem.iSubItem = 7;
-		lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+		lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 		_listView.SetItem(&lvitem);
 	}
 

@@ -14,7 +14,7 @@
 CHttpDown::CHttpDown()
 {
 	_pInfoManage	= NULL;
-	_buff			= "";
+	// _buff			= "";
 }
 
 CHttpDown::~CHttpDown()
@@ -116,7 +116,7 @@ void CHttpDown::StartDown()
 		{
 			//bIsText = (0 == ::_tcsncicmp (szHeader, _T ("text/"), 5)) ;
 			CString strHeader = szHeader;
-			if (strHeader.Find("utf-8") > 0)
+			if (strHeader.Find(_T("utf-8")) > 0)
 				bUtf = TRUE;
 		}
 		DWORD		dwContSize ;
@@ -199,8 +199,8 @@ void CHttpDown::StartDown()
 
 	if ( bUtf )
 	{
-		//EncodeUTF8ToGB2312();
-		_buff = Convert(_buff, CP_UTF8, 936);
+        ATLASSERT(FALSE);
+		// _buff = Convert(_buff, CP_UTF8, 936);
 	}
 
 	return;

@@ -157,7 +157,7 @@ public:
 	
 // 字段存取 --------------------------------------------
 public:
-	BOOL PutCollect(long index, const _variant_t &value);
+	BOOL PutCollectV(long index, const _variant_t &value);
 	BOOL PutCollect(long index, const CString &value);	
 	BOOL PutCollect(long index, const double &value);
 	BOOL PutCollect(long index, const float  &value);
@@ -170,7 +170,7 @@ public:
 	BOOL PutCollect(long index, const SYSTEMTIME &value);
 	//BOOL PutCollect(long index, const COleCurrency &value);
 
-	BOOL PutCollect(LPCTSTR strFieldName, const _variant_t &value);
+	BOOL PutCollectV(LPCTSTR strFieldName, const _variant_t &value);
 	BOOL PutCollect(LPCTSTR strFieldName, const CString &value);
 	BOOL PutCollect(LPCTSTR strFieldName, const double &value);
 	BOOL PutCollect(LPCTSTR strFieldName, const float  &value);
@@ -197,30 +197,30 @@ public:
 	BOOL GetCollect(long index, SYSTEMTIME &value);
 	//BOOL GetCollect(long index, COleCurrency &value);
 
-	BOOL GetCollect(LPCSTR strFieldName, CString &strValue);
-	BOOL GetCollect(LPCSTR strFieldName, double &value);
-	BOOL GetCollect(LPCSTR strFieldName, float  &value);
-	BOOL GetCollect(LPCSTR strFieldName, long   &value);
-	BOOL GetCollect(LPCSTR strFieldName, DWORD  &value);
-	BOOL GetCollect(LPCSTR strFieldName, int    &value);
-	BOOL GetCollect(LPCSTR strFieldName, short  &value);
-	BOOL GetCollect(LPCSTR strFieldName, BYTE   &value);
-	BOOL GetCollect(LPCSTR strFieldName, bool   &value);
-	BOOL GetCollect(LPCSTR strFieldName, SYSTEMTIME &value);
-	//BOOL GetCollect(LPCSTR strFieldName, COleCurrency &value);
+	BOOL GetCollect(LPCTSTR strFieldName, CString &strValue);
+	BOOL GetCollect(LPCTSTR strFieldName, double &value);
+	BOOL GetCollect(LPCTSTR strFieldName, float  &value);
+	BOOL GetCollect(LPCTSTR strFieldName, long   &value);
+	BOOL GetCollect(LPCTSTR strFieldName, DWORD  &value);
+	BOOL GetCollect(LPCTSTR strFieldName, int    &value);
+	BOOL GetCollect(LPCTSTR strFieldName, short  &value);
+	BOOL GetCollect(LPCTSTR strFieldName, BYTE   &value);
+	BOOL GetCollect(LPCTSTR strFieldName, bool   &value);
+	BOOL GetCollect(LPCTSTR strFieldName, SYSTEMTIME &value);
+	//BOOL GetCollect(LPCTSTR strFieldName, COleCurrency &value);
 
 	// BLOB 数据存取 ------------------------------------------
 	BOOL AppendChunk(FieldPtr pField, LPVOID lpData, UINT nBytes);
 	BOOL AppendChunk(long index, LPVOID lpData, UINT nBytes);
-	BOOL AppendChunk(LPCSTR strFieldName, LPVOID lpData, UINT nBytes);
+	BOOL AppendChunk(LPCTSTR strFieldName, LPVOID lpData, UINT nBytes);
 	BOOL AppendChunk(long index, LPCTSTR lpszFileName);
-	BOOL AppendChunk(LPCSTR strFieldName, LPCTSTR lpszFileName);
+	BOOL AppendChunk(LPCTSTR strFieldName, LPCTSTR lpszFileName);
 
 	BOOL GetChunk(FieldPtr pField, LPVOID lpData);
 	BOOL GetChunk(long index, LPVOID lpData);
-	BOOL GetChunk(LPCSTR strFieldName, LPVOID lpData);
+	BOOL GetChunk(LPCTSTR strFieldName, LPVOID lpData);
 	BOOL GetChunk(long index, CBitmap &bitmap);
-	BOOL GetChunk(LPCSTR strFieldName, CBitmap &bitmap);
+	BOOL GetChunk(LPCTSTR strFieldName, CBitmap &bitmap);
 
 // 其他方法 --------------------------------------------
 public:

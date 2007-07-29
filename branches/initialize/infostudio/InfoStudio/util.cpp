@@ -11,7 +11,7 @@ CString GetExePath()
 	::GetModuleFileName(NULL, szBuffer, sizeof(szBuffer) / sizeof(TCHAR));
 
 	CString strPath(szBuffer);
-	int nFind = strPath.ReverseFind('\\');
+	int nFind = strPath.ReverseFind(_T('\\'));
 	if(nFind < 0)
 	{
 		return "";
@@ -20,6 +20,7 @@ CString GetExePath()
 	return strPath.Left(nFind + 1);
 }
 
+#ifndef _UNICODE
 CString Convert(CString str, int sourceCodepage, int targetCodepage)
 {
 	int len=str.GetLength();
@@ -62,8 +63,8 @@ CString Convert(CString str, int sourceCodepage, int targetCodepage)
 	//rt.Format("%s",pTargetData);
 	rt = strTemp.c_str();
 
-	delete pUnicode;
-	delete pTargetData;
+	delete [] pUnicode;
+	delete [] pTargetData;
 	
 	/*
 	static BOOL bStat = FALSE;
@@ -90,6 +91,7 @@ CString Convert(CString str, int sourceCodepage, int targetCodepage)
 	return rt;
 
 }
+#endif // ifndef _UNICODE
 
 
 CString HexToBin(CString string)//将16进制数转换成2进制
@@ -154,6 +156,7 @@ int BinToInt(CString string)//2进制字符数据转换成10进制整型
 }  
 
 
+#if 0 // 错误的实现
 // UTF-8转换成GB2312先把UTF-8转换成Unicode.然后再把Unicode通过函数WideCharToMultiByte转换成GB2312 
 WCHAR* UTF_8ToUnicode(char *ustart)  //把UTF-8转换成Unicode
 {
@@ -192,7 +195,6 @@ WCHAR* UTF_8ToUnicode(char *ustart)  //把UTF-8转换成Unicode
 	return unicode;
 }
 
-
 char * UnicodeToGB2312(unsigned short uData)  //把Unicode 转换成 GB2312
 {
 	char *buffer ;
@@ -227,7 +229,7 @@ char * TranslateUTF_8ToGB(char *xmlStream, int len)   //len 是xmlStream的长度
 	newCharBuffer[nCBIndex] = 0; //结束符 
 	return newCharBuffer;    
 } 
-
+#endif // if 0 
 
 
 
@@ -280,9 +282,9 @@ BOOL OpenUrl(LPCTSTR szUrl)
 	hr = m_pWebBrowser2->Navigate ( url, &v, &v, &v, &v );
 	if (FAILED(hr))
 	{
-		std::string cmd = "IEXPLORE.EXE \"";
+		CString cmd = _T("IEXPLORE.EXE \"");
 		cmd  += szUrl;
-		cmd  += "\"";
+		cmd  += _T("\"");
 		//createProcess(cmd.c_str());		
 		ShellExecute(NULL, _T("open"), szUrl, NULL, NULL, 2);
 		return TRUE;
@@ -314,8 +316,8 @@ void minimizeMemory()
 
 CString getTempFilePath()
 {
-	char szTmpPath[1024]		= "";
-	char szTempName[MAX_PATH];
+	TCHAR szTmpPath[1024];
+	TCHAR szTempName[MAX_PATH];
 
 	// get temp path
 	GetTempPath(1024,   // length of the buffer
@@ -323,7 +325,7 @@ CString getTempFilePath()
 
 	// Create a temporary file. 
 	GetTempFileName(szTmpPath, // directory for temp files 
-		"NEW",                    // temp file name prefix 
+		_T("NEW"),                    // temp file name prefix 
 		0,                        // create unique name 
 		szTempName);              // buffer for name 
 	
@@ -366,11 +368,11 @@ std::string	GetFileMd5Info(std::string sFile)
 	return sRet	;
 }
 
-int    str_split(std::vector<std::string>& dest, const TCHAR* str, const TCHAR* delimiter, bool includeEmpty)
+int    str_split(std::vector<std::string>& dest, const char* str, const char* delimiter, bool includeEmpty)
 {
-	const TCHAR *prev = str;
-	const TCHAR *cur = str;
-	const TCHAR *tmp;
+	const char *prev = str;
+	const char *cur = str;
+	const char *tmp;
 	bool    found;
 	std::string  txt;
 
@@ -394,7 +396,7 @@ int    str_split(std::vector<std::string>& dest, const TCHAR* str, const TCHAR* 
 			} else if(prev == cur) {
 				prev = cur + 1;
 				if(includeEmpty)
-					dest.push_back(_T(""));
+					dest.push_back("");
 			}
 		}
 	}
@@ -402,7 +404,7 @@ int    str_split(std::vector<std::string>& dest, const TCHAR* str, const TCHAR* 
 		txt.assign(prev, cur - prev);
 		dest.push_back(txt);
 	} else if(prev == cur && includeEmpty) {
-		dest.push_back(_T(""));
+		dest.push_back("");
 	}
 	return dest.size();
 }
@@ -569,10 +571,11 @@ bool createProcess(LPCTSTR cmd, BOOL bShow, BOOL bUtilEnd)
 	return false;
 }
 
+#if 0
 //判断是否可以创建文件
-bool CanCreateFile(const std::string &sFile)
+bool CanCreateFile(const std::string & sFile)
 {
-	if(sFile.empty())
+	if(sFile->empty())
 		return FALSE;
 
 	if(isDirectoryExist(sFile.c_str()))
@@ -585,8 +588,9 @@ bool CanCreateFile(const std::string &sFile)
 	else
 		return FALSE;
 }
+#endif
 
-
+#if 0 // Not used
 //得到一个唯一的不存在文件名称
 //得到唯一的文件名称--组合规则xxxxx(n).xxx
 std::string	GetUniqueFileName(const std::string &sFile)
@@ -682,8 +686,9 @@ std::string	GetUniqueFileName(const std::string &sFile)
 		nCount++;
 	}
 }
+#endif // if 0
 
-bool GetFileVer(const TCHAR * filename, std::string &ver)
+bool GetFileVer(const TCHAR * filename, CString &ver)
 {
 	CFileVersionInfo fvi;
 	if( fvi.Open(filename) )
@@ -706,8 +711,11 @@ bool GetFileVer(const TCHAR * filename, std::string &ver)
 bool GetClientVer (std::string & ver)
 {
 	TCHAR szFileName[1024];
-	GetModuleFileName(NULL, szFileName, 1024);	
-	return GetFileVer(szFileName, ver);
+	GetModuleFileName(NULL, szFileName, 1024);
+    CString s;
+    bool f = GetFileVer(szFileName, s);
+    ver = CT2A(s);
+	return f;
 }
 
 BOOL ShellOpenFile(LPCTSTR Filename)
@@ -744,7 +752,7 @@ CString getEmailAddress(CString strMail)
 		return "";
 
 	// 1 取得@
-	int nPos = strMail.Find("@");
+	int nPos = strMail.Find(_T("@"));
 	if ( nPos <= 0 )
 		return "";
 
@@ -793,35 +801,35 @@ CString getEmailAddress(CString strMail)
 //把URL转换成绝对地址
 CString OnConversionURL(CString sURL,CString str_fafURL)
 {
-	if ( str_fafURL.Find("http://") >= 0 )
+	if ( str_fafURL.Find(_T("http://")) >= 0 )
 		return str_fafURL;
 
-	if(sURL.Find("/",8)<0)
+	if(sURL.Find(_T("/"),8)<0)
 	{
-		sURL +="/";
+		sURL +=_T("/");
 	}
 	CString str_activeURL;
 	int int_j = 0;
 	int i=0;
 	str_activeURL = str_fafURL;
-	if(str_fafURL.Find("../",0)!=-1&&str_fafURL[0]!='/')
+	if(str_fafURL.Find(_T("../"),0)!=-1&&str_fafURL[0]!=_T('/'))
 	{
 		while( i<=str_fafURL.GetLength() )
 		{
-			if( str_fafURL[i] == '.' && str_fafURL[i+1] == '.' && str_fafURL[i+2] == '/' )
+			if( str_fafURL[i] == '.' && str_fafURL[i+1] == '.' && str_fafURL[i+2] == _T('/') )
 			{ int_j++;}
 			i++;
 		}
-		if(str_fafURL[0]=='/')
+		if(str_fafURL[0]==_T('/'))
 		{
 			str_fafURL.Delete(0,1);
 		}
-		str_fafURL.Replace("../","");
+		str_fafURL.Replace(_T("../"),_T(""));
 		i=0;
 		int int_i=0;
 		while( i <= sURL.GetLength() )
 		{
-			if( sURL[i]=='/' )
+			if( sURL[i]==_T('/') )
 			{ 
 				int_i++;
 			}
@@ -837,7 +845,7 @@ CString OnConversionURL(CString sURL,CString str_fafURL)
 		int int_cour=0;
 		for( i=0; i<=sURL.GetLength(); i++)
 		{
-			if( sURL[i]=='/' )
+			if( sURL[i]==_T('/') )
 			{ 
 				int_cour++;
 			}
@@ -848,21 +856,21 @@ CString OnConversionURL(CString sURL,CString str_fafURL)
 			}
 		}
 		//容错处理
-		if( sURL[sURL.GetLength()-1]!='/' )
+		if( sURL[sURL.GetLength()-1]!=_T('/') )
 		{	
-			sURL +="/";
+			sURL +=_T("/");
 		}
 		sURL += str_fafURL;
 		return sURL;
 	}
 	else
 	{
-		if( str_fafURL[0] =='/' )
+		if( str_fafURL[0] ==_T('/') )
 		{
 			int int_b = 0 ;
 			for( int a=0; int_b<3 && a<sURL.GetLength(); a++)
 			{
-				if( sURL[a]=='/' )
+				if( sURL[a]==_T('/') )
 			 {
 				 int_b++;
 			 }
@@ -878,7 +886,7 @@ CString OnConversionURL(CString sURL,CString str_fafURL)
 		{
 			for( int i = sURL.GetLength() ; i >  0 ; i -- )
 			{
-				if( sURL[i - 1] =='/' )
+				if( sURL[i - 1] ==_T('/') )
 				{
 					sURL = sURL.Left( i );
 					break;

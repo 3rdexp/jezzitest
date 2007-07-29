@@ -90,7 +90,7 @@ bool CheckSetupVersion()
 BOOL updateClient(LPCSTR updateurl)
 {
 	TCHAR cmd[MAX_PATH];
-	WTL::CString strExe = GetExePath();	
+	CString strExe = GetExePath();	
 	sprintf(cmd, "\"%s\\bgupdate.exe\" /m0%s",strExe.GetBuffer(strExe.GetLength()), updateurl);			
 	return createProcess(cmd, FALSE,FALSE);
 

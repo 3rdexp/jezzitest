@@ -28,7 +28,8 @@ CAdoRecordSet::CAdoRecordSet()
 	#ifdef _DEBUG
 	if (m_pRecordset == NULL)
 	{
-		MessageBox(NULL, "RecordSet 对象创建失败! 请确认是否初始化了COM环境.", "" ,MB_OK);
+        ATLASSERT(false);
+		// MessageBox(NULL, "RecordSet 对象创建失败! 请确认是否初始化了COM环境.", "" ,MB_OK);
 	}
 	#endif
 	ASSERT(m_pRecordset != NULL);
@@ -43,7 +44,8 @@ CAdoRecordSet::CAdoRecordSet(CAdoConnection *pConnection)
 	#ifdef _DEBUG
 	if (m_pRecordset == NULL)
 	{
-		MessageBox(NULL, "RecordSet 对象创建失败! 请确认是否初始化了COM环境.", "", MB_OK);
+        ATLASSERT(false);
+		// MessageBox(NULL, "RecordSet 对象创建失败! 请确认是否初始化了COM环境.", "", MB_OK);
 	}
 	#endif
 	ASSERT(m_pRecordset != NULL);
@@ -101,7 +103,7 @@ BOOL CAdoRecordSet::Open(LPCTSTR strSQL, long lOption, CursorTypeEnum CursorType
 	ASSERT(m_pRecordset != NULL);
 	ASSERT(strSQL);
 
-	if(strcmp(strSQL, _T("")) != 0)
+	if(_tcscmp(strSQL, _T("")) != 0)
 	{
 		m_strSQL = strSQL;
 	}
@@ -1406,7 +1408,7 @@ FieldPtr CAdoRecordSet::GetField(LPCTSTR lpszFieldName)
 								  设置字段的值
 			  ------------------------------------------------
   ########################################################################*/
-BOOL CAdoRecordSet::PutCollect(long index, const _variant_t &value)
+BOOL CAdoRecordSet::PutCollectV(long index, const _variant_t &value)
 {
 	ASSERT(m_pRecordset != NULL);
 	ASSERT(index < GetFieldsCount());
@@ -1426,7 +1428,8 @@ BOOL CAdoRecordSet::PutCollect(long index, const _variant_t &value)
 	return	FALSE;
 }
 
-BOOL CAdoRecordSet::PutCollect(LPCSTR strFieldName, const _variant_t &value)
+
+BOOL CAdoRecordSet::PutCollectV(LPCTSTR strFieldName, const _variant_t &value)
 {
 	ASSERT(m_pRecordset != NULL);
 	try
@@ -1453,7 +1456,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const bool &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 
-	return PutCollect(index, _variant_t(value));
+	return PutCollectV(index, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const bool &value)
@@ -1464,7 +1467,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const bool &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(strFieldName, _variant_t(value));
+	return PutCollectV(strFieldName, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const BYTE &value)
@@ -1475,7 +1478,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const BYTE &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 
-	return PutCollect(index, _variant_t(value));
+	return PutCollectV(index, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const BYTE &value)
@@ -1486,7 +1489,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const BYTE &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(strFieldName, _variant_t(value));
+	return PutCollectV(strFieldName, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const short &value)
@@ -1497,7 +1500,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const short &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(index, _variant_t(value));
+	return PutCollectV(index, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const short &value)
@@ -1508,7 +1511,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const short &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(strFieldName, _variant_t(value));
+	return PutCollectV(strFieldName, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const int &value)
@@ -1519,7 +1522,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const int &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(index, _variant_t(long(value)));
+	return PutCollectV(index, _variant_t(long(value)));
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const int &value)
@@ -1531,7 +1534,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const int &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 
-	return PutCollect(strFieldName, _variant_t(long(value)));
+	return PutCollectV(strFieldName, _variant_t(long(value)));
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const long &value)
@@ -1542,7 +1545,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const long &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(index, _variant_t(value));
+	return PutCollectV(index, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const long &value)
@@ -1553,7 +1556,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const long &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(strFieldName, _variant_t(value));
+	return PutCollectV(strFieldName, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const DWORD &value)
@@ -1567,7 +1570,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const DWORD &value)
 	_variant_t vt;
 	vt.vt = VT_UI4;
 	vt.ulVal = value;
-	return PutCollect(index, vt);
+	return PutCollectV(index, vt);
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const DWORD &value)
@@ -1581,7 +1584,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const DWORD &value)
 	_variant_t vt;
 	vt.vt = VT_UI4;
 	vt.ulVal = value;
-	return PutCollect(strFieldName, vt);
+	return PutCollectV(strFieldName, vt);
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const float &value)
@@ -1592,7 +1595,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const float &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(index, _variant_t(value));
+	return PutCollectV(index, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const float &value)
@@ -1603,7 +1606,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const float &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 
-	return PutCollect(strFieldName, _variant_t(value));
+	return PutCollectV(strFieldName, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const double &value)
@@ -1614,7 +1617,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const double &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 
-	return PutCollect(index, _variant_t(value));
+	return PutCollectV(index, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const double &value)
@@ -1625,7 +1628,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const double &value)
 		TRACE(_T("Warning: 你要存贮的字段与变量的数据类型不符; 文件: %s; 行: %d\n"), __FILE__, __LINE__);
 	#endif
 	
-	return PutCollect(strFieldName, _variant_t(value));
+	return PutCollectV(strFieldName, _variant_t(value));
 }
 
 BOOL CAdoRecordSet::PutCollect(long index, const SYSTEMTIME &value)
@@ -1644,7 +1647,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const SYSTEMTIME &value)
 	_variant_t vt;
 	vt.vt = VT_DATE;
 	SystemTimeToVariantTime((LPSYSTEMTIME)&value, &vt.date);
-	return PutCollect(index, vt);
+	return PutCollectV(index, vt);
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const SYSTEMTIME &value)
@@ -1663,7 +1666,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const SYSTEMTIME &value)
 	_variant_t vt;
 	vt.vt = VT_DATE;
 	SystemTimeToVariantTime((LPSYSTEMTIME)&value, &vt.date);
-	return PutCollect(strFieldName, vt);
+	return PutCollectV(strFieldName, vt);
 }
 
 /*
@@ -1680,7 +1683,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const COleCurrency &value)
 	_variant_t vt;
 	vt.vt = VT_CY;
 	vt.cyVal = value.m_cur;
-	return PutCollect(index, vt);
+	return PutCollectV(index, vt);
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const COleCurrency &value)
@@ -1696,7 +1699,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const COleCurrency &value)
 	_variant_t vt;
 	vt.vt = VT_CY;
 	vt.cyVal = value.m_cur;
-	return PutCollect(strFieldName, vt);
+	return PutCollectV(strFieldName, vt);
 }
 */
 
@@ -1718,7 +1721,7 @@ BOOL CAdoRecordSet::PutCollect(long index, const CString &value)
 	_variant_t vt;
 	vt.vt = value.IsEmpty() ? VT_NULL : VT_BSTR;
 	vt.bstrVal = value.AllocSysString();
-	return PutCollect(index, vt);
+	return PutCollectV(index, vt);
 }
 
 BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const CString &value)
@@ -1737,7 +1740,7 @@ BOOL CAdoRecordSet::PutCollect(LPCTSTR strFieldName, const CString &value)
 	_variant_t vt;
 	vt.vt = value.IsEmpty() ? VT_NULL : VT_BSTR;
 	vt.bstrVal = value.AllocSysString();
-	return PutCollect(strFieldName, vt);
+	return PutCollectV(strFieldName, vt);
 }
 
 
@@ -1827,7 +1830,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  bool &value)
 	} 	
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  bool &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  bool &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -1860,7 +1863,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  BYTE &value)
 	} 	
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  BYTE &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  BYTE &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -1892,7 +1895,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  short &value)
 	} 	
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  short &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  short &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -1925,7 +1928,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  int &value)
 	return FALSE;
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  int &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  int &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -1957,7 +1960,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  long &value)
 	} 	
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  long &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  long &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -2004,7 +2007,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  DWORD &value)
 	} 	
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  DWORD &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  DWORD &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -2071,7 +2074,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  float &value)
 	} 	
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  float &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  float &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -2124,7 +2127,7 @@ BOOL CAdoRecordSet::GetCollect(long index,  double &value)
 	} 	
 }
 
-BOOL CAdoRecordSet::GetCollect(LPCSTR strFieldName,  double &value)
+BOOL CAdoRecordSet::GetCollect(LPCTSTR strFieldName,  double &value)
 {
 	ASSERT(m_pRecordset != NULL);
 
@@ -2246,7 +2249,7 @@ BOOL CAdoRecordSet::AppendChunk(long index, LPVOID lpData, UINT nBytes)
 	else return FALSE;
 }
 
-BOOL CAdoRecordSet::AppendChunk(LPCSTR strFieldName, LPVOID lpData, UINT nBytes)
+BOOL CAdoRecordSet::AppendChunk(LPCTSTR strFieldName, LPVOID lpData, UINT nBytes)
 {
 	ASSERT(m_pRecordset != NULL);
 	ASSERT(lpData != NULL);
@@ -2283,7 +2286,7 @@ BOOL CAdoRecordSet::AppendChunk(long index, LPCTSTR lpszFileName)
 	*/
 }
 
-BOOL CAdoRecordSet::AppendChunk(LPCSTR strFieldName, LPCTSTR lpszFileName)
+BOOL CAdoRecordSet::AppendChunk(LPCTSTR strFieldName, LPCTSTR lpszFileName)
 {
 	/*
 	ASSERT(m_pRecordset != NULL);
@@ -2357,7 +2360,7 @@ BOOL CAdoRecordSet::GetChunk(long index, LPVOID lpData)
 	else return FALSE;
 }
 
-BOOL CAdoRecordSet::GetChunk(LPCSTR strFieldName, LPVOID lpData)
+BOOL CAdoRecordSet::GetChunk(LPCTSTR strFieldName, LPVOID lpData)
 {
 	if (adFldLong & GetFieldAttributes(strFieldName))
 		return  GetChunk(GetField(strFieldName), lpData);
@@ -2369,7 +2372,7 @@ BOOL CAdoRecordSet::GetChunk(long index, CBitmap &bitmap)
 	return GetChunk(GetFieldName(index), bitmap);
 }
 
-BOOL CAdoRecordSet::GetChunk(LPCSTR strFieldName, CBitmap &bitmap)
+BOOL CAdoRecordSet::GetChunk(LPCTSTR strFieldName, CBitmap &bitmap)
 {		
 	BOOL bret = FALSE;
 	/*
@@ -2626,7 +2629,7 @@ BOOL CAdoRecordSet::Find(LPCTSTR lpszFind, SearchDirectionEnum SearchDirection)
 
 	try
 	{
-		if (strcmp(lpszFind, _T("")) != 0)
+		if (_tcscmp(lpszFind, _T("")) != 0)
 		{
 			m_strFind = lpszFind;
 		}

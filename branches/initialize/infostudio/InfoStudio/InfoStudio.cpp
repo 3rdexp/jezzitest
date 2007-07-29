@@ -18,9 +18,12 @@
 
 #include "resource.h"
 
+#include "ado/AdoRecordSet.h"
+
 #include "aboutdlg.h"
 #include "maindlg.h"
 #include "./util.h"
+
 
 CAppModule _Module;
 
@@ -36,7 +39,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	BOOL bRet = _pDb->ConnectAccess( GetExePath() + "db.mdb" );
 	if (!bRet)
 	{
-		MessageBox(NULL, "读取数据库失败", MSGTITLE, MB_OK);
+		MessageBox(NULL, _T("读取数据库失败"), MSGTITLE, MB_OK);
 		if ( _pDb )
 			delete _pDb;
 		_pDb = NULL;

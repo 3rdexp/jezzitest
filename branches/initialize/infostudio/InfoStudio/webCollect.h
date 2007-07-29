@@ -56,12 +56,13 @@ public:
     END_MSG_MAP()
 
     CWebView		_WebView;
-    WTL::CString			_strUrl;	
+    CString			_strUrl;	
     CDispObject<HostDisp> * _pWebExternal;
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
-        Init();		
+        Init();	
+        ::SetWindowText(GetDlgItem(IDC_EDIT_URL), _T("http://db.b2b.sohu.com/qy/logon/Logon_free.html"));
         return 0;
     }
 
@@ -98,7 +99,7 @@ public:
     LRESULT OnSaveRegister(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         SaveRegister();
-        MessageBox("保存成功", MSGTITLE, MB_OK);
+        MessageBox(_T("保存成"), MSGTITLE, MB_OK);
         return 0;
     }
 
@@ -107,7 +108,7 @@ public:
     {
         _pRegister = NULL;
         SaveRegister();
-        MessageBox("保存成功", MSGTITLE, MB_OK);
+        MessageBox(_T("保存成"), MSGTITLE, MB_OK);
         return 0;
     }
 
@@ -246,14 +247,14 @@ public:
 
         CComboBox box;
         box.Attach( GetDlgItem(IDC_COMBO_POSTMETHOD) );
-        box.AddString( "POST" );
-        box.AddString( "GET" );
+        box.AddString( _T("POS") );
+        box.AddString( _T("GE") );
         box.SetCurSel( 0 );
         box.Detach();
 
         box.Attach( GetDlgItem(IDC_COMBO_ENCODE) );
-        box.AddString( "GB2312" );
-        box.AddString( "UTF-8" );
+        box.AddString( _T("GB231") );
+        box.AddString( _T("UTF-") );
         box.SetCurSel( 0 );
         box.Detach();
 
@@ -273,7 +274,7 @@ public:
         for ( int i = 0; i < _WebView._vectElements[nIndex]._vectElement.size(); i++ )
         {
             CString strItem;
-            strItem = _WebView._vectElements[nIndex]._vectElement[i]._Name + "=" + _WebView._vectElements[nIndex]._vectElement[i]._Value;
+            strItem = _WebView._vectElements[nIndex]._vectElement[i]._Name + _T("=") + _WebView._vectElements[nIndex]._vectElement[i]._Value;
             listbox.AddString( strItem );
         }
 
@@ -284,7 +285,7 @@ public:
         CComboBox box;
         box.Attach( GetDlgItem(IDC_COMBO_POSTMETHOD) );
 
-        if ( _WebView._vectElements[nIndex]._PostMethod == "post" )
+        if ( _WebView._vectElements[nIndex]._PostMethod == _T("post") )
             box.SetCurSel( 0 );
         else
             box.SetCurSel( 1 );
@@ -301,9 +302,9 @@ public:
         for ( int i = 0; i < _WebView._vectElements[nIndex]._vectElement.size(); i++ )
         {
             CString strItem;
-            strItem = _WebView._vectElements[nIndex]._vectElement[i]._Name + "=" + _WebView._vectElements[nIndex]._vectElement[i]._Value;
+            strItem = _WebView._vectElements[nIndex]._vectElement[i]._Name + _T("=") + _WebView._vectElements[nIndex]._vectElement[i]._Value;
             if ( i < _WebView._vectElements[nIndex]._vectElement.size() - 1 )
-                strItem += "&";
+                strItem += _T("&");
 
             strInfo += strItem;
         }
@@ -337,13 +338,13 @@ public:
             _pRegister->_postMap.clear();
 
             vector<std::string> paramList;
-            str_split( paramList, str.GetBuffer( str.GetLength() ) , _T("&") );
+            str_split( paramList, CT2A(str) , "&" );
             for ( int i = 0; i < paramList.size(); i++ )
             {
                 if ( paramList[i] != "" )
                 {
                     vector<std::string> itemList;
-                    str_split( itemList, paramList[i].c_str() , _T("=") );	
+                    str_split( itemList, paramList[i].c_str() , "=" );	
                     CString strLeft = itemList[0].c_str();
                     CString strRight = "";
                     if ( itemList.size() > 1 )

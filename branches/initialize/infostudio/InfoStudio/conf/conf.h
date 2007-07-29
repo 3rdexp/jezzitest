@@ -10,7 +10,7 @@ class Conf
 public:
 
 public:
-	std::string appPath;
+	CString appPath;
 	
 
 	Conf();

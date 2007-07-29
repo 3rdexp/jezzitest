@@ -111,27 +111,27 @@ public:
 		tvis.item.iImage = 0;
 		tvis.item.iSelectedImage = 0;
 		
-		tvis.item.pszText = "企业信息";
+		tvis.item.pszText = _T("企业信息");
 		hitem = _tree.InsertItem(&tvis);
 		
-		tvis.item.pszText = "信息发布";
+		tvis.item.pszText = _T("信息发布");
 		hitem = _tree.InsertItem(&tvis);
 		
 		tvis.hParent = hitem;
-		tvis.item.pszText = "黄页登录";
+		tvis.item.pszText = _T("黄页登录");
 		_tree.InsertItem(&tvis);
 
-		tvis.item.pszText = "信息发布";
+		tvis.item.pszText = _T("信息发布");
 		_tree.InsertItem(&tvis);
 
-		tvis.item.pszText = "论坛群发";
+		tvis.item.pszText = _T("论坛群发");
 		_tree.InsertItem(&tvis);
 
-		tvis.item.pszText = "引擎登录";
+		tvis.item.pszText = _T("引擎登录");
 		_tree.InsertItem(&tvis);
 
 		tvis.hParent = TVI_ROOT;
-		tvis.item.pszText = "信息搜索";
+		tvis.item.pszText = _T("信息搜索");
 		hitem = _tree.InsertItem(&tvis);
 
 	}

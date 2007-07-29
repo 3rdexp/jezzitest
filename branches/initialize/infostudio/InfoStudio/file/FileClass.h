@@ -156,7 +156,7 @@ LOOP:		while((m_sBuffer.empty() || (nPos = m_sBuffer.find("\n",dwStart))==string
 		return sRet;
 	};
 
-	bool	Open(LPCSTR lpFile,int mode)
+	bool	Open(LPCTSTR lpFile,int mode)
 	{
 		DWORD	amode	= 0;
 		DWORD	cmode	= 0;
@@ -183,7 +183,7 @@ LOOP:		while((m_sBuffer.empty() || (nPos = m_sBuffer.find("\n",dwStart))==string
 
 	bool	Open(const string& sfile,int mode)
 	{
-		return Open(sfile.c_str(),mode);
+		return Open(CA2T(sfile.c_str()),mode);
 	};
 };
 

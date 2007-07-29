@@ -1,8 +1,11 @@
 #include "stdafx.h"
-#include ".\infomanage.h"
+
 #include "validateDlg.h"
 #include "searchconf.h"
 #include "HttpDown.h"
+
+#include "ado/AdoRecordSet.h"
+#include "infomanage.h"
 
 CInfoManage::CInfoManage(void)
 {
@@ -120,20 +123,20 @@ void CInfoManage::InitWebInfo( CAdoRecordSet* pRs )
 	CString strResultUrl;
 	CString strPubViewUrl;
 
-	pRs->GetCollect("id", nID);
-	pRs->GetCollect("item", nItem);
-	pRs->GetCollect("url", strUrl);
-	pRs->GetCollect("posturl", strPostUrl);
-	pRs->GetCollect("type", nType);
-	pRs->GetCollect("header", strHeader);
-	pRs->GetCollect("content", strContent);
-	pRs->GetCollect("posttype", Posttype);
-	pRs->GetCollect("validateurl", strValidateurl);
-	pRs->GetCollect("successRet", strSuccessRet);
-	pRs->GetCollect("basetype", Basetype);
-	pRs->GetCollect("loginBase", loginBase);
-	pRs->GetCollect("resulturl", strResultUrl);
-	pRs->GetCollect("pubviewurl", strPubViewUrl);
+	pRs->GetCollect(_T("id"), nID);
+	pRs->GetCollect(_T("item"), nItem);
+	pRs->GetCollect(_T("url"), strUrl);
+	pRs->GetCollect(_T("posturl"), strPostUrl);
+	pRs->GetCollect(_T("type"), nType);
+	pRs->GetCollect(_T("header"), strHeader);
+	pRs->GetCollect(_T("content"), strContent);
+	pRs->GetCollect(_T("posttype"), Posttype);
+	pRs->GetCollect(_T("validateurl"), strValidateurl);
+	pRs->GetCollect(_T("successRet"), strSuccessRet);
+	pRs->GetCollect(_T("basetype"), Basetype);
+	pRs->GetCollect(_T("loginBase"), loginBase);
+	pRs->GetCollect(_T("resulturl"), strResultUrl);
+	pRs->GetCollect(_T("pubviewurl"), strPubViewUrl);
 
 
 	//找到已经初始化的WebInfo;
@@ -202,20 +205,20 @@ CWebInfo* CInfoManage::createWebInfo( CAdoRecordSet* pRs )
 	int		nDemoUsed;
 	int		nLanguage;
 	
-	pRs->GetCollect("id", nID);
-	pRs->GetCollect("name", strName);
-	pRs->GetCollect("url", strUrl);
-	pRs->GetCollect("type", strType);
-	pRs->GetCollect("grade", grade);
-	pRs->GetCollect("user", strUser);
-	pRs->GetCollect("pass", strPass);
-	pRs->GetCollect("registertime", registrTime);
-	pRs->GetCollect("state", state);
-	pRs->GetCollect("remark", remark);
+	pRs->GetCollect(_T("id"), nID);
+	pRs->GetCollect(_T("name"), strName);
+	pRs->GetCollect(_T("url"), strUrl);
+	pRs->GetCollect(_T("type"), strType);
+	pRs->GetCollect(_T("grade"), grade);
+	pRs->GetCollect(_T("user"), strUser);
+	pRs->GetCollect(_T("pass"), strPass);
+	pRs->GetCollect(_T("registertime"), registrTime);
+	pRs->GetCollect(_T("state"), state);
+	pRs->GetCollect(_T("remark"), remark);
 
-	pRs->GetCollect("language", nLanguage);
-	pRs->GetCollect("used", nUsed);
-	pRs->GetCollect("demoused", nDemoUsed);
+	pRs->GetCollect(_T("language"), nLanguage);
+	pRs->GetCollect(_T("used"), nUsed);
+	pRs->GetCollect(_T("demoused"), nDemoUsed);
 	
 	pWebInfo->_id = nID;
 	pWebInfo->_strName = strName;
@@ -258,9 +261,9 @@ void CInfoManage::InitCategoryInfo( CategoryItem* &pLastItem, CAdoRecordSet* pRs
 	CString		strEName;
 
 
-	pRs->GetCollect("CategoryCode", strID);
-	pRs->GetCollect("CName", strCName);
-	pRs->GetCollect("EName", strEName);
+	pRs->GetCollect(_T("CategoryCode"), strID);
+	pRs->GetCollect(_T("CName"), strCName);
+	pRs->GetCollect(_T("EName"), strEName);
 	
 	int nLength = strID.GetLength();
 
@@ -393,7 +396,7 @@ void CInfoManage::WatchNoValidateThread()
 		EnterCriticalSection( &_CsNoValidateLst );
 		if ( _noValidateLst.size() > 0 && !_Stop )
 		{
-			ATLTRACE("开始分析数据 \r\n");
+			ATLTRACE(_T("开始分析数据 \r\n"));
 
 			std::vector< CWebInfo* >::iterator  info = _noValidateLst.begin() + _noValidateLst.size() - 1;
 			// simple to do use and erase
@@ -458,7 +461,7 @@ void CInfoManage::WatchValidateThread()
 		EnterCriticalSection( &_CsValidateLst );
 		if ( _ValidateLst.size() > 0 && !_Stop )
 		{
-			ATLTRACE("开始分析数据 \r\n");
+			ATLTRACE(_T("开始分析数据 \r\n"));
 
 			std::vector< CWebInfo* >::iterator  info = _ValidateLst.begin() + _ValidateLst.size() - 1;
 			// simple to do use and erase
