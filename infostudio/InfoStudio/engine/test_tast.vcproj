@@ -129,6 +129,9 @@
 			RelativePath=".\base.h">
 		</File>
 		<File
+			RelativePath=".\escape.h">
+		</File>
+		<File
 			RelativePath=".\httpcomm.cpp">
 		</File>
 		<File
@@ -148,6 +151,9 @@
 		</File>
 		<File
 			RelativePath=".\test_task.cpp">
+		</File>
+		<File
+			RelativePath=".\unescape.h">
 		</File>
 	</Files>
 	<Globals>

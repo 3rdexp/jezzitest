@@ -86,8 +86,21 @@ public:
     std::ofstream outf_;
 };
 
+#include "unescape.h"
+
 int main(int argc, char* argv[])
 {
+#if 0
+    {
+        UrlQueryUnEscape une;
+        std::string r = une("long+value+%D6%D0%CE%C4");
+
+        r = une("ftext=Your+Name&%B9%EE%D2%EC=%D6%D0+%CE%C4&fpassword=eeee&fradio=0&ftext2=long+value+%D6%D0%CE%C4&fcheckbox=on&fselect=1&fselect=3&fsubmit=OK");
+
+        r = une("ftext=Your+Name&%E8%AF%A1%E5%BC%82=%E4%B8%AD+%E6%96%87&fpassword=eeee&fradio=0&ftext2=long+value+%E4%B8%AD%E6%96%87&fcheckbox=on&fselect=1&fselect=3&fsubmit=OK");
+    }
+#endif
+
 #if 0
 	SyncRunner root;
     int all = 0;
@@ -177,7 +190,7 @@ int main(int argc, char* argv[])
     cp.SendRequest();    
 
 
-#elif 0
+#elif 1
     struct StringPair
     {
         const char * key;
@@ -200,6 +213,14 @@ int main(int argc, char* argv[])
     const int c = ARRAYSIZE(form);
     for (int i=0; i<c; ++i)
         request.addParam(form[i].key, form[i].value, false);
+
+    std::string dest = request.build();
+
+    request.clear("");
+    request.parse(dest);
+
+    std::string dest2 = request.build();
+    ASSERT(dest == dest2);
 
     std::string rm_ansi = request.build();
     std::string rm_utf8 = request.build(RequestMap::CHARSET_UTF8);
