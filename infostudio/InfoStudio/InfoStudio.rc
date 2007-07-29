@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (P.R.C.) resources
+// 中文(中华人民共和国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
@@ -185,21 +185,21 @@ BEGIN
 END
 
 IDD_COLLECTDLG DIALOGEX 0, 0, 564, 398
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
-CAPTION "Dialog"
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | 
+    WS_THICKFRAME
+CAPTION "表单分析"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    EDITTEXT        IDC_EDIT_URL,7,1,401,17,ES_AUTOHSCROLL
-    PUSHBUTTON      "Button1",IDOK,417,0,38,19
-    LISTBOX         IDC_LIST_FORM,7,37,107,246,LBS_NOINTEGRALHEIGHT | 
+    EDITTEXT        IDC_EDIT_URL,3,1,401,15,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "浏览",IDOK,417,1,38,15
+    LISTBOX         IDC_LIST_FORM,3,37,107,246,LBS_NOINTEGRALHEIGHT | 
                     LBS_EXTENDEDSEL | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Static",IDC_IE,118,22,439,260,NOT WS_VISIBLE
-    COMBOBOX        IDC_COMBO_FORM,7,19,107,127,CBS_DROPDOWNLIST | CBS_SORT | 
+    LTEXT           "static for IE",IDC_IE,122,22,439,260,NOT WS_VISIBLE
+    COMBOBOX        IDC_COMBO_FORM,3,19,107,127,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    LTEXT           "提交页面地址：",IDC_STATIC,7,295,59,12
+    LTEXT           "提交页面地址：",IDC_STATIC,3,295,59,12
     EDITTEXT        IDC_EDIT_POSTURL,73,292,312,14,ES_AUTOHSCROLL
-    LTEXT           "提交页面参数：",IDC_STATIC,7,314,59,12
+    LTEXT           "提交页面参数：",IDC_STATIC,3,314,59,12
     EDITTEXT        IDC_EDIT_PARAM,72,312,314,35,ES_MULTILINE | 
                     ES_AUTOVSCROLL | ES_AUTOHSCROLL
     LTEXT           "当前字段：",IDC_STATIC,390,292,41,12
@@ -215,12 +215,12 @@ BEGIN
     LTEXT           "编码格式：",IDC_STATIC,393,379,41,12
     COMBOBOX        IDC_COMBO_ENCODE,433,376,86,13,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    PUSHBUTTON      "生成提交参数",IDC_BUTTON_PARAM,7,327,48,15
-    LTEXT           "验证码地址：",IDC_STATIC,7,355,59,12
+    PUSHBUTTON      "生成提交参数",IDC_BUTTON_PARAM,3,327,53,14
+    LTEXT           "验证码地址：",IDC_STATIC,3,355,59,12
     EDITTEXT        IDC_EDIT_VALIDATEURL,74,353,312,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "生成提交参数",IDC_BUTTON_IMGURL,465,324,48,11
-    PUSHBUTTON      "保存",IDC_BUTTON_SAVEINFO,459,2,32,15
-    PUSHBUTTON      "保存",IDC_BUTTON_ADDINFO,494,1,32,15
+    PUSHBUTTON      "生成提交参数",IDC_BUTTON_IMGURL,465,324,53,14
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVEINFO,459,1,38,15
+    PUSHBUTTON      "保存",IDC_BUTTON_ADDINFO,502,1,38,15
 END
 
 
@@ -303,8 +303,8 @@ BEGIN
 
     IDD_COLLECTDLG, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 557
+        LEFTMARGIN, 3
+        RIGHTMARGIN, 561
         BOTTOMMARGIN, 391
     END
 END
@@ -467,12 +467,12 @@ BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
-#endif    // Chinese (P.R.C.) resources
+#endif    // 中文(中华人民共和国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// 英语(美国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -505,7 +505,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (U.S.) resources
+#endif    // 英语(美国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

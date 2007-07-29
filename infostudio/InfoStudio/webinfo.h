@@ -3,6 +3,9 @@
 #include <map>
 #include <vector>
 
+// ? 行业需要模糊匹配，能在数据结构中直接表示否？
+// TODO:  std::vector< CategoryItem* > => std::vector<CategoryItem>
+
 //行业分类
 class CategoryItem
 {
