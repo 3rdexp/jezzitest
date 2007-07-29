@@ -24,7 +24,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="F:\Develop\packshow\memoryleak"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;STRICT"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;STRICT;_WIN32_WINNT=0x0500"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="3"
@@ -88,7 +88,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;STRICT"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;STRICT;_WIN32_WINNT=0x0500"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
@@ -441,6 +441,136 @@
 			</File>
 			<File
 				RelativePath=".\messagedef.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="engine"
+			Filter="">
+			<File
+				RelativePath=".\engine\asynchttp.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\engine\asynchttp.h">
+			</File>
+			<File
+				RelativePath=".\engine\asynctask.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\engine\asynctask.h">
+			</File>
+			<File
+				RelativePath=".\engine\base.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\engine\base.h">
+			</File>
+			<File
+				RelativePath=".\engine\criticalsection.h">
+			</File>
+			<File
+				RelativePath=".\engine\escape.h">
+			</File>
+			<File
+				RelativePath=".\engine\httpcomm.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\engine\httpcomm.h">
+			</File>
+			<File
+				RelativePath=".\engine\logging.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\engine\logging.h">
+			</File>
+			<File
+				RelativePath=".\engine\sigslot.h">
+			</File>
+			<File
+				RelativePath=".\engine\task.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\engine\task.h">
+			</File>
+			<File
+				RelativePath=".\engine\unicode.h">
+			</File>
+			<File
+				RelativePath=".\engine\url.h">
+			</File>
+			<File
+				RelativePath=".\engine\urlcomp.h">
 			</File>
 		</Filter>
 	</Files>

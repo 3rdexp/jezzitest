@@ -146,11 +146,11 @@ bool AsyncInet::Open(const std::string & agent, DWORD dwAccessType, LPCSTR lpszP
         , LPCSTR lpszProxyBypass, DWORD dwFlag)
 {
     ASSERT(!hInet_);
-    hInet_ = InternetOpen(agent.c_str(), dwAccessType, lpszProxyName, lpszProxyBypass, dwFlag);
+    hInet_ = InternetOpenA(agent.c_str(), dwAccessType, lpszProxyName, lpszProxyBypass, dwFlag);
     ASSERT(hInet_);
     if(hInet_ && dwFlag & INTERNET_FLAG_ASYNC)
     {
-        InternetSetStatusCallback(hInet_, InternetStatusCallback);
+        InternetSetStatusCallbackA(hInet_, InternetStatusCallback);
     }
     return hInet_ != NULL;
 }
@@ -166,7 +166,7 @@ void AsyncInet::Close()
 bool AsyncInet::SetCookie(const std::string & url, const std::string & name
                         , const std::string & data)
 {
-    return ::InternetSetCookie(url.c_str()
+    return ::InternetSetCookieA(url.c_str()
         , name.empty() ? NULL : name.c_str(), data.c_str());
 }
 
@@ -192,7 +192,7 @@ bool AsyncHttp::PrepareGet(const std::string & url, const std::string & referrer
 
     AsyncInet & ai = AsyncInet::GetInstance();
 
-    hConn_ = InternetConnect(ai.get(), uc.lpszHostName, uc.nPort, 
+    hConn_ = InternetConnectA(ai.get(), uc.lpszHostName, uc.nPort, 
         uc.lpszUserName, uc.lpszPassword, uc.nScheme, // INTERNET_SERVICE_HTTP )
         INTERNET_FLAG_PASSIVE, (DWORD_PTR)this);
     ASSERT(hConn_);
@@ -201,7 +201,7 @@ bool AsyncHttp::PrepareGet(const std::string & url, const std::string & referrer
 
     LPCSTR szAcceptType[] = { "*.*", 0 };
 
-    hRequest_ = HttpOpenRequest(hConn_, "GET", uc.lpszUrlPath, 
+    hRequest_ = HttpOpenRequestA(hConn_, "GET", uc.lpszUrlPath, 
         NULL, // Version
         referrer.empty() ? NULL : referrer.c_str(), // Referrer
         szAcceptType,
@@ -225,7 +225,7 @@ bool AsyncHttp::PreparePost(const std::string & url, const std::string & content
 
     AsyncInet & ai = AsyncInet::GetInstance();
 
-    hConn_ = InternetConnect(ai.get(), uc.lpszHostName, uc.nPort, 
+    hConn_ = InternetConnectA(ai.get(), uc.lpszHostName, uc.nPort, 
         uc.lpszUserName, uc.lpszPassword, uc.nScheme, // INTERNET_SERVICE_HTTP )
         INTERNET_FLAG_PASSIVE, (DWORD_PTR)this);
     ASSERT(hConn_);
@@ -234,7 +234,7 @@ bool AsyncHttp::PreparePost(const std::string & url, const std::string & content
 
     LPCSTR szAcceptType[] = { "*.*", 0 };
 
-    hRequest_ = HttpOpenRequest(hConn_, "POST", uc.lpszUrlPath, 
+    hRequest_ = HttpOpenRequestA(hConn_, "POST", uc.lpszUrlPath, 
         NULL, // Version
         referrer.empty() ? NULL : referrer.c_str(), // Referrer
         szAcceptType,
@@ -267,7 +267,7 @@ bool AsyncHttp::SendRequest()
             hs << i->first << ":" << i->second << "\r\n";
         }
 
-        ret = HttpAddRequestHeaders(hRequest_
+        ret = HttpAddRequestHeadersA(hRequest_
             , hs.str().data()
             , hs.str().size(), HTTP_ADDREQ_FLAG_ADD);
         ASSERT(ret);
