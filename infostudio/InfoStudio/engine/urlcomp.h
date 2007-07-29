@@ -3,13 +3,13 @@
 #include <wininet.h>
 
 // 可能占用内存多了一些，不要保存之, sizeof = 4736
-class UrlComponet : public URL_COMPONENTS
+class UrlComponet : public URL_COMPONENTSA
 {
 public:
 	UrlComponet()
 	{
-		ZeroMemory(this, sizeof URL_COMPONENTS);
-		dwStructSize = sizeof URL_COMPONENTS;
+		ZeroMemory(this, sizeof URL_COMPONENTSA);
+		dwStructSize = sizeof URL_COMPONENTSA;
 
 		dwSchemeLength = INTERNET_MAX_SCHEME_LENGTH;
 		dwHostNameLength = INTERNET_MAX_HOST_NAME_LENGTH;
@@ -26,8 +26,8 @@ public:
 	}
 	BOOL Crack(LPCSTR lpszUrl, DWORD dwUrlLength = 0, DWORD dwFlags = ICU_ESCAPE)
 	{
-		lstrcpyn(_szUrl, lpszUrl, sizeof _szUrl);
-		BOOL f = InternetCrackUrl(lpszUrl, dwUrlLength, dwFlags, this);
+		lstrcpynA(_szUrl, lpszUrl, sizeof _szUrl);
+		BOOL f = InternetCrackUrlA(lpszUrl, dwUrlLength, dwFlags, this);
 		return f;
 	}
 	BOOL Create(INTERNET_SCHEME nScheme, LPCSTR lpszHostName, INTERNET_PORT nPort, 
@@ -39,7 +39,7 @@ public:
 	}
 	LPCSTR GetFileName() const
 	{
-		int n = lstrlen(_szPath);
+		int n = lstrlenA(_szPath);
 		if (n > 0)
 		{
 			LPCSTR p = _szPath + (n - 1);
