@@ -169,7 +169,7 @@ long vartol(const _variant_t& var)
 	case VT_BSTR://字符串
 	case VT_LPSTR://字符串
 	case VT_LPWSTR://字符串
-		value = atol((LPCTSTR)(_bstr_t)var);
+		value = _tstol((LPCTSTR)(_bstr_t)var);
 		break;
 	case VT_NULL:
 	case VT_EMPTY:
@@ -219,7 +219,7 @@ double vartof(const _variant_t& var)
 	case VT_BSTR://字符串
 	case VT_LPSTR://字符串
 	case VT_LPWSTR://字符串
-		value = atof((LPCTSTR)(_bstr_t)var);
+		value = _tstol((LPCTSTR)(_bstr_t)var);
 		break;
 	case VT_NULL:
 	case VT_EMPTY:
@@ -245,43 +245,43 @@ CString vartostr(const _variant_t &var)
 		break;
 	case VT_I1:
 	case VT_UI1:
-		strValue.Format("%d", var.bVal);
+		strValue.Format(_T("%d"), var.bVal);
 		break;
 	case VT_I2://短整型
-		strValue.Format("%d", var.iVal);
+		strValue.Format(_T("%d"), var.iVal);
 		break;
 	case VT_UI2://无符号短整型
-		strValue.Format("%d", var.uiVal);
+		strValue.Format(_T("%d"), var.uiVal);
 		break;
 	case VT_INT://整型
-		strValue.Format("%d", var.intVal);
+		strValue.Format(_T("%d"), var.intVal);
 		break;
 	case VT_I4: //整型
-		strValue.Format("%d", var.lVal);
+		strValue.Format(_T("%d"), var.lVal);
 		break;
 	case VT_I8: //长整型
-		strValue.Format("%d", var.lVal);
+		strValue.Format(_T("%d"), var.lVal);
 		break;
 	case VT_UINT://无符号整型
-		strValue.Format("%d", var.uintVal);
+		strValue.Format(_T("%d"), var.uintVal);
 		break;
 	case VT_UI4: //无符号整型
-		strValue.Format("%d", var.ulVal);
+		strValue.Format(_T("%d"), var.ulVal);
 		break;
 	case VT_UI8: //无符号长整型
-		strValue.Format("%d", var.ulVal);
+		strValue.Format(_T("%d"), var.ulVal);
 		break;
 	case VT_VOID:
-		strValue.Format("%8x", var.byref);
+		strValue.Format(_T("%8x"), var.byref);
 		break;
 	case VT_R4://浮点型
-		strValue.Format("%.4f", var.fltVal);
+		strValue.Format(_T("%.4f"), var.fltVal);
 		break;
 	case VT_R8://双精度型
-		strValue.Format("%.8f", var.dblVal);
+		strValue.Format(_T("%.8f"), var.dblVal);
 		break;
 	case VT_DECIMAL: //小数
-		strValue.Format("%.8f", (double)var);
+		strValue.Format(_T("%.8f"), (double)var);
 		break;
 	/*
 	case VT_CY:
@@ -294,18 +294,18 @@ CString vartostr(const _variant_t &var)
 	case VT_BLOB:
 	case VT_BLOB_OBJECT:
 	case 0x2011:
-		strValue = "[BLOB]";
+		strValue = _T("[BLOB]");
 		break;
 	case VT_BOOL://布尔型
 
-		strValue = var.boolVal ? "TRUE" : "FALSE";
+		strValue = var.boolVal ? _T("TRUE") : _T("FALSE");
 		break;
 	case VT_DATE: //日期型
 		{
 			time_t dt = var.date;
 			SYSTEMTIME da;
 			TimetToSystemTime(dt, &da);
-			strValue.Format("%d-%d-%d %d:%d:%d", da.wYear, da.wMonth, da.wDay, da.wHour, da.wMinute, da.wSecond);
+			strValue.Format(_T("%d-%d-%d %d:%d:%d"), da.wYear, da.wMonth, da.wDay, da.wHour, da.wMinute, da.wSecond);
 		}
 		break;
 	case VT_NULL://NULL值
@@ -316,7 +316,7 @@ CString vartostr(const _variant_t &var)
 		break;
 	case VT_UNKNOWN://未知类型
 	default:
-		strValue = "UN_KNOW";
+		strValue = _T("UNKNOW");
 		break;
 	}
 	return strValue;
@@ -331,11 +331,11 @@ CString vartostr(const _variant_t &var)
 CAdoConnection::CAdoConnection()
 {
 	//创建 Connection 对象---------------------------
-	m_pConnection.CreateInstance("ADODB.Connection");
+	m_pConnection.CreateInstance(_T("ADODB.Connection"));
 	#ifdef _DEBUG
 	if (m_pConnection == NULL)
 	{
-		TRACE("Connection 对象创建失败! 请确认是否初始化了COM环境\r\n");
+		TRACE(_T("Connection 对象创建失败! 请确认是否初始化了COM环境\r\n"));
 	}
 	#endif
 	ASSERT(m_pConnection != NULL);
@@ -366,7 +366,7 @@ BOOL CAdoConnection::Open(LPCTSTR lpszConnect, long lOptions)
 	ASSERT(m_pConnection != NULL);
 	ASSERT(lpszConnect);
 	
-	if (strcmp(lpszConnect, _T("")) != 0)
+	if (_tcscmp(lpszConnect, _T("")) != 0)
 	{
 		m_strConnect = lpszConnect;
 	}

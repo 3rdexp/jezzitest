@@ -517,7 +517,7 @@ public:
 				}
 				CComBSTR burl;
 				pDoc->get_URL(&burl);
-				WTL::CString url(burl);
+				CString url(burl);
 				
 				_url = url;
 
@@ -614,7 +614,7 @@ public:
 			spBrowser->get_LocationURL(&szResult);
 			return szResult;
 		}
-		return "";
+		return _T("");
 	}
 
 
@@ -1259,7 +1259,7 @@ private:
 public:
 
 	std::vector<ElementCollect>	_vectElements;
-	WTL::CString			_url;
+	CString			_url;
 
 public:
 	CWebView() : _pWebEvents(0)

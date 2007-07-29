@@ -91,7 +91,7 @@ public:
 			tvis.item.iImage = 0;
 			tvis.item.iSelectedImage = 0;
 			tvis.item.lParam = (LPARAM) pItem;
-			tvis.item.pszText = (LPSTR)pItem->_strCName.GetBuffer(pItem->_strCName.GetLength());
+			tvis.item.pszText = (LPTSTR)pItem->_strCName.GetBuffer(pItem->_strCName.GetLength());
 			hitem = _tree.InsertItem(&tvis);
 
 			InsertItem( hitem, pItem );
@@ -115,7 +115,7 @@ public:
 			tvis.item.iImage = 0;
 			tvis.item.iSelectedImage = 0;
 			tvis.item.lParam = (LPARAM) pChildItem;
-			tvis.item.pszText = (LPSTR)pChildItem->_strCName.GetBuffer(pItem->_strCName.GetLength());
+			tvis.item.pszText = (LPTSTR)pChildItem->_strCName.GetBuffer(pItem->_strCName.GetLength());
 			hChilditem = _tree.InsertItem(&tvis);
 
 			InsertItem( hChilditem, pChildItem );

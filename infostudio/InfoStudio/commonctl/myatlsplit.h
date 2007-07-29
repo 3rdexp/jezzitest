@@ -17,7 +17,7 @@ template <bool t_bVertical = true> class CMySplitterWindowT;
 // Splitter extended styles
 #define SPLIT_LEFTALIGNED  0x00000008
 
-template <class T, bool t_bVertical = true>
+template <class T, bool t_bVertical>
 class CMySplitterImpl : 
 	public CSplitterImpl<T, t_bVertical>
 {
@@ -408,7 +408,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 // CMySplitterWindowImpl - Implements a splitter window
 
-template <class T, bool t_bVertical = true, class TBase = CWindow, class TWinTraits = CControlWinTraits>
+template <class T, bool t_bVertical, class TBase, class TWinTraits>
 class ATL_NO_VTABLE CMySplitterWindowImpl : public CWindowImpl< T, TBase, TWinTraits >, public CMySplitterImpl< T , t_bVertical >
 {
 public:
@@ -473,7 +473,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 // CSplitterWindow - Implements a splitter window to be used as is
 
-template <bool t_bVertical = true>
+template <bool t_bVertical>
 class CMySplitterWindowT : public CMySplitterWindowImpl<CMySplitterWindowT<t_bVertical>, t_bVertical>
 {
 public:

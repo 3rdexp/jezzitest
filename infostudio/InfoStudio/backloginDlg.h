@@ -97,7 +97,7 @@ public:
 	{
 		if ( !_pWebInfo || !_pWebRegister )
 		{
-			MessageBox("没有可编辑的数据", MSGTITLE, MB_OK);
+			MessageBox(_T("没有可编辑的数据"), MSGTITLE, MB_OK);
 			return 0;
 		}
 		else
@@ -170,14 +170,14 @@ public:
 				webRegister* pWebRegister = pWebRegisterCollect->_webRegisterLst[i];
 
 				CString strField;
-				strField.Format("%d", pWebRegister->_id);
+				strField.Format(_T("%d"), pWebRegister->_id);
 
 				LVITEM lvitem;			
 				lvitem.mask = LVIF_TEXT | LVIF_IMAGE;
 				lvitem.iItem = i;
 				lvitem.iSubItem = 0;				
 				lvitem.iImage = 0;	
-				lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+				lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 				int iPos = _listView.InsertItem(&lvitem);
 
 				_listView.SetItemData(iPos, (DWORD_PTR) pWebRegister );
@@ -186,14 +186,14 @@ public:
 				lvitem.mask = LVIF_TEXT;
 				lvitem.iItem = iPos;		
 				lvitem.iSubItem = 1;
-				lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+				lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 				_listView.SetItem(&lvitem);
 
 				strField = pWebRegister->_posturl;
 				lvitem.mask = LVIF_TEXT;
 				lvitem.iItem = iPos;		
 				lvitem.iSubItem = 2;
-				lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+				lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 				_listView.SetItem(&lvitem);
 
 
@@ -201,7 +201,7 @@ public:
 				lvitem.mask = LVIF_TEXT;
 				lvitem.iItem = iPos;		
 				lvitem.iSubItem = 3;
-				lvitem.pszText = (LPSTR)strField.GetBuffer(strField.GetLength());
+				lvitem.pszText = (LPTSTR)strField.GetBuffer(strField.GetLength());
 				_listView.SetItem(&lvitem);
 
 			}	
@@ -224,9 +224,9 @@ public:
 		for( std::map<CString, CString>::iterator it = pWebRegister->_headMap.begin(); it!= pWebRegister->_headMap.end(); it++ )
 		{
 			strInfo += it->first;
-			strInfo += "=";
+			strInfo += _T("=");
 			strInfo += it->second;
-			strInfo += "&";
+			strInfo += _T("&");
 		}
 		if ( strInfo != "" )
 			strInfo = strInfo.Left( strInfo.GetLength() );
@@ -237,9 +237,9 @@ public:
 		for( std::map<CString, CString>::iterator it = pWebRegister->_postMap.begin(); it!= pWebRegister->_postMap.end(); it++ )
 		{
 			strInfo += it->first;
-			strInfo += "=";
+			strInfo += _T("=");
 			strInfo += it->second;
-			strInfo += "&";
+			strInfo += _T("&");
 		}
 		if ( strInfo != "" )
 			strInfo = strInfo.Left( strInfo.GetLength() );

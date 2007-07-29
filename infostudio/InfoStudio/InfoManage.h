@@ -7,6 +7,8 @@
 #include "searchconf.h"
 #include "webinfo.h"
 
+class CAdoRecordSet;
+
 class CInfoManage
 {
 public:

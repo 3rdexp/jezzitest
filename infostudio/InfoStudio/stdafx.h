@@ -12,12 +12,17 @@
 #define _WIN32_IE	0x0400
 #define _RICHEDIT_VER	0x0100
 
+#define _WTL_NO_CSTRING
+
 #include <atlbase.h>
+#include <atlstr.h>
 #include <atlapp.h>
 
 extern CAppModule _Module;
 
-#include "ado/Ado.h"
+
+
+// #include "ado/Ado.h"
 
 #include <atlwin.h>
 #include <atlcom.h>
@@ -64,6 +69,7 @@ enum myTraceFlags
 #endif
 
 class CInfoManage;
+class CAdoConnection;
 extern CAdoConnection* _pDb;
 extern CInfoManage*	_pInfoManage;
 

@@ -92,9 +92,9 @@ public:
 		WTL::CComboBox box;
 		box.Attach(GetDlgItem(IDC_COMBO_LANGUAGE));
 		box.Clear();
-		box.AddString( "1-简体" );
-		box.AddString( "2-英文" );
-		box.AddString( "3-繁体" );
+		box.AddString( _T("1-简体") );
+		box.AddString( _T("2-英文") );
+		box.AddString( _T("3-繁体") );
 		box.SetCurSel( 0 );
 
 		box.Detach();
@@ -103,7 +103,7 @@ public:
 		for ( int i = 0; i < 10; i++ )
 		{
 			CString str;
-			str.Format( "%d分",i + 1 );
+			str.Format( _T("%d分"),i + 1 );
 			box.AddString( str );
 		}
 		box.SetCurSel( 5 );
@@ -177,9 +177,9 @@ public:
 		CString strSql;	
 
 		if ( bAdd )
-			strSql.Format( "select * from weblist "); //
+			strSql.Format( _T("select * from weblist ")); //
 		else
-			strSql.Format( "select * from weblist where id = %d ", pWebInfo->_id ); //
+			strSql.Format( _T("select * from weblist where id = %d "), pWebInfo->_id ); //
 		
 		CAdoRecordSet* pRs = new CAdoRecordSet(_pDb);
 
@@ -189,17 +189,17 @@ public:
 			if ( bAdd )
 			{
 				pRs->AddNew();
-				pRs->PutCollect( "id", pWebInfo->_id );
+				pRs->PutCollect( _T("id"), pWebInfo->_id );
 			}
-			pRs->PutCollect( "name", pWebInfo->_strName );
-			pRs->PutCollect( "url", pWebInfo->_strWebUrl );
-			pRs->PutCollect( "grade", pWebInfo->_grade );
-			pRs->PutCollect( "user", pWebInfo->_strUser );
-			pRs->PutCollect( "pass", pWebInfo->_strPass );
-			pRs->PutCollect( "language", pWebInfo->_language );
-			pRs->PutCollect( "used", pWebInfo->_used );
-			pRs->PutCollect( "demoused", pWebInfo->_demoUsed );
-			pRs->PutCollect( "remark", pWebInfo->_strRemark );
+			pRs->PutCollect( _T("name"), pWebInfo->_strName );
+			pRs->PutCollect( _T("url"), pWebInfo->_strWebUrl );
+			pRs->PutCollect( _T("grade"), pWebInfo->_grade );
+			pRs->PutCollect( _T("user"), pWebInfo->_strUser );
+			pRs->PutCollect( _T("pass"), pWebInfo->_strPass );
+			pRs->PutCollect( _T("language"), pWebInfo->_language );
+			pRs->PutCollect( _T("used"), pWebInfo->_used );
+			pRs->PutCollect( _T("demoused"), pWebInfo->_demoUsed );
+			pRs->PutCollect( _T("remark"), pWebInfo->_strRemark );
 
 			pRs->Update();
 			
