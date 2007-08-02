@@ -110,6 +110,8 @@ public:
 
 		_ctrlTab.SetCurSel(0);
 
+        _ctrlTab.SetFont(AtlGetDefaultGuiFont());
+
 		_ctrlViews.Create(m_hWnd, rcDefault);
 		_backBaseDlg.Create( _ctrlViews );
 		_backBaseDlg._pWebInfoDlg = this;
