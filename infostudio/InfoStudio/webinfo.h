@@ -2,24 +2,41 @@
 
 #include <map>
 #include <vector>
+#include <list>
 #include <string>
 
 
 #if 0
+
+/*
+加载 UserInfo
+
+加载要访问的网站 SiteSpecial
+
+加载该网站的 ActionData
+
+执行 Get/Post
+*/
+
+typedef std::map<std::wstring, std::wstring> VariableMap;
+
 struct UserInfo
 {
 public:
-    typedef std::map<std::wstring, std::wstring> VarMap;    
-    VarMap vars;
+
+
+private:
+    VariableMap vars;
 };
 
 
 enum SiteActionType
 {
+    SAT_UTILITY,
     SAT_REGISTER,   // 
     SAT_LOGIN,
     SAT_PUBLISH,
-    SAT_CHECK,
+    SAT_CHECK,  // 检查发布结果
 };
 
 enum SiteCharset
@@ -31,34 +48,58 @@ enum SiteCharset
 // for a=b&c={name}&e*= translate
 // usage:
 // VarTemplate vt(L"a=b&c={name}&e*=");
-// wstring s = vt.Apply(UserInfo.vars);
+// string s = vt.Apply(UserInfo.vars, SC_ANSI, UrlQueryEscape());
 // xxx.Post(s);
 
 class VarTemplate
 {
 public:
     VarTemplate(const wstring & text);
-
-    typedef std::map<std::wstring, std::wstring> VarMap;
-
-    std::wstring Apply(const VarMap & vars);
+    template<class Encoding>
+    std::string Apply(const VariableMap & vars, SiteCharset charset, Encoding & e);
+    // 
 };
 
-// ???
-struct SiteAction
+// 访问一个url，需要访问的数据
+// 
+struct ActionData
 {
     SiteActionType type;
-    std::wstring url;
+    std::string url;
+    HttpVerb verb;  // HV_GET / HV_POST
     SiteCharset charset;
-    std::wstring referrer;
+    std::string referrer;
+
+    ActionData * front; // 前置任务
+
+    // 
+    time_t time;
 };
 
-class SiteInfo
+struct Industry
+{
+    Industry * parent;
+    deque<Industry> children;
+
+    int id;
+    std::wsting cname;
+    std::wstirng ename;
+};
+
+class SiteSpecial
 {
 public:
+    vector<ActionData*> find(SiteActionType type);
 
 private:
-    vector<SiteAction> actions_; ???
+    list<ActionData> actions_;
+
+    // site info
+    std::string homepage_;
+    std::wstring name_;
+
+    std::wstring username_;
+    std::wstring passwd_;
 };
 
 #endif // #if 0
