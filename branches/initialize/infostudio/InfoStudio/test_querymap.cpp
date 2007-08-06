@@ -13,7 +13,8 @@ void test_querymap()
         site_dict.Insert(L"industry", fv);
         fv.clear();
 
-        fv.insert(VariableMap::value_type(L"œ…Ã“ –", L"101"));
+        // fv.insert(VariableMap::value_type(L"œ…Ã“ –", L"101"));
+        fv.insert(VariableMap::value_type(L"œ…Ã“", L"101"));
         fv.insert(VariableMap::value_type(L"Œ‰∫∫", L"201"));
         site_dict.Insert(L"aread", fv);
     }
@@ -42,4 +43,7 @@ void test_querymap()
 //    domain_dict.Find(area, œ…Ã“) = œ…Ã“*;¥Ûœ…Ã“
 //    for_each(œ…Ã“*;¥Ûœ…Ã“)
 //       site_dict.Find(œ…Ã“*)
+
+    QueryMap qm(L"name={name}&age={age}&address={area}&ind={industry}");
+    qm.Apply(site_dict, SC_ANSI);
 }

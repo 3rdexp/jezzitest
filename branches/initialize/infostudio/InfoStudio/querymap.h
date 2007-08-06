@@ -49,8 +49,7 @@ public:
     QueryMap(const std::wstring & text) : text_(text) {}
 
     // TODO: template<class Encoding>
-    std::string Apply(const VariableMap & dict, const VariableMap & vars
-        , SiteCharset charset);
+    std::string Apply(const Dictionary & dict, SiteCharset charset);
 
 private:
     std::wstring text_;
