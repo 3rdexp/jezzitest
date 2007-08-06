@@ -38,6 +38,8 @@ void test_querymap()
 //  type    |    userinfo
 // ---------|----------------------
 // {name}   | userinfo[name]         |
-// {area}   | userinfo[area] = œ…Ã“  |  domain_dict/site_dict[area, œ…Ã“] = null 
-//    domain_dict.Find(area, œ…Ã“) = 
+// {area}   | userinfo[area] = œ…Ã“  |  site_dict[area, œ…Ã“] == null 
+//    domain_dict.Find(area, œ…Ã“) = œ…Ã“*;¥Ûœ…Ã“
+//    for_each(œ…Ã“*;¥Ûœ…Ã“)
+//       site_dict.Find(œ…Ã“*)
 }
