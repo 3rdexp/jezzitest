@@ -21,7 +21,7 @@ void test_querymap()
     Dictionary domain_dict;
     {
         VariableMap fv;
-        fv.insert(VariableMap::value_type(L"œ…Ã“", L"œ…Ã“ –,œ…Ã“’Ú"));
+        fv.insert(VariableMap::value_type(L"œ…Ã“", L"œ…Ã“*;¥Ûœ…Ã“"));
         fv.insert(VariableMap::value_type(L"Œ‰∫∫", L"Œ‰∫∫ –"));
         domain_dict.Add(L"area", fv);
     }
