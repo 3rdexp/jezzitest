@@ -1,5 +1,6 @@
 
 #include <vector>
+#include <sstream>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -10,15 +11,14 @@
 
 // std::wstring remove_bracket(const std::wstring & t) {}
 
-std::string QueryMap::Apply(const VariableMap & dict, const VariableMap & vars
-                       , SiteCharset charset)
+std::string QueryMap::Apply(const Dictionary & dict, SiteCharset charset)
 {
     using namespace std;
 
     // split to vector
     // find value in dict
 
-    wstring ret;
+    wstringstream ret;
     
     vector<wstring> v;
     boost::split(v, text_, boost::is_any_of(L"&"));
@@ -35,16 +35,19 @@ std::string QueryMap::Apply(const VariableMap & dict, const VariableMap & vars
 
     for (i=0; i<w.size(); ++i)
     {
-        wstring key = w[i].first, val = w[i].second;
+        wstring key = i->first, val, domain = w[i].second;
         
-        if (boost::starts_with(val, L"{")
-            && boost::ends_with(val, L"}") )
+        if (boost::starts_with(domain, L"{")
+            && boost::ends_with(domain, L"}") )
         {
-            val = val.substr(1);
-            val.resize(val.size() - 1);
+            domain = domain.substr(1);
+            domain.resize(domain.size() - 1);
 
-            VariableMap::const_iterator i_dict = dict.find(val);
-            ASSERT(i_dict != dict.end());
+            const VariableMap & vm = dict.Find(val);
+            ASSERT(!vm.empty());
+
+            // TODO: here
+            VariableMap::const_iterator i_vm = vm.find()
             if (i_dict != dict.end())
             {
                 VariableMap::const_iterator i_vars = vars.find(i_dict->second);
@@ -53,11 +56,10 @@ std::string QueryMap::Apply(const VariableMap & dict, const VariableMap & vars
             }
         }
         else
-        {
-            ret += key.append(L"=").append(val);
-        }
-
-        ret += L"&";
+             val = i->second;
+        
+        ret << key << L"=" << val
+            << "&";
     }
 
     return "";
