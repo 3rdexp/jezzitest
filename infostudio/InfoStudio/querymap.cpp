@@ -11,14 +11,16 @@
 
 // std::wstring remove_bracket(const std::wstring & t) {}
 
-std::string QueryMap::Apply(const Dictionary & dict, SiteCharset charset)
+std::string QueryMap::Apply(const VariableMap & vm, const Dictionary & dict
+        , SiteCharset charset)
 {
     using namespace std;
 
     // split to vector
     // find value in dict
 
-    wstringstream ret;
+    stringstream ss;
+    UrlQueryEscape uqe;
     
     vector<wstring> v;
     boost::split(v, text_, boost::is_any_of(L"&"));
@@ -35,32 +37,43 @@ std::string QueryMap::Apply(const Dictionary & dict, SiteCharset charset)
 
     for (i=0; i<w.size(); ++i)
     {
-        wstring key = i->first, val, domain = w[i].second;
+        const wstring & key = w[i].first;
+        wstring domain = w[i].second, val;
         
+        // 1 find in vm, get value
+        // 2 find in dict, get value's value
         if (boost::starts_with(domain, L"{")
             && boost::ends_with(domain, L"}") )
         {
             domain = domain.substr(1);
             domain.resize(domain.size() - 1);
 
-            const VariableMap & vm = dict.Find(val);
-            ASSERT(!vm.empty());
+            VariableMap::const_iterator i_vm = vm.find(domain);
+            ASSERT(i_vm != vm.end());
 
-            // TODO: here
-            VariableMap::const_iterator i_vm = vm.find()
-            if (i_dict != dict.end())
+            const VariableMap & vm_domain = dict.Find(domain);
+            if (!vm_domain.empty())
             {
-                VariableMap::const_iterator i_vars = vars.find(i_dict->second);
-                ASSERT(i_vars != vars.end());
-                ret += key.append(L"=").append(i_vars->second);
+                VariableMap::const_iterator j_vm = vm_domain.find(i_vm->second);
+                ASSERT(j_vm != vm_domain.end());
+                if (j_vm != vm_domain.end())
+                    val = j_vm->second;
             }
+            else
+                val = i_vm->second;
         }
         else
-             val = i->second;
-        
-        ret << key << L"=" << val
-            << "&";
+             val = domain;
+    
+        if (charset == SC_ANSI)
+            ss << w2string(key) << "=" << uqe(w2string(val)) << "&";
+        else
+            ss << string2utf8(key) << "=" << uqe(string2utf8(val)) << "&";            
     }
 
-    return "";
+    std::string ret = ss.str();
+
+    // remove last &
+    ret.resize(ret.size() - 1);
+    return ret;
 }

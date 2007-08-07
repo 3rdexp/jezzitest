@@ -16,7 +16,7 @@ void test_querymap()
         // fv.insert(VariableMap::value_type(L"œ…Ã“ –", L"101"));
         fv.insert(VariableMap::value_type(L"œ…Ã“", L"101"));
         fv.insert(VariableMap::value_type(L"Œ‰∫∫", L"201"));
-        site_dict.Insert(L"aread", fv);
+        site_dict.Insert(L"area", fv);
     }
 
     Dictionary domain_dict;
@@ -24,7 +24,7 @@ void test_querymap()
         VariableMap fv;
         fv.insert(VariableMap::value_type(L"œ…Ã“", L"œ…Ã“*;¥Ûœ…Ã“"));
         fv.insert(VariableMap::value_type(L"Œ‰∫∫", L"Œ‰∫∫ –"));
-        domain_dict.Add(L"area", fv);
+        domain_dict.Insert(L"area", fv);
     }
 
     VariableMap userinfo;    
@@ -45,5 +45,6 @@ void test_querymap()
 //       site_dict.Find(œ…Ã“*)
 
     QueryMap qm(L"name={name}&age={age}&address={area}&ind={industry}");
-    qm.Apply(site_dict, SC_ANSI);
+    std::string s = qm.Apply(userinfo, site_dict, SC_ANSI);
+    std::string s8 = qm.Apply(userinfo, site_dict, SC_UTF8);
 }
