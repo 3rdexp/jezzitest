@@ -1,11 +1,13 @@
+
 #pragma once
 
-#include <map>
 #include <vector>
 #include <list>
 #include <string>
 
 #include "coreconst.h"
+#include "querymap.h"
+#include "engine/httpcomm.h"
 
 using std::string;
 using std::wstring;
@@ -15,7 +17,6 @@ using std::wstring;
 
 加载要访问的网站 SiteInfo
   LoadAction(ActionType) 从数据库填充 actions
-  
 
 处理数据后，执行 Get/Post
 */
@@ -72,8 +73,6 @@ ActionSpecial : public ActionInfo
   time
 
 **********************************************************************/
-
-
 struct UserInfo : public VariableMap
 {
 public:
@@ -85,6 +84,17 @@ struct SiteInfo;
 
 struct ActionInfo
 {
+    ActionInfo() 
+        : aid(0), site(0), front(0)
+        , type(AT_UTILITY)
+        , method(HV_POST)
+        , charset(SC_ANSI)
+    {
+    }
+//    ActionInfo(int aid, SiteInfo* site)
+//        : aid(aid), site(site)
+//    {
+//    }
     virtual ~ActionInfo() {}
     int aid;
     SiteInfo* site;
@@ -101,30 +111,23 @@ struct ActionInfo
 
 struct SiteInfo
 {
+    SiteInfo() : sid(0) {}
     virtual ~SiteInfo() {}
     int sid;
     string homepage;
-    vector<wstring> industries;
+    std::vector<wstring> industries;
 };
-
-struct FieldValue
-{
-    wstring name;
-    wstring domain;
-    vector<wstring> option;
-};
-
 
 
 //////////////////////////////////////////////////////////////////////////
 //
-class SiteSpecial ; public SiteInfo
+class SiteSpecial : public SiteInfo
 {
 public:
-    vector<ActionInfo*> find(ActionType type);
+    std::vector<ActionInfo*> find(ActionType type);
 
 private:
-    list<ActionInfo> actions_;
+    std::list<ActionInfo> actions_;
 
     wstring username_;
     wstring passwd_;

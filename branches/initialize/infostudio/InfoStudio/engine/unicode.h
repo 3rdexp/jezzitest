@@ -46,7 +46,6 @@ inline std::string string2utf8(const std::wstring & text)
         , u8, u8_len, NULL, NULL);
     ASSERT(cd == u8_len);
 
-
     std::string ret(u8, u8 + u8_len);
 
     delete [] u8;
@@ -63,7 +62,6 @@ inline bool utf82string(const char* u8, int len, std::string& str)
     int cd = MultiByteToWideChar(CP_UTF8, 0, u8, len
         , wbuf, wbuf_len);
     ASSERT(cd == wbuf_len);
-
 
     const int ansi_len = WideCharToMultiByte(CP_ACP, 0, wbuf, wbuf_len
         , 0, 0, NULL, NULL);
@@ -101,6 +99,22 @@ inline bool utf82string(const char* u8, int len, std::wstring& str)
 inline bool utf82string(const std::string & us, std::wstring& str)
 {
     return utf82string(us.c_str(), us.size(), str);
+}
+
+inline std::string w2string(const std::wstring & text)
+{
+    // utf16 => ansi
+    const int u8_len = WideCharToMultiByte(CP_ACP, 0, text.c_str(), text.size()
+        , 0, 0, NULL, NULL);
+    char * u8 = new char[u8_len + 1];
+    int cd = WideCharToMultiByte(CP_ACP, 0, text.c_str(), text.size()
+        , u8, u8_len, NULL, NULL);
+    ASSERT(cd == u8_len);
+
+    std::string ret(u8, u8 + u8_len);
+
+    delete [] u8;
+    return ret;
 }
 
 END_ENGINE_NAMESPACE

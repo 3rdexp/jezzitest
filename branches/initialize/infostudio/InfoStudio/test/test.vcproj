@@ -118,6 +118,9 @@
 			RelativePath="..\querymap.h">
 		</File>
 		<File
+			RelativePath="..\test_core.cpp">
+		</File>
+		<File
 			RelativePath="..\test_querymap.cpp">
 		</File>
 	</Files>
