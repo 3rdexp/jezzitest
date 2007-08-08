@@ -124,9 +124,10 @@ private:
     SiteSpecial site_;
 };
 
-class Engine
+class SiteCrank
 {
 public:
+    // input: vector<sid> ?, ActionType
     bool Load()
     {
         // 
