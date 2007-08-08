@@ -40,7 +40,9 @@ ActionInfo
   charset
   vars
   referrer
-  checked   // 检查是否成功等标志
+  checked       // 检查是否成功等标志
+  verify_url    // 验证码地址
+  verify_code
 
 FieldValue
   name
@@ -100,13 +102,17 @@ struct ActionInfo
     SiteInfo* site;
     ActionInfo * front; // 前置任务
     ActionType type;
-    string url;
+    
+    wstring url;
     HttpVerb method;      // HV_GET / HV_POST
-    string form_encoding;
+    wstring form_encoding;
     SiteCharset charset;
     wstring vars;
-    string referrer;
+    wstring referrer;
     wstring checked;
+
+    ActionResponseType restype;
+    int timeout;        // seconds
 };
 
 struct SiteInfo

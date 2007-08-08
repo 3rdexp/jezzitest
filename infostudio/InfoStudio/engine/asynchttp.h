@@ -8,9 +8,11 @@
 #include <vector>
 #include <iosfwd>
 
+#include "base.h"
 #include "criticalsection.h"
 #include "httpcomm.h"
-#include "base.h"
+#include "unicode.h"
+
 
 BEGIN_ENGINE_NAMESPACE
 
@@ -21,6 +23,17 @@ class AsyncHttp
 public:
     AsyncHttp();
     virtual ~AsyncHttp();
+
+    // TODO: remove wstring or string version function
+    bool PrepareGet(const std::wstring & url, const std::wstring & referrer = L"")
+    {
+        return PrepareGet(w2string(url), w2string(referrer));
+    }
+    bool PreparePost(const std::wstring & url, const std::wstring & content_type
+        , std::istream* request_doc = 0, const std::wstring & referrer = L"")
+    {
+        return PreparePost(w2string(url), w2string(content_type), request_doc, w2string(referrer));
+    }
 
     bool PrepareGet(const std::string & url, const std::string & referrer = "");
     bool PreparePost(const std::string & url, const std::string & content_type

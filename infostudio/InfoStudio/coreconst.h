@@ -7,9 +7,15 @@ enum ActionType
 {
     AT_UTILITY,     
     AT_REGISTER,    // 
-    AT_LOGIN,
     AT_PUBLISH,
-    AT_CHECK,       // 检查发布结果
+    AT_RESULT,       // 检查发布结果
+};
+
+enum ActionResponseType
+{
+    ART_VERIFY_IMAGE,
+    ART_CHECK_RESULT,
+    ART_NONE,
 };
 
 enum SiteCharset
@@ -17,5 +23,7 @@ enum SiteCharset
     SC_ANSI,
     SC_UTF8,
 };
+
+
 
 #endif // __CORECONSTANT_H__

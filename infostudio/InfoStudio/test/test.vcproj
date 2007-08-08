@@ -109,6 +109,12 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\infoengine.cpp">
+		</File>
+		<File
+			RelativePath="..\infoengine.h">
+		</File>
+		<File
 			RelativePath=".\main.cpp">
 		</File>
 		<File
