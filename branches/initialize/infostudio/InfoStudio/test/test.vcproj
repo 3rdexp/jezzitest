@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0500"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
@@ -108,6 +108,63 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="engine">
+			<File
+				RelativePath="..\engine\asynchttp.cpp">
+			</File>
+			<File
+				RelativePath="..\engine\asynchttp.h">
+			</File>
+			<File
+				RelativePath="..\engine\asynctask.cpp">
+			</File>
+			<File
+				RelativePath="..\engine\asynctask.h">
+			</File>
+			<File
+				RelativePath="..\engine\base.cpp">
+			</File>
+			<File
+				RelativePath="..\engine\base.h">
+			</File>
+			<File
+				RelativePath="..\engine\criticalsection.h">
+			</File>
+			<File
+				RelativePath="..\engine\escape.h">
+			</File>
+			<File
+				RelativePath="..\engine\httpcomm.cpp">
+			</File>
+			<File
+				RelativePath="..\engine\httpcomm.h">
+			</File>
+			<File
+				RelativePath="..\engine\logging.cpp">
+			</File>
+			<File
+				RelativePath="..\engine\logging.h">
+			</File>
+			<File
+				RelativePath="..\engine\sigslot.h">
+			</File>
+			<File
+				RelativePath="..\engine\task.cpp">
+			</File>
+			<File
+				RelativePath="..\engine\task.h">
+			</File>
+			<File
+				RelativePath="..\engine\unicode.h">
+			</File>
+			<File
+				RelativePath="..\engine\url.h">
+			</File>
+			<File
+				RelativePath="..\engine\urlcomp.h">
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\infoengine.cpp">
 		</File>

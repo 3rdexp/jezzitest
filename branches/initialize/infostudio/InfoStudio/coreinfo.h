@@ -62,13 +62,13 @@ UserInfo
 
 **********************************************************************
 PART-2 运行Task期间的信息维护用的
-SiteSpecial : public SiteInfo
+Site : public SiteInfo
   ssid
   sid
   login_name
   passwd
 
-ActionSpecial : public ActionInfo
+Action : public ActionInfo
   asid
   aid
   result
@@ -78,6 +78,10 @@ ActionSpecial : public ActionInfo
 struct UserInfo : public VariableMap
 {
 public:
+    void insert(const std::wstring & key, const std::wstring & value)
+    {
+        VariableMap::insert(VariableMap::value_type(key, value));
+    }
 };
 
 
@@ -120,32 +124,47 @@ struct SiteInfo
     SiteInfo() : sid(0) {}
     virtual ~SiteInfo() {}
     int sid;
-    string homepage;
+    wstring homepage;
     std::vector<wstring> industries;
 };
 
 
 //////////////////////////////////////////////////////////////////////////
 //
-class SiteSpecial : public SiteInfo
+
+class Site;
+class Action;
+
+class Action : public ActionInfo
 {
 public:
-    std::vector<ActionInfo*> find(ActionType type);
+    wstring result; // TODO: enum
+    time_t time;
+};
 
+class Site : public SiteInfo
+{
+public:
+    std::vector<Action*> Find(ActionType type);
+    void Add(Action & act)
+    {
+        actions_.push_back(act);
+    }
+    void SetDict(Dictionary & dict)
+    {
+        std::swap(dict_, dict);
+    }
+    
 private:
-    std::list<ActionInfo> actions_;
+    std::list<Action> actions_;
+    Dictionary dict_;
 
     wstring username_;
     wstring passwd_;
 };
 
 
-class ActionSpecial : public ActionInfo
-{
-public:
-    wstring result; // TODO: enum
-    time_t time;
-};
+
 
 
 
