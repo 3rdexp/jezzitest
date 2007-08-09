@@ -2,6 +2,7 @@
 #pragma once
 
 #include <sstream>
+#include <iterator>
 
 #include "coreinfo.h"
 #include "engine/asynctask.h"
@@ -38,7 +39,17 @@ deal response
 class SiteTask : public AsyncTask
 {
 public:
-
+    SiteTask(Site & site, TaskRunner * parent) 
+        : site_(site), AsyncTask(parent) 
+    {}
+    void AddAction(const std::vector<Action*> & acts)
+    {
+        std::copy(acts.begin(), acts.end(), std::back_inserter(actions_));
+    }
+    void AddAction(Action* act)
+    {
+        actions_.push_back(act);
+    }
 protected:
     virtual int ProcessStart()
     {
@@ -118,23 +129,69 @@ private:
         return true;
     }   
     
-private:
+public:// private:
     std::vector<ActionInfo*> actions_;
     int curact_;
-    SiteSpecial site_;
+    Site & site_;
 };
 
 class SiteCrank
 {
 public:
     // input: vector<sid> ?, ActionType
-    bool Load()
+    bool Init()
     {
-        // 
+        {
+            user_.insert(L"sex", L"male");
+            user_.insert(L"pasw", L"strongpsw");
+            user_.insert(L"mail", L"a@b.com");
+        }
+
+        Dictionary bd;
+        {
+            VariableMap vm;
+            vm.insert(VariableMap::value_type(L"male", L"1"));
+            vm.insert(VariableMap::value_type(L"female", L"2"));
+            bd.Insert(L"sex", vm);
+        }
+        site_.SetDict(bd);
+
+        site_.homepage = L"http://baidu.com";
+        // site_.industries = L"all";
+        {
+            Action act;
+            act.aid = 0;
+            act.type = AT_REGISTER;
+            act.url = L"https://passport.baidu.com/?verifypic";
+            act.restype = ART_VERIFY_IMAGE;
+            site_.Add(act);
+        }
+
+        {
+            Action act;
+            act.aid = 1;
+            act.url = L"https://passport.baidu.com/?reg";
+            act.vars = L"tpl=&tpl_ok=&skip_ok=&aid=0&need_pay=&need_coin=0&pay_method=0&u=&next_target=&return_method=&next_type=&more_param=&username={loginname}&loginpass={pasw}&verifypass={pasw}&sex={sex}&email=&verifycode={verifycode}&space_flag=on&submit= ЭЌвт";
+            act.type = AT_REGISTER;
+            act.restype = ART_NONE;
+            site_.Add(act);
+        }
+
         return true;
+    }
+
+    void Run(TaskRunner * runner)
+    {
+        SiteTask * task = new SiteTask(site_, runner);
+
+        task->AddAction(site_.Find(AT_REGISTER));
+
+        runner->RunTasks();
     }
 private:
     UserInfo user_;
-    std::vector<SiteInfo> sites_;
+    // TODO:
+    // std::vector<Site> sites_;
+    Site site_;
 };
 

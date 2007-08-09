@@ -45,7 +45,7 @@ BEGIN_ENGINE_NAMESPACE
 
 // Escapes < > " ' & <non-space whitespace> to &lt; &gt; &quot; &#39;
 // &amp; <space>
-std::string HtmlEscape::operator()(const std::string& in) const {
+inline std::string HtmlEscape::operator()(const std::string& in) const {
  std::string out;
   // we'll reserve some space in out to account for minimal escaping: say 12%
   out.reserve(in.size() + in.size()/8 + 16);
@@ -66,7 +66,7 @@ std::string HtmlEscape::operator()(const std::string& in) const {
 
 // Escapes < > " ' & to &lt; &gt; &quot; &#39; &amp;
 // (Same as HtmlEscape but leaves whitespace alone.)
-std::string PreEscape::operator()(const std::string& in) const {
+inline std::string PreEscape::operator()(const std::string& in) const {
  std::string out;
   // we'll reserve some space in out to account for minimal escaping: say 12%
   out.reserve(in.size() + in.size()/8 + 16);
@@ -87,7 +87,7 @@ std::string PreEscape::operator()(const std::string& in) const {
 // Escapes &nbsp; to &#160;
 // TODO(csilvers): have this do something more useful, once all callers have
 //                 been fixed.  Dunno what 'more useful' might be, yet.
-std::string XmlEscape::operator()(const std::string& in) const {
+inline std::string XmlEscape::operator()(const std::string& in) const {
  std::string out(in);
 
  std::string::size_type pos = 0;
@@ -102,7 +102,7 @@ std::string XmlEscape::operator()(const std::string& in) const {
 }
 
 // Escapes " ' \ <CR> <LF> <BS> to \" \' \\ \r \n \b
-std::string JavascriptEscape::operator()(const std::string& in) const {
+inline std::string JavascriptEscape::operator()(const std::string& in) const {
  std::string out;
   // we'll reserve some space in out to account for minimal escaping: say 1.5%
   out.reserve(in.size() + in.size()/64 + 2);
@@ -124,7 +124,7 @@ std::string JavascriptEscape::operator()(const std::string& in) const {
   return out;
 }
 
-std::string UrlQueryEscape::operator()(const std::string& in) const {
+inline std::string UrlQueryEscape::operator()(const std::string& in) const {
   // Everything not matching [0-9a-zA-Z.,_*/~!()-] is escaped.
   static unsigned long _safe_characters[8] = {
     0x00000000L, 0x03fff702L, 0x87fffffeL, 0x47fffffeL,
@@ -156,7 +156,7 @@ std::string UrlQueryEscape::operator()(const std::string& in) const {
 }
 
 // Escapes " / \ <BS> <FF> <CR> <LF> <TAB> to \" \/ \\ \b \f \r \n \t
-std::string JsonEscape::operator()(const std::string& in) const {
+inline std::string JsonEscape::operator()(const std::string& in) const {
  std::string out;
   // we'll reserve some space in out to account for minimal escaping: say 1.5%
   out.reserve(in.size() + in.size()/64 + 2);
