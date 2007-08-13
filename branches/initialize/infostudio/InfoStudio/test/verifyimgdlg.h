@@ -5,7 +5,7 @@
 #if !defined(__VERIFYIMG_WND_H__)
 #define __VERIFYIMG_WND_H__
 
-#include <atlimage.h>
+#include "picture.h"
 
 #define WM_ADDIMAGE     WM_APP + 1
 
@@ -34,7 +34,8 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-        CImage img;
+        CPicture img;
+        img.Load(_T(""));
 		CenterWindow(GetParent());
 		return TRUE;
 	}
