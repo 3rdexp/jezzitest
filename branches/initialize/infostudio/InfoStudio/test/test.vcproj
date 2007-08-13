@@ -35,7 +35,7 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/test.pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -165,6 +165,31 @@
 				RelativePath="..\engine\urlcomp.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="ui"
+			Filter="">
+			<File
+				RelativePath=".\main2.cpp">
+			</File>
+			<File
+				RelativePath=".\Picture.cpp">
+			</File>
+			<File
+				RelativePath=".\Picture.h">
+			</File>
+			<File
+				RelativePath=".\stdafx.h">
+			</File>
+			<File
+				RelativePath=".\verifyimgdlg.h">
+			</File>
+		</Filter>
+		<File
+			RelativePath="..\coreconst.h">
+		</File>
+		<File
+			RelativePath="..\coreinfo.h">
+		</File>
 		<File
 			RelativePath="..\infoengine.cpp">
 		</File>
@@ -179,6 +204,12 @@
 		</File>
 		<File
 			RelativePath="..\querymap.h">
+		</File>
+		<File
+			RelativePath=".\resource.h">
+		</File>
+		<File
+			RelativePath=".\test.rc">
 		</File>
 		<File
 			RelativePath="..\test_core.cpp">
