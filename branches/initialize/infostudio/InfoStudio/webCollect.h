@@ -15,6 +15,7 @@ public:
     CWebCollectDlg()
     {
         _strUrl			= "";
+		_fromName		= "";
         _pWebExternal	= 0;
         _pWebInfo		= NULL;
         _pRegister		= NULL;
@@ -61,8 +62,10 @@ public:
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
+		if ( _strUrl == "" )
+			_strUrl = "http://db.b2b.sohu.com/qy/logon/Logon_free.html"; 
         Init();	
-        ::SetWindowText(GetDlgItem(IDC_EDIT_URL), _T("http://db.b2b.sohu.com/qy/logon/Logon_free.html"));
+        //::SetWindowText(GetDlgItem(IDC_EDIT_URL), _T("http://db.b2b.sohu.com/qy/logon/Logon_free.html"));
         return 0;
     }
 
@@ -99,7 +102,7 @@ public:
     LRESULT OnSaveRegister(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         SaveRegister();
-        MessageBox(_T("保存成"), MSGTITLE, MB_OK);
+        MessageBox(_T("保存成功"), MSGTITLE, MB_OK);
         return 0;
     }
 
@@ -108,7 +111,7 @@ public:
     {
         _pRegister = NULL;
         SaveRegister();
-        MessageBox(_T("保存成"), MSGTITLE, MB_OK);
+        MessageBox(_T("保存成功"), MSGTITLE, MB_OK);
         return 0;
     }
 
@@ -203,6 +206,7 @@ public:
         if(nSel < 0)
             return 0;
 
+		getWindowText( box.m_hWnd, _fromName );
         ListForm( nSel );
         return 0;
     }
@@ -247,14 +251,14 @@ public:
 
         CComboBox box;
         box.Attach( GetDlgItem(IDC_COMBO_POSTMETHOD) );
-        box.AddString( _T("POS") );
-        box.AddString( _T("GE") );
+        box.AddString( _T("POST") );
+        box.AddString( _T("GET") );
         box.SetCurSel( 0 );
         box.Detach();
 
         box.Attach( GetDlgItem(IDC_COMBO_ENCODE) );
-        box.AddString( _T("GB231") );
-        box.AddString( _T("UTF-") );
+        box.AddString( _T("GB2312") );
+        box.AddString( _T("UTF-8") );
         box.SetCurSel( 0 );
         box.Detach();
 
@@ -331,10 +335,13 @@ public:
             getWindowText( GetDlgItem( IDC_EDIT_URL ), _pRegister->_url );
             getWindowText( GetDlgItem( IDC_EDIT_POSTURL ), _pRegister->_posturl );
 
+			_pRegister->_strFormName = _fromName;
+
             CString str = "";
 
             getWindowText( GetDlgItem( IDC_EDIT_PARAM ), str );	//以&分割 里面用=
 
+			_pRegister->_strPost = str;
             _pRegister->_postMap.clear();
 
             vector<std::string> paramList;
@@ -376,13 +383,53 @@ public:
 
             box.Detach();
 
+
+			//
+			SavewebRegister2Data ( _pRegister );
         }
 
     }
 
+
+	void SavewebRegister2Data( webRegister*	pRegister)
+	{
+		// 需要保存数据库
+		CString strSql;	
+		
+		strSql.Format( _T("select * from weblistinfo ")); //
+		
+		CAdoRecordSet* pRs = new CAdoRecordSet(_pDb);
+
+		if( pRs->Open((LPCTSTR) strSql ) )
+		{
+			pRs->AddNew();
+			pRs->PutCollect( _T("id"), pRegister->_id );
+			pRs->PutCollect( _T("item"), pRegister->_item );
+			pRs->PutCollect( _T("url"), pRegister->_url );
+			pRs->PutCollect( _T("posturl"), pRegister->_posturl );
+			pRs->PutCollect( _T("type"), pRegister->_type );
+			pRs->PutCollect( _T("header"), pRegister->_strHead );
+			pRs->PutCollect( _T("content"), pRegister->_strPost );
+			pRs->PutCollect( _T("posttype"), pRegister->_httptype );
+			pRs->PutCollect( _T("validateurl"), pRegister->_validateUrl );
+			pRs->PutCollect( _T("successRet"), pRegister->_success );
+			
+			pRs->PutCollect( _T("loginbase"), pRegister->_loginBase );
+			pRs->PutCollect( _T("resulturl"), pRegister->_strResultUrl );
+			pRs->PutCollect( _T("formname"), pRegister->_strFormName );
+			pRs->Update();
+
+		}
+
+		if ( pRs )
+			delete pRs;
+
+		pRs = NULL;
+	}
 public:
 
     CWebInfo*			_pWebInfo;
     webRegister*		_pRegister;
     int					_type;//是注册，登录，还是信息发布
+	CString				_fromName;
 };
