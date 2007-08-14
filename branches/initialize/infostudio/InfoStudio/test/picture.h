@@ -17,13 +17,12 @@ public:
 	~CPicture();
 
 	// Load frm various sosurces
-	BOOL Load(UINT nIDRes);
+	// BOOL Load(UINT nIDRes);
 	BOOL Load(LPCTSTR pszPathName);
 	BOOL Load(IStream* pstm);
 
 	// render to device context
-	BOOL Render(HDC hDC, CRect rc=CRect(0,0,0,0),
-		LPCRECT prcMFBounds=NULL) const;
+	BOOL Render(HDC hDC, LPRECT prc = 0, LPCRECT prcMFBounds=NULL) const;
 
 	SIZE GetImageSize(HDC hDC=NULL) const;
 
@@ -32,11 +31,12 @@ public:
 	}
 
 	void GetHIMETRICSize(OLE_XSIZE_HIMETRIC& cx, OLE_YSIZE_HIMETRIC& cy) const {
+        HRESULT hr = S_OK;
 		cx = cy = 0;
-		const_cast<CPicture*>(this)->m_hr = m_spIPicture->get_Width(&cx);
-		ASSERT(SUCCEEDED(m_hr));
-		const_cast<CPicture*>(this)->m_hr = m_spIPicture->get_Height(&cy);
-		ASSERT(SUCCEEDED(m_hr));
+		hr = m_spIPicture->get_Width(&cx);
+		ASSERT(SUCCEEDED(hr));
+		hr = m_spIPicture->get_Height(&cy);
+		ASSERT(SUCCEEDED(hr));
 	}
 
 	void Free() {
@@ -47,5 +47,4 @@ public:
 
 protected:
 	CComQIPtr<IPicture> m_spIPicture;		 // ATL smart pointer to IPicture
-	HRESULT m_hr;								 // last error code
 };

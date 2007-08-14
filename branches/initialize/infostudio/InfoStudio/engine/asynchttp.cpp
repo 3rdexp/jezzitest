@@ -193,7 +193,7 @@ bool AsyncHttp::PrepareGet(const std::string & url, const std::string & referrer
     AsyncInet & ai = AsyncInet::GetInstance();
 
     hConn_ = InternetConnectA(ai.get(), uc.lpszHostName, uc.nPort, 
-        uc.lpszUserName, uc.lpszPassword, uc.nScheme, // INTERNET_SERVICE_HTTP )
+        uc.lpszUserName, uc.lpszPassword, INTERNET_SERVICE_HTTP,
         INTERNET_FLAG_PASSIVE, (DWORD_PTR)this);
     ASSERT(hConn_);
     if (!hConn_)
@@ -201,11 +201,18 @@ bool AsyncHttp::PrepareGet(const std::string & url, const std::string & referrer
 
     LPCSTR szAcceptType[] = { "*.*", 0 };
 
-    hRequest_ = HttpOpenRequestA(hConn_, "GET", uc.lpszUrlPath, 
+    DWORD flags = INTERNET_FLAG_NO_UI;
+    if (uc.nScheme == INTERNET_SCHEME_HTTPS)
+        flags |= INTERNET_FLAG_SECURE;
+
+    std::string p(uc.lpszUrlPath);
+    p += uc.lpszExtraInfo;
+
+    hRequest_ = HttpOpenRequestA(hConn_, "GET", p.c_str(), 
         NULL, // Version
         referrer.empty() ? NULL : referrer.c_str(), // Referrer
         szAcceptType,
-        INTERNET_FLAG_NO_UI,
+        flags,
         (DWORD_PTR)this);
     ASSERT(hRequest_);
 
@@ -234,11 +241,18 @@ bool AsyncHttp::PreparePost(const std::string & url, const std::string & content
 
     LPCSTR szAcceptType[] = { "*.*", 0 };
 
-    hRequest_ = HttpOpenRequestA(hConn_, "POST", uc.lpszUrlPath, 
+    DWORD flags = INTERNET_FLAG_NO_UI;
+    if (uc.nScheme == INTERNET_SCHEME_HTTPS)
+        flags |= INTERNET_FLAG_SECURE;
+
+    std::string p(uc.lpszUrlPath);
+    p += uc.lpszExtraInfo;
+
+    hRequest_ = HttpOpenRequestA(hConn_, "POST", p.c_str(), 
         NULL, // Version
         referrer.empty() ? NULL : referrer.c_str(), // Referrer
         szAcceptType,
-        INTERNET_FLAG_NO_UI,
+        flags,
         (DWORD_PTR)this);
     ASSERT(hRequest_);
 

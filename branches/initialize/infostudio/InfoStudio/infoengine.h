@@ -39,9 +39,7 @@ deal response
 class SiteTask : public AsyncTask
 {
 public:
-    SiteTask(Site & site, TaskRunner * parent) 
-        : site_(site), AsyncTask(parent) 
-    {}
+    SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent);
     void AddAction(const std::vector<Action*> & acts)
     {
         std::copy(acts.begin(), acts.end(), std::back_inserter(actions_));
@@ -50,91 +48,37 @@ public:
     {
         actions_.push_back(act);
     }
+
+    void EnterVerifyCode(const std::wstring & code);
 protected:
-    virtual int ProcessStart()
-    {
-        curact_ = 0;
-        ActionInfo * pa = actions_[curact_];
-        
-        bool f = StartAction(pa);
-        return f ? STATE_BLOCKED : STATE_ERROR;
-    }
+    virtual int ProcessStart();
+    virtual int ProcessResponse();
+    virtual int Process(int state);
+    
 
-    virtual int ProcessResponse() 
-    {
-        ActionInfo * pa = actions_[curact_];
-        switch (pa->restype)
-        {
-        case ART_VERIFY_IMAGE:
-            // 加入辨认验证码的队列 。。。。
-            if (pa->timeout)
-                set_timeout_seconds(pa->timeout);
-            return STATE_BLOCKED;
-        case ART_NONE:
-            break;
-        case ART_CHECK_RESULT:
-            // do check
-            break;
-        default:
-            break;
-        }
-        return STATE_STEP;
-    }
-
-    virtual int Process(int state)
-    {
-        if (STATE_STEP == state)
-            return ProcessNextAction();
-        else
-            return AsyncTask::Process(state);
-    }
+    virtual void RequestDone();
 
 protected:
     enum {
-        STATE_STEP        = STATE_NEXT + 1,
+        STATE_INPUT_VERIFYCODE = STATE_NEXT + 1,
+        STATE_ACTION_DONE        = STATE_NEXT + 2,
     };
 
 private:
-    int ProcessNextAction()
-    {
-        curact_ ++;
-        if (curact_ == actions_.size())
-            return STATE_DONE;
-
-        ActionInfo * pa = actions_[curact_];
-        bool f = StartAction(pa);
-        return f ? STATE_BLOCKED : STATE_ERROR;
-    }
-
-    bool StartAction(ActionInfo * pa)
-    {
-        bool f = false;
-        if (pa->method == HV_POST)
-        {
-            std::stringstream ss;
-            f = PrepareForm(&ss, pa);
-            if (f)
-                f = PreparePost(pa->url, pa->form_encoding, &ss, pa->referrer);
-        }
-        else if (pa->method == HV_GET)
-            f = PrepareGet(pa->url, pa->referrer);
-
-        if (f && pa->timeout)
-            set_timeout_seconds(pa->timeout);
-        return f;
-    }
-
-    bool PrepareForm(std::istream *, ActionInfo*)
-    {
-        return true;
-    }   
+    int ProcessNextAction();
+    bool StartAction(Action * pa);
     
+    bool PrepareForm(std::ostream & out, const std::wstring & vars);
 public:// private:
-    std::vector<ActionInfo*> actions_;
+    std::vector<Action*> actions_;
     int curact_;
     Site & site_;
+    const UserInfo & uiserinfo_;
+    std::wstring verifycode_; // 输入的。。。
 };
 
+//////////////////////////////////////////////////////////////////////////
+//
 class SiteCrank
 {
 public:
@@ -142,9 +86,9 @@ public:
     bool Init()
     {
         {
-            user_.insert(L"sex", L"male");
-            user_.insert(L"pasw", L"strongpsw");
-            user_.insert(L"mail", L"a@b.com");
+            uiserinfo_.insert(L"sex", L"male");
+            uiserinfo_.insert(L"pasw", L"strongpsw");
+            uiserinfo_.insert(L"mail", L"a@b.com");
         }
 
         Dictionary bd;
@@ -163,6 +107,7 @@ public:
             act.aid = 0;
             act.type = AT_REGISTER;
             act.url = L"https://passport.baidu.com/?verifypic";
+            act.method = HV_GET;
             act.restype = ART_VERIFY_IMAGE;
             site_.Add(act);
         }
@@ -171,6 +116,7 @@ public:
             Action act;
             act.aid = 1;
             act.url = L"https://passport.baidu.com/?reg";
+            act.method = HV_POST;
             act.vars = L"tpl=&tpl_ok=&skip_ok=&aid=0&need_pay=&need_coin=0&pay_method=0&u=&next_target=&return_method=&next_type=&more_param=&username={loginname}&loginpass={pasw}&verifypass={pasw}&sex={sex}&email=&verifycode={verifycode}&space_flag=on&submit= 同意";
             act.type = AT_REGISTER;
             act.restype = ART_NONE;
@@ -182,14 +128,18 @@ public:
 
     void Run(TaskRunner * runner)
     {
-        SiteTask * task = new SiteTask(site_, runner);
+        // TODO:
+        // for_each site in sites_
+        // new task
+        // ....
+        SiteTask * task = new SiteTask(site_, uiserinfo_, runner);
 
         task->AddAction(site_.Find(AT_REGISTER));
 
-        runner->RunTasks();
+        runner->StartTask(task);
     }
 private:
-    UserInfo user_;
+    UserInfo uiserinfo_;
     // TODO:
     // std::vector<Site> sites_;
     Site site_;

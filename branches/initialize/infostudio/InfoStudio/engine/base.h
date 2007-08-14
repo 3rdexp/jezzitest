@@ -29,9 +29,8 @@
 #endif
 
 // TODO:
-#ifndef ASSERT
-    #include <cassert>
-    #define ASSERT assert
+#ifndef ASSERT    
+    #define ASSERT(x) if (!(x)) __asm int 3;
 #endif
 
 
