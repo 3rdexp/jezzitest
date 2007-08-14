@@ -48,3 +48,4 @@ void test_querymap()
     std::string s = qm.Apply(userinfo, site_dict, SC_ANSI);
     std::string s8 = qm.Apply(userinfo, site_dict, SC_UTF8);
 }
+

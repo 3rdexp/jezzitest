@@ -9,6 +9,10 @@
 #include <atlctrlw.h>
 // #include <atlmisc.h>
 
+#ifndef ASSERT
+    #define ASSERT ATLASSERT
+#endif
+
 #include "resource.h"
 
 #include "verifyimgdlg.h"

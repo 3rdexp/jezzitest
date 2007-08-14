@@ -12,8 +12,10 @@
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0100
 
+#define _WTL_NO_CSTRING
 
 #include <atlbase.h>
+#include <atlstr.h>
 #include <atlapp.h>
 
 extern CAppModule _Module;

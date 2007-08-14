@@ -1,6 +1,9 @@
 // test_asyncinet.cpp : 定义控制台应用程序的入口点。
 //
 
+//this code excerpt also demonstrates try/catch exception handling
+#include <afxinet.h>
+
 #include <fstream>
 #include <iostream>
 
@@ -131,6 +134,8 @@ int main(int argc, char* argv[])
 
     LPCSTR urls[] = 
     {
+        "https://passport.baidu.com/?verifypic",
+#if 0
         "http://musicdata.dudu.com/search.php?id=mf7w0fxzIVfTFFa9",
         "http://www.codeproject.com",
         "http://news.sohu.com",
@@ -150,6 +155,7 @@ int main(int argc, char* argv[])
         "http://sf.net/",
         "http://www.boost.org/",
         "http://bizsolutions.google.com/services/",
+#endif
     };
 
     // LOG(LS_INFO) << "first log";
@@ -190,7 +196,7 @@ int main(int argc, char* argv[])
     cp.SendRequest();    
 
 
-#elif 1
+#elif 0
     struct StringPair
     {
         const char * key;
@@ -264,7 +270,8 @@ int main(int argc, char* argv[])
     // gb2312
     // ftext=Your+Name&%B9%EE%D2%EC=%D6%D0+%CE%C4&fpassword=eeee&fradio=0&ftext2=long+value+%D6%D0%CE%C4&fcheckbox=on&fselect=1&fselect=3&fsubmit=OK
 
-
+    void mfc_test();
+    // mfc_test();
     
 
     char ch;
@@ -272,4 +279,50 @@ int main(int argc, char* argv[])
     AsyncInet::Release();
 
 	return 0;
+}
+
+
+
+void mfc_test()
+{
+    //assumes server, port, and URL names have been initialized
+    CInternetSession session("Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1;"
+        " .NET CLR 1.1.4322)");
+    CHttpConnection* pServer = NULL;
+    CHttpFile* pFile = NULL;
+    char szBuff[1024];
+    try
+    {
+        CString strServerName = "passport.baidu.com";
+        INTERNET_PORT nPort = 443;
+
+        pServer = session.GetHttpConnection(strServerName, nPort);
+        LPCSTR szAcceptType[] = { "*.*", 0 };
+        pFile = pServer->OpenRequest(CHttpConnection::HTTP_VERB_GET, "/?verifypic"
+            , NULL, 0, szAcceptType);
+        // pFile->AddRequestHeaders(szHeaders);
+        pFile->SendRequest();
+        DWORD dwRet;
+        pFile->QueryInfoStatusCode(dwRet);
+
+        DWORD ndx = 0;
+        CString h;
+        pFile->QueryInfo(HTTP_QUERY_RAW_HEADERS_CRLF, h, &ndx);
+
+        if (dwRet == HTTP_STATUS_OK)
+        {
+            UINT nRead = pFile->Read(szBuff, 1023);
+            while (nRead > 0)
+            {
+                //read file...
+            }
+        }
+        delete pFile;
+        delete pServer;
+    }
+    catch (CInternetException* pEx)
+    {
+        //catch errors from WinInet
+    }
+    session.Close();
 }

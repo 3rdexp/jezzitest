@@ -95,6 +95,7 @@ struct ActionInfo
         , type(AT_UTILITY)
         , method(HV_POST)
         , charset(SC_ANSI)
+        , timeout(0)
     {
     }
 //    ActionInfo(int aid, SiteInfo* site)
@@ -145,7 +146,18 @@ public:
 class Site : public SiteInfo
 {
 public:
-    std::vector<Action*> Find(ActionType type);
+    std::vector<Action*> Find(ActionType type) const
+    {
+        std::vector<Action*> ret;
+        for (std::list<Action>::const_iterator i = actions_.begin();
+            i != actions_.end(); ++i)
+        {
+            const Action * p = &*i;
+            if (i->type == type)
+                ret.push_back(const_cast<Action*>(p));
+        }
+        return ret;
+    }
     void Add(Action & act)
     {
         actions_.push_back(act);

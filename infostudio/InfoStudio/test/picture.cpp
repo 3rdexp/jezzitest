@@ -7,8 +7,7 @@
 //
 #include "StdAfx.h"
 
-#include <atlconv.h>
-#include <atlmisc.h>
+
 #ifndef ASSERT
     #define ASSERT ATLASSERT
 #endif
@@ -83,18 +82,23 @@ BOOL CPicture::Load(IStream* pstm)
 //////////////////
 // Render to device context. Covert to HIMETRIC for IPicture.
 //
-BOOL CPicture::Render(HDC hDC, CRect rc, LPCRECT prcMFBounds) const
+BOOL CPicture::Render(HDC hDC, LPRECT prc, LPCRECT prcMFBounds) const
 {
 	ASSERT(hDC);
 
-	if (rc.IsRectNull()) {
-		SIZE sz = GetImageSize(hDC);
-		rc.right = sz.cx;
-		rc.bottom = sz.cy;
-	}
+    RECT rc;
+    if (prc) {
+        rc = *prc;
+    } else {
+        rc.left = rc.top = 0;
+        SIZE sz = GetImageSize(hDC);
+        rc.right = sz.cx;
+        rc.bottom = sz.cy;
+    }
+
 	long hmWidth,hmHeight; // HIMETRIC units
 	GetHIMETRICSize(hmWidth, hmHeight);
-	m_spIPicture->Render(hDC, rc.left, rc.top, rc.Width(), rc.Height(),
+	m_spIPicture->Render(hDC, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
 		0, hmHeight, hmWidth, -hmHeight, prcMFBounds);
 
 	return TRUE;
