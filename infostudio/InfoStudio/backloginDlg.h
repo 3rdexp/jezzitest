@@ -220,6 +220,7 @@ public:
 		::SetWindowText( GetDlgItem(IDC_EDIT_USER), _pWebInfo->_strUser);
 		::SetWindowText( GetDlgItem(IDC_EDIT_PASS), _pWebInfo->_strPass);
 
+		/*
 		CString strInfo = "";
 		for( std::map<CString, CString>::iterator it = pWebRegister->_headMap.begin(); it!= pWebRegister->_headMap.end(); it++ )
 		{
@@ -230,9 +231,10 @@ public:
 		}
 		if ( strInfo != "" )
 			strInfo = strInfo.Left( strInfo.GetLength() );
-		::SetWindowText( GetDlgItem(IDC_EDIT_HEADER), strInfo );
+		*/
+		::SetWindowText( GetDlgItem(IDC_EDIT_HEADER), pWebRegister->_strHead );
 
-
+		/*
 		strInfo = "";
 		for( std::map<CString, CString>::iterator it = pWebRegister->_postMap.begin(); it!= pWebRegister->_postMap.end(); it++ )
 		{
@@ -243,7 +245,8 @@ public:
 		}
 		if ( strInfo != "" )
 			strInfo = strInfo.Left( strInfo.GetLength() );
-		::SetWindowText( GetDlgItem(IDC_EDIT_PARAM), strInfo );
+		*/
+		::SetWindowText( GetDlgItem(IDC_EDIT_PARAM), pWebRegister->_strPost );
 
 	}
 

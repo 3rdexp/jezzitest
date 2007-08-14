@@ -169,6 +169,8 @@ void CInfoManage::InitWebInfo( CAdoRecordSet* pRs )
 		pWebRegister->_type = nType;
 
 		//»ñÈ¡heardºÍcontent
+		pWebRegister->_strHead = strHeader;
+		pWebRegister->_strPost = strContent;
 
 		pWebRegister->_httptype = Posttype;
 		pWebRegister->_validateUrl = strValidateurl;

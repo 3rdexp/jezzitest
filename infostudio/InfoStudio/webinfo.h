@@ -62,6 +62,10 @@ struct webRegister
 	int			_loginBase;		// 0  不需要登录 1 需要登录
 	CString		_strResultUrl;
 	CString		_strPubViewUrl;
+
+	CString		_strHead;
+	CString		_strPost;
+	CString		_strFormName;
 };
 
 struct webSearchItem
