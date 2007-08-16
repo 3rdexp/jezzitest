@@ -1,11 +1,7 @@
 
-
 #pragma once
 
-#include <atlmisc.h>
-
 #include "picture.h"
-
 
 class PictureWnd : public CWindowImpl<PictureWnd, CWindow>
 {

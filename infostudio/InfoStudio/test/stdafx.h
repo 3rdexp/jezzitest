@@ -22,6 +22,13 @@ extern CAppModule _Module;
 
 #include <atlwin.h>
 
+
+#ifndef ASSERT
+    #define ASSERT ATLASSERT
+#endif
+
+#include <atltypes.h>
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 

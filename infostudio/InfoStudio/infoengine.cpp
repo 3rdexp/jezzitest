@@ -1,5 +1,21 @@
 
+#include "test/stdafx.h"
+
+#include <fstream>
+#include <iterator>
+
+#include "test/resource.h"
+#include "test/verifyimgdlg.h"
 #include "infoengine.h"
+
+
+//////////////////////////////////////////////////////////////////////////
+// temp code
+HWND GetVerifyWindow()
+{
+    extern VerifyImgDlg * gvidlg;
+    return gvidlg->m_hWnd;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -65,6 +81,20 @@ void SiteTask::RequestDone()
 
         // 加入辨认验证码的队列 。。。。
         // state_ 依然是 Blocked
+
+        // write buf_ to file
+        TCHAR temppath[MAX_PATH], filename[MAX_PATH];
+        GetTempPath(MAX_PATH - 1, temppath);
+        GetTempFileName(temppath, _T("IST_"), 0, filename);
+
+        std::ofstream outf_;
+        outf_.open( CT2A(filename) );
+        std::copy(buf_.begin(), buf_.end(), std::ostream_iterator<char>(outf_));
+        outf_.close();
+
+        CWindow wnd = GetVerifyWindow();
+        wnd.PostMessage(WM_ADDIMAGE, (WPARAM)filename, (LPARAM)this);
+        
         if (pa->timeout)
             set_timeout_seconds(pa->timeout);
     }
