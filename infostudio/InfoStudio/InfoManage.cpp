@@ -235,7 +235,7 @@ CWebInfo* CInfoManage::createWebInfo( CAdoRecordSet* pRs )
 
 	pWebInfo->_language = nLanguage;
 	pWebInfo->_used = nUsed;
-	pWebInfo->_used = nDemoUsed;
+	pWebInfo->_demoUsed = nDemoUsed;
 
 	return pWebInfo;
 }

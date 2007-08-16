@@ -60,7 +60,7 @@ public:
 		::ShowWindow( _WebListView.m_hWnd, SW_SHOW );
 
 		SetSplitterExtendedStyle(SPLIT_LEFTALIGNED);
-		SetSplitterPos(250, false);
+		SetSplitterPos(100, false);
 		SetSplitterPanes( _WebListView, _webInfoDlg );
 
 		_WebListView.SetWebInfoDlg(  &_webInfoDlg );

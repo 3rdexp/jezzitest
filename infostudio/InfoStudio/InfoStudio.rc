@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(中华人民共和国) resources
+// Chinese (P.R.C.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
@@ -47,7 +47,7 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,7,7,115,88
 END
 
-IDD_MAINDLG DIALOGEX 0, 0, 565, 297
+IDD_MAINDLG DIALOGEX 0, 0, 620, 367
 STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU | 
     WS_THICKFRAME
 CAPTION "InfoStudio"
@@ -185,18 +185,18 @@ BEGIN
 END
 
 IDD_COLLECTDLG DIALOGEX 0, 0, 564, 398
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | 
-    WS_THICKFRAME
+STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
 CAPTION "表单分析"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
+FONT 9, "宋体", 400, 0, 0x0
 BEGIN
     EDITTEXT        IDC_EDIT_URL,3,1,401,15,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "浏览",IDOK,417,1,38,15
-    LISTBOX         IDC_LIST_FORM,3,37,107,246,LBS_NOINTEGRALHEIGHT | 
+    LISTBOX         IDC_LIST_FORM,3,37,107,227,LBS_NOINTEGRALHEIGHT | 
                     LBS_EXTENDEDSEL | WS_VSCROLL | WS_TABSTOP
     LTEXT           "static for IE",IDC_IE,122,22,439,260,NOT WS_VISIBLE
-    COMBOBOX        IDC_COMBO_FORM,3,19,107,127,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_FORM,3,19,72,127,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
     LTEXT           "提交页面地址：",IDC_STATIC,3,295,59,12
     EDITTEXT        IDC_EDIT_POSTURL,73,292,312,14,ES_AUTOHSCROLL
     LTEXT           "提交页面参数：",IDC_STATIC,3,314,59,12
@@ -207,20 +207,24 @@ BEGIN
     LTEXT           "字段值：",IDC_STATIC,391,311,41,12
     COMBOBOX        IDC_COMBO_LIST,431,308,86,13,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "成功标示：",IDC_STATIC,393,340,41,12
-    EDITTEXT        IDC_EDIT_SUCC,433,337,85,14,ES_AUTOHSCROLL
-    LTEXT           "提交方式：",IDC_STATIC,393,361,41,12
-    COMBOBOX        IDC_COMBO_POSTMETHOD,433,358,86,13,CBS_DROPDOWN | 
+    LTEXT           "成功标示：",IDC_STATIC,3,372,41,12
+    EDITTEXT        IDC_EDIT_SUCC,71,370,85,14,ES_AUTOHSCROLL
+    LTEXT           "提交方式：",IDC_STATIC,161,371,41,12
+    COMBOBOX        IDC_COMBO_POSTMETHOD,202,369,66,13,CBS_DROPDOWN | 
                     WS_VSCROLL | WS_TABSTOP
-    LTEXT           "编码格式：",IDC_STATIC,393,379,41,12
-    COMBOBOX        IDC_COMBO_ENCODE,433,376,86,13,CBS_DROPDOWN | WS_VSCROLL | 
+    LTEXT           "编码格式：",IDC_STATIC,279,372,41,12
+    COMBOBOX        IDC_COMBO_ENCODE,330,370,57,13,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    PUSHBUTTON      "生成提交参数",IDC_BUTTON_PARAM,3,327,53,14
+    PUSHBUTTON      "生成提交参数",IDC_BUTTON_PARAM,3,268,53,14
     LTEXT           "验证码地址：",IDC_STATIC,3,355,59,12
-    EDITTEXT        IDC_EDIT_VALIDATEURL,74,353,312,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "生成提交参数",IDC_BUTTON_IMGURL,465,324,53,14
-    PUSHBUTTON      "保存",IDC_BUTTON_SAVEINFO,459,1,38,15
-    PUSHBUTTON      "保存",IDC_BUTTON_ADDINFO,502,1,38,15
+    EDITTEXT        IDC_EDIT_VALIDATEURL,72,353,245,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "获取验证码地址",IDC_BUTTON_IMGURL,323,353,61,14
+    PUSHBUTTON      "添加",IDC_BUTTON_SAVEINFO,459,1,38,15
+    PUSHBUTTON      "修改",IDC_BUTTON_ADDINFO,502,1,38,15
+    PUSHBUTTON      "刷新",IDC_BUTTON_REFRESHFORM,79,19,30,13
+    CONTROL         "",IDC_LIST_SELECT,"SysListView32",LVS_REPORT | 
+                    LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,393,324,133,58
+    PUSHBUTTON      "填写参数",IDC_BUTTON_FILLFORM,58,268,53,14
 END
 
 
@@ -243,9 +247,9 @@ BEGIN
     IDD_MAINDLG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 558
+        RIGHTMARGIN, 613
         TOPMARGIN, 7
-        BOTTOMMARGIN, 290
+        BOTTOMMARGIN, 360
     END
 
     IDD_VALIDATEDLG, DIALOG
@@ -467,12 +471,12 @@ BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
-#endif    // 中文(中华人民共和国) resources
+#endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// 英语(美国) resources
+// English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -505,7 +509,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // 英语(美国) resources
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

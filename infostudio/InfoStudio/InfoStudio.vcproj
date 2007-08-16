@@ -300,6 +300,9 @@
 				RelativePath=".\searchconf.h">
 			</File>
 			<File
+				RelativePath=".\userinfo.h">
+			</File>
+			<File
 				RelativePath=".\webinfo.cpp">
 			</File>
 			<File

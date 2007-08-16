@@ -45,7 +45,7 @@
 #include <vector>
 #include "DocEventHandler.h"
 #include "../messagedef.h"
-
+#include "../condef.h"
 // CDocEventHandler
 
 //
@@ -124,19 +124,26 @@ STDMETHODIMP CDocEventHandler::Invoke(DISPID dispidMember, REFIID riid, LCID lci
 									//CComBSTR bstrInnerText;
 									//spChildElement->get_innerText(&bstrInnerText);
 									
-									CComVariant bstrAttribute;
-									spChildElement->getAttribute( L"value", 0, &bstrAttribute);
+									CComVariant bstrValue;
+									spChildElement->getAttribute( L"value", 0, &bstrValue);
 									
+									CComVariant bstrText;
+									spChildElement->getAttribute( L"text", 0, &bstrText);
+
 									USES_CONVERSION;
 
-									CString strValue = bstrAttribute.bstrVal ?
-										OLE2CT( bstrAttribute.bstrVal ) : _T("");	//未知域名
+									CString strValue = bstrValue.bstrVal ?
+										OLE2CT( bstrValue.bstrVal ) : _T("");	//未知域名
 		
+									CString strText = bstrText.bstrVal ?
+										OLE2CT( bstrText.bstrVal ) : _T("");	//未知域名
+
 									valueLst.push_back( strValue );
+									valueLst.push_back( strText );
 
 								}
 
-								::SendMessage ( m_hNotifyWnd , WM_WEBGETCOMBOX, (WPARAM)&valueLst, 0);
+								::SendMessage ( m_hNotifyWnd , WM_WEBGETCOMBOX, (WPARAM)&valueLst, IE_CONTROL_SELECT);
 							}
 						}
 
@@ -159,7 +166,7 @@ STDMETHODIMP CDocEventHandler::Invoke(DISPID dispidMember, REFIID riid, LCID lci
 							valueLst.push_back( strName );
 							valueLst.push_back( strValue );
 
-							::SendMessage ( m_hNotifyWnd , WM_WEBGETCOMBOX, (WPARAM)&valueLst, 0);
+							::SendMessage ( m_hNotifyWnd , WM_WEBGETCOMBOX, (WPARAM)&valueLst, IE_CONTROL_TEXT);
 						}
 						else if (bsTagName == L"IMG")
 						{
@@ -175,7 +182,7 @@ STDMETHODIMP CDocEventHandler::Invoke(DISPID dispidMember, REFIID riid, LCID lci
 							std::vector<CString>	valueLst;
 							valueLst.push_back( strSrc );
 
-							::SendMessage ( m_hNotifyWnd , WM_WEBGETCOMBOX, (WPARAM)&valueLst, 0);
+							::SendMessage ( m_hNotifyWnd , WM_WEBGETCOMBOX, (WPARAM)&valueLst, IE_CONTROL_IMG);
 
 
 						}
