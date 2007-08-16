@@ -44,6 +44,12 @@ static int WEBINFOFIELDSIZE[] =
 		200,
 };
 
+enum
+{
+	IE_CONTROL_TEXT		= 0,
+	IE_CONTROL_IMG		= 1,
+	IE_CONTROL_SELECT	= 2,
+};
 
 const COLORREF g_OutBorder  = RGB(241, 242, 246);
 const COLORREF g_InBorder  = RGB(156, 164, 187);

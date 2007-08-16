@@ -8,6 +8,10 @@
 #include "webinfo.h"
 #include "condef.h"
 
+#include "infomanage.h"
+
+extern CInfoManage* _pInfoManage;
+
 class CWebCollectDlg : public CDialogImpl<CWebCollectDlg>
 {
 public:
@@ -34,6 +38,9 @@ public:
         }
         if (::IsWindow(_WebView.m_hWnd))
             _WebView.DestroyWindow();
+
+
+		_listView.Detach();
     }
     enum {IDD = IDD_COLLECTDLG};
 
@@ -44,7 +51,11 @@ public:
 
         COMMAND_ID_HANDLER(IDC_BUTTON_PARAM, OnParam)		
         COMMAND_ID_HANDLER(IDC_BUTTON_IMGURL, OnImgUrl)		
+		COMMAND_ID_HANDLER(IDC_BUTTON_FILLFORM, OnFillForm)		
 
+		COMMAND_ID_HANDLER(IDC_BUTTON_REFRESHFORM, OnReFreshForm)		
+
+		
         COMMAND_ID_HANDLER(IDC_BUTTON_SAVEINFO, OnSaveRegister)
         COMMAND_ID_HANDLER(IDC_BUTTON_ADDINFO, OnAddRegister)
 
@@ -52,6 +63,7 @@ public:
         MESSAGE_HANDLER(WM_CHANGEURL, OnChangeUrl)
 
         MESSAGE_HANDLER(WM_WEBGETCOMBOX, OnWebGetCombox)
+
 
         COMMAND_HANDLER(IDC_COMBO_FORM, CBN_SELCHANGE, OnFormSelChanged)		
     END_MSG_MAP()
@@ -131,6 +143,26 @@ public:
         return 0;
     }
 
+
+	LRESULT OnFillForm(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		if ( _pRegister )
+			FillForm( _pRegister );
+
+
+		return 0;
+	}
+
+	LRESULT OnReFreshForm(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		_WebView.RefreshEnumForm();
+
+		ShowFormList();
+
+		return 0;
+	}
+	
+
     LRESULT OnImgUrl(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
         CString str;
@@ -199,19 +231,24 @@ public:
 
     LRESULT OnFormSelChanged (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
     {
-        CComboBox box;
-        int nSel = 0;
-        box.Attach(GetDlgItem(IDC_COMBO_FORM));
-        nSel = box.GetCurSel();
-        if(nSel < 0)
-            return 0;
-
-		getWindowText( box.m_hWnd, _fromName );
-        ListForm( nSel );
+		ShowFormList();
         return 0;
     }
 
     //funciton
+
+	void ShowFormList()
+	{
+		CComboBox box;
+		int nSel = 0;
+		box.Attach(GetDlgItem(IDC_COMBO_FORM));
+		nSel = box.GetCurSel();
+		if(nSel < 0)
+			return ;
+
+		getWindowText( box.m_hWnd, _fromName );
+		ListForm( nSel );
+	}
     void Init()
     {
         CRect rc;
@@ -262,6 +299,12 @@ public:
         box.SetCurSel( 0 );
         box.Detach();
 
+		_listView.Attach( GetDlgItem(IDC_LIST_SELECT));
+		_listView.InsertColumn(0, L"name");
+		_listView.InsertColumn(1, L"value");
+		_listView.SetColumnWidth(0, 50);
+		_listView.SetColumnWidth(1, 100);
+
     }
 
 
@@ -306,7 +349,12 @@ public:
         for ( int i = 0; i < _WebView._vectElements[nIndex]._vectElement.size(); i++ )
         {
             CString strItem;
-            strItem = _WebView._vectElements[nIndex]._vectElement[i]._Name + _T("=") + _WebView._vectElements[nIndex]._vectElement[i]._Value;
+			CString strValue;// = _WebView._vectElements[nIndex]._vectElement[i]._Value;
+			strValue = _pInfoManage->_userInfo.getParamValue( _WebView._vectElements[nIndex]._vectElement[i]._Value );
+			if ( strValue == "" )
+				strValue = _WebView._vectElements[nIndex]._vectElement[i]._Value;
+
+            strItem = _WebView._vectElements[nIndex]._vectElement[i]._Name + _T("=") + strValue;
             if ( i < _WebView._vectElements[nIndex]._vectElement.size() - 1 )
                 strItem += _T("&");
 
@@ -426,10 +474,18 @@ public:
 
 		pRs = NULL;
 	}
+
+	//填充
+	void FillForm( webRegister*	pRegister )
+	{
+		_WebView.FillForm( pRegister );
+	}
 public:
 
     CWebInfo*			_pWebInfo;
     webRegister*		_pRegister;
     int					_type;//是注册，登录，还是信息发布
 	CString				_fromName;
+
+	CSortListViewCtrl	_listView;
 };

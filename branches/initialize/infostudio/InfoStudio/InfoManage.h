@@ -6,6 +6,7 @@
 
 #include "searchconf.h"
 #include "webinfo.h"
+#include "userinfo.h"
 
 class CAdoRecordSet;
 
@@ -52,7 +53,7 @@ public:
 
 	// 当前的 weblist表里面的 id
 	int						_maxID;
-
+	CUserInfo					_userInfo;
 private:
 
 	//保存注册信息
@@ -76,5 +77,7 @@ private:
 	std::vector<HANDLE>			_ValidateHandleList;
 
 	HWND						_hWnd;
+
+	
 
 };

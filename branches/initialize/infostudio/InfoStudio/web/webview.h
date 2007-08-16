@@ -21,6 +21,8 @@
 #include "../commonctl/PictureExWnd.h"
 #include "DocEventHandler.h"
 #include "../messagedef.h"
+#include "../webinfo.h"
+
 // TODO: #include <mshtmdid.h> 
 
 /*
@@ -799,6 +801,15 @@ public:
 		}
 	}
 
+	void FillForm( webRegister*	pRegister )
+	{
+		//枚举出来
+		CComPtr<IHTMLDocument2> pDoc;
+		if(GetHtmlDocument(&pDoc)) 
+		{
+			FillForm( pDoc, pRegister );	
+		}
+	}
 	/// #region 
 	/// insert <DIV ID="ScriptDiv" style="display:none"></Div>
 	IHTMLElement* InstallScriptDummy(IHTMLDocument2 * pdoc)
@@ -1099,6 +1110,38 @@ private:
 		return hr;
 	}
 
+	
+
+	void FillFrame( IHTMLDocument2 * pIHTMLDocument2,webRegister* pRegister )
+	{
+		if ( !pIHTMLDocument2 )	return;
+
+		HRESULT hr;
+
+		CComPtr< IHTMLFramesCollection2 > spFramesCollection2;
+		pIHTMLDocument2->get_frames( &spFramesCollection2 );	//取得框架frame的集合
+
+		long nFrameCount=0;				//取得子框架个数
+		hr = spFramesCollection2->get_length( &nFrameCount );
+		if ( FAILED ( hr ) || 0 == nFrameCount )	return;
+
+		for(long i=0; i<nFrameCount; i++)
+		{
+			CComVariant vDispWin2;		//取得子框架的自动化接口
+			hr = spFramesCollection2->item( &CComVariant(i), &vDispWin2 );
+			if ( FAILED ( hr ) )	continue;
+
+			CComQIPtr< IHTMLWindow2 > spWin2 = vDispWin2.pdispVal;
+			if( !spWin2 )	continue;	//取得子框架的 IHTMLWindow2 接口
+
+			CComPtr < IHTMLDocument2 > spDoc2;
+			spWin2->get_document( &spDoc2 );	//取得字框架的 IHTMLDocument2 接口
+
+			FillForm( spDoc2, pRegister );			//递归枚举当前子框架 IHTMLDocument2 上的表单form
+		}
+	}
+
+
 	void EnumFrame( IHTMLDocument2 * pIHTMLDocument2 )
 	{
 		if ( !pIHTMLDocument2 )	return;
@@ -1166,7 +1209,7 @@ private:
 
 		for(long i=0; i<nFormCount; i++)
 		{
-			
+
 			ElementCollect	elments;
 
 			IDispatch *pDisp = NULL;	//取得第 i 项表单
@@ -1178,7 +1221,7 @@ private:
 
 			CComBSTR bstrFormName;
 			spFormElement->get_name( &bstrFormName );
-			
+
 			CComBSTR bstrFormAction;
 			spFormElement->get_action( &bstrFormAction );
 
@@ -1191,7 +1234,7 @@ private:
 
 			strTrace << _T("Form的名字：“") << elments._FormName << _T("”\r\n") << endl;
 			strTrace << _T("Form的URL：“") << elments._FormUrl << _T("”\r\n") << endl;
-		
+
 			long nElemCount=0;			//取得表单中 域 的数目
 			hr = spFormElement->get_length( &nElemCount );
 			if ( FAILED( hr ) )		continue;
@@ -1227,7 +1270,7 @@ private:
 
 				elments._vectElement.push_back( element );
 
-				
+
 			}
 			//想提交这个表单吗？删除下面语句的注释吧
 			//pForm->submit();
@@ -1237,7 +1280,88 @@ private:
 
 		TRACE("%s", strTrace.str().c_str() );
 
+
+	}
+
+	void FillForm( IHTMLDocument2 * pIHTMLDocument2, webRegister* pRegister )
+	{
+		if( !pIHTMLDocument2 )	return;
+
+		FillFrame( pIHTMLDocument2, pRegister );	//递归枚举当前 IHTMLDocument2 上的子框架frame
+
+		HRESULT hr;
+
+		CComQIPtr< IHTMLElementCollection > spElementCollection;
+		hr = pIHTMLDocument2->get_forms( &spElementCollection );	//取得表单集合
+		if ( FAILED( hr ) )
+		{
+			return;
+		}
+
+		long nFormCount=0;				//取得表单数目
+		hr = spElementCollection->get_length( &nFormCount );
+		if ( FAILED( hr ) )
+		{
+			return;
+		}
+
+		for(long i=0; i<nFormCount; i++)
+		{
+			
+			
+
+			IDispatch *pDisp = NULL;	//取得第 i 项表单
+			hr = spElementCollection->item( CComVariant( i ), CComVariant(), &pDisp );
+			if ( FAILED( hr ) )		continue;
+
+			CComQIPtr< IHTMLFormElement > spFormElement = pDisp;
+			pDisp->Release();
+
+			CComBSTR bstrFormName;
+			spFormElement->get_name( &bstrFormName );
+			
+			CString strFormName = OLE2T( bstrFormName ) ;
 		
+			if ( strFormName != pRegister->_strFormName )
+				continue;
+
+			long nElemCount=0;			//取得表单中 域 的数目
+			hr = spFormElement->get_length( &nElemCount );
+			if ( FAILED( hr ) )		continue;
+
+			for(long j=0; j<nElemCount; j++)
+			{
+				CComDispatchDriver spInputElement;	//取得第 j 项表单域
+				hr = spFormElement->item( CComVariant( j ), CComVariant(), &spInputElement );
+				if ( FAILED( hr ) )	continue;
+
+				CComVariant vName,vVal,vType;		//取得表单域的 名，值，类型
+				hr = spInputElement.GetPropertyByName( L"name", &vName );
+				if( FAILED( hr ) )	continue;
+				hr = spInputElement.GetPropertyByName( L"value", &vVal );
+				if( FAILED( hr ) )	continue;
+				hr = spInputElement.GetPropertyByName( L"type", &vType );
+				if( FAILED( hr ) )	continue;
+
+				
+				CString strName = OLE2T( vName.bstrVal ) ;
+
+				std::map<CString, CString>::iterator it = pRegister->_postMap.find( strName ) ;
+				if ( it != pRegister->_postMap.end() )
+				{
+					CComVariant vSetStatus( it->second );
+
+					spInputElement.PutPropertyByName( L"value",&vSetStatus );
+				}
+
+				
+				
+			}
+			//想提交这个表单吗？删除下面语句的注释吧
+			//pForm->submit();
+
+			
+		}
 	}
 private:
 	CComPtr<IHTMLDocument2> _spHTMLDoc;

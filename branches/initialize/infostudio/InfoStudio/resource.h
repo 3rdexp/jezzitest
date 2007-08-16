@@ -61,6 +61,10 @@
 #define IDC_BUTTON_SAVEINFO             1029
 #define IDC_BUTTON_SAVEINFO2            1030
 #define IDC_BUTTON_ADDINFO              1030
+#define IDC_BUTTON_REFRESHFORM          1031
+#define IDC_LIST_SELECT                 1032
+#define IDC_BUTTON_PARAM2               1033
+#define IDC_BUTTON_FILLFORM             1033
 
 // Next default values for new objects
 // 
@@ -68,7 +72,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        212
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1030
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

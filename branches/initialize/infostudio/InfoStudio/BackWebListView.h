@@ -64,7 +64,7 @@ public:
 		::ShowWindow( _webListDlg.m_hWnd, SW_SHOW );
 
 		SetSplitterExtendedStyle(SPLIT_LEFTALIGNED);
-		SetSplitterPos(250, false);
+		SetSplitterPos(150, false);
 		SetSplitterPanes( _sortDlg, _webListDlg );
 
 
