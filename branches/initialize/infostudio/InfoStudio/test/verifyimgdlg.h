@@ -9,6 +9,8 @@
 #include <string>
 #include "picwnd.h"
 
+// WPARAM: image file
+// LPARAM: Task*
 #define WM_ADDIMAGE     WM_APP + 1
 
 class SiteTask;
@@ -50,16 +52,7 @@ public:
 
     std::vector<VerifyItem> items_;
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		CenterWindow(GetParent());
-        picwnd_.SubclassWindow(GetDlgItem(IDC_IMAGE1));
-
-        CPicture pic;
-        pic.Load(_T("C:\\w\\infostudio\\InfoStudio\\test\\msdn.bmp"));
-        picwnd_.SetPicture(pic);
-		return TRUE;
-	}
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
     LRESULT OnAddImage(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
     {
@@ -70,6 +63,8 @@ public:
         {
             VerifyItem vi(img, task);
             items_.push_back(vi);
+
+            picwnd_.SetPicture(img);
         }
         return 0;
     }
@@ -85,11 +80,7 @@ public:
 		return 0;
 	}
 
-    void CloseDialog(int nVal)
-    {
-        DestroyWindow();
-        ::PostQuitMessage(nVal);
-    }
+    void CloseDialog(int nVal);
 
     PictureWnd picwnd_;
 };

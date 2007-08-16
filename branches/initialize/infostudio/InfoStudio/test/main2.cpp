@@ -7,11 +7,9 @@
 #include <atlctrls.h>
 #include <atldlgs.h>
 #include <atlctrlw.h>
-// #include <atlmisc.h>
 
-#ifndef ASSERT
-    #define ASSERT ATLASSERT
-#endif
+#include "../infoengine.h"
+#include "../wndrunner.h"
 
 #include "resource.h"
 
@@ -24,6 +22,21 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     CMessageLoop theLoop;
     _Module.AddMessageLoop(&theLoop);
 
+    // 
+    AsyncInet::Init();
+
+    //
+    WindowRunner wr;
+    HWND h = wr.Create(NULL);
+    ATLASSERT(h);
+
+    //
+    SiteCrank crank;
+    crank.Init();
+
+    crank.Run(&wr);
+
+    // 
     VerifyImgDlg wndMain;
 
     if(wndMain.Create(0) == NULL)
@@ -35,6 +48,8 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     wndMain.ShowWindow(nCmdShow);
 
     int nRet = theLoop.Run();
+
+    wr.DestroyWindow();
 
     _Module.RemoveMessageLoop();
     return nRet;
