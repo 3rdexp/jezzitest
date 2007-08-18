@@ -1,11 +1,11 @@
 
-#include "test/stdafx.h"
+#include "stdafx.h"
 
 #include <fstream>
 #include <iterator>
 
-#include "test/resource.h"
-#include "test/verifyimgdlg.h"
+#include "resource.h"
+#include "verifyimgdlg.h"
 #include "infoengine.h"
 
 
