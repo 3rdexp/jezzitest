@@ -188,25 +188,22 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\coreconst.h">
+			RelativePath=".\coreconst.h">
 		</File>
 		<File
-			RelativePath="..\coreinfo.h">
+			RelativePath=".\infoengine.cpp">
 		</File>
 		<File
-			RelativePath="..\infoengine.cpp">
-		</File>
-		<File
-			RelativePath="..\infoengine.h">
+			RelativePath=".\infoengine.h">
 		</File>
 		<File
 			RelativePath=".\main.cpp">
 		</File>
 		<File
-			RelativePath="..\querymap.cpp">
+			RelativePath=".\querymap.cpp">
 		</File>
 		<File
-			RelativePath="..\querymap.h">
+			RelativePath=".\querymap.h">
 		</File>
 		<File
 			RelativePath=".\resource.h">
@@ -215,10 +212,10 @@
 			RelativePath=".\test.rc">
 		</File>
 		<File
-			RelativePath="..\test_core.cpp">
+			RelativePath=".\test_core.cpp">
 		</File>
 		<File
-			RelativePath="..\test_querymap.cpp">
+			RelativePath=".\test_querymap.cpp">
 		</File>
 	</Files>
 	<Globals>
