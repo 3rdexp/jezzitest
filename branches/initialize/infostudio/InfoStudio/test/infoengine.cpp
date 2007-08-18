@@ -20,7 +20,7 @@ HWND GetVerifyWindow()
 //////////////////////////////////////////////////////////////////////////
 //
 SiteTask::SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent) 
-    : site_(site), uiserinfo_(userinfo)
+    : site_(site), userinfo_(userinfo)
     , AsyncTask(parent)
     , curact_(0)
 {}
@@ -123,7 +123,7 @@ int SiteTask::ProcessNextAction()
 bool SiteTask::StartAction(Action * pa)
 {
     std::stringstream ss;
-    bool f = PrepareForm(ss, pa->vars);
+    bool f = PrepareForm(ss, pa->vars, pa->charset);
     if (f)
     {
         if (pa->method == HV_POST)
@@ -142,8 +142,11 @@ bool SiteTask::StartAction(Action * pa)
 }
 
 // a={b} Site, UserInfo
-bool SiteTask::PrepareForm(std::ostream & out, const std::wstring & vars)
+bool SiteTask::PrepareForm(std::ostream & out, const std::wstring & vars, SiteCharset charset) const
 {
+    QueryMap qm(vars);
+    std::string s = qm.Apply(userinfo_, site_.dict(), charset);
+    out << s;
     return true;
 }
 
