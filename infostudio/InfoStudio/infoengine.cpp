@@ -87,13 +87,16 @@ void SiteTask::RequestDone()
         GetTempPath(MAX_PATH - 1, temppath);
         GetTempFileName(temppath, _T("IST_"), 0, filename);
 
-        std::ofstream outf_;
-        outf_.open( CT2A(filename) );
+        std::ofstream outf_((const char*)CT2A(filename), std::ios::binary);
+        
         std::copy(buf_.begin(), buf_.end(), std::ostream_iterator<char>(outf_));
         outf_.close();
 
         CWindow wnd = GetVerifyWindow();
-        wnd.PostMessage(WM_ADDIMAGE, (WPARAM)filename, (LPARAM)this);
+        wnd.SendMessage(WM_ADDIMAGE, (WPARAM)filename, (LPARAM)this);
+
+        // TODO: delete file
+        // or implement buffer to IStream
         
         if (pa->timeout)
             set_timeout_seconds(pa->timeout);
