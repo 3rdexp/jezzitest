@@ -166,6 +166,8 @@ public:
     {
         std::swap(dict_, dict);
     }
+
+    const Dictionary & dict() const { return dict_; }
     
 private:
     std::list<Action> actions_;

@@ -68,12 +68,13 @@ private:
     int ProcessNextAction();
     bool StartAction(Action * pa);
     
-    bool PrepareForm(std::ostream & out, const std::wstring & vars);
+    bool PrepareForm(std::ostream & out, const std::wstring & vars
+        , SiteCharset charset) const;
 public:// private:
     std::vector<Action*> actions_;
     int curact_;
     Site & site_;
-    const UserInfo & uiserinfo_;
+    const UserInfo & userinfo_;
     std::wstring verifycode_; // ÊäÈëµÄ¡£¡£¡£
 };
 
@@ -86,9 +87,9 @@ public:
     bool Init()
     {
         {
-            uiserinfo_.insert(L"sex", L"male");
-            uiserinfo_.insert(L"pasw", L"strongpsw");
-            uiserinfo_.insert(L"mail", L"a@b.com");
+            userinfo_.insert(L"sex", L"male");
+            userinfo_.insert(L"pasw", L"strongpsw");
+            userinfo_.insert(L"mail", L"a@b.com");
         }
 
         Dictionary bd;
@@ -132,14 +133,14 @@ public:
         // for_each site in sites_
         // new task
         // ....
-        SiteTask * task = new SiteTask(site_, uiserinfo_, runner);
+        SiteTask * task = new SiteTask(site_, userinfo_, runner);
 
         task->AddAction(site_.Find(AT_REGISTER));
 
         runner->StartTask(task);
     }
 private:
-    UserInfo uiserinfo_;
+    UserInfo userinfo_;
     // TODO:
     // std::vector<Site> sites_;
     Site site_;
