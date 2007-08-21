@@ -133,6 +133,19 @@ public:
         // for_each site in sites_
         // new task
         // ....
+# if 0
+        for (std::vector<Site>::iterator i = sites_.begin();
+            i != sites_.end(); ++i)
+        {
+            Site & site = *i;
+
+            SiteTask * task = new SiteTask(site, userinfo_, runner);
+
+            task->AddAction(site_.Find(AT_REGISTER));
+
+            runner->StartTask(task);
+        }
+#endif
         SiteTask * task = new SiteTask(site_, userinfo_, runner);
 
         task->AddAction(site_.Find(AT_REGISTER));
@@ -142,7 +155,7 @@ public:
 private:
     UserInfo userinfo_;
     // TODO:
-    // std::vector<Site> sites_;
+    std::vector<Site> sites_;
     Site site_;
 };
 
