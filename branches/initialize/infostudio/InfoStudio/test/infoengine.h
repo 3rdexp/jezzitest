@@ -43,7 +43,7 @@ class SiteCrank;
 class VerifyCodeHelper
 {
 public:
-    bool NewItem(const std::string & fn, SiteTask * task) = 0;
+    virtual bool NewItem(const std::string & fn, SiteTask * task) = 0;
 };
 
 
@@ -187,7 +187,7 @@ public:
 #endif
     }
 
-    static VerifyCodeHelper * CreateVerifyNotify();
+    static VerifyCodeHelper * CreateVerifyHelper();
 private:
     UserInfo userinfo_;
     // TODO:
