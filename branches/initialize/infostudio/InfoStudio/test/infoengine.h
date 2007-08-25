@@ -36,6 +36,17 @@ http requst
 deal response
 */
 
+class SiteTask;
+class SiteCrank;
+
+// 界面实现该接口，并把实例注册给 SiteCrank，或者直接由 SiteCrank 生成
+class VerifyCodeHelper
+{
+public:
+    bool NewItem(const std::string & fn, SiteTask * task) = 0;
+};
+
+
 class SiteTask : public AsyncTask
 {
 public:
@@ -78,6 +89,8 @@ public:// private:
     std::wstring verifycode_; // 输入的。。。
 };
 
+
+
 //////////////////////////////////////////////////////////////////////////
 //
 class SiteCrank
@@ -92,38 +105,58 @@ public:
             userinfo_.insert(L"mail", L"a@b.com");
         }
 
-        Dictionary bd;
-        {
-            VariableMap vm;
-            vm.insert(VariableMap::value_type(L"male", L"1"));
-            vm.insert(VariableMap::value_type(L"female", L"2"));
-            bd.Insert(L"sex", vm);
-        }
-        site_.SetDict(bd);
 
-        site_.homepage = L"http://baidu.com";
-        // site_.industries = L"all";
+        // baidu.com
         {
-            Action act;
-            act.aid = 0;
-            act.type = AT_REGISTER;
-            act.url = L"https://passport.baidu.com/?verifypic";
-            act.method = HV_GET;
-            act.restype = ART_VERIFY_IMAGE;
-            site_.Add(act);
+            Site site;            
+            Dictionary dict;
+            {
+                VariableMap vm;
+                vm.insert(VariableMap::value_type(L"male", L"1"));
+                vm.insert(VariableMap::value_type(L"female", L"2"));
+                dict.Insert(L"sex", vm);
+            }
+            site.SetDict(dict);
+
+            site.homepage = L"http://baidu.com";
+            // site.industries = L"all";
+            {
+                Action act;
+                act.aid = 0;
+                act.type = AT_REGISTER;
+                act.url = L"https://passport.baidu.com/?verifypic";
+                act.method = HV_GET;
+                act.restype = ART_VERIFY_IMAGE;
+                site.Add(act);
+            }
+
+            {
+                Action act;
+                act.aid = 1;
+                act.url = L"https://passport.baidu.com/?reg";
+                act.method = HV_POST;
+                act.vars = L"tpl=&tpl_ok=&skip_ok=&aid=0&need_pay=&need_coin=0&pay_method=0&u=&next_target=&return_method=&next_type=&more_param=&username={loginname}&loginpass={pasw}&verifypass={pasw}&sex={sex}&email=&verifycode={verifycode}&space_flag=on&submit= 同意";
+                act.type = AT_REGISTER;
+                act.restype = ART_NONE;
+                site.Add(act);
+            }
+
+            sites_.push_back(site);
         }
 
+        // sohu.com
+        // http://db.b2b.sohu.com/qy/logon/Logon_free.html
+        // username={username}&password={passwd}&repassword={passwd}&contact={contract}&email={mail}&PhoneCountry=86&PhoneArea={phone-pre}&PhoneNumber={phone}&faxCountry=86&faxArea={fax-pre}&faxNumber={fax}&mobile={mobile}&zipcode={post}&companyname={name}&classname=表面处理/电镀&classkey=p031002&=选择行业类目&provinceCN=p101002&capitalCN=p101002019&cityCN=p101002019001&select=&CountryListHot=CN&CountryList=CN&province1=&province2=&address={address}
         {
-            Action act;
-            act.aid = 1;
-            act.url = L"https://passport.baidu.com/?reg";
-            act.method = HV_POST;
-            act.vars = L"tpl=&tpl_ok=&skip_ok=&aid=0&need_pay=&need_coin=0&pay_method=0&u=&next_target=&return_method=&next_type=&more_param=&username={loginname}&loginpass={pasw}&verifypass={pasw}&sex={sex}&email=&verifycode={verifycode}&space_flag=on&submit= 同意";
-            act.type = AT_REGISTER;
-            act.restype = ART_NONE;
-            site_.Add(act);
+            Site site;            
+            Dictionary dict;
+            {
+                VariableMap vm;
+                vm.insert(VariableMap::value_type(L"male", L"1"));
+                vm.insert(VariableMap::value_type(L"female", L"2"));
+                dict.Insert(L"sex", vm);
+            }
         }
-
         return true;
     }
 
@@ -133,7 +166,7 @@ public:
         // for_each site in sites_
         // new task
         // ....
-# if 0
+# if 1
         for (std::vector<Site>::iterator i = sites_.begin();
             i != sites_.end(); ++i)
         {
@@ -145,13 +178,16 @@ public:
 
             runner->StartTask(task);
         }
-#endif
+#else
         SiteTask * task = new SiteTask(site_, userinfo_, runner);
 
         task->AddAction(site_.Find(AT_REGISTER));
 
         runner->StartTask(task);
+#endif
     }
+
+    static VerifyCodeHelper * CreateVerifyNotify();
 private:
     UserInfo userinfo_;
     // TODO:

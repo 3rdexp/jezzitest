@@ -152,3 +152,7 @@ bool SiteTask::PrepareForm(std::ostream & out, const std::wstring & vars, SiteCh
 
 //////////////////////////////////////////////////////////////////////////
 //
+VerifyCodeNotify * SiteCrank::CreateVerifyNotify()
+{
+    return 0;
+}
