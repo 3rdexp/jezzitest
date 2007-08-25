@@ -7,7 +7,7 @@
 
 #include "coreconst.h"
 #include "querymap.h"
-#include "../engine/httpcomm.h"
+#include "../base/httpcomm.h"
 
 using std::string;
 using std::wstring;
