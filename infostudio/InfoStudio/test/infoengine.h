@@ -5,7 +5,7 @@
 #include <iterator>
 
 #include "coreinfo.h"
-#include "../engine/asynctask.h"
+#include "../base/asynctask.h"
 
 /*
                         send request for auth image           
