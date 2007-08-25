@@ -6,8 +6,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "querymap.h"
-#include "../engine/unicode.h"
-#include "../engine/escape.h"
+#include "../base/unicode.h"
+#include "../base/escape.h"
 
 // std::wstring remove_bracket(const std::wstring & t) {}
 
