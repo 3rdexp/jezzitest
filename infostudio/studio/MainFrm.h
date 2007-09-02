@@ -8,6 +8,8 @@
 #include "childv.h"
 
 class ChildViewBase;
+class BaseData;
+class MutableData;
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler
@@ -15,6 +17,7 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFr
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 
+    // UI stuff
     CCommandBarCtrl m_CmdBar;
 
 	CStudioView m_studio;
@@ -29,6 +32,7 @@ public:
 
     CMainFrame() : current_(0) 
         , m_studio(this)
+        , bd_(0), md_(0)
     {
         std::fill_n(children_, size_t(MAX_CHILD), (ChildViewBase*)0);
     }
@@ -72,7 +76,7 @@ public:
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
-	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -83,7 +87,6 @@ public:
 	LRESULT OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		// TODO: add code to initialize document
-
 		return 0;
 	}
 
@@ -118,4 +121,15 @@ public:
     void InitViews();
     ChildViewBase * CreateChildView(CV_TYPE);
     ChildViewBase * ActiveChildView(CV_TYPE);
+
+    //////////////////////////////////////////////////////////////////////////
+    // database stuff
+    BaseData * bd_;
+    MutableData * md_;
+
+    void InitData(BaseData * bd, MutableData * md)
+    {
+        bd_ = bd;
+        md_ = md;
+    }
 };

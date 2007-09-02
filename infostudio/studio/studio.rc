@@ -51,6 +51,19 @@ BEGIN
     PUSHBUTTON      "计划任务",IDC_BUTTON6,9,153,97,21
 END
 
+IDD_VERIYIMAGE DIALOGEX 0, 0, 245, 153
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Input Verify Image"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Close",IDCANCEL,191,132,50,14
+    EDITTEXT        IDC_CODE1,132,35,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Input",IDC_INPUT1,181,35,40,14
+    LTEXT           "",IDC_IMAGE1,14,18,109,43
+    GROUPBOX        "",IDC_EXTENT,4,2,237,118
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -74,6 +87,14 @@ BEGIN
         RIGHTMARGIN, 106
         TOPMARGIN, 7
         BOTTOMMARGIN, 201
+    END
+
+    IDD_VERIYIMAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 241
+        TOPMARGIN, 2
+        BOTTOMMARGIN, 146
     END
 END
 #endif    // APSTUDIO_INVOKED

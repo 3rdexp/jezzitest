@@ -8,6 +8,8 @@
 #include <atlsplit.h>
 
 #include "proplist/PropertyList.h"
+#include "data/basedata.h"
+#include "data/mutabledata.h"
 
 #include "resource.h"
 #include "ypage.h"
@@ -55,9 +57,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     InitViews();
 
     UpdateLayout();
-
-    
-    
+   
 
     UIAddToolBar(hWndToolBar);
     UISetCheck(ID_VIEW_TOOLBAR, 1);
@@ -138,7 +138,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     }
     else if(CV_YELLOWPAGE == type)
     {
-        SubYellowPage * pv = new SubYellowPage();
+        SubYellowPage * pv = new SubYellowPage(bd_);
         HWND h = pv->Create(m_wndSplitter, rcDefault, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
         ATLASSERT(h);
