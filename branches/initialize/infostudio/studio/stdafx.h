@@ -10,10 +10,13 @@
 //#define _WIN32_WINNT	0x0400
 #define _WIN32_IE	0x0400
 #define _RICHEDIT_VER	0x0100
+#define _WTL_NO_CSTRING
 
 #include <atlbase.h>
+#include <atlstr.h>
 #include <atlapp.h>
 
 extern CAppModule _Module;
 
 #include <atlwin.h>
+#include <atltypes.h>

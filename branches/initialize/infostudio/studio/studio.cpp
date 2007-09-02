@@ -9,6 +9,12 @@
 #include <atlctrlw.h>
 #include <atlsplit.h>
 
+#include "engine/infoengine.h"
+#include "engine/wndrunner.h"
+#include "data/studiodata.h"
+#include "data/basedata.h"
+#include "data/mutabledata.h"
+
 #include "resource.h"
 
 #include "leftv.h"
@@ -19,11 +25,39 @@ CAppModule _Module;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
+    // login, config
+    // 
+    // SiteCrank
+    // base / mutable data
+
+    // 如此多的栈对象，找到更合适的方法
+    // base / mutable 数据库必须分开
+
+    SiteCrank crank;
+
+    StudioData cons;
+    bool f = cons.Open(L"base.db", L"user.db");
+    ASSERT(f);
+
+    BaseData bd;
+    f = bd.Init(cons.basecon_);
+    ASSERT(f);
+
+    cons.CloseBase();
+
+    // 
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-	CMainFrame wndMain;
+    WindowRunner wr;
+    HWND h = wr.Create(0);
+    ATLASSERT(h);
 
+    crank.Run(&wr);
+
+    //
+	CMainFrame wndMain;
+    wndMain.InitData(&bd, 0);
 	if(wndMain.CreateEx() == NULL)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));
@@ -33,6 +67,10 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	wndMain.ShowWindow(nCmdShow);
 
 	int nRet = theLoop.Run();
+
+    // TODO:
+    // crank.Stop();
+    wr.DestroyWindow();
 
 	_Module.RemoveMessageLoop();
 	return nRet;
