@@ -73,7 +73,7 @@
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			UseOfATL="1"
+			UseOfATL="0"
 			ATLMinimizesCRunTimeLibraryUsage="TRUE"
 			CharacterSet="1">
 			<Tool
@@ -132,21 +132,6 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
-			<File
-				RelativePath=".\stdafx.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-			</File>
 			<File
 				RelativePath=".\studio.cpp">
 			</File>
@@ -221,6 +206,9 @@
 		<Filter
 			Name="c2_yellowpage"
 			Filter="">
+			<File
+				RelativePath=".\sitetree.h">
+			</File>
 			<File
 				RelativePath=".\ypage.cpp">
 			</File>
@@ -445,15 +433,6 @@
 				</File>
 				<File
 					RelativePath="..\InfoStudio\sqlite\os_common.h">
-				</File>
-				<File
-					RelativePath="..\InfoStudio\sqlite\os_os2.c">
-				</File>
-				<File
-					RelativePath="..\InfoStudio\sqlite\os_os2.h">
-				</File>
-				<File
-					RelativePath="..\InfoStudio\sqlite\os_unix.c">
 				</File>
 				<File
 					RelativePath="..\InfoStudio\sqlite\os_win.c">
