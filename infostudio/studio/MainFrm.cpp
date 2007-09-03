@@ -51,8 +51,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
     m_wndSplitter.SetSplitterPane(SPLIT_PANE_LEFT, m_studio, false);
 
-    RECT rect;
-    GetClientRect(&rect);
+//    RECT rect;
+//    GetClientRect(&rect);
     m_wndSplitter.SetSplitterPos(170);
     InitViews();
 

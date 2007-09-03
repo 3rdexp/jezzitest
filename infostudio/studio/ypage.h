@@ -6,6 +6,9 @@
 #include "sitetree.h"
 #include "data/basedata.h"
 
+// #define ONE_TREE
+#ifdef ONE_TREE
+
 class SubYellowPage : public SiteTreeImpl
     , public ChildViewBase
 {
@@ -34,5 +37,45 @@ public:
     BaseData * bd_;
 };
 
+#else
+
+#include <atlsplit.h>
+
+class SubYellowPage : public CSplitterWindow
+    , public ChildViewBase
+{
+public:
+    SubYellowPage(BaseData * bd) : bd_(bd)
+    {
+    }
+
+    BEGIN_MSG_MAP(SubYellowPage)
+        CHAIN_MSG_MAP(CSplitterWindow)
+        MESSAGE_HANDLER(WM_CREATE, OnCreate)
+        NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelChanged)
+    END_MSG_MAP()
+
+    LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
+    // ChildViewBase
+    virtual BOOL PreTranslateMessage(MSG* pMsg)
+    {
+        return FALSE;
+    }
+    virtual HWND GetHWND()
+    {
+        return m_hWnd;
+    }
+
+    // 
+    LRESULT OnTreeSelChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+
+    CTreeViewCtrl tv_;
+    CListViewCtrl lv_;
+
+    BaseData * bd_;
+};
+
+#endif
 
 #endif // __YELLOW_PAGE_H__

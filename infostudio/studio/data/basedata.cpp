@@ -12,7 +12,7 @@ using namespace sqlite3x;
 bool LoadIndustry(sqlite3_connection & con, Industry & ic)
 {
     // 一次把树全部读进来
-    sqlite3_command cmd(con, L"SELECT industry.id, industry_relation.pid, name, ename FROM industry LEFT JOIN industry_relation ON (industry.id = industry_relation.id);");
+    sqlite3_command cmd(con, L"SELECT industry.id, industry_rel.pid, name, ename FROM industry LEFT JOIN industry_rel ON (industry.id = industry_rel.id);");
     sqlite3_reader reader = cmd.executereader();
 
     while(reader.read()) {
@@ -40,7 +40,7 @@ int SaveIndustryInter(sqlite3_connection & con, int pid, const Industry & ind)
     int id = con.executeint(L"select last_insert_rowid();");
     if (pid !=0)
     {
-        sqlite3_command cmdr(con, L"insert into industry_relation values (?,?);");
+        sqlite3_command cmdr(con, L"insert into industry_rel values (?,?);");
         cmdr.bind(1, id);
         cmdr.bind(2, pid);
         cmdr.executenonquery();

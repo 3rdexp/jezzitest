@@ -18,27 +18,33 @@
 CREATE TABLE IF NOT EXISTS userinfo(name TEXT PRIMARY KEY, value TEXT, cate INTEGER);
 
 action
- aid IINTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER, paid INTEGER DEFAULT 0, 
- url TEXT, method INTEGER DEFAULT 0, form_encoding TEXT, charset INTEGER, vars TEXT, restype INTEGER, 
- referrer TEXT DEFAULT NULL, checked TEXT DEFAULT NULL, timeout INTEGER DEFAULT 0
+ aid IINTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER, paid INTEGER, 
+ url TEXT, method INTEGER, form_encoding TEXT, charset INTEGER, vars TEXT, restype INTEGER, 
+ referrer TEXT DEFAULT NULL, checked TEXT DEFAULT NULL, timeout INTEGER
 
 
 site
- sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT DEFAULT NULL
-
-relation industry site
- iid INTEGER, sid INTEGER
+ sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT
 
 industry
  id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT
 
-industry_relation
+industry_rel
  id INTEGER, pid INTEGER
 
-site_industry_relation
+site_rel
  sid INTEGER, id INTEGER
 
-// CREATE TABLE industry (id INTEGER PRIMARY KEY, name TEXT, ename TEXT, pid INTEGER)
+
+CREATE TABLE IF NOT EXISTS industry (id INTEGER PRIMARY KEY, name TEXT, ename TEXT, pid INTEGER)
+CREATE TABLE IF NOT EXISTS industry_rel(id INTEGER, pid INTEGER)
+CREATE TABLE IF NOT EXISTS site (sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT)
+CREATE TABLE IF NOT EXISTS site_rel (id INTEGER, sid INTEGER)
+
+CREATE TABLE IF NOT EXISTS action(aid IINTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER
+    , paid INTEGER, url TEXT, method INTEGER, form_encoding TEXT, charset INTEGER, vars TEXT
+    , restype INTEGER, referrer TEXT DEFAULT NULL, checked TEXT DEFAULT NULL, timeout INTEGER)
+
 
 sql-statement ::= 	CREATE [UNIQUE] INDEX [IF NOT EXISTS] [database-name .] index-name
 ON table-name ( column-name [, column-name]* )
@@ -143,7 +149,7 @@ bool LoadIndustry(sqlite3_connection & con, Industry & ic)
 bool LoadIndustry2(sqlite3_connection & con, Industry & ic)
 {
     // 一次把树全部读进来
-    sqlite3_command cmd(con, L"SELECT industry.id, industry_relation.pid, name, ename FROM industry LEFT JOIN industry_relation ON (industry.id = industry_relation.id);");
+    sqlite3_command cmd(con, L"SELECT industry.id, industry_rel.pid, name, ename FROM industry LEFT JOIN industry_rel ON (industry.id = industry_rel.id);");
     sqlite3_reader reader = cmd.executereader();
 
     while(reader.read()) {
@@ -169,7 +175,7 @@ void convert_industry()
     sqlite3_connection con("base1.db");
 
     con.executenonquery("CREATE TABLE IF NOT EXISTS industry(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT)");
-    con.executenonquery("CREATE TABLE IF NOT EXISTS industry_relation(id INTEGER, pid INTEGER)");
+    con.executenonquery("CREATE TABLE IF NOT EXISTS industry_rel(id INTEGER, pid INTEGER)");
 
     LoadIndustry(con, indroot);
     con.close();
@@ -179,7 +185,7 @@ void convert_industry()
 
     con.open(L"ind.db");
     con.executenonquery(L"CREATE TABLE IF NOT EXISTS industry(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT)");
-    con.executenonquery(L"CREATE TABLE IF NOT EXISTS industry_relation(id INTEGER, pid INTEGER)");    
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS industry_rel(id INTEGER, pid INTEGER)");    
     SaveIndustry(con, indroot);
 }
 

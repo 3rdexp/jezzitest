@@ -99,3 +99,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	return nRet;
 }
+
+int main()
+{
+    return 0;
+}

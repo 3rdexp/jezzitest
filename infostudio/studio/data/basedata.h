@@ -5,6 +5,10 @@
 #include "engine/industry.h"
 #include "engine/coreinfo.h"
 
+#include <list>
+#include <map>
+#include <vector>
+
 namespace sqlite3x 
 {
     class sqlite3_connection;
@@ -20,7 +24,7 @@ public:
 
     const SiteInfo * FindSite(int sid) const
     {
-        site_map::const_iterator i = allsite_.find(sid);
+        all_site_type::const_iterator i = allsite_.find(sid);
         if (i != allsite_.end())
             return &(i->second);
         return 0;
@@ -30,8 +34,17 @@ public:
 
 private:
     Industry indroot_;
-    typedef std::map<int, SiteInfo> site_map;
-    site_map allsite_;
+
+    // Industry and SiteInfo
+    typedef std::vector<int> sid_coll;
+    typedef std::map<int, sid_coll> site_rel_type; // industry.id => site list
+    site_rel_type siterel_;
+
+    // all SiteInfo
+    typedef std::list<SiteInfo> all_site_type;
+    all_site_type allsite_;
+    typedef std::map<int, SiteInfo*> sid_map_type;
+    sid_map_type sidmap_;
 };
 
 #endif // __BASEDATA_H__
