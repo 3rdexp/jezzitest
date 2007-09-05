@@ -46,6 +46,9 @@ CREATE TABLE IF NOT EXISTS action(aid IINTEGER PRIMARY KEY AUTOINCREMENT, type I
     , restype INTEGER, referrer TEXT DEFAULT NULL, checked TEXT DEFAULT NULL, timeout INTEGER)
 
 
+INSERT INTO site (name, homepage) values ('°Ù¶È', 'http://www.baidu.com');
+INSERT INTO site_rel values(1, 1, 2);
+
 sql-statement ::= 	CREATE [UNIQUE] INDEX [IF NOT EXISTS] [database-name .] index-name
 ON table-name ( column-name [, column-name]* )
 column-name ::= 	name [ COLLATE collation-name] [ ASC | DESC ]
