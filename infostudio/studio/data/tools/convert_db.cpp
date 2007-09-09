@@ -15,39 +15,69 @@
 
 /*
 
-CREATE TABLE IF NOT EXISTS userinfo(name TEXT PRIMARY KEY, value TEXT, cate INTEGER);
+CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT, name TEXT, cate INTEGER);
 
-action
- aid IINTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER, paid INTEGER, 
- url TEXT, method INTEGER, form_encoding TEXT, charset INTEGER, vars TEXT, restype INTEGER, 
- referrer TEXT DEFAULT NULL, checked TEXT DEFAULT NULL, timeout INTEGER
+CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd TEXT
+    , time INTEGER, laststate INTEGER);
 
 
-site
- sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT
-
-industry
- id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT
-
-industry_rel
- id INTEGER, pid INTEGER
-
-site_rel
- sid INTEGER, id INTEGER
 
 
-CREATE TABLE IF NOT EXISTS industry (id INTEGER PRIMARY KEY, name TEXT, ename TEXT, pid INTEGER)
-CREATE TABLE IF NOT EXISTS industry_rel(id INTEGER, pid INTEGER)
-CREATE TABLE IF NOT EXISTS site (sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT)
-CREATE TABLE IF NOT EXISTS site_rel (id INTEGER, sid INTEGER)
+
+CREATE TABLE IF NOT EXISTS ind (id INTEGER PRIMARY KEY, name TEXT, ename TEXT)
+CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER, pid INTEGER, CONSTRAINT x1 PRIMARY KEY(id, pid))
+
+CREATE TABLE IF NOT EXISTS site (sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT);
+CREATE TABLE IF NOT EXISTS site_rel (sid INTEGER, cid INTEGER, CONSTRAINT x1 PRIMARY KEY(sid, cid));
 
 CREATE TABLE IF NOT EXISTS action(aid IINTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER
-    , paid INTEGER, url TEXT, method INTEGER, form_encoding TEXT, charset INTEGER, vars TEXT
-    , restype INTEGER, referrer TEXT DEFAULT NULL, checked TEXT DEFAULT NULL, timeout INTEGER)
+    , paid INTEGER, entry TEXT, url TEXT, method INTEGER, charset INTEGER, vars TEXT
+    , restype INTEGER, referrer TEXT, checked TEXT, timeout INTEGER);
+
+CREATE TABLE IF NOT EXISTS dict(sid IINTEGER, cid INTEGER, cate TEXT, name TEXT, value TEXT
+    , CONSTRAINT x1 PRIMARY KEY(sid, cid, cate, name))
 
 
-INSERT INTO site (name, homepage) values ('百度', 'http://www.baidu.com');
-INSERT INTO site_rel values(1, 1, 2);
+user    1
+psw     2
+ques    3
+answer  4
+
+coname/comCompanyName  1001
+web         1002
+desc        1003
+ keywords   1004
+
+city    1101
+web     1102
+公司分类 1103
+name    1104
+email   1106
+区号=1107
+总机   1108 cotelq
+分机      1109
+fax 1110
+
+zip         1111
+province    1112
+city        1113
+address / coaddress 1114 
+职务      1115 ?
+
+mobile  1116
+qq      1117
+
+
+
+注册码 9999()
+
+
+380 二手市场
+302 二手市场
+317 二手市场
+489 二手市场
+497 二手市场
+
 
 sql-statement ::= 	CREATE [UNIQUE] INDEX [IF NOT EXISTS] [database-name .] index-name
 ON table-name ( column-name [, column-name]* )
@@ -122,7 +152,7 @@ Industry indroot(L"root");;
 
 bool LoadIndustry(sqlite3_connection & con, Industry & ic)
 {
-    sqlite3_command cmd(con, "select id, name from industry order by id;");
+    sqlite3_command cmd(con, "select id, name from ind order by id;");
     sqlite3_reader reader = cmd.executereader();
 
     list<Industry> all;
@@ -152,7 +182,7 @@ bool LoadIndustry(sqlite3_connection & con, Industry & ic)
 bool LoadIndustry2(sqlite3_connection & con, Industry & ic)
 {
     // 一次把树全部读进来
-    sqlite3_command cmd(con, L"SELECT industry.id, industry_rel.pid, name, ename FROM industry LEFT JOIN industry_rel ON (industry.id = industry_rel.id);");
+    sqlite3_command cmd(con, L"SELECT ind.id, ind_rel.pid, name, ename FROM ind LEFT JOIN ind_rel ON (ind.id = ind_rel.id);");
     sqlite3_reader reader = cmd.executereader();
 
     while(reader.read()) {
@@ -172,13 +202,13 @@ bool LoadIndustry2(sqlite3_connection & con, Industry & ic)
 }
 
 
-// base1.db => industry.db
+// base1.db => ind.db
 void convert_industry()
 {
     sqlite3_connection con("base1.db");
 
-    con.executenonquery("CREATE TABLE IF NOT EXISTS industry(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT)");
-    con.executenonquery("CREATE TABLE IF NOT EXISTS industry_rel(id INTEGER, pid INTEGER)");
+    con.executenonquery("CREATE TABLE IF NOT EXISTS ind(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT)");
+    con.executenonquery("CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER, pid INTEGER)");
 
     LoadIndustry(con, indroot);
     con.close();
@@ -187,8 +217,8 @@ void convert_industry()
     OutputDebugString(oss.str().c_str());
 
     con.open(L"ind.db");
-    con.executenonquery(L"CREATE TABLE IF NOT EXISTS industry(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT)");
-    con.executenonquery(L"CREATE TABLE IF NOT EXISTS industry_rel(id INTEGER, pid INTEGER)");    
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS ind(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, ename TEXT)");
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER, pid INTEGER)");    
     SaveIndustry(con, indroot);
 }
 
