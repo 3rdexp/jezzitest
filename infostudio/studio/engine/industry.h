@@ -18,52 +18,54 @@ struct Industry
     int id;
 
     Industry * parent;
-    typedef std::list<Industry> list_type;
-    list_type children;
+    typedef std::map<int, Industry> children_type;
+    children_type children;
 
-    bool insert(int pid, const Industry & ind)
+    Industry * insert(int pid, const Industry & ind)
     {
         assert(pid != 0);
         Industry * parent_ind = find(pid);
         if (parent_ind)
             return parent_ind->insert(ind);
 
-        return false;
+        return 0;
     }
 
-    bool insert(const Industry & ind)
+    Industry * insert(const Industry & ind)
     {
         assert(!ind.name.empty());
         assert(!ind.id == 0);
-        children.push_back(ind);
-        list_type::iterator i = children.end();
-        Industry & r = *(--i);
-        r.parent = this;
-        id_map.insert(id_map_type::value_type(ind.id, &r));
-        return true;
+        std::pair<children_type::iterator, bool> ret = children.insert(children_type::value_type(ind.id, ind));
+        return &(ret.first->second);
     }
 
     Industry * find(int id) const
     {
-        id_map_type::const_iterator i = id_map.find(id);
-        if (i != id_map.end())
-            return i->second;
+        if (this->id == id) 
+            return const_cast<Industry*>(this);
 
-        for (list_type::const_iterator j=children.begin(); j != children.end();
+        children_type::const_iterator i = children.find(id);
+        if (i != children.end())
+            return const_cast<Industry*>(&(i->second));
+
+        for (children_type::const_iterator j=children.begin(); j != children.end();
             ++j)
         {
-            Industry * p = j->find(id);
+            Industry * p = j->second.find(id);
             if (p)
                 return p;
         }
         return 0;
     }
 
-    // 模糊匹配多个行业？
-    //    std::list<Industry*> find(const std::wstring & name) const
-private:
-    typedef std::map<int, Industry*> id_map_type;
-    id_map_type id_map;;
+    void swap(Industry & ind)
+    {
+        children.swap(ind.children);
+        std::swap(name, ind.name);
+        std::swap(ename, ind.ename);
+        std::swap(parent, ind.parent);
+        std::swap(id, ind.id);
+    }
 };
 
 

@@ -15,8 +15,6 @@ class Dictionary
 public:
     const VariableMap & Find(const std::wstring & domain) const
     {
-        // TODO: ¾ÓÈ»±àÒë²»¹ý
-        // return dict_[domain];
         DictMap::const_iterator i = dict_.find(domain);
         if (i != dict_.end())
             return i->second;

@@ -50,9 +50,10 @@ public:
     }
 
     BEGIN_MSG_MAP(SubYellowPage)
-        CHAIN_MSG_MAP(CSplitterWindow)
         MESSAGE_HANDLER(WM_CREATE, OnCreate)
         NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelChanged)
+
+        CHAIN_MSG_MAP(CSplitterWindow)
     END_MSG_MAP()
 
     LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -68,12 +69,17 @@ public:
     }
 
     // 
+    void SelectIndustry(int id);
+private:   
+
+    // 
     LRESULT OnTreeSelChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
     CTreeViewCtrl tv_;
     CListViewCtrl lv_;
 
     BaseData * bd_;
+    std::vector<const SiteInfo*> curcol_;
 };
 
 #endif
