@@ -11,12 +11,17 @@ namespace sqlite3x
 class MutableData
 {
 public:
+    MutableData() : ready_(false) {}
+
     void Init(sqlite3x::sqlite3_connection &);
+
+    bool ready() const { return ready_; }
 
 private:
     typedef std::map<int, Site> site_map;
     site_map allsite_;
     UserInfo userinfo_;
+    bool ready_;
 };
 
 #endif // __MUTABLE_DATA_H__
