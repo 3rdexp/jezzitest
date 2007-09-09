@@ -21,66 +21,20 @@ using std::wstring;
 处理数据后，执行 Get/Post
 */
 
-/**********************************************************************
-PART-1  录入数据
-SiteInfo
-  sid        key
-  homepage  : string
-  industry : string;
+struct UserItem
+{
+    wstring key;
+    wstring value;
+    wstring name; // 显示用名称，需要加一个 description?
+    int cate;
+};
 
-
-ActionInfo
-  aid
-  sid
-  front_aid
-  type
-  url
-  method
-  form_encoding
-  charset
-  vars
-  referrer
-  checked       // 检查是否成功等标志
-  verify_url    // 验证码地址
-  verify_code
-
-FieldValue
-  name
-  domain
-  value
-
-DomainWord
-  name
-  domain
-  option
-
-**********************************************************************
-PART-2 用户运行前填充数据
-UserInfo
-  name
-  value
-
-**********************************************************************
-PART-2 运行Task期间的信息维护用的
-Site : public SiteInfo
-  ssid
-  sid
-  login_name
-  passwd
-
-Action : public ActionInfo
-  asid
-  aid
-  result
-  time
-
-**********************************************************************/
-struct UserInfo : public VariableMap
+struct UserInfo : public std::map<std::wstring, UserItem>
 {
 public:
     void insert(const std::wstring & key, const std::wstring & value)
     {
-        VariableMap::insert(VariableMap::value_type(key, value));
+        // VariableMap::insert(VariableMap::value_type(key, value));
     }
 };
 
@@ -96,12 +50,7 @@ struct ActionInfo
         , method(HV_POST)
         , charset(SC_ANSI)
         , timeout(0)
-    {
-    }
-//    ActionInfo(int aid, SiteInfo* site)
-//        : aid(aid), site(site)
-//    {
-//    }
+    {}
     virtual ~ActionInfo() {}
     int aid;
     SiteInfo* site;
@@ -125,10 +74,8 @@ struct SiteInfo
     SiteInfo() : sid(0) {}
     virtual ~SiteInfo() {}
     int sid;
-    wstring homepage;
-    std::vector<wstring> industries;
+    wstring name, homepage;
 };
-
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -176,30 +123,4 @@ private:
     wstring username_;
     wstring passwd_;
 };
-
-
-
-
-
-
-
-//struct Industry
-//{
-//    Industry() 
-//        : parent(0)
-//        , id(-1) 
-//    {}
-//    Industry * parent;
-//    list<Industry> children;
-//
-//    int id;
-//    wstring cname;
-//    wstring ename;
-//
-//    Industry * find();
-//};
-
-//////////////////////////////////////////////////////////////////////////
-//
-
 

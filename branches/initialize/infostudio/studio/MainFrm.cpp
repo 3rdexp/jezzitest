@@ -163,8 +163,11 @@ ChildViewBase * CMainFrame::ActiveChildView(CV_TYPE type)
         }
 
         current_ = children_[type];
-        ::ShowWindow(current_->GetHWND(), SW_SHOW);
-        m_wndSplitter.SetSplitterPane(SPLIT_PANE_RIGHT, current_->GetHWND(), true);
+        if (current_)
+        {
+            ::ShowWindow(current_->GetHWND(), SW_SHOW);
+            m_wndSplitter.SetSplitterPane(SPLIT_PANE_RIGHT, current_->GetHWND(), true);
+        }
     }
     return 0;
 }

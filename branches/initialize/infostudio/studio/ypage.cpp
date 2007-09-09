@@ -21,10 +21,10 @@ HTREEITEM RescurInsert(CTreeViewCtrl & tree, HTREEITEM parent, HTREEITEM after, 
     // ret = InsertItem(i->name.c_str(), parent, after);
     ASSERT(ret);
     HTREEITEM inner_after = TVI_FIRST;
-    for (Industry::list_type::const_iterator i=ind.children.begin(); 
+    for (Industry::children_type::const_iterator i=ind.children.begin(); 
         i != ind.children.end(); ++i)
     {
-        inner_after = RescurInsert(tree, ret, inner_after, *i);
+        inner_after = RescurInsert(tree, ret, inner_after, i->second);
     }
 
 #ifdef ONE_TREE // test code
@@ -49,10 +49,10 @@ LRESULT SubYellowPage::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
         HTREEITEM parent = TVI_ROOT, after = TVI_FIRST;
 
         Industry & ind = bd_->GetIndustry();
-        for (Industry::list_type::const_iterator i=ind.children.begin(); 
+        for (Industry::children_type::const_iterator i=ind.children.begin(); 
             i != ind.children.end(); ++i)
         {
-            after = RescurInsert(*this, parent, after, *i);
+            after = RescurInsert(*this, parent, after, i->second);
         }
     }
     return 0;
@@ -80,15 +80,21 @@ LRESULT SubYellowPage::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
     SetSplitterPos(195);
 
+    lv_.InsertColumn(0, L"Ãû³Æ", LVCFMT_LEFT, 100);
+    lv_.InsertColumn(1, L"ÍøÕ¾", LVCFMT_LEFT, 100);
+    lv_.InsertColumn(3, L"×´Ì¬", LVCFMT_LEFT, 50);
+
     if (bd_) {
         HTREEITEM parent = TVI_ROOT, after = TVI_FIRST;
 
         Industry & ind = bd_->GetIndustry();
-        for (Industry::list_type::const_iterator i=ind.children.begin(); 
+        for (Industry::children_type::const_iterator i=ind.children.begin(); 
             i != ind.children.end(); ++i)
         {
-            after = RescurInsert(tv_, parent, after, *i);
+            after = RescurInsert(tv_, parent, after, i->second);
         }
+
+        SelectIndustry(0);
     }
     return 0;
 }
@@ -97,11 +103,46 @@ LRESULT SubYellowPage::OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bH
 {
     NMTREEVIEW * ntv = (NMTREEVIEW *)pnmh;
     int id = ntv->itemNew.lParam;
-    if (bd_)
-    {
-        // bd_->GetIndustry().find(id);
+    if (bd_) {
+        SelectIndustry(id);
     }
     return 0;
+}
+
+static void InsertSite(CListViewCtrl & lv, const SiteInfo* site)
+{
+    int index = lv.InsertItem(0, site->name.c_str());
+    ASSERT(-1 != index);
+    BOOL f = lv.SetItemText(index, 1, site->homepage.c_str());
+    ASSERT(f);
+}
+
+void SubYellowPage::SelectIndustry(int id)
+{
+    lv_.SetRedraw(FALSE);
+    lv_.DeleteAllItems();
+
+    if (bd_) 
+    {
+        if (id == 0)
+        {
+            std::vector<const SiteInfo*> sites = bd_->AllSite();
+            curcol_.swap(sites);
+        }
+        else
+        {
+            std::vector<const SiteInfo*> sites = bd_->FindSite(id);
+            curcol_.swap(sites);
+        }
+
+        for(std::vector<const SiteInfo*>::const_iterator i = curcol_.begin();
+            i != curcol_.end(); ++i)
+        {
+            InsertSite(lv_, *i);
+        }
+    }
+
+    lv_.SetRedraw(TRUE);
 }
 
 #endif

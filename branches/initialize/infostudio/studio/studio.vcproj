@@ -542,6 +542,9 @@
 				RelativePath=".\picwnd.h">
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\doc\vnet.doc.txt">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -36,7 +36,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     SiteCrank crank;
 
     StudioData cons;
-    bool f = cons.Open(L"base.db", L"user.db");
+    bool f = cons.Open(L"data\\tools\\base.db", L"user.db");
     ASSERT(f);
 
     BaseData bd;
@@ -102,5 +102,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 int main()
 {
+    _tWinMain((HINSTANCE)GetModuleHandle(0), 0, L"", 0);
     return 0;
 }
