@@ -28,9 +28,12 @@
     #define ARRAYSIZE(a)		(sizeof(a)/sizeof((a)[0]))
 #endif
 
-// TODO:
-#ifndef ASSERT    
-    #define ASSERT(x) if (!(x)) __asm int 3;
+#ifndef ASSERT
+    #ifndef NDEBUG
+        #define ASSERT(x) if (!(x)) __asm int 3;
+    #else
+        #define ASSERT(x)
+    #endif
 #endif
 
 

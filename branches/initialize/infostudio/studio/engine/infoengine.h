@@ -96,9 +96,11 @@ public:// private:
 class SiteCrank
 {
 public:
+    SiteCrank() {}
     // input: vector<sid> ?, ActionType
     bool Init()
     {
+#if 0
         {
             userinfo_.insert(L"sex", L"male");
             userinfo_.insert(L"pasw", L"strongpsw");
@@ -225,6 +227,8 @@ public:
             sites_.push_back(site);
             return true;
         }
+#endif
+        return true;
     }
 
     void Run(TaskRunner * runner)
@@ -233,7 +237,7 @@ public:
         // for_each site in sites_
         // new task
         // ....
-# if 1
+# if 0
         for (std::vector<Site>::iterator i = sites_.begin();
             i != sites_.end(); ++i)
         {
@@ -245,7 +249,7 @@ public:
 
             runner->StartTask(task);
         }
-#else
+#elif 0
         SiteTask * task = new SiteTask(site_, userinfo_, runner);
 
         task->AddAction(site_.Find(AT_REGISTER));
@@ -256,8 +260,6 @@ public:
 
     static VerifyCodeHelper * CreateVerifyHelper();
 private:
-    UserInfo userinfo_;
-    // TODO:
     std::vector<Site> sites_;
     Site site_;
 };

@@ -7,12 +7,14 @@
 #include <atlctrlw.h>
 #include <atlsplit.h>
 
-#include "proplist/PropertyList.h"
 #include "data/basedata.h"
 #include "data/mutabledata.h"
 
 #include "resource.h"
+
 #include "ypage.h"
+#include "ulist.h"
+
 #include "leftv.h"
 #include "mainfrm.h"
 
@@ -76,21 +78,6 @@ void CMainFrame::InitViews()
 {
     ActiveChildView(CV_USERINFO);
 }
-
-template<class T>
-class ChildViewT : public T
-    , public ChildViewBase
-{
-public:
-    virtual BOOL PreTranslateMessage(MSG* pMsg) 
-    {
-        return FALSE;
-    }
-    virtual HWND GetHWND()
-    {
-        return m_hWnd;
-    }
-};
 
 ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
 {

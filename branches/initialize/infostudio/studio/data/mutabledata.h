@@ -15,7 +15,10 @@ public:
 
     void Init(sqlite3x::sqlite3_connection &);
 
-    bool ready() const { return ready_; }
+    bool CheckReady() const;
+    UserInfo & GetUserInfo() { return userinfo_; }
+
+    // access Site, Action
 
 private:
     typedef std::map<int, Site> site_map;

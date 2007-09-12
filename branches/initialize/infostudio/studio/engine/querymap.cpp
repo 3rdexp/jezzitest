@@ -11,7 +11,7 @@
 
 // std::wstring remove_bracket(const std::wstring & t) {}
 
-std::string QueryMap::Apply(const VariableMap & vm, const Dictionary & dict
+std::string QueryMap::Expand(const VariableMap & vm, const Dictionary & dict
         , SiteCharset charset)
 {
     using namespace std;

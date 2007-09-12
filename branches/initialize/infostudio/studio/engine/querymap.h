@@ -28,7 +28,7 @@ public:
         dict_[domain] = vm;
     }
 private:
-    // domain ==> dictionay
+    // domain ==> dictionary
     typedef std::map<std::wstring, VariableMap> DictMap;
     DictMap dict_;
 };
@@ -39,7 +39,7 @@ private:
 // for a=b&c={name}&e*= translate
 // usage:
 // QueryMap vt(L"a=b&c={name}&e*=");
-// std::string s = vt.Apply(UserInfo.vars, SC_ANSI, UrlQueryEscape());
+// std::string s = vt.Expand(UserInfo.vars, SC_ANSI, UrlQueryEscape());
 // xxx.Post(s);
 
 class QueryMap
@@ -48,7 +48,7 @@ public:
     QueryMap(const std::wstring & text) : text_(text) {}
 
     // TODO: template<class Encoding>
-    std::string Apply(const VariableMap & vm, const Dictionary & dict
+    std::string Expand(const VariableMap & vm, const Dictionary & dict
         , SiteCharset charset);
 
 private:

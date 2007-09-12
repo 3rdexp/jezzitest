@@ -21,20 +21,12 @@ using std::wstring;
 处理数据后，执行 Get/Post
 */
 
-struct UserItem
-{
-    wstring key;
-    wstring value;
-    wstring name; // 显示用名称，需要加一个 description?
-    int cate;
-};
 
-struct UserInfo : public std::map<std::wstring, UserItem>
+struct UserInfo : public VariableMap
 {
 public:
     void insert(const std::wstring & key, const std::wstring & value)
     {
-        // VariableMap::insert(VariableMap::value_type(key, value));
     }
 };
 

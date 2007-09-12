@@ -202,6 +202,12 @@
 			<File
 				RelativePath=".\proplist\PropertyList.h">
 			</File>
+			<File
+				RelativePath=".\ulist.cpp">
+			</File>
+			<File
+				RelativePath=".\ulist.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="c2_yellowpage"

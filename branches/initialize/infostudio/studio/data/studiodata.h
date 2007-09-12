@@ -12,7 +12,7 @@ public:
         try {
             basecon_.open(basefn.c_str());
             mutablecon_.open(mutablefn.c_str());
-        } catch(sqlite3x::database_error & e) {
+        } catch(sqlite3x::database_error &) {
             return false;
         }
         return true;
