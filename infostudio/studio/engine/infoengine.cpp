@@ -145,7 +145,7 @@ bool SiteTask::StartAction(Action * pa)
 bool SiteTask::PrepareForm(std::ostream & out, const std::wstring & vars, SiteCharset charset) const
 {
     QueryMap qm(vars);
-    std::string s = qm.Apply(userinfo_, site_.dict(), charset);
+    std::string s = qm.Expand(userinfo_, site_.dict(), charset);
     out << s;
     return true;
 }

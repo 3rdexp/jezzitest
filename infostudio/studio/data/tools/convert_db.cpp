@@ -15,7 +15,7 @@
 
 /*
 
-CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT, name TEXT, cate INTEGER);
+CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT);
 
 CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd TEXT
     , time INTEGER, laststate INTEGER);
