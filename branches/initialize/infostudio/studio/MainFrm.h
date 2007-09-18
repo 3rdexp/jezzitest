@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <algorithm>
 #include "childv.h"
+#include "proplist/PropertyItem.h"
 
 class ChildViewBase;
 class BaseData;
@@ -68,15 +68,30 @@ public:
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
+
+        NOTIFY_CODE_HANDLER(PIN_ITEMCHANGED, OnUserInfoItemChanged)
         REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
+
+    ChildViewBase * CreateChildView(CV_TYPE);
+    ChildViewBase * ActiveChildView(CV_TYPE);
+
+    void InitData(BaseData * bd, MutableData * md)
+    {
+        bd_ = bd;
+        md_ = md;
+    }
 
 // Handler prototypes (uncomment arguments if needed):
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
+private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
+    // sub UserInfo
+    LRESULT OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -119,17 +134,85 @@ public:
 	}
 
     void InitViews();
-    ChildViewBase * CreateChildView(CV_TYPE);
-    ChildViewBase * ActiveChildView(CV_TYPE);
 
     //////////////////////////////////////////////////////////////////////////
     // database stuff
     BaseData * bd_;
     MutableData * md_;
 
-    void InitData(BaseData * bd, MutableData * md)
+#if 0
+    LRESULT ReflectNotifications(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        bd_ = bd;
-        md_ = md;
+        HWND hWndChild = NULL;
+
+        switch(uMsg)
+        {
+        case WM_COMMAND:
+            if(lParam != NULL)	// not from a menu
+                hWndChild = (HWND)lParam;
+            break;
+        case WM_NOTIFY:
+            hWndChild = ((LPNMHDR)lParam)->hwndFrom;
+            if (current_ && hWndChild == current_->GetHWND())
+            {
+                // ATLTRACE("= %d\n", ((LPNMHDR)lParam)->code);
+            }
+            break;
+        case WM_PARENTNOTIFY:
+            switch(LOWORD(wParam))
+            {
+            case WM_CREATE:
+            case WM_DESTROY:
+                hWndChild = (HWND)lParam;
+                break;
+            default:
+                hWndChild = GetDlgItem(HIWORD(wParam));
+                break;
+            }
+            break;
+        case WM_DRAWITEM:
+            if(wParam)	// not from a menu
+                hWndChild = ((LPDRAWITEMSTRUCT)lParam)->hwndItem;
+            break;
+        case WM_MEASUREITEM:
+            if(wParam)	// not from a menu
+                hWndChild = GetDlgItem(((LPMEASUREITEMSTRUCT)lParam)->CtlID);
+            break;
+        case WM_COMPAREITEM:
+            if(wParam)	// not from a menu
+                hWndChild = GetDlgItem(((LPCOMPAREITEMSTRUCT)lParam)->CtlID);
+            break;
+        case WM_DELETEITEM:
+            if(wParam)	// not from a menu
+                hWndChild = GetDlgItem(((LPDELETEITEMSTRUCT)lParam)->CtlID);
+            break;
+        case WM_VKEYTOITEM:
+        case WM_CHARTOITEM:
+        case WM_HSCROLL:
+        case WM_VSCROLL:
+            hWndChild = (HWND)lParam;
+            break;
+        case WM_CTLCOLORBTN:
+        case WM_CTLCOLORDLG:
+        case WM_CTLCOLOREDIT:
+        case WM_CTLCOLORLISTBOX:
+        case WM_CTLCOLORMSGBOX:
+        case WM_CTLCOLORSCROLLBAR:
+        case WM_CTLCOLORSTATIC:
+            hWndChild = (HWND)lParam;
+            break;
+        default:
+            break;
+        }
+
+        if(hWndChild == NULL)
+        {
+            bHandled = FALSE;
+            return 1;
+        }
+
+        ATLASSERT(::IsWindow(hWndChild));
+        return ::SendMessage(hWndChild, OCM__BASE + uMsg, wParam, lParam);
     }
+#endif
 };

@@ -5,7 +5,28 @@
 #include "ypage.h"
 #include "data/basedata.h"
 
-HTREEITEM RescurInsert(CTreeViewCtrl & tree, HTREEITEM parent, HTREEITEM after, const Industry & ind)
+
+
+
+struct IndustryData : public TreeData
+{
+    IndustryData(int cid) : cid_(cid) {}
+    int cid_;
+};
+
+struct SiteData : public TreeData
+{
+    SiteData(const SiteInfo * site) : site_(site) {}
+    const SiteInfo * site_;
+
+    virtual bool mcols() const { return true; }
+};
+
+
+#ifdef ONE_TREE
+//////////////////////////////////////////////////////////////////////////
+//
+HTREEITEM RescurInsert(CTreeViewCtrl & tree, BaseData * bd, HTREEITEM parent, HTREEITEM after, const Industry & ind)
 {
     TVINSERTSTRUCT tvs;
     ZeroMemory(&tvs, sizeof(tvs));
@@ -14,32 +35,43 @@ HTREEITEM RescurInsert(CTreeViewCtrl & tree, HTREEITEM parent, HTREEITEM after, 
     tvs.hInsertAfter = after;
     tvs.item.pszText = const_cast<wchar_t*>(ind.name.c_str());
     tvs.item.cchTextMax = ind.name.size();
-    tvs.item.mask = TVIF_TEXT | TVIF_PARAM;
-    tvs.item.lParam = ind.id;
+    tvs.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_STATE;
+    tvs.item.state = INDEXTOSTATEIMAGEMASK(2) | TVIS_EXPANDED;
+    tvs.item.stateMask = TVIS_STATEIMAGEMASK;
+    tvs.item.lParam = (LPARAM)new IndustryData(ind.id);
 
     HTREEITEM ret = tree.InsertItem(&tvs);
-    // ret = InsertItem(i->name.c_str(), parent, after);
     ASSERT(ret);
+
+//    tree.SetCheckState(ret, TRUE);
+
     HTREEITEM inner_after = TVI_FIRST;
     for (Industry::children_type::const_iterator i=ind.children.begin(); 
         i != ind.children.end(); ++i)
     {
-        inner_after = RescurInsert(tree, ret, inner_after, i->second);
+        inner_after = RescurInsert(tree, bd, ret, inner_after, i->second);
     }
 
-#ifdef ONE_TREE // test code
-    if (ind.children.empty())
+    std::vector<const SiteInfo*> sites = bd->FindSite(ind.id);
+    
+    for (std::vector<const SiteInfo*>::const_iterator j=sites.begin();
+        j != sites.end(); ++j)
     {
-        HTREEITEM hti = tree.InsertItem(L"site a", ret, inner_after);
-        tree.SetItemData(hti, 1);
+        ZeroMemory(&tvs, sizeof(tvs));
+        tvs.hParent = ret;
+        tvs.hInsertAfter = inner_after;
+        tvs.item.pszText = const_cast<wchar_t*>((*j)->name.c_str());
+        tvs.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_STATE;
+        tvs.item.state = INDEXTOSTATEIMAGEMASK(2);
+        tvs.item.stateMask = TVIS_STATEIMAGEMASK;
+        tvs.item.lParam = (LPARAM)new SiteData(*j);
+
+        inner_after = tree.InsertItem(&tvs);
+        ASSERT(inner_after);
     }
-#endif
 
     return ret;
 }
-
-
-#ifdef ONE_TREE
 
 LRESULT SubYellowPage::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
                                 , BOOL& bHandled)
@@ -52,15 +84,81 @@ LRESULT SubYellowPage::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
         for (Industry::children_type::const_iterator i=ind.children.begin(); 
             i != ind.children.end(); ++i)
         {
-            after = RescurInsert(*this, parent, after, i->second);
+            after = RescurInsert(*this, bd_, parent, after, i->second);
         }
     }
     return 0;
 }
 
+static void TreeItemClean(CTreeViewCtrl & tree, HTREEITEM htip)
+{
+    TreeData * ptd = (TreeData *)tree.GetItemData(htip);
+    delete ptd;
+
+    HTREEITEM hti = tree.GetNextItem(htip, TVGN_CHILD);
+    while (hti)
+    {
+        TreeItemClean(tree, hti);
+
+        hti = tree.GetNextItem(hti, TVGN_NEXT);
+    }
+}
+
+LRESULT SubYellowPage::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+    HTREEITEM root = GetNextItem(NULL, TVGN_ROOT);
+    TreeItemClean(*this, root);
+    return 0;
+}
+
+LRESULT SubYellowPage::OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+    NMTREEVIEW * ntv = (NMTREEVIEW *)pnmh;
+    int id = ntv->itemNew.lParam;
+    if (bd_) {
+    }
+    return 0;
+}
+
+LRESULT SubYellowPage::OnTreeClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+    CPoint pt;
+    GetCursorPos(&pt);
+    ScreenToClient(&pt);
+
+    UINT flags = 0;
+    HTREEITEM hti = HitTest(pt, &flags);
+    if (flags & TVHT_ONITEMSTATEICON)
+        __asm int 3;
+    return 0;
+}
+
+void SubYellowPage::DrawItem(HDC hdc, RECT * lprc, TreeData* td)
+{
+    CDCHandle dc(hdc);
+    CRect rc(*lprc);
+
+    SiteData * sd = dynamic_cast<SiteData*>(td);
+
+    rc.left = 200;
+    dc.DrawText(sd->site_->homepage.c_str(), sd->site_->homepage.size()
+        , rc, DT_LEFT | DT_VCENTER);
+
+    rc.left += 200;
+    dc.DrawText(L"TODO", -1, rc, DT_LEFT | DT_VCENTER);
+}
+
+
+
+
 #else
 
 
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//
 LRESULT SubYellowPage::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
                                 , BOOL& bHandled)
 {

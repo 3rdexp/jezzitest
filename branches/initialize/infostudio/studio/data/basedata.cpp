@@ -249,9 +249,9 @@ bool BaseData::Init(sqlite3x::sqlite3_connection & con)
         bool f = LoadIndustry(con, indroot_);
         ASSERT(f);
 
-        std::wostringstream oss;
-        DumpIndustry(oss, L"_", indroot_);
-        OutputDebugString(oss.str().c_str());
+//        std::wostringstream oss;
+//        DumpIndustry(oss, L"_", indroot_);
+//        OutputDebugString(oss.str().c_str());
 
         f = LoadSite(con);
         ASSERT(f);

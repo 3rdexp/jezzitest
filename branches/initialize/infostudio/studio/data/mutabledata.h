@@ -13,7 +13,7 @@ class MutableData
 public:
     MutableData() : ready_(false) {}
 
-    void Init(sqlite3x::sqlite3_connection &);
+    bool Init(sqlite3x::sqlite3_connection &);
 
     bool CheckReady() const;
     UserInfo & GetUserInfo() { return userinfo_; }

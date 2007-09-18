@@ -30,10 +30,10 @@ public:
         return 0;
     }
 
-    std::vector<const SiteInfo*> FindSite(int id) const
+    std::vector<const SiteInfo*> FindSite(int cid) const
     {
         std::vector<const SiteInfo*> ret;
-        siterel_type::const_iterator i = siterel_.find(id);
+        siterel_type::const_iterator i = siterel_.find(cid);
         if (i != siterel_.end())
         {
             const sid_coll & col = i->second;
@@ -45,7 +45,7 @@ public:
                 ret.push_back(p);
             }
         }
-        ASSERT(!ret.empty());
+//        ASSERT(!ret.empty());
         return ret;
     }
 
@@ -69,7 +69,7 @@ private:
 
     // Industry and SiteInfo
     typedef std::vector<int> sid_coll;
-    typedef std::map<int, sid_coll> siterel_type; // industry.id => site list
+    typedef std::map<int, sid_coll> siterel_type; // industry.id => site collection
     siterel_type siterel_;
 
     // all SiteInfo

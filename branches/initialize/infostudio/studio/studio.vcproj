@@ -24,6 +24,7 @@
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"/>
@@ -202,12 +203,6 @@
 			<File
 				RelativePath=".\proplist\PropertyList.h">
 			</File>
-			<File
-				RelativePath=".\ulist.cpp">
-			</File>
-			<File
-				RelativePath=".\ulist.h">
-			</File>
 		</Filter>
 		<Filter
 			Name="c2_yellowpage"
@@ -360,178 +355,178 @@
 			<Filter
 				Name="sqlite3">
 				<File
-					RelativePath="..\InfoStudio\sqlite\alter.c">
+					RelativePath="sqlite\alter.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\analyze.c">
+					RelativePath="sqlite\analyze.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\attach.c">
+					RelativePath="sqlite\attach.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\auth.c">
+					RelativePath="sqlite\auth.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\btree.c">
+					RelativePath="sqlite\btree.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\btree.h">
+					RelativePath="sqlite\btree.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\btreeInt.h">
+					RelativePath="sqlite\btreeInt.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\build.c">
+					RelativePath="sqlite\build.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\callback.c">
+					RelativePath="sqlite\callback.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\complete.c">
+					RelativePath="sqlite\complete.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\date.c">
+					RelativePath="sqlite\date.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\delete.c">
+					RelativePath="sqlite\delete.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\expr.c">
+					RelativePath="sqlite\expr.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\func.c">
+					RelativePath="sqlite\func.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\hash.c">
+					RelativePath="sqlite\hash.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\hash.h">
+					RelativePath="sqlite\hash.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\insert.c">
+					RelativePath="sqlite\insert.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\keywordhash.h">
+					RelativePath="sqlite\keywordhash.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\legacy.c">
+					RelativePath="sqlite\legacy.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\loadext.c">
+					RelativePath="sqlite\loadext.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\main.c">
+					RelativePath="sqlite\main.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\malloc.c">
+					RelativePath="sqlite\malloc.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\opcodes.c">
+					RelativePath="sqlite\opcodes.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\opcodes.h">
+					RelativePath="sqlite\opcodes.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\os.c">
+					RelativePath="sqlite\os.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\os.h">
+					RelativePath="sqlite\os.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\os_common.h">
+					RelativePath="sqlite\os_common.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\os_win.c">
+					RelativePath="sqlite\os_win.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\pager.c">
+					RelativePath="sqlite\pager.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\pager.h">
+					RelativePath="sqlite\pager.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\parse.c">
+					RelativePath="sqlite\parse.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\parse.h">
+					RelativePath="sqlite\parse.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\pragma.c">
+					RelativePath="sqlite\pragma.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\prepare.c">
+					RelativePath="sqlite\prepare.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\printf.c">
+					RelativePath="sqlite\printf.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\random.c">
+					RelativePath="sqlite\random.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\select.c">
+					RelativePath="sqlite\select.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\sqlite3.h">
+					RelativePath="sqlite\sqlite3.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\sqlite3ext.h">
+					RelativePath="sqlite\sqlite3ext.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\sqliteInt.h">
+					RelativePath="sqlite\sqliteInt.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\sqliteLimit.h">
+					RelativePath="sqlite\sqliteLimit.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\table.c">
+					RelativePath="sqlite\table.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\tokenize.c">
+					RelativePath="sqlite\tokenize.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\trigger.c">
+					RelativePath="sqlite\trigger.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\update.c">
+					RelativePath="sqlite\update.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\utf.c">
+					RelativePath="sqlite\utf.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\util.c">
+					RelativePath="sqlite\util.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vacuum.c">
+					RelativePath="sqlite\vacuum.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbe.c">
+					RelativePath="sqlite\vdbe.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbe.h">
+					RelativePath="sqlite\vdbe.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbeapi.c">
+					RelativePath="sqlite\vdbeapi.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbeaux.c">
+					RelativePath="sqlite\vdbeaux.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbeblob.c">
+					RelativePath="sqlite\vdbeblob.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbefifo.c">
+					RelativePath="sqlite\vdbefifo.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbeInt.h">
+					RelativePath="sqlite\vdbeInt.h">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vdbemem.c">
+					RelativePath="sqlite\vdbemem.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\vtab.c">
+					RelativePath="sqlite\vtab.c">
 				</File>
 				<File
-					RelativePath="..\InfoStudio\sqlite\where.c">
+					RelativePath="sqlite\where.c">
 				</File>
 			</Filter>
 		</Filter>

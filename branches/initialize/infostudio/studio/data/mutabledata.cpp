@@ -8,9 +8,16 @@ using namespace sqlite3x;
 #include <sstream>
 
 
-void MutableData::Init(sqlite3x::sqlite3_connection & con)
+bool MutableData::Init(sqlite3x::sqlite3_connection & con)
 {
-    // CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT)
+    try {
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT)");
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd TEXT"
+        L", time INTEGER, laststate INTEGER)");
+    } catch(database_error & e) {
+        ASSERT(false && "init table");
+        return false;
+    }
 
     // read all
     // check ready_
@@ -27,9 +34,11 @@ void MutableData::Init(sqlite3x::sqlite3_connection & con)
         }
     } catch(database_error & e) {
         ASSERT(false && "read userinfo");
+        return false;
     }
 
     ready_ = CheckReady();
+    return true;
 }
 
 bool MutableData::CheckReady() const

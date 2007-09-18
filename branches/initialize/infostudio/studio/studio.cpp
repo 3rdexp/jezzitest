@@ -45,6 +45,10 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     cons.CloseBase();
 
+    MutableData md;
+    f = md.Init(cons.mutablecon_);
+    ASSERT(f);
+
     // 
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
@@ -57,7 +61,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     //
 	CMainFrame wndMain;
-    wndMain.InitData(&bd, 0);
+    wndMain.InitData(&bd, &md);
 	if(wndMain.CreateEx() == NULL)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));
