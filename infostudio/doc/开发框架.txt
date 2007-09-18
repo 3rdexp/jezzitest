@@ -25,4 +25,24 @@ c2_       黄页信息
  可以新建一个供求信息
  新建供求信息的时候,会弹出对话框,输入一些供求信息的基本信息
  
- product a | 
+
+
+文件目录
+-----------------------------------------------------
+engine 应该是最核心的
+base 和项目基本无关的代码，unicode，escape等
+data 数据库操作
+ basedata Site, Action 等数据,运行期不更改的，更新时需要用到的，保存在 base.db 中
+ mutabledat 运行期，记录UserInfo, 注册，发布过程
+
+
+UI
+-----------------------------------------------------
+              |  ulist.h proplist wtl属性列表，用户信息
+leftv.h(tree) |  ypage.h 黄页
+              |  
+              |
+
+  TODO                右边的窗口基类为 childv.h
+ outlook风格
+
