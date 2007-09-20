@@ -5,8 +5,7 @@
 #include "ypage.h"
 #include "data/basedata.h"
 
-
-
+#ifdef ONE_TREE
 
 struct IndustryData : public TreeData
 {
@@ -23,7 +22,6 @@ struct SiteData : public TreeData
 };
 
 
-#ifdef ONE_TREE
 //////////////////////////////////////////////////////////////////////////
 //
 HTREEITEM RescurInsert(CTreeViewCtrl & tree, BaseData * bd, HTREEITEM parent, HTREEITEM after, const Industry & ind)
@@ -154,7 +152,34 @@ void SubYellowPage::DrawItem(HDC hdc, RECT * lprc, TreeData* td)
 #else
 
 
+HTREEITEM RescurInsert(CTreeViewCtrl & tree, HTREEITEM parent, HTREEITEM after, const Industry & ind)
+{
+    TVINSERTSTRUCT tvs;
+    ZeroMemory(&tvs, sizeof(tvs));
 
+    tvs.hParent = parent;
+    tvs.hInsertAfter = after;
+    tvs.item.pszText = const_cast<wchar_t*>(ind.name.c_str());
+    tvs.item.cchTextMax = ind.name.size();
+    tvs.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_STATE;
+    tvs.item.state = INDEXTOSTATEIMAGEMASK(2) | TVIS_EXPANDED;
+    tvs.item.stateMask = TVIS_STATEIMAGEMASK;
+    tvs.item.lParam = ind.id;
+
+    HTREEITEM ret = tree.InsertItem(&tvs);
+    ASSERT(ret);
+
+    //    tree.SetCheckState(ret, TRUE);
+
+    HTREEITEM inner_after = TVI_FIRST;
+    for (Industry::children_type::const_iterator i=ind.children.begin(); 
+        i != ind.children.end(); ++i)
+    {
+        inner_after = RescurInsert(tree, ret, inner_after, i->second);
+    }
+
+    return ret;
+}
 
 
 //////////////////////////////////////////////////////////////////////////
