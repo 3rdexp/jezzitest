@@ -6,12 +6,6 @@
 计划任务
 
 
-childv.h  右边窗口的基类
-c1_xxx    公司信息
-c2_       黄页信息
-    ypage.h/cpp 
-
-
 公司信息
  tabs -> dialog
  或者用 PropertyGridView
@@ -46,3 +40,6 @@ leftv.h(tree) |  ypage.h 黄页
   TODO                右边的窗口基类为 childv.h
  outlook风格
 
+toolbar
+[register] 全部 注册 手工注册 提交新网站
+[publish] ??
