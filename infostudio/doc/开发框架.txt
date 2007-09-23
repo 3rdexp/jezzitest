@@ -31,6 +31,8 @@ data 数据库操作
 
 
 UI
+[toolbar]
+[] [] []
 -----------------------------------------------------
               |  ulist.h proplist wtl属性列表，用户信息
 leftv.h(tree) |  ypage.h 黄页
@@ -41,5 +43,13 @@ leftv.h(tree) |  ypage.h 黄页
  outlook风格
 
 toolbar
-[register] 全部 注册 手工注册 提交新网站
-[publish] ??
+[companyinfo] 保存
+[register]  立即注册, 注册所选网站, 手工注册, [搜索,类似msn过滤性质]  
+[publish]  信息发布[支持任务属性] ,  删除  编辑发布信息,  开始发布 停止发布,   下面显示发布内容
+[论坛] 同上
+[产品] 同上
+[help]
+
+[设置功能 按钮]
+
+http://bp.booksir.com/help/
