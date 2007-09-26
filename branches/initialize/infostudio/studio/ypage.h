@@ -6,7 +6,7 @@
 #include "sitetree.h"
 #include "data/basedata.h"
 
-// #define ONE_TREE
+#define ONE_TREE
 #ifdef ONE_TREE
 
 class SubYellowPage : public SiteTreeImpl<SubYellowPage>
