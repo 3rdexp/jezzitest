@@ -54,19 +54,20 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
     CreateSimpleStatusBar();
 
-    m_hWndClient = m_wndSplitter.Create(m_hWnd, rcDefault, NULL, WS_CHILD 
-        | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+    m_hWndClient = m_tab.Create(m_hWnd, rcDefault, NULL, WS_CHILD 
+        | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, IDC_TAB);
+
+    if (m_hWndClient)
+        m_tab.SetFont(AtlGetDefaultGuiFont());
     
-    m_studio.Create(m_wndSplitter, rcDefault, WS_CHILD | WS_VISIBLE 
-        | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-
-    m_wndSplitter.m_cxyMin = 170;
-
-    m_wndSplitter.SetSplitterPane(SPLIT_PANE_LEFT, m_studio, false);
+//    m_studio.Create(m_wndSplitter, rcDefault, WS_CHILD | WS_VISIBLE 
+//        | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+//    m_wndSplitter.m_cxyMin = 170;
+//    m_wndSplitter.SetSplitterPane(SPLIT_PANE_LEFT, m_studio, false);
 
 //    RECT rect;
 //    GetClientRect(&rect);
-    m_wndSplitter.SetSplitterPos(170);
+//    m_wndSplitter.SetSplitterPos(170);
     InitViews();
 
     UpdateLayout();
@@ -87,6 +88,18 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 void CMainFrame::InitViews()
 {
+    LPTSTR arr[] = {_T("[公司信息"), _T("黄页登录"), _T("信息发布")};
+
+    TCITEM tie; 
+    tie.mask = TCIF_TEXT; // TODO: TCIF_IMAGE
+    tie.iImage = -1;
+
+    for (int i=0; i<ARRAYSIZE(arr); ++i)
+    {
+        tie.pszText = arr[i];
+        m_tab.InsertItem(i, &tie);
+    }
+
     ActiveChildView(CV_USERINFO);
 }
 
@@ -96,7 +109,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     {
         // SubUserInfo * pv = new SubUserInfo(md_);
         ChildViewT<CPropertyListCtrl> * pv = new ChildViewT<CPropertyListCtrl>();
-        HWND h = pv->Create(m_wndSplitter, rcDefault, NULL, WS_CHILD | WS_VISIBLE
+        HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
         ATLASSERT(h);
         pv->SetExtendedListStyle(PLS_EX_CATEGORIZED);
@@ -195,7 +208,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     else if(CV_YELLOWPAGE == type)
     {
         SubYellowPage * pv = new SubYellowPage(bd_);
-        HWND h = pv->Create(m_wndSplitter, rcDefault, NULL, WS_CHILD | WS_VISIBLE
+        HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
         ATLASSERT(h);
         return pv;
@@ -222,12 +235,18 @@ ChildViewBase * CMainFrame::ActiveChildView(CV_TYPE type)
         if (current_)
         {
             ::ShowWindow(current_->GetHWND(), SW_SHOW);
-            m_wndSplitter.SetSplitterPane(SPLIT_PANE_RIGHT, current_->GetHWND(), true);
+//            m_wndSplitter.SetSplitterPane(SPLIT_PANE_RIGHT, current_->GetHWND(), true);
         }
     }
     return 0;
 }
 
+LRESULT CMainFrame::OnTabSelChange(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+{
+    int i = m_tab.GetCurSel();
+    ActiveChildView((CV_TYPE)i);
+    return 0;
+}
 
 LRESULT CMainFrame::OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
