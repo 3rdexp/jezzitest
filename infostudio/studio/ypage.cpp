@@ -13,10 +13,10 @@ struct IndustryData : public TreeData
     int cid_;
 };
 
-struct SiteData : public TreeData
+struct SiteInfoData : public TreeData
 {
-    SiteData(const SiteInfo * site) : site_(site) {}
-    const SiteInfo * site_;
+    SiteInfoData(SiteInfo * site) : site_(site) {}
+    SiteInfo * site_;
 
     virtual bool mcols() const { return true; }
 };
@@ -50,9 +50,9 @@ HTREEITEM RescurInsert(CTreeViewCtrl & tree, BaseData * bd, HTREEITEM parent, HT
         inner_after = RescurInsert(tree, bd, ret, inner_after, i->second);
     }
 
-    std::vector<const SiteInfo*> sites = bd->FindSite(ind.id);
+    std::vector<SiteInfo*> sites = bd->FindSite(ind.id);
     
-    for (std::vector<const SiteInfo*>::const_iterator j=sites.begin();
+    for (std::vector<SiteInfo*>::const_iterator j=sites.begin();
         j != sites.end(); ++j)
     {
         ZeroMemory(&tvs, sizeof(tvs));
@@ -62,7 +62,7 @@ HTREEITEM RescurInsert(CTreeViewCtrl & tree, BaseData * bd, HTREEITEM parent, HT
         tvs.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_STATE;
         tvs.item.state = INDEXTOSTATEIMAGEMASK(2);
         tvs.item.stateMask = TVIS_STATEIMAGEMASK;
-        tvs.item.lParam = (LPARAM)new SiteData(*j);
+        tvs.item.lParam = (LPARAM)new SiteInfoData(*j);
 
         inner_after = tree.InsertItem(&tvs);
         ASSERT(inner_after);
@@ -127,7 +127,9 @@ LRESULT SubYellowPage::OnTreeClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
     UINT flags = 0;
     HTREEITEM hti = HitTest(pt, &flags);
     if (flags & TVHT_ONITEMSTATEICON)
-        __asm int 3;
+    {
+        // TODO:
+    }
     return 0;
 }
 
@@ -136,7 +138,7 @@ void SubYellowPage::DrawItem(HDC hdc, RECT * lprc, TreeData* td)
     CDCHandle dc(hdc);
     CRect rc(*lprc);
 
-    SiteData * sd = dynamic_cast<SiteData*>(td);
+    SiteInfoData * sd = dynamic_cast<SiteInfoData*>(td);
 
     rc.left = 200;
     dc.DrawText(sd->site_->homepage.c_str(), sd->site_->homepage.size()
@@ -146,7 +148,27 @@ void SubYellowPage::DrawItem(HDC hdc, RECT * lprc, TreeData* td)
     dc.DrawText(L"TODO", -1, rc, DT_LEFT | DT_VCENTER);
 }
 
+void SubYellowPage::GetSelectedSite(std::vector<SiteInfo*> & vec, HTREEITEM hti)
+{
+    // enum all tree items ?
+    if (!hti)
+        hti = GetRootItem();
 
+    if (GetCheckState(hti))
+    {
+        TreeData * pd = (TreeData *)GetItemData(hti);
+        if (pd->mcols())
+            vec.push_back(dynamic_cast<SiteInfoData*>(pd)->site_);
+    }
+
+    HTREEITEM htc = GetNextItem(hti, TVGN_CHILD);
+    while (htc)
+    {
+        GetSelectedSite(vec, htc);
+
+        htc = GetNextItem(htc, TVGN_NEXT);
+    }
+}
 
 
 #else
@@ -232,7 +254,7 @@ LRESULT SubYellowPage::OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bH
     return 0;
 }
 
-static void InsertSite(CListViewCtrl & lv, const SiteInfo* site)
+static void InsertSite(CListViewCtrl & lv, SiteInfo* site)
 {
     int index = lv.InsertItem(0, site->name.c_str());
     ASSERT(-1 != index);
@@ -249,16 +271,16 @@ void SubYellowPage::SelectIndustry(int id)
     {
         if (id == 0)
         {
-            std::vector<const SiteInfo*> sites = bd_->AllSite();
+            std::vector<SiteInfo*> sites = bd_->AllSite();
             curcol_.swap(sites);
         }
         else
         {
-            std::vector<const SiteInfo*> sites = bd_->FindSite(id);
+            std::vector<SiteInfo*> sites = bd_->FindSite(id);
             curcol_.swap(sites);
         }
 
-        for(std::vector<const SiteInfo*>::const_iterator i = curcol_.begin();
+        for(std::vector<SiteInfo*>::const_iterator i = curcol_.begin();
             i != curcol_.end(); ++i)
         {
             InsertSite(lv_, *i);
@@ -269,5 +291,3 @@ void SubYellowPage::SelectIndustry(int id)
 }
 
 #endif
-
-

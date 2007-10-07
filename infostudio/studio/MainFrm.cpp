@@ -8,9 +8,13 @@
 #include <atldlgs.h>
 #include <atlctrlw.h>
 #include <atlsplit.h>
+#include <atlctrlx.h> // CWaitCursor
+
+#include <boost/static_assert.hpp>
 
 #include "data/basedata.h"
 #include "data/mutabledata.h"
+#include "engine/infoengine.h"
 
 #include "resource.h"
 
@@ -37,7 +41,6 @@ LRESULT CStudioView::OnButton(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-    // create command bar window
     HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
     // attach menu
     m_CmdBar.AttachMenu(GetMenu());
@@ -46,7 +49,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     // remove old menu
     SetMenu(NULL);
 
-    HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+    // BTNS_SHOWTEXT must be used with the TBSTYLE_LIST style and the TBSTYLE_EX_MIXEDBUTTONS extended style
+    // HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE
+    //    , ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST);
+
+    HWND hWndToolBar = ::CreateWindowEx(0, TOOLBARCLASSNAME, NULL, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST
+        , 0,0,100,38,
+        m_hWnd, (HMENU)ATL_IDW_TOOLBAR, ATL::_AtlBaseModule.GetModuleInstance(), NULL);
 
     CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
     AddSimpleReBarBand(hWndCmdBar);
@@ -54,24 +63,76 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
     CreateSimpleStatusBar();
 
+    m_MeshBar = hWndToolBar;
+
+    LPCTSTR string_pool[] = {
+        L"保存", 
+        L"立即注册", L"注册所选网站", 0, L"手工注册",
+        L"信息发布", L"删除", L"编辑发布信息", 0, L"开始发布", L"停止发布"
+    };
+
+    TBBUTTON arr[] = {
+        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        
+        {0, ID_TOOL_REGISTER_ALL,   TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_REGISTER_SEL,   TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, 0,                      TBSTATE_ENABLED | TBSTATE_HIDDEN,  TBSTYLE_SEP, {}, 0, 0},
+        {0, ID_TOOL_REGISTER_CUSTOM, TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+
+        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, 0,                      TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_SEP, {}, 0, 0},
+        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+    };
+
+    BOOST_STATIC_ASSERT(ARRAYSIZE(string_pool) == ARRAYSIZE(arr));
+
+    for(int i=0; i<ARRAYSIZE(arr); ++i)
+    {
+        if(string_pool[i])
+            arr[i].iString = m_MeshBar.AddStrings(string_pool[i]);
+    }
+
+    m_MeshBar.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
+    m_MeshBar.SetButtonStructSize(); // sizeof TBBUTTON
+
+    m_MeshBar.AddButtons(ARRAYSIZE(arr), arr);
+
+    BOOL rt = m_MeshBar.SetBitmapSize(CSize(24, 24));
+    ASSERT(rt);
+    rt = m_MeshBar.SetButtonSize(CSize(50, 26));
+    ASSERT(rt);
+
+    // 保存
+    // 立即注册, 注册所选网站, 手工注册, [搜索,类似msn过滤性质]
+    // 信息发布[支持任务属性] ,  删除  编辑发布信息,  开始发布 停止发布
+
+    // Bug: CContainedWindowT::RegisterWndSuperclass 会注册一个 
+    // CS_HREDRAW | CS_VREDRAW 的窗口，导致闪烁
+
+    WNDCLASSEX wc = { 0 };
+    wc.cbSize = sizeof(WNDCLASSEX);
+    ::GetClassInfoEx(_AtlBaseModule.GetModuleInstance(), _T("SysTabControl32"), &wc);
+
+    wc.lpszClassName = _T("ATL:SysTabControl32");
+    wc.lpfnWndProc = CContainedWindowT<CTabCtrl>::StartWindowProc;
+    wc.hInstance = _Module.GetModuleInstance();
+    wc.style = CS_DBLCLKS;
+    wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+    ATOM atom = AtlWinModuleRegisterClassEx(&_AtlWinModule, &wc);
+    ATLASSERT(atom);
+
     m_hWndClient = m_tab.Create(m_hWnd, rcDefault, NULL, WS_CHILD 
         | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, IDC_TAB);
 
     if (m_hWndClient)
         m_tab.SetFont(AtlGetDefaultGuiFont());
-    
-//    m_studio.Create(m_wndSplitter, rcDefault, WS_CHILD | WS_VISIBLE 
-//        | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-//    m_wndSplitter.m_cxyMin = 170;
-//    m_wndSplitter.SetSplitterPane(SPLIT_PANE_LEFT, m_studio, false);
 
-//    RECT rect;
-//    GetClientRect(&rect);
-//    m_wndSplitter.SetSplitterPos(170);
     InitViews();
 
     UpdateLayout();
-   
 
     UIAddToolBar(hWndToolBar);
     UISetCheck(ID_VIEW_TOOLBAR, 1);
@@ -82,6 +143,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     ATLASSERT(pLoop != NULL);
     pLoop->AddMessageFilter(this);
     pLoop->AddIdleHandler(this);
+
+    // 
+    InitCrank();
 
     return 0;
 }
@@ -100,6 +164,7 @@ void CMainFrame::InitViews()
         m_tab.InsertItem(i, &tie);
     }
 
+    // TODO: load from config
     ActiveChildView(CV_USERINFO);
 }
 
@@ -110,7 +175,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
         // SubUserInfo * pv = new SubUserInfo(md_);
         ChildViewT<CPropertyListCtrl> * pv = new ChildViewT<CPropertyListCtrl>();
         HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
-            | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+            | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0); // WS_EX_CLIENTEDGE);
         ATLASSERT(h);
         pv->SetExtendedListStyle(PLS_EX_CATEGORIZED);
 
@@ -209,7 +274,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     {
         SubYellowPage * pv = new SubYellowPage(bd_);
         HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
-            | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+            | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
         ATLASSERT(h);
         return pv;
     }
@@ -229,13 +294,37 @@ ChildViewBase * CMainFrame::ActiveChildView(CV_TYPE type)
         {
             ::ShowWindow(current_->GetHWND(), SW_HIDE);
             current_ = 0;
+
+            for (int i=ID_TOOL_FIRST; i<ID_TOOL_LAST; ++i)
+                m_MeshBar.SetState(i, TBSTATE_HIDDEN);
         }
 
         current_ = children_[type];
         if (current_)
         {
+            UpdateChildView();
+
             ::ShowWindow(current_->GetHWND(), SW_SHOW);
-//            m_wndSplitter.SetSplitterPane(SPLIT_PANE_RIGHT, current_->GetHWND(), true);
+
+            // set special buttons in toolbar
+            if (CV_USERINFO == type)
+            {
+                m_MeshBar.SetState(ID_TOOL_SAVE, TBSTATE_ENABLED);
+            }
+            else if(CV_YELLOWPAGE == type)
+            {
+                m_MeshBar.SetState(ID_TOOL_REGISTER_ALL, TBSTATE_ENABLED);
+                m_MeshBar.SetState(ID_TOOL_REGISTER_SEL, TBSTATE_ENABLED);
+                m_MeshBar.SetState(ID_TOOL_REGISTER_CUSTOM, TBSTATE_ENABLED);
+            }
+            else if(CV_PUBLISH == type)
+            {
+                m_MeshBar.SetState(ID_TOOL_PUBLISH_NEW, TBSTATE_ENABLED);
+                m_MeshBar.SetState(ID_TOOL_PUBLISH_DEL, TBSTATE_ENABLED);
+                m_MeshBar.SetState(ID_TOOL_PUBLISH_EDIT, TBSTATE_ENABLED);
+                m_MeshBar.SetState(ID_TOOL_PUBLISH_START, TBSTATE_ENABLED);
+                m_MeshBar.SetState(ID_TOOL_PUBLISH_STOP, TBSTATE_ENABLED);
+            }
         }
     }
     return 0;
@@ -246,6 +335,17 @@ LRESULT CMainFrame::OnTabSelChange(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHa
     int i = m_tab.GetCurSel();
     ActiveChildView((CV_TYPE)i);
     return 0;
+}
+
+LRESULT CMainFrame::OnTabEraseBackground(int, WPARAM wParam, LPARAM, BOOL&)
+{
+    // TODO:
+    CDCHandle dc((HDC)wParam);
+    CRect rcc;
+    GetClientRect(&rcc);
+    dc.FillRect(&rcc, COLOR_WINDOW);
+    // ATLTRACE("erase once %d %d\n", rcc.right, rcc.bottom);
+    return 1;
 }
 
 LRESULT CMainFrame::OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
@@ -262,3 +362,72 @@ LRESULT CMainFrame::OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*
     return 0;
 }
 
+LRESULT CMainFrame::OnUserInfoSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+    // TODO:
+    return 0;
+}
+
+LRESULT CMainFrame::OnRegisterAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+    ASSERT(bd_);
+    CWaitCursor wc;
+    {
+        std::vector<SiteInfo*> v = bd_->AllSite();
+        Register(v);
+    }
+    return 0;
+}
+
+LRESULT CMainFrame::OnRegisterSel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+    ASSERT(current_);
+    SubYellowPage * yp = dynamic_cast<SubYellowPage*>(current_);
+    ATLASSERT(yp);
+    CWaitCursor wc;
+    {
+        std::vector<SiteInfo*> v;
+        yp->GetSelectedSite(v);
+        Register(v);
+    }
+    return 0;
+}
+
+void CMainFrame::Register(Site & site)
+{
+    std::vector<ActionInfo> va = bd_->FindAction(site.sid, AT_REGISTER);
+    if (!va.empty())
+    {
+        site.Add(va);
+        crank_.Add(site);
+    }
+    else
+    {
+        ATLTRACE("empty action site:%S\n", site.name.c_str());
+    }
+}
+
+void CMainFrame::Register(std::vector<SiteInfo*> & vec)
+{
+    for(std::vector<SiteInfo*>::const_iterator i = vec.begin(); i != vec.end(); ++i)
+    {
+        const SiteInfo * si = *i;
+        Site *site = md_->Add(si);
+        Register(*site);
+    }
+}
+
+void CMainFrame::InitCrank()
+{
+    ASSERT(md_);
+    crank_.SigStateChange.connect(this, &CMainFrame::StateChange);
+    crank_.SigVerifyCode.connect(this, &CMainFrame::VerifyCode);
+}
+
+void CMainFrame::StateChange(SiteTask * task, int state)
+{
+}
+
+void CMainFrame::VerifyCode(SiteTask* task, const std::wstring & imgfn)
+{
+}

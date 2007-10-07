@@ -17,30 +17,31 @@ namespace sqlite3x
 class BaseData
 {
 public:
+    BaseData(sqlite3x::sqlite3_connection & con) : con_(con) {}
     Industry & GetIndustry()
     {
         return indroot_;
     }
 
-    const SiteInfo * GetSite(int sid) const
+    SiteInfo * GetSite(int sid)
     {
-        std::map<int, SiteInfo*>::const_iterator i = sidmap_.find(sid);
+        std::map<int, SiteInfo*>::iterator i = sidmap_.find(sid);
         if (i != sidmap_.end())
             return i->second;
         return 0;
     }
 
-    std::vector<const SiteInfo*> FindSite(int cid) const
+    std::vector<SiteInfo*> FindSite(int cid)
     {
-        std::vector<const SiteInfo*> ret;
-        siterel_type::const_iterator i = siterel_.find(cid);
+        std::vector<SiteInfo*> ret;
+        siterel_type::iterator i = siterel_.find(cid);
         if (i != siterel_.end())
         {
-            const sid_coll & col = i->second;
-            for (sid_coll::const_iterator j = col.begin();
+            sid_coll & col = i->second;
+            for (sid_coll::iterator j = col.begin();
                 j != col.end(); ++j)
             {
-                const SiteInfo* p = GetSite(*j);
+                SiteInfo* p = GetSite(*j);
                 ASSERT(p);
                 ret.push_back(p);
             }
@@ -49,16 +50,18 @@ public:
         return ret;
     }
 
-    std::vector<const SiteInfo*> AllSite() const
+    std::vector<SiteInfo*> AllSite()
     {
-        std::vector<const SiteInfo*> ret;
+        std::vector<SiteInfo*> ret;
         
-        for (std::list<SiteInfo>::const_iterator i = allsite_.begin();
+        for (std::list<SiteInfo>::iterator i = allsite_.begin();
             i != allsite_.end(); ++i)
             ret.push_back(&*i);
 
         return ret;
     }
+
+    std::vector<ActionInfo> FindAction(int sid, ActionType t);
 
     bool Init(sqlite3x::sqlite3_connection &);
 
@@ -75,6 +78,8 @@ private:
     // all SiteInfo
     std::list<SiteInfo> allsite_;
     std::map<int, SiteInfo*> sidmap_;
+
+    sqlite3x::sqlite3_connection & con_;
 };
 
 #endif // __BASEDATA_H__

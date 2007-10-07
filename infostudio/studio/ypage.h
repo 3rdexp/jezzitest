@@ -16,9 +16,7 @@ public:
     DECLARE_WND_SUPERCLASS(_T("SiteTree"), CTreeViewCtrl::GetWndClassName())
     // DECLARE_WND_CLASS_EX(_T("SiteTree"), 0, -1)
 
-    SubYellowPage(BaseData * bd) : bd_(bd)
-    {
-    }
+    SubYellowPage(BaseData * bd) : bd_(bd) {}
 
     BEGIN_MSG_MAP(SubYellowPage)
         CHAIN_MSG_MAP(SiteTreeImpl<SubYellowPage>)
@@ -42,6 +40,9 @@ public:
     {
         return m_hWnd;
     }
+
+    // return SiteInfo::sid
+    void GetSelectedSite(std::vector<SiteInfo*> &, HTREEITEM hti = 0);
 
     // template function for SiteTreeImpl
     void DrawItem(HDC hdc, RECT * lprc, TreeData* td);

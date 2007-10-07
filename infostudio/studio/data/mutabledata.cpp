@@ -11,10 +11,17 @@ using namespace sqlite3x;
 bool MutableData::Init(sqlite3x::sqlite3_connection & con)
 {
     try {
+    // user
     con.executenonquery(L"CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT)");
     con.executenonquery(L"CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd TEXT"
         L", time INTEGER, laststate INTEGER)");
+
+    // site
+
+    // action result
+
     } catch(database_error & e) {
+        e;
         ASSERT(false && "init table");
         return false;
     }
@@ -33,6 +40,7 @@ bool MutableData::Init(sqlite3x::sqlite3_connection & con)
             userinfo_.insert(key, val);
         }
     } catch(database_error & e) {
+        e;
         ASSERT(false && "read userinfo");
         return false;
     }
@@ -80,3 +88,28 @@ bool MutableData::CheckReady() const
     return true;
 }
 
+Site* MutableData::Add(const SiteInfo* si)
+{
+    ASSERT(si);
+    Site *p = new Site;
+    static_cast<SiteInfo&>(*p) = *si;
+    sites_.insert(site_map::value_type(si->sid, p));
+    return p;
+}
+
+Site* MutableData::Find(int sid)
+{
+    site_map::iterator i = sites_.find(sid);
+    if (i != sites_.end())
+        return i->second;
+    return 0;
+}
+
+Action* MutableData::Add(const ActionInfo* ai, const std::wstring & result)
+{
+    Action* p = new Action;
+    static_cast<ActionInfo&>(*p) = *ai;
+    p->result = result;
+    // TODO: save to sqlite
+    return p;
+}

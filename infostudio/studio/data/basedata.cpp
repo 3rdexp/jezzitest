@@ -263,3 +263,38 @@ bool BaseData::Init(sqlite3x::sqlite3_connection & con)
     }
     return true;
 }
+
+
+std::vector<ActionInfo> BaseData::FindAction(int sid, ActionType t)
+{
+    std::vector<ActionInfo> ret;
+    // TODO: order by aid and return all dependent action
+    sqlite3_command cmd(con_, L"SELECT aid, paid, url, method, charset, vars"
+        L", restype, referrer, checked, timeout, type FROM action WHERE sid=? order by aid");
+    cmd.bind(1, sid);
+    sqlite3_reader reader = cmd.executereader();
+
+    while(reader.read()) {
+        ActionInfo a;
+        a.aid = reader.getint(0);
+        int paid = reader.getint(1);
+        ASSERT(paid == 0);
+        a.url = reader.getstring16(2);
+        a.method = (HttpVerb)reader.getint(3);
+        ASSERT(a.method == HV_GET || a.method == HV_POST);
+        a.charset = (SiteCharset)reader.getint(4);
+        ASSERT(a.charset == SC_ANSI || a.charset == SC_UTF8);
+        a.vars = reader.getstring16(5);
+
+        a.restype = (ActionResponseType)reader.getint(6);
+        ASSERT(a.restype >= ART_VERIFY_IMAGE && a.restype <= ART_NONE);
+        a.referrer = reader.getstring16(7);
+        a.timeout = reader.getint(8);
+        a.type = (ActionType)reader.getint(9);
+        a.form_encoding = L"form-encoding"; // TODO:
+
+        ret.push_back(a);
+    }
+    return ret;
+}
+

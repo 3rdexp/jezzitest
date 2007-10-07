@@ -11,7 +11,7 @@ struct Industry
 {
     Industry() 
         : parent(0), id(0) {}
-        Industry(const std::wstring & n) 
+    Industry(const std::wstring & n) 
         : parent(0), name(n), id(0) {}
 
     std::wstring name, ename;
