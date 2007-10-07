@@ -21,7 +21,7 @@ Task::Task(Task *parent)
     start_time_(0),
     timeout_seconds_(0),
     timeout_time_(0),
-    timeout_suspended_(false)  
+    timeout_suspended_(false)
 {
     children_.reset(new ChildSet());
     runner_ = ((parent == NULL) ?

@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\;sqlite\;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG;_WIN32_WINNT=0x0500"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG;_WIN32_WINNT=0x0501"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -543,6 +543,15 @@
 				RelativePath=".\picwnd.h">
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\data\tools\convert_db.cpp">
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="TRUE">
+				<Tool
+					Name="VCCLCompilerTool"/>
+			</FileConfiguration>
+		</File>
 		<File
 			RelativePath="..\doc\vnet.doc.txt">
 		</File>

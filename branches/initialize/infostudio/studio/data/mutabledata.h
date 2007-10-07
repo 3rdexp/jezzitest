@@ -19,10 +19,14 @@ public:
     UserInfo & GetUserInfo() { return userinfo_; }
 
     // access Site, Action
+    Site* Add(const SiteInfo* si);
+    Site* Find(int sid);
+
+    Action* Add(const ActionInfo* ai, const std::wstring & result);
 
 private:
-    typedef std::map<int, Site> site_map;
-    site_map allsite_;
+    typedef std::map<int, Site*> site_map;
+    site_map sites_;
     UserInfo userinfo_;
     bool ready_;
 };

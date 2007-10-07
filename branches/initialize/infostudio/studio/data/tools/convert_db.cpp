@@ -30,12 +30,20 @@ CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER, pid INTEGER, CONSTRAINT x1 PRIMAR
 CREATE TABLE IF NOT EXISTS site (sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT);
 CREATE TABLE IF NOT EXISTS site_rel (sid INTEGER, cid INTEGER, CONSTRAINT x1 PRIMARY KEY(sid, cid));
 
-CREATE TABLE IF NOT EXISTS action(aid IINTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER
+CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER
     , paid INTEGER, entry TEXT, url TEXT, method INTEGER, charset INTEGER, vars TEXT
     , restype INTEGER, referrer TEXT, checked TEXT, timeout INTEGER);
 
-CREATE TABLE IF NOT EXISTS dict(sid IINTEGER, cid INTEGER, cate TEXT, name TEXT, value TEXT
+CREATE TABLE IF NOT EXISTS dict(sid INTEGER, cid INTEGER, cate TEXT, name TEXT, value TEXT
     , CONSTRAINT x1 PRIMARY KEY(sid, cid, cate, name))
+
+    site(sid, user, psw, reg_time, result)
+    action(aid, type, result)
+
+    1 SiteInfo + register Action => register
+    2 New Site, with register result
+
+    
 
 
 user    1
@@ -54,22 +62,22 @@ web     1102
 name    1104
 email   1106
 区号=1107
-总机   1108 cotelq
-分机      1109
+总机   1108 telq
+分机      1109 tel
 fax 1110
 
 zip         1111
 province    1112
 city        1113
 address / coaddress 1114 
-职务      1115 ?
+职务 title      1115 ?
 
 mobile  1116
 qq      1117
 
 
 
-注册码 9999()
+注册码 9999() vc
 
 
 380 二手市场

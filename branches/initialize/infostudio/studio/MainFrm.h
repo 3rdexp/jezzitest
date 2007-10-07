@@ -10,17 +10,36 @@
 class ChildViewBase;
 class BaseData;
 class MutableData;
+class EngineCrank;
 
-#define IDC_TAB     ATL_IDW_CLIENT 
+#define IDC_TAB     ATL_IDW_CLIENT
+
+#define ID_TOOL_FIRST       200
+#define ID_TOOL_SAVE            ID_TOOL_FIRST
+
+#define ID_TOOL_REGISTER_ALL        ID_TOOL_FIRST + 10
+#define ID_TOOL_REGISTER_SEL        ID_TOOL_FIRST + 11
+#define ID_TOOL_REGISTER_CUSTOM     ID_TOOL_FIRST + 12
+
+#define ID_TOOL_PUBLISH_NEW         ID_TOOL_FIRST + 20
+#define ID_TOOL_PUBLISH_DEL         ID_TOOL_FIRST + 21
+#define ID_TOOL_PUBLISH_EDIT        ID_TOOL_FIRST + 22
+#define ID_TOOL_PUBLISH_START       ID_TOOL_FIRST + 23
+#define ID_TOOL_PUBLISH_STOP        ID_TOOL_FIRST + 24
+
+#define ID_TOOL_LAST                ID_TOOL_PUBLISH_STOP + 1
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler
+        , public sigslot::has_slots<sigslot::multi_threaded_local>
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 
     // UI stuff
     CCommandBarCtrl m_CmdBar;
+    CToolBarCtrl m_MeshBar;
+
     CContainedWindowT<CTabCtrl> m_tab;
 
     ChildViewBase * current_;
@@ -30,8 +49,8 @@ public:
 
     ChildViewBase * children_[MAX_CHILD];
 
-    CMainFrame() : current_(0) 
-        , m_tab(this, 1)
+    CMainFrame(EngineCrank & crank) : crank_(crank)
+        , current_(0), m_tab(this, 1)
         , bd_(0), md_(0)
     {
         std::fill_n(children_, size_t(MAX_CHILD), (ChildViewBase*)0);
@@ -69,20 +88,31 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 
+        COMMAND_ID_HANDLER(ID_TOOL_SAVE, OnUserInfoSave)
+        COMMAND_ID_HANDLER(ID_TOOL_REGISTER_ALL, OnRegisterAll)
+        COMMAND_ID_HANDLER(ID_TOOL_REGISTER_SEL, OnRegisterSel)
+        // COMMAND_ID_HANDLER(ID_TOOL_REGISTER_ALL, OnRegisterAll)
+
         MESSAGE_HANDLER(WM_CREATE, OnCreate)
 
         NOTIFY_HANDLER(IDC_TAB, TCN_SELCHANGE, OnTabSelChange)
 
         NOTIFY_CODE_HANDLER(PIN_ITEMCHANGED, OnUserInfoItemChanged)
-        REFLECT_NOTIFICATIONS()
+        // REFLECT_NOTIFICATIONS()
     ALT_MSG_MAP(1) // tab
-        REFLECT_NOTIFICATIONS()
+        MESSAGE_HANDLER(WM_ERASEBKGND, OnTabEraseBackground)
+        REFLECT_NOTIFICATIONS() // reflect to sub-view
 	END_MSG_MAP()
 
-    void UpdateLayout(BOOL bResizeBars = TRUE) 
+    void UpdateLayout(BOOL bResizeBars = TRUE)
     {
         CFrameWindowImpl<CMainFrame>::UpdateLayout(bResizeBars);
 
+        UpdateChildView();
+    }
+
+    void UpdateChildView()
+    {
         if (m_tab)
         {
             CRect rc;
@@ -90,15 +120,15 @@ public:
             m_tab.AdjustRect(FALSE, &rc);
 
 #if 0
-        HDWP hdwp = BeginDeferWindowPos(2);
-        DeferWindowPos(hdwp, 
-            current_->GetHWND(), HWND_TOP, rc.left, rc.top, 
-            rc.right - rc.left, rc.bottom - rc.top, 0 
-            ); 
-        EndDeferWindowPos(hdwp); 
+            HDWP hdwp = BeginDeferWindowPos(2);
+            DeferWindowPos(hdwp,
+                current_->GetHWND(), HWND_TOP, rc.left, rc.top,
+                rc.right - rc.left, rc.bottom - rc.top, 0
+                );
+            EndDeferWindowPos(hdwp);
 #else
-        CWindow w(current_->GetHWND());
-        w.SetWindowPos(NULL, &rc, SWP_NOZORDER | SWP_NOACTIVATE);
+            CWindow w(current_->GetHWND());
+            w.SetWindowPos(NULL, &rc, SWP_NOZORDER | SWP_NOACTIVATE);
 #endif
         }
     }
@@ -112,6 +142,10 @@ public:
         md_ = md;
     }
 
+    // TaskNotify
+    void StateChange(SiteTask * task, int state);
+    void VerifyCode(SiteTask* task, const std::wstring & imgfn);
+
 // Handler prototypes (uncomment arguments if needed):
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -122,8 +156,15 @@ private:
 
     LRESULT OnTabSelChange(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
+    LRESULT OnTabEraseBackground(int, WPARAM, LPARAM, BOOL&);
+
     // sub UserInfo
     LRESULT OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+    LRESULT OnUserInfoSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
+    // sub Yello Page
+    LRESULT OnRegisterAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+    LRESULT OnRegisterSel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -167,8 +208,14 @@ private:
 
     void InitViews();
 
+    void InitCrank();
+    void Register(std::vector<SiteInfo*> &);
+    void Register(Site &);
+
     //////////////////////////////////////////////////////////////////////////
     // database stuff
     BaseData * bd_;
     MutableData * md_;
+private:
+    EngineCrank & crank_;
 };

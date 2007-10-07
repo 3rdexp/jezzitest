@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 
+#include <sstream>
 #include <fstream>
 #include <iterator>
 
@@ -13,16 +14,19 @@
 // temp code
 HWND GetVerifyWindow()
 {
-    extern VerifyImgDlg * gvidlg;
-    return gvidlg->m_hWnd;
+    ASSERT(0);
+    // extern VerifyImgDlg * gvidlg;
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
 //
-SiteTask::SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent) 
+SiteTask::SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent
+                   , SignalStateChange & sc, SignalVerifyCode & vc)
     : site_(site), userinfo_(userinfo)
     , AsyncTask(parent)
     , curact_(0)
+    , sigStateChange_(sc), sigVerifyCode_(vc)
 {}
 
 void SiteTask::EnterVerifyCode(const std::wstring & code)
@@ -42,11 +46,12 @@ int SiteTask::ProcessStart()
     if (f && pa->restype == ART_VERIFY_IMAGE)
     {
         SetState(STATE_INPUT_VERIFYCODE);
+        sigStateChange_(this, STATE_INPUT_VERIFYCODE);
     }
     return f ? STATE_BLOCKED : STATE_ERROR;
 }
 
-int SiteTask::ProcessResponse() 
+int SiteTask::ProcessResponse()
 {
     Action * pa = actions_[curact_];
     switch (pa->restype)
@@ -88,22 +93,27 @@ void SiteTask::RequestDone()
         GetTempFileName(temppath, _T("IST_"), 0, filename);
 
         std::ofstream outf_((const char*)CT2A(filename), std::ios::binary);
-        
+
         std::copy(buf_.begin(), buf_.end(), std::ostream_iterator<char>(outf_));
         outf_.close();
 
+#if 0
         CWindow wnd = GetVerifyWindow();
         wnd.SendMessage(WM_ADDIMAGE, (WPARAM)filename, (LPARAM)this);
+#else
+        sigVerifyCode_(this, std::wstring(filename));
+#endif
 
         // TODO: delete file
         // or implement buffer to IStream
-        
+
         if (pa->timeout)
             set_timeout_seconds(pa->timeout);
     }
     else
     {
         SetState(STATE_RESPONSE);
+        sigStateChange_(this, STATE_RESPONSE);
         Wake();
     }
 }
@@ -152,7 +162,21 @@ bool SiteTask::PrepareForm(std::ostream & out, const std::wstring & vars, SiteCh
 
 //////////////////////////////////////////////////////////////////////////
 //
-VerifyCodeHelper * SiteCrank::CreateVerifyHelper()
+void EngineCrank::Add(Site & site)
 {
-    return 0;
+    ASSERT(runner_);
+    
+    SiteTask * task = new SiteTask(site,  userinfo_,  runner_, SigStateChange, SigVerifyCode);
+    
+    std::vector<Action> & a= site.actions();
+    ASSERT(!a.empty());
+    for (std::vector<Action>::iterator i=a.begin(); i != a.end(); ++i)
+    {
+        task->AddAction(&*i);
+    }
+
+    // TODO: state change
+
+    site.SetTask(task);
+    runner_->StartTask(task);
 }

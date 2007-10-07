@@ -1,56 +1,24 @@
 
 #pragma once
 
-#include <sstream>
+#include <set>
 #include <iterator>
 
 #include "coreinfo.h"
 #include "../base/asynctask.h"
 
-/*
-                        send request for auth image           
-    [form not ready] ------------------------------>
-start                                                block
-    [form not ready] <------------------------------
-                            server response
-                        
-                
-                       wait for user input number
-    [form not ready] ------------------------------>
-start                                                block
-    [form ready]     <------------------------------
-                            user input it
-
-                    
-                             post form
-                     ------------------------------>
-start                                                block
-                     <-----------------------------
-                            server response
-
-http request
-deal response
-
-need user input
-http requst
-deal response
-*/
-
 class SiteTask;
-class SiteCrank;
-
-// 界面实现该接口，并把实例注册给 SiteCrank，或者直接由 SiteCrank 生成
-class VerifyCodeHelper
-{
-public:
-    virtual bool NewItem(const std::string & fn, SiteTask * task) = 0;
-};
-
+class EngineCrank;
+struct TaskNotify;
+//
+typedef sigslot::signal2<SiteTask*, int, sigslot::multi_threaded_local> SignalStateChange;
+typedef sigslot::signal2<SiteTask*, const std::wstring &, sigslot::multi_threaded_local> SignalVerifyCode;
 
 class SiteTask : public AsyncTask
 {
 public:
-    SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent);
+    SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent
+        , SignalStateChange &, SignalVerifyCode &);
     void AddAction(const std::vector<Action*> & acts)
     {
         std::copy(acts.begin(), acts.end(), std::back_inserter(actions_));
@@ -65,7 +33,6 @@ protected:
     virtual int ProcessStart();
     virtual int ProcessResponse();
     virtual int Process(int state);
-    
 
     virtual void RequestDone();
 
@@ -78,7 +45,7 @@ protected:
 private:
     int ProcessNextAction();
     bool StartAction(Action * pa);
-    
+
     bool PrepareForm(std::ostream & out, const std::wstring & vars
         , SiteCharset charset) const;
 public:// private:
@@ -86,17 +53,27 @@ public:// private:
     int curact_;
     Site & site_;
     const UserInfo & userinfo_;
-    std::wstring verifycode_; // 输入的。。。
+    std::wstring verifycode_;
+    SignalStateChange & sigStateChange_;
+    SignalVerifyCode & sigVerifyCode_;
 };
 
-
+#if 0
+struct TaskNotify
+{
+    virtual void StateChange(SiteTask * task, int state) = 0;
+    virtual void VerifyCode(SiteTask* task, const std::wstring & imgfn) = 0;
+};
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 //
-class SiteCrank
+class EngineCrank
 {
 public:
-    SiteCrank() {}
+    EngineCrank(UserInfo & u, TaskRunner * runner) : userinfo_(u)
+        , runner_(runner), notifier_(0)
+    {}
     // input: vector<sid> ?, ActionType
     bool Init()
     {
@@ -231,36 +208,18 @@ public:
         return true;
     }
 
-    void Run(TaskRunner * runner)
-    {
-        // TODO:
-        // for_each site in sites_
-        // new task
-        // ....
-# if 0
-        for (std::vector<Site>::iterator i = sites_.begin();
-            i != sites_.end(); ++i)
-        {
-            Site & site = *i;
+    void Add(Site & site);
 
-            SiteTask * task = new SiteTask(site, userinfo_, runner);
-
-            task->AddAction(site_.Find(AT_REGISTER));
-
-            runner->StartTask(task);
-        }
-#elif 0
-        SiteTask * task = new SiteTask(site_, userinfo_, runner);
-
-        task->AddAction(site_.Find(AT_REGISTER));
-
-        runner->StartTask(task);
+    // TODO: lock
+#if 0
+    void SetTaskNotify(TaskNotify * p) { notifier_ = p; }
+#else
+    SignalStateChange SigStateChange;
+    SignalVerifyCode SigVerifyCode;
 #endif
-    }
-
-    static VerifyCodeHelper * CreateVerifyHelper();
 private:
-    std::vector<Site> sites_;
-    Site site_;
+    UserInfo & userinfo_;
+    std::set<Site*> sites_;
+    TaskRunner * runner_;
+    TaskNotify * notifier_;
 };
-

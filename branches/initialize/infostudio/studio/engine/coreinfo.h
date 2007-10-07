@@ -2,7 +2,7 @@
 #pragma once
 
 #include <vector>
-#include <list>
+#include <vector>
 #include <string>
 
 #include "coreconst.h"
@@ -36,8 +36,8 @@ struct SiteInfo;
 
 struct ActionInfo
 {
-    ActionInfo() 
-        : aid(0), site(0), front(0)
+    ActionInfo()
+        : aid(0), sid(0), front(0)
         , type(AT_UTILITY)
         , method(HV_POST)
         , charset(SC_ANSI)
@@ -45,10 +45,10 @@ struct ActionInfo
     {}
     virtual ~ActionInfo() {}
     int aid;
-    SiteInfo* site;
+    int sid;
     ActionInfo * front; // «∞÷√»ŒŒÒ
     ActionType type;
-    
+
     wstring url;
     HttpVerb method;      // HV_GET / HV_POST
     wstring form_encoding;
@@ -75,20 +75,24 @@ struct SiteInfo
 class Site;
 class Action;
 
+class Task;
+
 class Action : public ActionInfo
 {
 public:
-    wstring result; // TODO: enum
+    Action() : time(0) {}
+    wstring result; // TODO: HTTP code, HTML string
     time_t time;
 };
 
 class Site : public SiteInfo
 {
 public:
+    Site() : task_(0) {}
     std::vector<Action*> Find(ActionType type) const
     {
         std::vector<Action*> ret;
-        for (std::list<Action>::const_iterator i = actions_.begin();
+        for (std::vector<Action>::const_iterator i = actions_.begin();
             i != actions_.end(); ++i)
         {
             const Action * p = &*i;
@@ -97,22 +101,41 @@ public:
         }
         return ret;
     }
-    void Add(Action & act)
+    void Add(const Action & act)
     {
         actions_.push_back(act);
     }
+    void Add(std::vector<ActionInfo> & acts)
+    {
+        for(std::vector<ActionInfo>::const_iterator i=acts.begin();
+            i!=acts.end(); ++i)
+        {
+            const ActionInfo & ai = *i;
+            Action a;
+            static_cast<ActionInfo &>(a) = ai;
+            actions_.push_back(a);
+        }
+    }
     void SetDict(Dictionary & dict)
     {
-        std::swap(dict_, dict);
+        dict_ = dict;
+        // dict_.swap(dict);
     }
+    void SetTask(Task* task)
+    {
+        ASSERT(!task_ && task);
+        task_ = task;
+    }
+    std::vector<Action> & actions() { return actions_; }
 
+    bool action_empty() const { return actions_.empty(); }
     const Dictionary & dict() const { return dict_; }
-    
+
 private:
-    std::list<Action> actions_;
+    std::vector<Action> actions_;
     Dictionary dict_;
 
     wstring username_;
     wstring passwd_;
+    Task * task_;
 };
-
