@@ -5,6 +5,7 @@
 #pragma once
 
 #include "childv.h"
+#include "transtab.h"
 #include "proplist/PropertyItem.h"
 
 class ChildViewBase;
@@ -40,7 +41,7 @@ public:
     CCommandBarCtrl m_CmdBar;
     CToolBarCtrl m_MeshBar;
 
-    CContainedWindowT<CTabCtrl> m_tab;
+    CTransTab m_tab;
 
     ChildViewBase * current_;
 
@@ -50,7 +51,7 @@ public:
     ChildViewBase * children_[MAX_CHILD];
 
     CMainFrame(EngineCrank & crank) : crank_(crank)
-        , current_(0), m_tab(this, 1)
+        , current_(0)
         , bd_(0), md_(0)
     {
         std::fill_n(children_, size_t(MAX_CHILD), (ChildViewBase*)0);
@@ -98,10 +99,7 @@ public:
         NOTIFY_HANDLER(IDC_TAB, TCN_SELCHANGE, OnTabSelChange)
 
         NOTIFY_CODE_HANDLER(PIN_ITEMCHANGED, OnUserInfoItemChanged)
-        // REFLECT_NOTIFICATIONS()
-    ALT_MSG_MAP(1) // tab
-        MESSAGE_HANDLER(WM_ERASEBKGND, OnTabEraseBackground)
-        REFLECT_NOTIFICATIONS() // reflect to sub-view
+        REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
     void UpdateLayout(BOOL bResizeBars = TRUE)
