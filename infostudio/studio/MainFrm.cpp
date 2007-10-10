@@ -199,7 +199,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
             }
 
             {
-                string_pair arr[] = {
+                static string_pair arr[] = {
                     {L"name", L"名称"},
                     {L"web", L"网站"},
                     {L"desc", L"描述"},
@@ -208,12 +208,12 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
                     HPROPERTY hAppearance = pv->AddItem( PropCreateCategory(_T("登录信息"), 0) );
                     for(int i=0; i<ARRAYSIZE(arr); ++i)
                     {
-                        pv->AddItem(PropCreateSimple(arr[i].value, u[arr[i].key].c_str()));
+                        pv->AddItem(PropCreateSimple(arr[i].value, u[arr[i].key].c_str(), (LPARAM)arr[i].key));
                     }
             }
 
             {
-                string_pair arr[] = {
+                static string_pair arr[] = {
                     {L"contract", L"联系人"},
                     {L"email", L"Email"},
                     {L"area-code", L"电话区号"},
@@ -231,7 +231,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
                     HPROPERTY hAppearance = pv->AddItem( PropCreateCategory(_T("联系信息"), 0) );
                     for(int i=0; i<ARRAYSIZE(arr); ++i)
                     {
-                        pv->AddItem(PropCreateSimple(arr[i].value, u[arr[i].key].c_str()));
+                        pv->AddItem(PropCreateSimple(arr[i].value, u[arr[i].key].c_str(), (LPARAM)arr[i].key));
                     }
             }
         }
@@ -351,13 +351,19 @@ LRESULT CMainFrame::OnTabEraseBackground(int, WPARAM wParam, LPARAM, BOOL&)
 LRESULT CMainFrame::OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
     NMPROPERTYITEM * nm = (NMPROPERTYITEM*)pnmh;
+    ASSERT(nm && nm->prop);
     if (nm && nm->prop) 
     {
         wchar_t * key = (wchar_t*)(nm->prop->GetItemData());
-        UserInfo & u = md_->GetUserInfo();
+        ASSERT(key);
         CComVariant v;
         if (nm->prop->GetValue(&v))
+        {
+            UserInfo & u = md_->GetUserInfo();
             u[key] = v.bstrVal;
+        }
+        else
+            ASSERT(false);
     }
     return 0;
 }
@@ -365,6 +371,9 @@ LRESULT CMainFrame::OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*
 LRESULT CMainFrame::OnUserInfoSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
     // TODO:
+    // md_->SaveUserInfo
+    bool f = md_->SaveUserInfo();
+    ASSERT(f);
     return 0;
 }
 

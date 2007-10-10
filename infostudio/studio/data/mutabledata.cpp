@@ -49,6 +49,29 @@ bool MutableData::Init(sqlite3x::sqlite3_connection & con)
     return true;
 }
 
+bool MutableData::SaveUserInfo()
+{
+    try {
+        sqlite3x::sqlite3_transaction t(con_);
+        sqlite3_command cmd_save(con_, L"REPLACE INTO userinfo(key, value) VALUES (?, ?);");
+
+        for(VariableMap::const_iterator i = userinfo_.begin();
+            i != userinfo_.end(); ++i)
+        {
+            cmd_save.bind(1, i->first);
+            cmd_save.bind(2, i->second);
+
+            cmd_save.executenonquery();
+        }
+        t.commit();
+    } catch(database_error & e) {
+        e;
+        ASSERT(false && "save userinfo");
+        return false;
+    }
+    return true;
+}
+
 bool MutableData::CheckReady() const
 {
     const wchar_t* inside_key[] = {

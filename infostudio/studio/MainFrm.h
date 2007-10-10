@@ -5,7 +5,6 @@
 #pragma once
 
 #include "childv.h"
-#include "transtab.h"
 #include "proplist/PropertyItem.h"
 
 class ChildViewBase;
@@ -29,6 +28,16 @@ class EngineCrank;
 #define ID_TOOL_PUBLISH_STOP        ID_TOOL_FIRST + 24
 
 #define ID_TOOL_LAST                ID_TOOL_PUBLISH_STOP + 1
+
+
+class CTransTab : public CWindowImpl<CTransTab, CTabCtrl>
+{
+public:
+    BEGIN_MSG_MAP(CTransTab)
+        FORWARD_NOTIFICATIONS()
+    END_MSG_MAP()
+};
+
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler

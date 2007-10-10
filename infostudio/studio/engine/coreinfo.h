@@ -27,7 +27,14 @@ struct UserInfo : public VariableMap
 public:
     void insert(const std::wstring & key, const std::wstring & value)
     {
+        VariableMap::insert(value_type(key, value));
     }
+
+    UserInfo() {}
+
+private:
+    UserInfo(const UserInfo&);
+    operator=(const UserInfo&);
 };
 
 
