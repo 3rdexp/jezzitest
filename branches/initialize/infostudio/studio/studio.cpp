@@ -47,7 +47,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     f = bd.Init(cons.basecon_);
     ASSERT(f);
 
-    MutableData md;
+    MutableData md(cons.mutablecon_);
     f = md.Init(cons.mutablecon_);
     ASSERT(f);
 

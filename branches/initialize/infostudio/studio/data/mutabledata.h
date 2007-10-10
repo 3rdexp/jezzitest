@@ -11,12 +11,16 @@ namespace sqlite3x
 class MutableData
 {
 public:
-    MutableData() : ready_(false) {}
+    MutableData(sqlite3x::sqlite3_connection &con) : ready_(false)
+        , con_(con)
+    {}
 
     bool Init(sqlite3x::sqlite3_connection &);
 
     bool CheckReady() const;
     UserInfo & GetUserInfo() { return userinfo_; }
+
+    bool SaveUserInfo();
 
     // access Site, Action
     Site* Add(const SiteInfo* si);
@@ -29,6 +33,7 @@ private:
     site_map sites_;
     UserInfo userinfo_;
     bool ready_;
+    sqlite3x::sqlite3_connection & con_;
 };
 
 #endif // __MUTABLE_DATA_H__
