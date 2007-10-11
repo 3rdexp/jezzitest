@@ -137,7 +137,7 @@ bool SiteTask::StartAction(Action * pa)
     if (f)
     {
         if (pa->method == HV_POST)
-            f = PreparePost(pa->url, pa->form_encoding, &ss, pa->referrer);
+            f = PreparePost(pa->url, pa->content_type, &ss, pa->referrer);
         else if (pa->method == HV_GET)
             f = PrepareGet(pa->url, pa->referrer);
     }

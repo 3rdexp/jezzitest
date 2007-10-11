@@ -291,7 +291,10 @@ std::vector<ActionInfo> BaseData::FindAction(int sid, ActionType t)
         a.referrer = reader.getstring16(7);
         a.timeout = reader.getint(8);
         a.type = (ActionType)reader.getint(9);
-        a.form_encoding = L"form-encoding"; // TODO:
+        a.content_type = L"application/x-www-form-urlencoded"; // TODO:
+
+        if (a.referrer.empty())
+            a.referrer = a.url; // use action.entry ?
 
         ret.push_back(a);
     }
