@@ -58,7 +58,7 @@ struct ActionInfo
 
     wstring url;
     HttpVerb method;      // HV_GET / HV_POST
-    wstring form_encoding;
+    wstring content_type;
     SiteCharset charset;
     wstring vars;
     wstring referrer;
