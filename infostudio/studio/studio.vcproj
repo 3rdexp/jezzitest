@@ -751,6 +751,10 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="c3_publish"
+			>
+		</Filter>
 		<File
 			RelativePath=".\data\tools\convert_db.cpp"
 			>
