@@ -124,13 +124,13 @@ END_ENGINE_NAMESPACE
 
 #define LOG(sev) \
     if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
-    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev).stream()
+        ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev).stream()
 
 // The _V version is for when a variable is passed in.  It doesn't do the
 // namespace concatination.
 #define LOG_V(sev) \
     if (ENGINE_::LogMessage::Loggable(sev)) \
-    ENGINE_::LogMessage(__FILE__, __LINE__, sev).stream()
+        ENGINE_::LogMessage(__FILE__, __LINE__, sev).stream()
 
 // The _F version prefixes the message with the current function name.
 #define LOG_F(sev) LOG(sev) << __FUNCTION__ << ": "
@@ -191,17 +191,17 @@ inline bool LogCheckLevel(LoggingSeverity sev) {
     false
 #define PLOG(sev, err) \
     while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-    ENGINE_::ERRCTX_ERRNO, 0).stream()
+        ENGINE_::ERRCTX_ERRNO, 0).stream()
 #define LOG_ERR(sev) \
     while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-    ENGINE_::ERRCTX_ERRNO, 0).stream()
+        ENGINE_::ERRCTX_ERRNO, 0).stream()
 #ifdef WIN32
 #define LOG_GLE(sev) \
     while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-    ENGINE_::ERRCTX_HRESULT, 0).stream()
+        ENGINE_::ERRCTX_HRESULT, 0).stream()
 #define LOG_GLEM(sev, mod) \
     while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-    ENGINE_::ERRCTX_HRESULT, 0).stream()
+        ENGINE_::ERRCTX_HRESULT, 0).stream()
 #endif  // WIN32
 
 #endif  // !LOGGING

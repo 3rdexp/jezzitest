@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iterator>
 
+#include "base/logging.h"
 #include "resource.h"
 #include "verifyimgdlg.h"
 #include "infoengine.h"
@@ -53,6 +54,7 @@ int SiteTask::ProcessStart()
 
 int SiteTask::ProcessResponse()
 {
+    LOG_F(INFO) << "curact_:" << curact_;
     Action * pa = actions_[curact_];
     switch (pa->restype)
     {
@@ -80,6 +82,7 @@ int SiteTask::Process(int state)
 
 void SiteTask::RequestDone()
 {
+    LOG_F(INFO) << GetStateName(GetState());
     if (GetState() == STATE_INPUT_VERIFYCODE)
     {
         Action * pa = actions_[curact_];

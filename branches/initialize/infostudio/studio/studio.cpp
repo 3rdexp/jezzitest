@@ -1,5 +1,6 @@
 // studio.cpp : main source file for studio.exe
 //
+// #define LOGGING 0
 
 #include "stdafx.h"
 
@@ -13,6 +14,7 @@
 #include "engine/wndrunner.h"
 #include "data/studiodata.h"
 #include "data/basedata.h"
+#include "base/logging.h"
 #include "data/mutabledata.h"
 
 #include "base/asynchttp.h"
@@ -25,8 +27,25 @@
 
 CAppModule _Module;
 
+struct foo
+{
+    foo() {
+        // __asm int 3;
+    }
+};
+
+std::ostream & operator<<(std::ostream & os, const foo& f)
+{
+    return os;
+}
+
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
+    LogMessage::LogThreads(true);
+    LogMessage::LogTimestamps(true);
+
+    LOG(INFO) << "" << foo();
+
     // env
     AsyncInet::Init();
 
