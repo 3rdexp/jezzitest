@@ -1,130 +1,196 @@
 <?xml version="1.0" encoding="gb2312"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8.00"
 	Name="studio"
-	ProjectGUID="{CAA5AE13-9A8B-4103-8182-9BC374DA3A9F}">
+	ProjectGUID="{CAA5AE13-9A8B-4103-8182-9BC374DA3A9F}"
+	RootNamespace="studio"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="1">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=".\;sqlite\;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG;_WIN32_WINNT=0x0501"
-				MinimalRebuild="TRUE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="4"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="2"
-				GenerateDebugInformation="TRUE"
-				SubSystem="2"
-				TargetMachine="1"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="FALSE"
+				MkTypLibCompatible="false"
 				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
+				GenerateStublessProxies="true"
 				TypeLibraryName="$(IntDir)/studio.tlb"
 				HeaderFileName="studio.h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="studio_i.c"
-				ProxyFileName="studio_p.c"/>
+				ProxyFileName="studio_p.c"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories=".\;.\sqlite\;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG;_WIN32_WINNT=0x0501"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateManifest="false"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfATL="0"
-			ATLMinimizesCRunTimeLibraryUsage="TRUE"
-			CharacterSet="1">
+			ATLMinimizesCRunTimeLibraryUsage="true"
+			CharacterSet="1"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\;sqlite\;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;_WIN32_WINNT=0x0500"
-				ExceptionHandling="TRUE"
-				RuntimeLibrary="0"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="0"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="1"
-				SubSystem="2"
-				TargetMachine="1"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="FALSE"
+				MkTypLibCompatible="false"
 				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
+				GenerateStublessProxies="true"
 				TypeLibraryName="$(IntDir)/studio.tlb"
 				HeaderFileName="studio.h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="studio_i.c"
-				ProxyFileName="studio_p.c"/>
+				ProxyFileName="studio_p.c"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories=".\;sqlite\;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;_WIN32_WINNT=0x0500"
+				ExceptionHandling="1"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -132,428 +198,574 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
+			>
 			<File
-				RelativePath=".\studio.cpp">
+				RelativePath=".\studio.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc">
+			Filter="h;hpp;hxx;hm;inl;inc"
+			>
 			<File
-				RelativePath=".\AboutDlg.h">
+				RelativePath=".\AboutDlg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\resource.h">
+				RelativePath=".\resource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\stdafx.h">
+				RelativePath=".\stdafx.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest">
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
+			>
 			<File
-				RelativePath=".\res\studio.exe.manifest">
+				RelativePath=".\res\studio.exe.manifest"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\res\studio.ico">
+				RelativePath=".\res\studio.ico"
+				>
 			</File>
 			<File
-				RelativePath=".\studio.rc">
+				RelativePath=".\studio.rc"
+				>
 			</File>
 			<File
-				RelativePath=".\res\toolbar.bmp">
+				RelativePath=".\res\toolbar.bmp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="frame"
-			Filter="">
+			>
 			<File
-				RelativePath=".\childv.h">
+				RelativePath=".\childv.h"
+				>
 			</File>
 			<File
-				RelativePath=".\leftv.h">
+				RelativePath=".\leftv.h"
+				>
 			</File>
 			<File
-				RelativePath=".\MainFrm.cpp">
+				RelativePath=".\MainFrm.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\MainFrm.h">
+				RelativePath=".\MainFrm.h"
+				>
 			</File>
 			<File
-				RelativePath=".\verifyimgdlg.cpp">
+				RelativePath=".\verifyimgdlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\verifyimgdlg.h">
+				RelativePath=".\verifyimgdlg.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="c1_proplist"
-			Filter="">
+			>
 			<File
-				RelativePath=".\proplist\PropertyItem.h">
+				RelativePath=".\proplist\PropertyItem.h"
+				>
 			</File>
 			<File
-				RelativePath=".\proplist\PropertyItemEditors.h">
+				RelativePath=".\proplist\PropertyItemEditors.h"
+				>
 			</File>
 			<File
-				RelativePath=".\proplist\PropertyItemImpl.h">
+				RelativePath=".\proplist\PropertyItemImpl.h"
+				>
 			</File>
 			<File
-				RelativePath=".\proplist\PropertyList.h">
+				RelativePath=".\proplist\PropertyList.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="c2_yellowpage"
-			Filter="">
+			>
 			<File
-				RelativePath=".\sitetree.h">
+				RelativePath=".\sitetree.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ypage.cpp">
+				RelativePath=".\ypage.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ypage.h">
+				RelativePath=".\ypage.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="base"
-			Filter="">
+			>
 			<File
-				RelativePath=".\base\asynchttp.cpp">
+				RelativePath=".\base\asynchttp.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\base\asynchttp.h">
+				RelativePath=".\base\asynchttp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\asynctask.cpp">
+				RelativePath=".\base\asynctask.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\base\asynctask.h">
+				RelativePath=".\base\asynctask.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\base.cpp">
+				RelativePath=".\base\base.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\base\base.h">
+				RelativePath=".\base\base.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\criticalsection.h">
+				RelativePath=".\base\criticalsection.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\escape.h">
+				RelativePath=".\base\escape.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\httpcomm.cpp">
+				RelativePath=".\base\httpcomm.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\base\httpcomm.h">
+				RelativePath=".\base\httpcomm.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\logging.cpp">
+				RelativePath=".\base\logging.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\base\logging.h">
+				RelativePath=".\base\logging.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\sigslot.h">
+				RelativePath=".\base\sigslot.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\task.cpp">
+				RelativePath=".\base\task.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\base\task.h">
+				RelativePath=".\base\task.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\unescape.h">
+				RelativePath=".\base\unescape.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\unicode.h">
+				RelativePath=".\base\unicode.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\url.h">
+				RelativePath=".\base\url.h"
+				>
 			</File>
 			<File
-				RelativePath=".\base\urlcomp.h">
+				RelativePath=".\base\urlcomp.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="engine"
-			Filter="">
+			>
 			<File
-				RelativePath=".\engine\coreconst.h">
+				RelativePath=".\engine\coreconst.h"
+				>
 			</File>
 			<File
-				RelativePath=".\engine\coreinfo.h">
+				RelativePath=".\engine\coreinfo.h"
+				>
 			</File>
 			<File
-				RelativePath=".\engine\industry.h">
+				RelativePath=".\engine\industry.h"
+				>
 			</File>
 			<File
-				RelativePath=".\engine\infoengine.cpp">
+				RelativePath=".\engine\infoengine.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\engine\infoengine.h">
+				RelativePath=".\engine\infoengine.h"
+				>
 			</File>
 			<File
-				RelativePath=".\engine\querymap.cpp">
+				RelativePath=".\engine\querymap.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\engine\querymap.h">
+				RelativePath=".\engine\querymap.h"
+				>
 			</File>
 			<File
-				RelativePath=".\engine\wndrunner.h">
+				RelativePath=".\engine\wndrunner.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="data"
-			Filter="">
+			>
 			<File
-				RelativePath=".\data\basedata.cpp">
+				RelativePath=".\data\basedata.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\data\basedata.h">
+				RelativePath=".\data\basedata.h"
+				>
 			</File>
 			<File
-				RelativePath=".\data\mutabledata.cpp">
+				RelativePath=".\data\mutabledata.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\data\mutabledata.h">
+				RelativePath=".\data\mutabledata.h"
+				>
 			</File>
 			<File
-				RelativePath=".\data\studiodata.h">
+				RelativePath=".\data\studiodata.h"
+				>
 			</File>
 			<Filter
 				Name="sqlite"
-				Filter="">
+				>
 				<File
-					RelativePath=".\data\sqlite\sqlite3x.hpp">
+					RelativePath=".\data\sqlite\sqlite3x.hpp"
+					>
 				</File>
 				<File
-					RelativePath=".\data\sqlite\sqlite3x_command.cpp">
+					RelativePath=".\data\sqlite\sqlite3x_command.cpp"
+					>
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Debug|Win32"
+						>
 						<Tool
 							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories="..\..\sqlite"/>
+							AdditionalIncludeDirectories="..\..\sqlite"
+						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\data\sqlite\sqlite3x_connection.cpp">
+					RelativePath=".\data\sqlite\sqlite3x_connection.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\data\sqlite\sqlite3x_exception.cpp">
+					RelativePath=".\data\sqlite\sqlite3x_exception.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\data\sqlite\sqlite3x_reader.cpp">
+					RelativePath=".\data\sqlite\sqlite3x_reader.cpp"
+					>
 				</File>
 				<File
-					RelativePath=".\data\sqlite\sqlite3x_transaction.cpp">
+					RelativePath=".\data\sqlite\sqlite3x_transaction.cpp"
+					>
 				</File>
 			</Filter>
 			<Filter
-				Name="sqlite3">
+				Name="sqlite3"
+				>
 				<File
-					RelativePath="sqlite\alter.c">
+					RelativePath="sqlite\alter.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\analyze.c">
+					RelativePath="sqlite\analyze.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\attach.c">
+					RelativePath="sqlite\attach.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\auth.c">
+					RelativePath="sqlite\auth.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\btree.c">
+					RelativePath="sqlite\btree.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\btree.h">
+					RelativePath="sqlite\btree.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\btreeInt.h">
+					RelativePath="sqlite\btreeInt.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\build.c">
+					RelativePath="sqlite\build.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\callback.c">
+					RelativePath="sqlite\callback.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\complete.c">
+					RelativePath="sqlite\complete.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\date.c">
+					RelativePath="sqlite\date.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\delete.c">
+					RelativePath="sqlite\delete.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\expr.c">
+					RelativePath="sqlite\expr.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\func.c">
+					RelativePath="sqlite\func.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\hash.c">
+					RelativePath="sqlite\hash.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\hash.h">
+					RelativePath="sqlite\hash.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\insert.c">
+					RelativePath="sqlite\insert.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\keywordhash.h">
+					RelativePath="sqlite\keywordhash.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\legacy.c">
+					RelativePath="sqlite\legacy.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\loadext.c">
+					RelativePath="sqlite\loadext.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\main.c">
+					RelativePath="sqlite\main.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\malloc.c">
+					RelativePath="sqlite\malloc.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\opcodes.c">
+					RelativePath="sqlite\opcodes.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\opcodes.h">
+					RelativePath="sqlite\opcodes.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\os.c">
+					RelativePath="sqlite\os.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\os.h">
+					RelativePath="sqlite\os.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\os_common.h">
+					RelativePath="sqlite\os_common.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\os_win.c">
+					RelativePath="sqlite\os_win.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\pager.c">
+					RelativePath="sqlite\pager.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\pager.h">
+					RelativePath="sqlite\pager.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\parse.c">
+					RelativePath="sqlite\parse.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\parse.h">
+					RelativePath="sqlite\parse.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\pragma.c">
+					RelativePath="sqlite\pragma.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\prepare.c">
+					RelativePath="sqlite\prepare.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\printf.c">
+					RelativePath="sqlite\printf.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\random.c">
+					RelativePath="sqlite\random.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\select.c">
+					RelativePath="sqlite\select.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\sqlite3.h">
+					RelativePath="sqlite\sqlite3.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\sqlite3ext.h">
+					RelativePath="sqlite\sqlite3ext.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\sqliteInt.h">
+					RelativePath="sqlite\sqliteInt.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\sqliteLimit.h">
+					RelativePath="sqlite\sqliteLimit.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\table.c">
+					RelativePath="sqlite\table.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\tokenize.c">
+					RelativePath="sqlite\tokenize.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\trigger.c">
+					RelativePath="sqlite\trigger.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\update.c">
+					RelativePath="sqlite\update.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\utf.c">
+					RelativePath="sqlite\utf.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\util.c">
+					RelativePath="sqlite\util.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vacuum.c">
+					RelativePath="sqlite\vacuum.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbe.c">
+					RelativePath="sqlite\vdbe.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbe.h">
+					RelativePath="sqlite\vdbe.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbeapi.c">
+					RelativePath="sqlite\vdbeapi.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbeaux.c">
+					RelativePath="sqlite\vdbeaux.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbeblob.c">
+					RelativePath="sqlite\vdbeblob.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbefifo.c">
+					RelativePath="sqlite\vdbefifo.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbeInt.h">
+					RelativePath="sqlite\vdbeInt.h"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vdbemem.c">
+					RelativePath="sqlite\vdbemem.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\vtab.c">
+					RelativePath="sqlite\vtab.c"
+					>
 				</File>
 				<File
-					RelativePath="sqlite\where.c">
+					RelativePath="sqlite\where.c"
+					>
 				</File>
 			</Filter>
 		</Filter>
 		<Filter
 			Name="miss"
-			Filter="">
+			>
 			<File
-				RelativePath=".\picture.cpp">
+				RelativePath=".\picture.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\picture.h">
+				RelativePath=".\picture.h"
+				>
 			</File>
 			<File
-				RelativePath=".\picwnd.h">
+				RelativePath=".\picwnd.h"
+				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\data\tools\convert_db.cpp">
+			RelativePath=".\data\tools\convert_db.cpp"
+			>
 			<FileConfiguration
 				Name="Debug|Win32"
-				ExcludedFromBuild="TRUE">
+				ExcludedFromBuild="true"
+				>
 				<Tool
-					Name="VCCLCompilerTool"/>
+					Name="VCCLCompilerTool"
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\doc\vnet.doc.txt">
+			RelativePath="..\doc\vnet.doc.txt"
+			>
 		</File>
 	</Files>
 	<Globals>
