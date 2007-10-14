@@ -34,7 +34,7 @@ public:
 
 private:
     UserInfo(const UserInfo&);
-    operator=(const UserInfo&);
+    UserInfo& operator=(const UserInfo&);
 };
 
 

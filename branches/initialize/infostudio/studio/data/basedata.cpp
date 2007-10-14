@@ -99,8 +99,14 @@ bool LoadIndustry(sqlite3_connection & con, Industry & ic)
     while(reader.read()) {
         Industry ind;
         ind.id = reader.getint(0);
+
         int pid = reader.getint(1);
         ind.name = reader.getstring16(2);
+
+//        std::wostringstream woss;
+//        woss << ind.id;
+//        OutputDebugString(woss.str().c_str());
+
         ind.ename = reader.getstring16(3);
 
         if (ind_cur && ind_cur->id == pid)

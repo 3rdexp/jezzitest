@@ -17,12 +17,12 @@ typedef CWinTraitsOR<WS_CLIPCHILDREN | WS_CLIPSIBLINGS
 
 template<class T>
 class SiteTreeImpl : public CWindowImpl<T, CTreeViewCtrl, SiteTreeTraits>
-    , public CCustomDraw<SiteTreeImpl>
+    , public CCustomDraw<T>
 {
 public:
     BEGIN_MSG_MAP(SiteTreeImpl)
         MESSAGE_HANDLER(WM_CREATE, OnCreate)
-        CHAIN_MSG_MAP_ALT(CCustomDraw<SiteTreeImpl>, 1)
+        CHAIN_MSG_MAP_ALT(CCustomDraw<T>, 1)
     END_MSG_MAP()
 
     LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)

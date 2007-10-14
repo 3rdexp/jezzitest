@@ -105,7 +105,11 @@ std::string sqlite3_reader::getstring(int index) {
 std::wstring sqlite3_reader::getstring16(int index) {
 	if(!this->cmd) throw database_error("reader is closed");
 	if((index)>(this->cmd->argc-1)) throw std::out_of_range("index out of range");
-	return std::wstring((const wchar_t*)sqlite3_column_text16(this->cmd->stmt, index), sqlite3_column_bytes16(this->cmd->stmt, index)/2);
+    const wchar_t * w = (const wchar_t*)sqlite3_column_text16(this->cmd->stmt, index);
+    if (w) 
+        return std::wstring(w, sqlite3_column_bytes16(this->cmd->stmt, index)/2);
+    else
+        return std::wstring();
 }
 
 std::string sqlite3_reader::getblob(int index) {
