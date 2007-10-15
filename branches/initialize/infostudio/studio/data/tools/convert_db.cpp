@@ -13,6 +13,8 @@
 
 #include "sqlite/sqlite3x.hpp"
 
+
+
 /*
 
 CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT);
@@ -26,22 +28,26 @@ CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd T
 
 CREATE TABLE IF NOT EXISTS ind (id INTEGER PRIMARY KEY, name TEXT, ename TEXT)
 CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER, pid INTEGER, CONSTRAINT x1 PRIMARY KEY(id, pid))
-
-CREATE TABLE IF NOT EXISTS site (sid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, homepage TEXT);
-CREATE TABLE IF NOT EXISTS site_rel (sid INTEGER, cid INTEGER, CONSTRAINT x1 PRIMARY KEY(sid, cid));
-
-CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER
-    , paid INTEGER, entry TEXT, url TEXT, method INTEGER, charset INTEGER, vars TEXT
-    , restype INTEGER, referrer TEXT, checked TEXT, timeout INTEGER);
-
-CREATE TABLE IF NOT EXISTS dict(sid INTEGER, cid INTEGER, cate TEXT, name TEXT, value TEXT
+d INTEGER, cid INTEGER, cate TEXT, name TEXT, value TEXT
     , CONSTRAINT x1 PRIMARY KEY(sid, cid, cate, name))
+
 
     site(sid, user, psw, reg_time, result)
     action(aid, type, result)
 
     1 SiteInfo + register Action => register
     2 New Site, with register result
+
+
+·¢²¼ÄÚÈÝ
+publish  title, keywords, content, expire, frequency
+
+pub_rel
+  sid  n-->1  pid
+
+result
+  type, time, id, aid, 
+ 
 
     
 

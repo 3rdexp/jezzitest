@@ -754,6 +754,22 @@
 		<Filter
 			Name="c3_publish"
 			>
+			<File
+				RelativePath=".\pubinfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\publist.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pubpage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pubtree.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\data\tools\convert_db.cpp"
@@ -769,6 +785,10 @@
 		</File>
 		<File
 			RelativePath="..\doc\vnet.doc.txt"
+			>
+		</File>
+		<File
+			RelativePath="..\doc\¿ª·¢¿ò¼Ü.txt"
 			>
 		</File>
 	</Files>
