@@ -33,9 +33,24 @@ class EngineCrank;
 class CTransTab : public CWindowImpl<CTransTab, CTabCtrl>
 {
 public:
+    DECLARE_WND_SUPERCLASS(_T("TransflateTab"), WC_TABCONTROL)
     BEGIN_MSG_MAP(CTransTab)
         FORWARD_NOTIFICATIONS()
     END_MSG_MAP()
+
+    CTransTab()
+    {
+        ATL::CWndClassInfo & wci = GetWndClassInfo();
+        ATLASSERT(wci.m_atom == 0);
+
+        WNDCLASSEX wcorg = {sizeof(WNDCLASSEX)};
+        GetClassInfoEx(NULL, wci.m_lpszOrigName, &wcorg);
+        wci.pWndProc = wcorg.lpfnWndProc;
+        m_pfnSuperWindowProc = wcorg.lpfnWndProc;
+
+        wci.m_atom = AtlWinModuleRegisterClassExW(&_AtlWinModule, &wci.m_wc);
+        ATLASSERT(wci.m_atom);
+    }
 };
 
 
@@ -104,6 +119,8 @@ public:
         // COMMAND_ID_HANDLER(ID_TOOL_REGISTER_ALL, OnRegisterAll)
 
         MESSAGE_HANDLER(WM_CREATE, OnCreate)
+        MESSAGE_HANDLER(WM_KEYUP, OnKeyUp)
+
 
         NOTIFY_HANDLER(IDC_TAB, TCN_SELCHANGE, OnTabSelChange)
 
@@ -160,6 +177,7 @@ public:
 
 private:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+    LRESULT OnKeyUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
     LRESULT OnTabSelChange(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 

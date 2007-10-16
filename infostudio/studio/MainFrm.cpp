@@ -21,6 +21,7 @@
 #include "ypage.h"
 // #include "ulist.h"
 #include "proplist/PropertyList.h"
+#include "pubpage.h"
 
 #include "leftv.h"
 #include "mainfrm.h"
@@ -79,12 +80,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
         {0, 0,                      TBSTATE_ENABLED | TBSTATE_HIDDEN,  TBSTYLE_SEP, {}, 0, 0},
         {0, ID_TOOL_REGISTER_CUSTOM, TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
 
-        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
-        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
-        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_PUBLISH_NEW,    TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_PUBLISH_DEL,    TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_PUBLISH_EDIT,   TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
         {0, 0,                      TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_SEP, {}, 0, 0},
-        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
-        {0, ID_TOOL_SAVE,           TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_PUBLISH_START,  TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
+        {0, ID_TOOL_PUBLISH_STOP,   TBSTATE_ENABLED | TBSTATE_HIDDEN, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT, {}, 0, 0},
     };
 
     BOOST_STATIC_ASSERT(ARRAYSIZE(string_pool) == ARRAYSIZE(arr));
@@ -112,17 +113,17 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     // Bug: CContainedWindowT::RegisterWndSuperclass 会注册一个 
     // CS_HREDRAW | CS_VREDRAW 的窗口，导致闪烁
 
-    WNDCLASSEX wc = { 0 };
-    wc.cbSize = sizeof(WNDCLASSEX);
-    ::GetClassInfoEx(_AtlBaseModule.GetModuleInstance(), _T("SysTabControl32"), &wc);
-
-    wc.lpszClassName = _T("ATL:SysTabControl32");
-    wc.lpfnWndProc = CContainedWindowT<CTabCtrl>::StartWindowProc;
-    wc.hInstance = _Module.GetModuleInstance();
-    wc.style = CS_DBLCLKS;
-    wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-    ATOM atom = AtlWinModuleRegisterClassEx(&_AtlWinModule, &wc);
-    ATLASSERT(atom);
+     WNDCLASSEX wc = { 0 };
+     wc.cbSize = sizeof(WNDCLASSEX);
+     ::GetClassInfoEx(_AtlBaseModule.GetModuleInstance(), _T("SysTabControl32"), &wc);
+ 
+     wc.lpszClassName = _T("ATL:SysTabControl32");
+     wc.lpfnWndProc = CContainedWindowT<CTabCtrl>::StartWindowProc;
+     wc.hInstance = _Module.GetModuleInstance();
+     wc.style = CS_DBLCLKS;
+     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+     ATOM atom = AtlWinModuleRegisterClassEx(&_AtlWinModule, &wc);
+     ATLASSERT(atom);
 
     m_hWndClient = m_tab.Create(m_hWnd, rcDefault, NULL, WS_CHILD 
         | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, IDC_TAB);
@@ -147,6 +148,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     // 
     InitCrank();
 
+    return 0;
+}
+
+LRESULT CMainFrame::OnKeyUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
     return 0;
 }
 
@@ -273,6 +279,14 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     else if(CV_YELLOWPAGE == type)
     {
         SubYellowPage * pv = new SubYellowPage(bd_);
+        HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
+            | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
+        ATLASSERT(h);
+        return pv;
+    }
+    else if(CV_PUBLISH == type)
+    {
+        SubPublishPage * pv = new SubPublishPage();
         HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
         ATLASSERT(h);
