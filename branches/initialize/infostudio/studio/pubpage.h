@@ -27,12 +27,29 @@ public:
         return m_hWnd;
     }
 
-    BEGIN_MSG_MAP(PublishTree)
+    SubPublishPage() {}
+
+    typedef CSplitterWindowImpl<SubPublishPage, true> _baseClass;
+
+    BEGIN_MSG_MAP(SubPublishPage)
+        CHAIN_MSG_MAP(_baseClass)
+        MESSAGE_HANDLER(WM_CREATE, OnCreate)
     END_MSG_MAP()
+
+private:
+    LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    {
+        // create
+        tree_.Create(m_hWnd, rcDefault);
+        list_.Create(m_hWnd, rcDefault);
+
+        SetSplitterPanes(tree_, list_);
+        return 0;
+    }
 
     PublishTree tree_;
     PublishList list_;
-    PublishInfo info_;
+//    PublishInfo info_;
 };
 
 #endif // __PUBPAGE_H__
