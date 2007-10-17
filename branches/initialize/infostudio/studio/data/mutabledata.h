@@ -17,16 +17,27 @@ public:
 
     bool Init(sqlite3x::sqlite3_connection &);
 
-    bool CheckReady() const;
+    // -----------------------------------------------
+    // UserInfo
+    bool CheckReady() const { return userinfo_.ready(); }
     UserInfo & GetUserInfo() { return userinfo_; }
 
     bool SaveUserInfo();
 
-    // access Site, Action
+    // -----------------------------------------------
+    // Site & Action ...
+    // 生成一个 Site，这样做不好！
     Site* Add(const SiteInfo* si);
-    Site* Find(int sid);
+    Site* Find(int sid) const;
 
+    // 执行某个action后，保存结果
+    // 写入数据库
     Action* Add(const ActionInfo* ai, const std::wstring & result);
+
+    // -----------------------------------------------
+    // Publish Task
+
+    // Execute
 
 private:
     typedef std::map<int, Site*> site_map;
