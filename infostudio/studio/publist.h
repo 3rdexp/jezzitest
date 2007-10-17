@@ -1,16 +1,17 @@
 
-#ifndef __PUBLIST_H__
-#define __PUBLIST_H__
+#ifndef __PUBLISH_RESULT_LIST_H__
+#define __PUBLISH_RESULT_LIST_H__
 
-typedef CWinTraitsOR<WS_CLIPCHILDREN | WS_CLIPSIBLINGS> PublishListTraits;
+typedef CWinTraitsOR<WS_CLIPCHILDREN | WS_CLIPSIBLINGS> PublishResultListTraits;
 
-class PublishList : public CWindowImpl<PublishList, CListViewCtrl, PublishListTraits>
+class PublishResultList : public CWindowImpl<PublishResultList
+        , CListViewCtrl, PublishResultListTraits>
 {
 public:
-    BEGIN_MSG_MAP(PublishList)
+    BEGIN_MSG_MAP(PublishResultList)
     END_MSG_MAP()
 };
 
 
 
-#endif // __PUBLIST_H__
+#endif // __PUBLISH_RESULT_LIST_H__

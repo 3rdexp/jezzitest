@@ -40,6 +40,7 @@ public:
 
     CTransTab()
     {
+#if 0
         ATL::CWndClassInfo & wci = GetWndClassInfo();
         ATLASSERT(wci.m_atom == 0);
 
@@ -50,6 +51,7 @@ public:
 
         wci.m_atom = AtlWinModuleRegisterClassExW(&_AtlWinModule, &wci.m_wc);
         ATLASSERT(wci.m_atom);
+#endif
     }
 };
 
@@ -117,6 +119,8 @@ public:
         COMMAND_ID_HANDLER(ID_TOOL_REGISTER_ALL, OnRegisterAll)
         COMMAND_ID_HANDLER(ID_TOOL_REGISTER_SEL, OnRegisterSel)
         // COMMAND_ID_HANDLER(ID_TOOL_REGISTER_ALL, OnRegisterAll)
+
+        COMMAND_ID_HANDLER(ID_TOOL_PUBLISH_NEW, OnPublishNew)
 
         MESSAGE_HANDLER(WM_CREATE, OnCreate)
         MESSAGE_HANDLER(WM_KEYUP, OnKeyUp)
@@ -190,6 +194,10 @@ private:
     // sub Yello Page
     LRESULT OnRegisterAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnRegisterSel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
+    // sub Publish Page
+    LRESULT OnPublishNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{

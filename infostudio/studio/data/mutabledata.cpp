@@ -72,7 +72,7 @@ bool MutableData::SaveUserInfo()
     return true;
 }
 
-bool MutableData::CheckReady() const
+bool UserInfo::ready() const
 {
     const wchar_t* inside_key[] = {
         L"user", 
@@ -104,7 +104,7 @@ bool MutableData::CheckReady() const
     
     for (int i=0; i<ARRAYSIZE(inside_key); ++i)
     {
-        if (userinfo_.find(inside_key[i]) == userinfo_.end())
+        if (find(inside_key[i]) == end())
             return false;
     }
 
@@ -120,9 +120,9 @@ Site* MutableData::Add(const SiteInfo* si)
     return p;
 }
 
-Site* MutableData::Find(int sid)
+Site* MutableData::Find(int sid) const
 {
-    site_map::iterator i = sites_.find(sid);
+    site_map::const_iterator i = sites_.find(sid);
     if (i != sites_.end())
         return i->second;
     return 0;

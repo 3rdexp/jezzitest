@@ -32,6 +32,8 @@ public:
 
     UserInfo() {}
 
+    bool ready() const;
+
 private:
     UserInfo(const UserInfo&);
     UserInfo& operator=(const UserInfo&);
@@ -146,3 +148,16 @@ private:
     wstring passwd_;
     Task * task_;
 };
+
+
+struct Publish
+{
+    std::wstring title, keywords, content, expire, frequency;
+};
+
+struct PublishResult
+{
+    Publish * publish;
+    wstring url, result;
+};
+

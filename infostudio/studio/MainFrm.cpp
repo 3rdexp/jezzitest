@@ -176,11 +176,15 @@ void CMainFrame::InitViews()
 
 ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
 {
+    CRect rc;
+    m_tab.GetClientRect(&rc);
+    m_tab.AdjustRect(FALSE, &rc);
+
     if (type == CV_USERINFO)
     {
         // SubUserInfo * pv = new SubUserInfo(md_);
         ChildViewT<CPropertyListCtrl> * pv = new ChildViewT<CPropertyListCtrl>();
-        HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
+        HWND h = pv->Create(m_tab, rc, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0); // WS_EX_CLIENTEDGE);
         ATLASSERT(h);
         pv->SetExtendedListStyle(PLS_EX_CATEGORIZED);
@@ -279,7 +283,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     else if(CV_YELLOWPAGE == type)
     {
         SubYellowPage * pv = new SubYellowPage(bd_);
-        HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
+        HWND h = pv->Create(m_tab, rc, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
         ATLASSERT(h);
         return pv;
@@ -287,7 +291,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     else if(CV_PUBLISH == type)
     {
         SubPublishPage * pv = new SubPublishPage();
-        HWND h = pv->Create(m_tab, rcDefault, NULL, WS_CHILD | WS_VISIBLE
+        HWND h = pv->Create(m_tab, rc, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
         ATLASSERT(h);
         return pv;
@@ -415,6 +419,15 @@ LRESULT CMainFrame::OnRegisterSel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
     }
     return 0;
 }
+
+LRESULT CMainFrame::OnPublishNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+    PublishInfoDialog dlg;
+    dlg.DoModal();
+    return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 void CMainFrame::Register(Site & site)
 {

@@ -88,7 +88,8 @@ bool SaveIndrel(sqlite3_connection & con, const std::list<indrel> & irlist)
 bool LoadIndustry(sqlite3_connection & con, Industry & ic)
 {
     // 一次把树全部读进来
-    sqlite3_command cmd(con, L"SELECT ind.id, ind_rel.pid, name, ename FROM ind_rel LEFT JOIN ind ON (ind.id = ind_rel.id) order by pid limit 15000");
+    sqlite3_command cmd(con, L"SELECT ind.id, ind_rel.pid, name, ename FROM ind "
+        L"LEFT JOIN ind_rel ON (ind.id = ind_rel.id) order by pid limit 15000");
     sqlite3_reader reader = cmd.executereader();
 
     ptimer pt, ptall;

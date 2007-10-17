@@ -39,17 +39,40 @@ public:
 private:
     LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
-        // create
-        tree_.Create(m_hWnd, rcDefault);
-        list_.Create(m_hWnd, rcDefault);
+        CRect rcc;
+        GetClientRect(&rcc);
 
-        SetSplitterPanes(tree_, list_);
+        // Left
+        tree_.Create(m_hWnd, rcDefault);
+        ASSERT(tree_);
+
+        CRect rc(rcc.left + 240, rcc.top, rcc.right, rcc.bottom);
+        rsplit_.Create(m_hWnd, &rc);
+        ASSERT(rsplit_);
+
+        SetSplitterPanes(tree_, rsplit_);
+        SetSplitterRect(rcc, false);
+        SetSplitterPos(240);
+
+        // Right
+        list_.Create(rsplit_, rcDefault);
+        ASSERT(list_);
+
+        info_.Create(rsplit_);
+        ASSERT(info_);
+
+        rsplit_.SetSplitterPanes(list_, info_);
+//        rsplit_.SetSplitterRect(rc, false);
+        rsplit_.SetSplitterPos(-1);
+
         return 0;
     }
 
     PublishTree tree_;
-    PublishList list_;
-//    PublishInfo info_;
+    PublishResultList list_;
+    PublishInfoDialog info_;
+
+    CHorSplitterWindow rsplit_;
 };
 
 #endif // __PUBPAGE_H__
