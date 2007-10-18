@@ -153,11 +153,16 @@ private:
 struct Publish
 {
     std::wstring title, keywords, content, expire, frequency;
+    int pid;
+
+    Publish() : pid(0) {}
 };
 
 struct PublishResult
 {
     Publish * publish;
     wstring url, result;
+
+    PublishResult() : publish(0) {}
 };
 

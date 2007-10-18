@@ -70,7 +70,7 @@ private:
 
     PublishTree tree_;
     PublishResultList list_;
-    PublishInfoDialog info_;
+    PublishInfoDialog<> info_;
 
     CHorSplitterWindow rsplit_;
 };

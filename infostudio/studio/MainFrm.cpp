@@ -422,8 +422,12 @@ LRESULT CMainFrame::OnRegisterSel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT CMainFrame::OnPublishNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-    PublishInfoDialog dlg;
-    dlg.DoModal();
+    PublishInfoDialog<IDD_PUBLISH_INFO1> dlg;
+    if (IDOK == dlg.DoModal())
+    {
+        Publish & pub = dlg.pub_;
+        // TODO: Save 
+    }
     return 0;
 }
 
