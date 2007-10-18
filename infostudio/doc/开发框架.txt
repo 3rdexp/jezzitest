@@ -31,21 +31,43 @@ data 数据库操作
 
 
 UI
-[toolbar]
-[] [] []
 -----------------------------------------------------
-              |  ulist.h proplist wtl属性列表，用户信息
-leftv.h(tree) |  ypage.h 黄页
-              |  
-              |
+[menu]
+[toolbar]
+[公司信息] [黄页登录] [信息发布]
 
-  TODO                右边的窗口基类为 childv.h
- outlook风格
 
-toolbar
+
+
+
+
+
+窗口基类为 childv.h
+
+
+
+
+[toolbar]
 [companyinfo] 保存
-[register]  立即注册, 注册所选网站, 手工注册, [搜索,类似msn过滤性质]  
-[publish]  信息发布[支持任务属性] ,  删除  编辑发布信息,  开始发布 停止发布,   下面显示发布内容
+[register]  立即注册, 注册所选网站, 手工注册, [搜索,类似msn过滤性质]
+[publish]  信息发布[支持任务属性] ,  删除  编辑发布信息,  开始发布 停止发布
+
+
+
+                   |
+left tree          |   site list
+task               |     site 1
+ run date 1        |     site 2
+ run date 2        |---------------------------  
+                   |       detail
+                   |
+                   |
+
+              publist.h
+pubtree.h
+              pubinfo.h
+
+
 [论坛] 同上
 [产品] 同上
 [help]
@@ -53,3 +75,6 @@ toolbar
 [设置功能 按钮]
 
 http://bp.booksir.com/help/
+
+TODO: MainFrame的tabctrl闪烁太严重，只能考虑 http://www.viksoe.dk/code/cooltab.htm
+或者 http://www.codeproject.com/wtl/tabbingframework.asp
