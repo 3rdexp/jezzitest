@@ -44,7 +44,9 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     LogMessage::LogThreads(true);
     LogMessage::LogTimestamps(true);
 
-    LOG(INFO) << "" << foo();
+    LogMessage::LogToDebug(LS_VERBOSE);
+
+    LOG(LS_VERBOSE) << "verbose test";
 
     // env
     AsyncInet::Init();

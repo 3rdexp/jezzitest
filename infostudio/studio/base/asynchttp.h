@@ -80,6 +80,7 @@ public:
 
     // -------------------------------------
     void setContent(const std::string& content_type, std::istream* document);
+    const std::vector<char> & getContent() const { return buf_; }
 
 protected:
     friend class AsyncInet;

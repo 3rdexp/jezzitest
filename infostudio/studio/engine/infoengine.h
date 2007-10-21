@@ -13,12 +13,13 @@ struct TaskNotify;
 //
 typedef sigslot::signal2<SiteTask*, int, sigslot::multi_threaded_local> SignalStateChange;
 typedef sigslot::signal2<SiteTask*, const std::wstring &, sigslot::multi_threaded_local> SignalVerifyCode;
+typedef sigslot::signal3<SiteTask*, const Action *, bool> SignalActionResult;
 
 class SiteTask : public AsyncTask
 {
 public:
     SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent
-        , SignalStateChange &, SignalVerifyCode &);
+        , SignalStateChange &, SignalVerifyCode &, SignalActionResult &);
     void AddAction(const std::vector<Action*> & acts)
     {
         std::copy(acts.begin(), acts.end(), std::back_inserter(actions_));
@@ -35,6 +36,7 @@ protected:
     virtual int Process(int state);
 
     virtual void RequestDone();
+    virtual std::string GetStateName(int state) const;
 
 protected:
     enum {
@@ -56,6 +58,7 @@ public:// private:
     std::wstring verifycode_;
     SignalStateChange & sigStateChange_;
     SignalVerifyCode & sigVerifyCode_;
+    SignalActionResult & sigActionResult_;
 };
 
 #if 0
@@ -216,6 +219,7 @@ public:
 #else
     SignalStateChange SigStateChange;
     SignalVerifyCode SigVerifyCode;
+    SignalActionResult SigActionResult;
 #endif
 private:
     UserInfo & userinfo_;
