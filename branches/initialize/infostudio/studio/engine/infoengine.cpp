@@ -3,9 +3,11 @@
 
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 #include <iterator>
 
 #include "base/logging.h"
+
 #include "resource.h"
 #include "verifyimgdlg.h"
 #include "infoengine.h"
@@ -23,11 +25,12 @@ HWND GetVerifyWindow()
 //////////////////////////////////////////////////////////////////////////
 //
 SiteTask::SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent
-                   , SignalStateChange & sc, SignalVerifyCode & vc)
+    , SignalStateChange & sc, SignalVerifyCode & vc, SignalActionResult & ar)
     : site_(site), userinfo_(userinfo)
     , AsyncTask(parent)
     , curact_(0)
     , sigStateChange_(sc), sigVerifyCode_(vc)
+    , sigActionResult_(ar)
 {}
 
 void SiteTask::EnterVerifyCode(const std::wstring & code)
@@ -55,20 +58,32 @@ int SiteTask::ProcessStart()
 int SiteTask::ProcessResponse()
 {
     LOG_F(INFO) << "curact_:" << curact_;
+    bool f = false;
     Action * pa = actions_[curact_];
     switch (pa->restype)
     {
     case ART_VERIFY_IMAGE:
-        ASSERT(false);
+        // TODO:
         return STATE_BLOCKED;
     case ART_NONE:
+        f = true;
         break;
     case ART_CHECK_RESULT:
-        // do check
+        {
+            const std::vector<char> & buf = getContent();
+            std::string ret(buf.begin(), buf.end());
+
+            // TODO: charset charact
+            std::string::size_type pos = ret.find(w2string(pa->result));
+            LOG(LS_VERBOSE) << "check:" << pos;
+            if (pos != std::string::npos)
+                f = false;
+        }
         break;
     default:
         break;
     }
+    sigActionResult_(this, pa, f);
     return STATE_ACTION_DONE;
 }
 
@@ -121,6 +136,15 @@ void SiteTask::RequestDone()
     }
 }
 
+std::string SiteTask::GetStateName(int state) const
+{
+    switch (state) {
+    case STATE_INPUT_VERIFYCODE: return "INPUT VERIFYCODE";
+    case STATE_ACTION_DONE: return "ACTION OVER";
+    }
+    return AsyncTask::GetStateName(state);
+}
+
 
 int SiteTask::ProcessNextAction()
 {
@@ -169,7 +193,8 @@ void EngineCrank::Add(Site & site)
 {
     ASSERT(runner_);
     
-    SiteTask * task = new SiteTask(site,  userinfo_,  runner_, SigStateChange, SigVerifyCode);
+    SiteTask * task = new SiteTask(site,  userinfo_,  runner_, SigStateChange
+        , SigVerifyCode, SigActionResult);
     
     std::vector<Action> & a= site.actions();
     ASSERT(!a.empty());
@@ -178,7 +203,7 @@ void EngineCrank::Add(Site & site)
         task->AddAction(&*i);
     }
 
-    // TODO: state change
+    LOG(LS_VERBOSE) << "crank start site:" << site.sid << " task:" << std::hex << static_cast<void*>(task);
 
     site.SetTask(task);
     runner_->StartTask(task);

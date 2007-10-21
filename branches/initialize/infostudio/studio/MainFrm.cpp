@@ -12,6 +12,8 @@
 
 #include <boost/static_assert.hpp>
 
+#include "base/logging.h"
+
 #include "data/basedata.h"
 #include "data/mutabledata.h"
 #include "engine/infoengine.h"
@@ -439,7 +441,9 @@ void CMainFrame::Register(Site & site)
     if (!va.empty())
     {
         site.Add(va);
+        LOG(LS_VERBOSE) << "add to crank, site:" << site.sid << " action size:" << va.size();
         crank_.Add(site);
+        LOG(LS_VERBOSE) << "add to crank, site:" << site.sid << " return.";
     }
     else
     {
@@ -449,6 +453,7 @@ void CMainFrame::Register(Site & site)
 
 void CMainFrame::Register(std::vector<SiteInfo*> & vec)
 {
+    LOG(LS_VERBOSE) << "start register " << vec.size() << " sites";
     for(std::vector<SiteInfo*>::const_iterator i = vec.begin(); i != vec.end(); ++i)
     {
         const SiteInfo * si = *i;
@@ -466,8 +471,10 @@ void CMainFrame::InitCrank()
 
 void CMainFrame::StateChange(SiteTask * task, int state)
 {
+    LOG(LS_VERBOSE) << "site:" << task->site_.sid << " state:" << state;
 }
 
 void CMainFrame::VerifyCode(SiteTask* task, const std::wstring & imgfn)
 {
+    LOG(LS_VERBOSE) << "site:" << task->site_.sid << " want VerifyCode file:" << w2string(imgfn);
 }
