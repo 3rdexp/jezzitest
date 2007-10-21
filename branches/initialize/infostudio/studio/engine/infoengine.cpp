@@ -63,7 +63,7 @@ int SiteTask::ProcessResponse()
     switch (pa->restype)
     {
     case ART_VERIFY_IMAGE:
-        // TODO:
+        // TODO: 
         return STATE_BLOCKED;
     case ART_NONE:
         f = true;
