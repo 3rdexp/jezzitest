@@ -80,7 +80,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     HWND h = wr.Create(0);
     ATLASSERT(h);
 
-    EngineCrank crank(md.GetUserInfo(), &wr);
+    EngineCrank crank(md, &wr);
     // crank.Run(&wr);
 
     // 3 UI

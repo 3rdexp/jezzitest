@@ -93,7 +93,7 @@ protected:
     bool ResponseReceived(DWORD dwBytes);
     bool RequestComplete(DWORD dwResult, DWORD dwError);
 
-    virtual void RequestDone() {}
+    virtual void OnResponse() {}
 
     // 1 对于简单任务，直接返回一个新的Connection
     // 2 对于复杂任务，可以一个站点公用一个Connection

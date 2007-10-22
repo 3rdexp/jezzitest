@@ -4,12 +4,13 @@
 #include <set>
 #include <iterator>
 
-#include "coreinfo.h"
 #include "../base/asynctask.h"
+#include "coreinfo.h"
+#include "data/mutabledata.h"
 
 class SiteTask;
 class EngineCrank;
-struct TaskNotify;
+
 //
 typedef sigslot::signal2<SiteTask*, int, sigslot::multi_threaded_local> SignalStateChange;
 typedef sigslot::signal2<SiteTask*, const std::wstring &, sigslot::multi_threaded_local> SignalVerifyCode;
@@ -35,7 +36,7 @@ protected:
     virtual int ProcessResponse();
     virtual int Process(int state);
 
-    virtual void RequestDone();
+    virtual void OnResponse();
     virtual std::string GetStateName(int state) const;
 
 protected:
@@ -56,6 +57,7 @@ public:// private:
     Site & site_;
     const UserInfo & userinfo_;
     std::wstring verifycode_;
+    std::wstring tmpfile_;
     SignalStateChange & sigStateChange_;
     SignalVerifyCode & sigVerifyCode_;
     SignalActionResult & sigActionResult_;
@@ -71,11 +73,11 @@ struct TaskNotify
 
 //////////////////////////////////////////////////////////////////////////
 //
-class EngineCrank
+class EngineCrank : public sigslot::has_slots<sigslot::multi_threaded_local>
 {
 public:
-    EngineCrank(UserInfo & u, TaskRunner * runner) : userinfo_(u)
-        , runner_(runner), notifier_(0)
+    EngineCrank(MutableData & md, TaskRunner * runner) : md_(md)
+        , runner_(runner)
     {}
     // input: vector<sid> ?, ActionType
     bool Init()
@@ -206,12 +208,14 @@ public:
 
             sites_.push_back(site);
             return true;
-        }
+        
 #endif
         return true;
     }
 
     void Add(Site & site);
+
+    void OnActionResult(SiteTask*, const Action *, bool);
 
     // TODO: lock
 #if 0
@@ -222,8 +226,7 @@ public:
     SignalActionResult SigActionResult;
 #endif
 private:
-    UserInfo & userinfo_;
+    MutableData & md_;
     std::set<Site*> sites_;
     TaskRunner * runner_;
-    TaskNotify * notifier_;
 };
