@@ -351,7 +351,7 @@ bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
             if (ib.dwBufferLength == 0)
             {
                 buf_.resize(content_length_);
-                RequestDone();
+                OnResponse();
             }
         }
         else

@@ -39,6 +39,11 @@ void SiteTask::EnterVerifyCode(const std::wstring & code)
     verifycode_ = code;
     SetState(STATE_ACTION_DONE);
     Wake();
+
+    ATLASSERT(!tmpfile_.empty());
+    BOOL f = DeleteFile(tmpfile_.c_str());
+    ASSERT(f);
+    tmpfile_.clear();
 }
 
 int SiteTask::ProcessStart()
@@ -63,7 +68,7 @@ int SiteTask::ProcessResponse()
     switch (pa->restype)
     {
     case ART_VERIFY_IMAGE:
-        // TODO: 
+        ASSERT(false); // 在OnResponse中处理了
         return STATE_BLOCKED;
     case ART_NONE:
         f = true;
@@ -73,11 +78,16 @@ int SiteTask::ProcessResponse()
             const std::vector<char> & buf = getContent();
             std::string ret(buf.begin(), buf.end());
 
-            // TODO: charset charact
+            // TODO: charset
             std::string::size_type pos = ret.find(w2string(pa->result));
             LOG(LS_VERBOSE) << "check:" << pos;
             if (pos != std::string::npos)
                 f = false;
+
+            // 还是应该在外部保存到数据库
+            if (f && pa->type == AT_REGISTER)
+            {
+            }
         }
         break;
     default:
@@ -89,15 +99,19 @@ int SiteTask::ProcessResponse()
 
 int SiteTask::Process(int state)
 {
+    int n;
     if (STATE_ACTION_DONE == state)
-        return ProcessNextAction();
+        n = ProcessNextAction();
     else
-        return AsyncTask::Process(state);
+        n = AsyncTask::Process(state);
+
+    return n;
 }
 
-void SiteTask::RequestDone()
+void SiteTask::OnResponse()
 {
     LOG_F(INFO) << GetStateName(GetState());
+    
     if (GetState() == STATE_INPUT_VERIFYCODE)
     {
         Action * pa = actions_[curact_];
@@ -110,6 +124,8 @@ void SiteTask::RequestDone()
         GetTempPath(MAX_PATH - 1, temppath);
         GetTempFileName(temppath, _T("IST_"), 0, filename);
 
+        tmpfile_ = filename;
+
         std::ofstream outf_((const char*)CT2A(filename), std::ios::binary);
 
         std::copy(buf_.begin(), buf_.end(), std::ostream_iterator<char>(outf_));
@@ -119,11 +135,8 @@ void SiteTask::RequestDone()
         CWindow wnd = GetVerifyWindow();
         wnd.SendMessage(WM_ADDIMAGE, (WPARAM)filename, (LPARAM)this);
 #else
-        sigVerifyCode_(this, std::wstring(filename));
+        sigVerifyCode_(this, tmpfile_);
 #endif
-
-        // TODO: delete file
-        // or implement buffer to IStream
 
         if (pa->timeout)
             set_timeout_seconds(pa->timeout);
@@ -144,7 +157,6 @@ std::string SiteTask::GetStateName(int state) const
     }
     return AsyncTask::GetStateName(state);
 }
-
 
 int SiteTask::ProcessNextAction()
 {
@@ -178,11 +190,26 @@ bool SiteTask::StartAction(Action * pa)
     return f;
 }
 
-// a={b} Site, UserInfo
 bool SiteTask::PrepareForm(std::ostream & out, const std::wstring & vars, SiteCharset charset) const
 {
-    QueryMap qm(vars);
-    std::string s = qm.Expand(userinfo_, site_.dict(), charset);
+    std::string s;
+    
+    if (!verifycode_.empty())
+    {
+        VariableMap vm = userinfo_;
+        vm.insert(VariableMap::value_type(L"vc", verifycode_));
+        QueryMap qm(vars);
+        s = qm.Expand(vm, site_.dict(), charset);
+
+        // TODO: remove verifycode_ ?
+        // verifycode_.clear();
+    }
+    else
+    {
+        QueryMap qm(vars);
+        s = qm.Expand(userinfo_, site_.dict(), charset);
+    }
+     
     out << s;
     return true;
 }
@@ -193,8 +220,8 @@ void EngineCrank::Add(Site & site)
 {
     ASSERT(runner_);
     
-    SiteTask * task = new SiteTask(site,  userinfo_,  runner_, SigStateChange
-        , SigVerifyCode, SigActionResult);
+    SiteTask * task = new SiteTask(site,  md_.GetUserInfo(),  runner_
+        , SigStateChange, SigVerifyCode, SigActionResult);
     
     std::vector<Action> & a= site.actions();
     ASSERT(!a.empty());
@@ -207,4 +234,16 @@ void EngineCrank::Add(Site & site)
 
     site.SetTask(task);
     runner_->StartTask(task);
+}
+
+void EngineCrank::OnActionResult(SiteTask * task, const Action * pa, bool success)
+{
+    LOG(LS_VERBOSE) << "task:" << std::hex << static_cast<void*>(task)
+        << " action:" << pa->type << " result:" << success;
+
+    if (success)
+    {
+        // Save to ...
+#error tomorow here
+    }
 }
