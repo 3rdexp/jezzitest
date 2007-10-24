@@ -79,9 +79,15 @@ int SiteTask::ProcessResponse()
             std::string ret(buf.begin(), buf.end());
 
             bool success = false;
-
-            // TODO: charset
-            std::string::size_type pos = ret.find(w2string(pa->result));
+            std::string::size_type pos = std::string::npos;
+            if (pa->charset == SC_ANSI)
+                pos = ret.find(w2string(pa->checked));
+            else if (pa->charset == SC_UTF8)
+                pos = ret.find(string2utf8(pa->checked));
+#if 1
+            std::ofstream flog("log", std::ios::binary);
+            flog << ret;
+#endif
             LOG(LS_VERBOSE) << "check:" << pos;
             if (pos != std::string::npos)
                 success = true;
@@ -105,8 +111,7 @@ int SiteTask::ProcessResponse()
 
                     sigActionResult_(this, pa, success);
 
-                    // TODO: жуж╧ Register?
-#error now
+                    return success ? STATE_ACTION_DONE : STATE_ERROR;
                 }
             }
         }

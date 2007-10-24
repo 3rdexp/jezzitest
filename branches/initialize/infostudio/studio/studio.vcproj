@@ -411,6 +411,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\engine\coreinfo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\engine\coreinfo.h"
 				>
 			</File>
