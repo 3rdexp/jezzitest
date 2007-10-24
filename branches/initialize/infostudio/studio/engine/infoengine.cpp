@@ -31,6 +31,7 @@ SiteTask::SiteTask(Site & site, const UserInfo & userinfo, TaskRunner * parent
     , curact_(0)
     , sigStateChange_(sc), sigVerifyCode_(vc)
     , sigActionResult_(ar)
+    , account_index_(0)
 {}
 
 void SiteTask::EnterVerifyCode(const std::wstring & code)
@@ -51,7 +52,7 @@ int SiteTask::ProcessStart()
     curact_ = 0;
     Action * pa = actions_[curact_];
 
-    bool f = StartAction(pa);
+    bool f = ProcessAction(pa);
     if (f && pa->restype == ART_VERIFY_IMAGE)
     {
         SetState(STATE_INPUT_VERIFYCODE);
@@ -63,7 +64,6 @@ int SiteTask::ProcessStart()
 int SiteTask::ProcessResponse()
 {
     LOG_F(INFO) << "curact_:" << curact_;
-    bool f = false;
     Action * pa = actions_[curact_];
     switch (pa->restype)
     {
@@ -71,37 +71,66 @@ int SiteTask::ProcessResponse()
         ASSERT(false); // 在OnResponse中处理了
         return STATE_BLOCKED;
     case ART_NONE:
-        f = true;
+        sigActionResult_(this, pa, true);
         break;
     case ART_CHECK_RESULT:
         {
             const std::vector<char> & buf = getContent();
             std::string ret(buf.begin(), buf.end());
 
+            bool success = false;
+
             // TODO: charset
             std::string::size_type pos = ret.find(w2string(pa->result));
             LOG(LS_VERBOSE) << "check:" << pos;
             if (pos != std::string::npos)
-                f = false;
+                success = true;
 
-            // 还是应该在外部保存到数据库
-            if (f && pa->type == AT_REGISTER)
+            if (pa->type == AT_REGISTER)
             {
+                if (success)
+                {
+                    // TODO: read username via account_index_
+                    site_.username_ = username_;
+                    site_.passwd_ = passwd_;
+
+                    sigActionResult_(this, pa, true);
+                }
+                else
+                {
+                    curact_ --;
+                    account_index_ ++;
+                    if (userinfo_.account_count() == account_index_)
+                        success = false;
+
+                    sigActionResult_(this, pa, success);
+
+                    // TODO: 终止 Register?
+#error now
+                }
             }
         }
         break;
     default:
         break;
     }
-    sigActionResult_(this, pa, f);
+    
     return STATE_ACTION_DONE;
 }
 
 int SiteTask::Process(int state)
 {
-    int n;
+    int n = 0;
     if (STATE_ACTION_DONE == state)
-        n = ProcessNextAction();
+    {
+        curact_ ++;
+        if (curact_ == actions_.size())
+            return STATE_DONE;
+
+        Action * pa = actions_[curact_];
+        bool f = ProcessAction(pa);
+        n = (f ? STATE_BLOCKED : STATE_ERROR);
+    }
     else
         n = AsyncTask::Process(state);
 
@@ -141,12 +170,10 @@ void SiteTask::OnResponse()
         if (pa->timeout)
             set_timeout_seconds(pa->timeout);
     }
-    else
-    {
-        SetState(STATE_RESPONSE);
-        sigStateChange_(this, STATE_RESPONSE);
-        Wake();
-    }
+    
+    SetState(STATE_RESPONSE);
+    sigStateChange_(this, STATE_RESPONSE);
+    Wake();
 }
 
 std::string SiteTask::GetStateName(int state) const
@@ -158,18 +185,7 @@ std::string SiteTask::GetStateName(int state) const
     return AsyncTask::GetStateName(state);
 }
 
-int SiteTask::ProcessNextAction()
-{
-    curact_ ++;
-    if (curact_ == actions_.size())
-        return STATE_DONE;
-
-    Action * pa = actions_[curact_];
-    bool f = StartAction(pa);
-    return f ? STATE_BLOCKED : STATE_ERROR;
-}
-
-bool SiteTask::StartAction(Action * pa)
+bool SiteTask::ProcessAction(Action * pa)
 {
     std::stringstream ss;
     bool f = PrepareForm(ss, pa->vars, pa->charset);
@@ -187,7 +203,7 @@ bool SiteTask::StartAction(Action * pa)
         if (pa->timeout)
             set_timeout_seconds(pa->timeout);
     }
-    return f;
+    return f; // 
 }
 
 bool SiteTask::PrepareForm(std::ostream & out, const std::wstring & vars, SiteCharset charset) const
@@ -244,6 +260,16 @@ void EngineCrank::OnActionResult(SiteTask * task, const Action * pa, bool succes
     if (success)
     {
         // Save to ...
-#error tomorow here
+        if (pa->type == AT_REGISTER)
+        {
+            OnSiteRegister(task->site_, success);
+        }
     }
+}
+
+void EngineCrank::OnSiteRegister(Site & site, bool success)
+{
+    UserInfo & u = md_.GetUserInfo();
+//    task->site_.username_ = u[L"user"];
+//    task->site_.passwd_ = u[L"psw"];
 }

@@ -33,6 +33,7 @@ public:
     UserInfo() {}
 
     bool ready() const;
+    int account_count() const;
 
 private:
     UserInfo(const UserInfo&);
@@ -140,13 +141,23 @@ public:
     bool action_empty() const { return actions_.empty(); }
     const Dictionary & dict() const { return dict_; }
 
+//     void SetLoginInfo(const std::wstring & username, const std::wstring & passwd)
+//     {
+//         username_ = username;
+//         passwd_ = passwd;
+//     }
+
 private:
     std::vector<Action> actions_;
     Dictionary dict_;
 
     wstring username_;
     wstring passwd_;
+
     Task * task_;
+
+    friend class EngineCrank;
+    friend class SiteTask;
 };
 
 

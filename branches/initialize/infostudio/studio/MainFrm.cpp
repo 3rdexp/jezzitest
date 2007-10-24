@@ -471,10 +471,10 @@ void CMainFrame::InitCrank()
 
 void CMainFrame::StateChange(SiteTask * task, int state)
 {
-    LOG(LS_VERBOSE) << "site:" << task->site_.sid << " state:" << state;
+    LOG(LS_VERBOSE) << "site:" << task->GetSite().sid << " state:" << state;
 }
 
 void CMainFrame::VerifyCode(SiteTask* task, const std::wstring & imgfn)
 {
-    LOG(LS_VERBOSE) << "site:" << task->site_.sid << " want VerifyCode file:" << w2string(imgfn);
+    LOG(LS_VERBOSE) << "site:" << task->GetSite().sid << " want VerifyCode file:" << w2string(imgfn);
 }
