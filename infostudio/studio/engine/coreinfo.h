@@ -30,7 +30,7 @@ public:
         VariableMap::insert(value_type(key, value));
     }
 
-    UserInfo() {}
+    UserInfo() : ac_(0) {}
 
     bool ready() const;
     int account_count() const;
@@ -38,6 +38,8 @@ public:
 private:
     UserInfo(const UserInfo&);
     UserInfo& operator=(const UserInfo&);
+
+    mutable int ac_;
 };
 
 

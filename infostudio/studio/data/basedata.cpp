@@ -296,8 +296,9 @@ std::vector<ActionInfo> BaseData::FindAction(int sid, ActionType t)
         a.restype = (ActionResponseType)reader.getint(6);
         ASSERT(a.restype >= ART_VERIFY_IMAGE && a.restype <= ART_NONE);
         a.referrer = reader.getstring16(7);
-        a.timeout = reader.getint(8);
-        a.type = (ActionType)reader.getint(9);
+        a.checked = reader.getstring16(8);
+        a.timeout = reader.getint(9);
+        a.type = (ActionType)reader.getint(10);
         a.content_type = L"application/x-www-form-urlencoded"; // TODO:
 
         if (a.referrer.empty())
