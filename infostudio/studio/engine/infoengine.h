@@ -30,6 +30,8 @@ public:
         actions_.push_back(act);
     }
 
+    Site & GetSite() { return site_; }
+
     void EnterVerifyCode(const std::wstring & code);
 protected:
     virtual int ProcessStart();
@@ -37,6 +39,7 @@ protected:
     virtual int Process(int state);
 
     virtual void OnResponse();
+
     virtual std::string GetStateName(int state) const;
 
 protected:
@@ -46,21 +49,29 @@ protected:
     };
 
 private:
-    int ProcessNextAction();
-    bool StartAction(Action * pa);
-
+    bool ProcessAction(Action * pa);
     bool PrepareForm(std::ostream & out, const std::wstring & vars
         , SiteCharset charset) const;
-public:// private:
-    std::vector<Action*> actions_;
-    int curact_;
-    Site & site_;
-    const UserInfo & userinfo_;
-    std::wstring verifycode_;
-    std::wstring tmpfile_;
+
+private:
     SignalStateChange & sigStateChange_;
     SignalVerifyCode & sigVerifyCode_;
     SignalActionResult & sigActionResult_;
+    
+    // 
+    Site & site_;
+    const UserInfo & userinfo_;
+    std::vector<Action*> actions_; // 本 SiteTask 运行时需要完成的 Actions
+
+    // 运行时临时信息
+    int curact_;
+    std::wstring verifycode_;
+    std::wstring tmpfile_;
+
+    int account_index_;
+    std::wstring username_, passwd_;
+
+    friend class EngineCrank;
 };
 
 #if 0
@@ -215,7 +226,13 @@ public:
 
     void Add(Site & site);
 
+    // 
     void OnActionResult(SiteTask*, const Action *, bool);
+
+    // 
+    void OnSiteRegister(Site & site, bool success);
+    void OnSiteLogin(Site & site, bool success);
+    void OnPublish();
 
     // TODO: lock
 #if 0
