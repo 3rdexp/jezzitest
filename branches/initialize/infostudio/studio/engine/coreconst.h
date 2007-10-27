@@ -8,7 +8,13 @@ enum ActionType
     AT_UTILITY,     
     AT_REGISTER,    // 
     AT_PUBLISH,
-    AT_RESULT,       // 检查发布结果
+    AT_PUBRESULT,       // 检查发布结果
+};
+
+enum CheckType
+{
+    CT_EXISTS,      // 结果中必须含有，否则失败
+    CT_EXCLUDE,     // 不包含
 };
 
 enum ActionResponseType

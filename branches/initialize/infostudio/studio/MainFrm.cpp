@@ -437,10 +437,12 @@ LRESULT CMainFrame::OnPublishNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 
 void CMainFrame::Register(Site & site)
 {
-    std::vector<ActionInfo> va = bd_->FindAction(site.sid, AT_REGISTER);
+    std::vector<Action> va = bd_->FindAction(site.sid, AT_REGISTER);
     if (!va.empty())
     {
-        site.Add(va);
+        for(std::vector<Action>::const_iterator i=va.begin(); 
+            i != va.end(); ++i)
+            site.Add(CreateAction(*i));
         LOG(LS_VERBOSE) << "add to crank, site:" << site.sid << " action size:" << va.size();
         crank_.Add(site);
         LOG(LS_VERBOSE) << "add to crank, site:" << site.sid << " return.";

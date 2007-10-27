@@ -32,7 +32,7 @@ public:
 
     // 执行某个action后，保存结果
     // 写入数据库
-    Action* Add(const ActionInfo* ai, const std::wstring & result);
+    // Action* Add(const ActionInfo* ai, const std::wstring & result);
 
     // -----------------------------------------------
     // Publish Task

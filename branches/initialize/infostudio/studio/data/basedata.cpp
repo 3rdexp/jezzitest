@@ -272,20 +272,25 @@ bool BaseData::Init(sqlite3x::sqlite3_connection & con)
 }
 
 
-std::vector<ActionInfo> BaseData::FindAction(int sid, ActionType t)
+std::vector<Action> BaseData::FindAction(int sid, ActionType t)
 {
-    std::vector<ActionInfo> ret;
-    // TODO: order by aid and return all dependent action
+    std::vector<Action> ret;
+    
     sqlite3_command cmd(con_, L"SELECT aid, paid, url, method, charset, vars"
-        L", restype, referrer, checked, timeout, type FROM action WHERE sid=? order by aid");
+        L", restype, referrer, checked, timeout, type FROM action WHERE sid=?"
+        L" order by aid");
     cmd.bind(1, sid);
     sqlite3_reader reader = cmd.executereader();
 
     while(reader.read()) {
-        ActionInfo a;
-        a.aid = reader.getint(0);
-        int paid = reader.getint(1);
-        ASSERT(paid == 0);
+        // TODO: 按顺序读入Action,直到
+
+        int pre_aid = reader.getint(1);
+        int type = reader.getint(10);
+
+        Action a;
+        a.aid = reader.getint(0);        
+        ASSERT(pre_aid == 0);
         a.url = reader.getstring16(2);
         a.method = (HttpVerb)reader.getint(3);
         ASSERT(a.method == HV_GET || a.method == HV_POST);
@@ -298,8 +303,10 @@ std::vector<ActionInfo> BaseData::FindAction(int sid, ActionType t)
         a.referrer = reader.getstring16(7);
         a.checked = reader.getstring16(8);
         a.timeout = reader.getint(9);
-        a.type = (ActionType)reader.getint(10);
-        a.content_type = L"application/x-www-form-urlencoded"; // TODO:
+        a.type = (ActionType)type;
+
+        if (a.content_type.empty())
+            a.content_type = L"application/x-www-form-urlencoded"; // TODO:
 
         if (a.referrer.empty())
             a.referrer = a.url; // use action.entry ?

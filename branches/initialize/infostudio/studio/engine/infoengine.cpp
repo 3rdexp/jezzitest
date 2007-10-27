@@ -14,11 +14,43 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-// temp code
-HWND GetVerifyWindow()
+// 
+
+struct UtilityAction : public Action
 {
-    ASSERT(0);
-    // extern VerifyImgDlg * gvidlg;
+    // TODO: 这样写对吗？ 或者有更好的办法
+    UtilityAction(const Action & a)
+    {
+        static_cast<Action&>(*this) = a;
+    }
+};
+
+struct RegisterAction : public Action
+{
+    RegisterAction(const Action & a)
+    {
+        static_cast<Action&>(*this) = a;
+    }
+};
+
+struct PublishAction : public Action
+{
+    PublishAction(const Action & a)
+    {
+        static_cast<Action&>(*this) = a;
+    }
+};
+
+Action * CreateAction(const Action & a)
+{
+    if (a.type == AT_REGISTER)
+        return new RegisterAction(a);
+    else if (a.type == AT_UTILITY)
+        return new UtilityAction(a);
+    else if (a.type == AT_PUBLISH)
+        return new PublishAction(a);
+
+    ASSERT(false);
     return 0;
 }
 
@@ -244,11 +276,11 @@ void EngineCrank::Add(Site & site)
     SiteTask * task = new SiteTask(site,  md_.GetUserInfo(),  runner_
         , SigStateChange, SigVerifyCode, SigActionResult);
     
-    std::vector<Action> & a= site.actions();
+    std::vector<Action*> & a= site.actions();
     ASSERT(!a.empty());
-    for (std::vector<Action>::iterator i=a.begin(); i != a.end(); ++i)
+    for (std::vector<Action*>::iterator i=a.begin(); i != a.end(); ++i)
     {
-        task->AddAction(&*i);
+        task->AddAction(*i);
     }
 
     LOG(LS_VERBOSE) << "crank start site:" << site.sid << " task:" << std::hex << static_cast<void*>(task);

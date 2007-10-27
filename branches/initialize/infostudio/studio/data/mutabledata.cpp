@@ -128,11 +128,11 @@ Site* MutableData::Find(int sid) const
     return 0;
 }
 
-Action* MutableData::Add(const ActionInfo* ai, const std::wstring & result)
-{
-    Action* p = new Action;
-    static_cast<ActionInfo&>(*p) = *ai;
-    p->result = result;
-    // TODO: save to sqlite
-    return p;
-}
+// Action* MutableData::Add(const ActionInfo* ai, const std::wstring & result)
+// {
+//     Action* p = new Action;
+//     static_cast<ActionInfo&>(*p) = *ai;
+//     p->result = result;
+//     // TODO: save to sqlite
+//     return p;
+// }
