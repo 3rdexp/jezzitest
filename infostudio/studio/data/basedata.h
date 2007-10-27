@@ -61,7 +61,7 @@ public:
         return ret;
     }
 
-    std::vector<ActionInfo> FindAction(int sid, ActionType t);
+    std::vector<Action> FindAction(int sid, ActionType t);
 
     bool Init(sqlite3x::sqlite3_connection &);
 

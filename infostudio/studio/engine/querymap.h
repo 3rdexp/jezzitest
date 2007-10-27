@@ -38,16 +38,14 @@ private:
 //
 // for a=b&c={name}&e*= translate
 // usage:
-// QueryMap vt(L"a=b&c={name}&e*=");
-// std::string s = vt.Expand(UserInfo.vars, SC_ANSI, UrlQueryEscape());
-// xxx.Post(s);
+// text: a=b&c={name}&d={e}
 
 class QueryMap
 {
 public:
     QueryMap(const std::wstring & text) : text_(text) {}
 
-    // TODO: template<class Encoding>
+    // TODO: Encoding
     std::string Expand(const VariableMap & vm, const Dictionary & dict
         , SiteCharset charset);
 

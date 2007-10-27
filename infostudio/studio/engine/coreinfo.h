@@ -2,25 +2,13 @@
 #pragma once
 
 #include <vector>
-#include <vector>
 #include <string>
 
+#include "../base/httpcomm.h"
 #include "coreconst.h"
 #include "querymap.h"
-#include "../base/httpcomm.h"
 
-using std::string;
 using std::wstring;
-
-/*
-加载 UserInfo
-
-加载要访问的网站 SiteInfo
-  LoadAction(ActionType) 从数据库填充 actions
-
-处理数据后，执行 Get/Post
-*/
-
 
 struct UserInfo : public VariableMap
 {
@@ -39,38 +27,42 @@ private:
     UserInfo(const UserInfo&);
     UserInfo& operator=(const UserInfo&);
 
-    mutable int ac_;
+    // 变通之法
+    // user1= psw1=
+    // user2= psw2=
+    mutable int ac_;    // account count
 };
 
-
-struct ActionInfo;
+struct Action;
 struct SiteInfo;
 
-struct ActionInfo
+struct Action
 {
-    ActionInfo()
-        : aid(0), sid(0), front(0)
+    Action() : aid(0), sid(0), pre_aid(0)
         , type(AT_UTILITY)
-        , method(HV_POST)
-        , charset(SC_ANSI)
-        , timeout(0)
+        , method(HV_POST), charset(SC_ANSI)
+        , timeout(0), time(0)
     {}
-    virtual ~ActionInfo() {}
+    virtual ~Action() {}
     int aid;
     int sid;
-    ActionInfo * front; // 前置任务
+    int pre_aid; // 前置任务
     ActionType type;
 
     wstring url;
-    HttpVerb method;      // HV_GET / HV_POST
-    wstring content_type;
+    HttpVerb method;        // HV_GET / HV_POST
+    wstring content_type;   // always application/x-www-form-urlencoded
     SiteCharset charset;
-    wstring vars;
+    wstring vars;           // key={val}
     wstring referrer;
     wstring checked;
 
     ActionResponseType restype;
-    int timeout;        // seconds
+    int timeout;        // in seconds
+
+    // 
+    wstring result; // HTTP status code
+    time_t time;
 };
 
 struct SiteInfo
@@ -85,48 +77,31 @@ struct SiteInfo
 //
 
 class Site;
-class Action;
-
 class Task;
-
-class Action : public ActionInfo
-{
-public:
-    Action() : time(0) {}
-    wstring result; // TODO: HTTP code, HTML string
-    time_t time;
-};
 
 class Site : public SiteInfo
 {
 public:
     Site() : task_(0) {}
-    std::vector<Action*> Find(ActionType type) const
-    {
-        std::vector<Action*> ret;
-        for (std::vector<Action>::const_iterator i = actions_.begin();
-            i != actions_.end(); ++i)
-        {
-            const Action * p = &*i;
-            if (i->type == type)
-                ret.push_back(const_cast<Action*>(p));
-        }
-        return ret;
-    }
-    void Add(const Action & act)
+//     std::vector<Action*> Find(ActionType type) const
+//     {
+//         std::vector<Action*> ret;
+//         for (std::vector<Action>::const_iterator i = actions_.begin();
+//             i != actions_.end(); ++i)
+//         {
+//             const Action * p = &*i;
+//             if (i->type == type)
+//                 ret.push_back(const_cast<Action*>(p));
+//         }
+//         return ret;
+//     }
+    void Add(Action* act)
     {
         actions_.push_back(act);
     }
-    void Add(std::vector<ActionInfo> & acts)
+    void Add(const std::vector<Action*> & acts)
     {
-        for(std::vector<ActionInfo>::const_iterator i=acts.begin();
-            i!=acts.end(); ++i)
-        {
-            const ActionInfo & ai = *i;
-            Action a;
-            static_cast<ActionInfo &>(a) = ai;
-            actions_.push_back(a);
-        }
+        std::copy(acts.begin(), acts.end(), std::back_inserter(actions_));
     }
     void SetDict(Dictionary & dict)
     {
@@ -138,29 +113,26 @@ public:
         ASSERT(!task_ && task);
         task_ = task;
     }
-    std::vector<Action> & actions() { return actions_; }
+    std::vector<Action*> & actions() { return actions_; }
 
     bool action_empty() const { return actions_.empty(); }
     const Dictionary & dict() const { return dict_; }
 
-//     void SetLoginInfo(const std::wstring & username, const std::wstring & passwd)
-//     {
-//         username_ = username;
-//         passwd_ = passwd;
-//     }
-
 private:
-    std::vector<Action> actions_;
+    std::vector<Action*> actions_;
     Dictionary dict_;
 
     wstring username_;
     wstring passwd_;
 
-    Task * task_;
+    Task * task_;   // TODO: remove
 
-    friend class EngineCrank;
+    friend class EngineCrank; // TODO: remove
     friend class SiteTask;
 };
+
+
+
 
 
 struct Publish
@@ -178,4 +150,3 @@ struct PublishResult
 
     PublishResult() : publish(0) {}
 };
-

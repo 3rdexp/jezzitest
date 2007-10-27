@@ -5,8 +5,11 @@
 #include <iterator>
 
 #include "../base/asynctask.h"
+#include "../data/mutabledata.h"
 #include "coreinfo.h"
-#include "data/mutabledata.h"
+
+// ¿‡π§≥ß
+Action * CreateAction(const Action & a);
 
 class SiteTask;
 class EngineCrank;
@@ -74,13 +77,6 @@ private:
     friend class EngineCrank;
 };
 
-#if 0
-struct TaskNotify
-{
-    virtual void StateChange(SiteTask * task, int state) = 0;
-    virtual void VerifyCode(SiteTask* task, const std::wstring & imgfn) = 0;
-};
-#endif
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -90,10 +86,10 @@ public:
     EngineCrank(MutableData & md, TaskRunner * runner) : md_(md)
         , runner_(runner)
     {}
-    // input: vector<sid> ?, ActionType
+    
     bool Init()
     {
-#if 0
+/*
         {
             userinfo_.insert(L"sex", L"male");
             userinfo_.insert(L"pasw", L"strongpsw");
@@ -220,7 +216,7 @@ public:
             sites_.push_back(site);
             return true;
         
-#endif
+*/
         return true;
     }
 
@@ -234,14 +230,10 @@ public:
     void OnSiteLogin(Site & site, bool success);
     void OnPublish();
 
-    // TODO: lock
-#if 0
-    void SetTaskNotify(TaskNotify * p) { notifier_ = p; }
-#else
     SignalStateChange SigStateChange;
     SignalVerifyCode SigVerifyCode;
     SignalActionResult SigActionResult;
-#endif
+
 private:
     MutableData & md_;
     std::set<Site*> sites_;
