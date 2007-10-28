@@ -7,18 +7,28 @@ using namespace sqlite3x;
 #include "mutabledata.h"
 #include <sstream>
 
-
 bool MutableData::Init(sqlite3x::sqlite3_connection & con)
 {
     try {
-    // user
+    // user, site, action
     con.executenonquery(L"CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT)");
-    con.executenonquery(L"CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd TEXT"
-        L", time INTEGER, laststate INTEGER)");
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT"
+        L", passwd TEXT, time INTEGER, laststate INTEGER)");
 
-    // site
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT"
+        L", type INTEGER, sid INTEGER, paid INTEGER, entry TEXT, url TEXT, method INTEGER"
+        L", charset INTEGER, vars TEXT, content TEXT, restype INTEGER, referrer TEXT, checked TEXT"
+        L", timeout INTEGER);");
 
-    // action result
+    // TODO: 设置 site.sid的起始值，保证和 base.db 不冲突
+
+    // publish, result
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS publish(pubid INTEGER PRIMARY KEY AUTOINCREMENT"
+        L", title TEXT, keywords TEXT, content TEXT, expire INTEGER, frequency INTEGER)");
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS pub_rel(pid INTEGER, sid INTEGER)");
+
+    con.executenonquery(L"CREATE TABLE IF NOT EXISTS result(rid INTEGER PRIMARY KEY AUTOINCREMENT"
+        L", did INTEGER, sid INTEGER, type INTEGER, time INTEGER, content TEXT)");
 
     } catch(database_error & e) {
         e;
@@ -35,8 +45,8 @@ bool MutableData::Init(sqlite3x::sqlite3_connection & con)
         sqlite3_reader rs = cmd_read.executereader();
         while (rs.read())
         {
-            wstring key = rs.getstring16(0);
-            wstring val = rs.getstring16(1);
+            std::wstring key = rs.getstring16(0);
+            std::wstring val = rs.getstring16(1);
             userinfo_.insert(key, val);
         }
     } catch(database_error & e) {

@@ -43,7 +43,7 @@ public:
         CenterWindow(GetParent());
         DlgResize_Init(false);
 
-        if (pub_.pid) Set();
+        if (pub_.pubid) Set();
         return 0;
     }
 

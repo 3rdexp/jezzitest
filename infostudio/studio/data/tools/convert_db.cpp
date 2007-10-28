@@ -22,14 +22,26 @@ CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd TEXT
     , time INTEGER, laststate INTEGER);
 
-
-
+CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER
+    , paid INTEGER, entry TEXT, url TEXT, method INTEGER, charset INTEGER, vars TEXT, content TEXT
+    , restype INTEGER, referrer TEXT, checked TEXT, timeout INTEGER);
 
 
 CREATE TABLE IF NOT EXISTS ind (id INTEGER PRIMARY KEY, name TEXT, ename TEXT)
 CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER, pid INTEGER, CONSTRAINT x1 PRIMARY KEY(id, pid))
 d INTEGER, cid INTEGER, cate TEXT, name TEXT, value TEXT
     , CONSTRAINT x1 PRIMARY KEY(sid, cid, cate, name))
+
+
+
+CREATE TABLE IF NOT EXISTS publish (pid INTEGER PRIMARY KEY, title TEXT, keywords TEXT, content TEXT
+, expire INTEGER, frequency INTEGER)
+CREATE TABLE IF NOT EXISTS pub_rel(pid INTEGER, sid INTEGER)
+
+
+CREATE TABLE IF NOT EXISTS result(rid INTEGER PRIMARY KEY, sid INTEGER, atype INTEGER, time INTEGER
+    , content TEXT)
+CREATE TABLE IF NOT EXISTS pub_rel(pid INTEGER, sid INTEGER)
 
 
     site(sid, user, psw, reg_time, result)
