@@ -8,8 +8,6 @@
 #include "coreconst.h"
 #include "querymap.h"
 
-using std::wstring;
-
 struct UserInfo : public VariableMap
 {
 public:
@@ -49,19 +47,19 @@ struct Action
     int pre_aid; // 前置任务
     ActionType type;
 
-    wstring url;
+    std::wstring url;
     HttpVerb method;        // HV_GET / HV_POST
-    wstring content_type;   // always application/x-www-form-urlencoded
+    std::wstring content_type;   // always application/x-www-form-urlencoded
     SiteCharset charset;
-    wstring vars;           // key={val}
-    wstring referrer;
-    wstring checked;
+    std::wstring vars;           // key={val}
+    std::wstring referrer;
+    std::wstring checked;
 
     ActionResponseType restype;
     int timeout;        // in seconds
 
     // 
-    wstring result; // HTTP status code
+    std::wstring result; // HTTP status code
     time_t time;
 };
 
@@ -70,7 +68,7 @@ struct SiteInfo
     SiteInfo() : sid(0) {}
     virtual ~SiteInfo() {}
     int sid;
-    wstring name, homepage;
+    std::wstring name, homepage;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,8 +120,8 @@ private:
     std::vector<Action*> actions_;
     Dictionary dict_;
 
-    wstring username_;
-    wstring passwd_;
+    std::wstring username_;
+    std::wstring passwd_;
 
     Task * task_;   // TODO: remove
 
@@ -131,22 +129,28 @@ private:
     friend class SiteTask;
 };
 
-
-
-
-
 struct Publish
 {
-    std::wstring title, keywords, content, expire, frequency;
-    int pid;
+    std::wstring title, keywords, content;
+    int expire, frequency; // in seconds
 
-    Publish() : pid(0) {}
+    int pubid;
+    std::vector<int> sites;
+
+    Publish() : pubid(0) {}
 };
 
-struct PublishResult
+struct Result
 {
-    Publish * publish;
-    wstring url, result;
+    int rid;
+    int did; // 附加数据，如Publish pubid
 
-    PublishResult() : publish(0) {}
+    int sid;
+    ActionType type;
+    
+    time_t time;
+    std::wstring content; // ? remove
+    bool success;
+
+    Result() : rid(0) {}
 };

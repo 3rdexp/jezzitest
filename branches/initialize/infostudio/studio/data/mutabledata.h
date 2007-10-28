@@ -27,15 +27,17 @@ public:
     // -----------------------------------------------
     // Site & Action ...
     // 生成一个 Site，这样做不好！
+    // TODO: int sid Add(const Site &);
     Site* Add(const SiteInfo* si);
     Site* Find(int sid) const;
 
     // 执行某个action后，保存结果
     // 写入数据库
     // Action* Add(const ActionInfo* ai, const std::wstring & result);
-
+    
     // -----------------------------------------------
-    // Publish Task
+    // Publish
+    int Add(const Publish & pub);
 
     // Execute
 
