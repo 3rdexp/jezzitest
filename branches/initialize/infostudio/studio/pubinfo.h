@@ -1,9 +1,10 @@
 #ifndef __PUBINFO_DIALOG_H__
 #define __PUBINFO_DIALOG_H__
 
+#include <atlframe.h>
 #include "engine/coreinfo.h"
 
-std::wstring GetText(CWindow & wnd)
+inline std::wstring GetText(CWindow & wnd)
 {
     int n = wnd.GetWindowTextLength();
     wchar_t * w = new wchar_t[n + 1];

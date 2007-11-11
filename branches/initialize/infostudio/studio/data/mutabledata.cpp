@@ -23,12 +23,31 @@ bool MutableData::Init(sqlite3x::sqlite3_connection & con)
     // TODO: 设置 site.sid的起始值，保证和 base.db 不冲突
 
     // publish, result
-    con.executenonquery(L"CREATE TABLE IF NOT EXISTS publish(pubid INTEGER PRIMARY KEY AUTOINCREMENT"
-        L", title TEXT, keywords TEXT, content TEXT, expire INTEGER, frequency INTEGER)");
-    con.executenonquery(L"CREATE TABLE IF NOT EXISTS pub_rel(pid INTEGER, sid INTEGER)");
+    wchar_t * create_table_sqls[] = {
+        // user
+        L"CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY,value TEXT);",
 
-    con.executenonquery(L"CREATE TABLE IF NOT EXISTS result(rid INTEGER PRIMARY KEY AUTOINCREMENT"
-        L", did INTEGER, sid INTEGER, type INTEGER, time INTEGER, content TEXT)");
+        // site
+        L"CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY,username TEXT,passwd TEXT,time INTEGER,laststate INTEGER);",
+
+        // action
+        L"CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT,type INTEGER,sid INTEGER \
+            ,paid INTEGER,entry TEXT,url TEXT,method INTEGER,charset INTEGER,vars TEXT,content TEXT \
+            ,restype INTEGER,referrer TEXT,checked TEXT,timeout INTEGER);",
+
+        L"CREATE TABLE IF NOT EXISTS publish(pubid INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,keywords TEXT,content TEXT,expire INTEGER,frequency INTEGER,create INTEGER)",
+        L"CREATE TABLE IF NOT EXISTS publish_once(poid INTEGER PRIMARY KEY AUTOINCREMENT,pubid INTEGER,start INTEGER,end INTEGER, name TEXT)",
+
+        L"CREATE TABLE IF NOT EXISTS publish_site(pubid INTEGER,sid INTEGER)",
+
+        L"CREATE TABLE IF NOT EXISTS result(rid INTEGER PRIMARY KEY AUTOINCREMENT,dataid INTEGER,sid INTEGER,atype INTEGER,time INTEGER,content TEXT)"
+    };
+
+    for(int i=0; i<ARRAYSIZE(create_table_sqls); ++i)
+    {
+        con.executenonquery(create_table_sqls[i]);
+    }
+
 
     } catch(database_error & e) {
         e;
@@ -138,11 +157,33 @@ Site* MutableData::Find(int sid) const
     return 0;
 }
 
-// Action* MutableData::Add(const ActionInfo* ai, const std::wstring & result)
-// {
-//     Action* p = new Action;
-//     static_cast<ActionInfo&>(*p) = *ai;
-//     p->result = result;
-//     // TODO: save to sqlite
-//     return p;
-// }
+std::vector<Publish> & MutableData::GetPublish()
+{
+    if (!pubread_)
+    {
+        try {
+            sqlite3_command cmd_read(con_, L"select pid,title,keywords,content,expire,frequency from publish");
+
+            sqlite3_reader rs = cmd_read.executereader();
+            while (rs.read())
+            {
+                Publish pub;
+                pub.pubid = rs.getint(0);
+                pub.title = rs.getstring16(1);
+                pub.keywords = rs.getstring16(2);
+                pub.content = rs.getstring16(3);
+                pub.expire = rs.getint(4);
+                pub.frequency = rs.getint(5);                
+
+                pubs_.push_back(pub);
+            }
+
+            pubread_ = true;
+        } catch(database_error & e) {
+            e;
+            ASSERT(false && "read publish");
+        }
+    }
+
+    return pubs_;
+}

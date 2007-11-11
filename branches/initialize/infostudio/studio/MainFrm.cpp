@@ -3,11 +3,10 @@
 
 #include <algorithm>
 
-#include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
+#include <atlframe.h>
 #include <atlctrlw.h>
-#include <atlsplit.h>
 #include <atlctrlx.h> // CWaitCursor
 
 #include <boost/static_assert.hpp>
@@ -23,10 +22,10 @@
 #include "ypage.h"
 // #include "ulist.h"
 #include "proplist/PropertyList.h"
-#include "pubpage.h"
 
 #include "leftv.h"
 #include "mainfrm.h"
+#include "pubpage.h"
 
 namespace {
     struct string_pair{
@@ -292,7 +291,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     }
     else if(CV_PUBLISH == type)
     {
-        SubPublishPage * pv = new SubPublishPage();
+        SubPublishPage * pv = new SubPublishPage(md_);
         HWND h = pv->Create(m_tab, rc, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
         ATLASSERT(h);

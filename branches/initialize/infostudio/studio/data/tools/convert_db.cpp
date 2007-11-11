@@ -13,43 +13,35 @@
 
 #include "sqlite/sqlite3x.hpp"
 
-
-
 /*
+CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY,value TEXT);
 
-CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY,username TEXT,passwd TEXT
+    ,time INTEGER,laststate INTEGER);
 
-CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT, passwd TEXT
-    , time INTEGER, laststate INTEGER);
-
-CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT, type INTEGER, sid INTEGER
-    , paid INTEGER, entry TEXT, url TEXT, method INTEGER, charset INTEGER, vars TEXT, content TEXT
-    , restype INTEGER, referrer TEXT, checked TEXT, timeout INTEGER);
-
-
-CREATE TABLE IF NOT EXISTS ind (id INTEGER PRIMARY KEY, name TEXT, ename TEXT)
-CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER, pid INTEGER, CONSTRAINT x1 PRIMARY KEY(id, pid))
-d INTEGER, cid INTEGER, cate TEXT, name TEXT, value TEXT
-    , CONSTRAINT x1 PRIMARY KEY(sid, cid, cate, name))
+CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT,type INTEGER,sid INTEGER
+    ,paid INTEGER,entry TEXT,url TEXT,method INTEGER,charset INTEGER,vars TEXT,content TEXT
+    ,restype INTEGER,referrer TEXT,checked TEXT,timeout INTEGER);
 
 
+CREATE TABLE IF NOT EXISTS ind(id INTEGER PRIMARY KEY,name TEXT,ename TEXT)
+CREATE TABLE IF NOT EXISTS ind_rel(id INTEGER,pid INTEGER,CONSTRAINT x1 PRIMARY KEY(id,pid))
 
-CREATE TABLE IF NOT EXISTS publish (pid INTEGER PRIMARY KEY, title TEXT, keywords TEXT, content TEXT
-, expire INTEGER, frequency INTEGER)
-CREATE TABLE IF NOT EXISTS pub_rel(pid INTEGER, sid INTEGER)
-
-
-CREATE TABLE IF NOT EXISTS result(rid INTEGER PRIMARY KEY, sid INTEGER, atype INTEGER, time INTEGER
-    , content TEXT)
-CREATE TABLE IF NOT EXISTS pub_rel(pid INTEGER, sid INTEGER)
+id INTEGER,cid INTEGER,cate TEXT,name TEXT,value TEXT
+    ,CONSTRAINT x1 PRIMARY KEY(sid,cid,cate,name))
 
 
-    site(sid, user, psw, reg_time, result)
-    action(aid, type, result)
+CREATE TABLE IF NOT EXISTS publish(pubid INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,keywords TEXT,content TEXT,expire INTEGER,frequency INTEGER,create INTEGER)
+CREATE TABLE IF NOT EXISTS publish_once(poid INTEGER PRIMARY KEY AUTOINCREMENT,pubid INTEGER,start INTEGER,end INTEGER, name TEXT)
 
-    1 SiteInfo + register Action => register
-    2 New Site, with register result
+CREATE TABLE IF NOT EXISTS publish_site(pubid INTEGER,sid INTEGER)
 
+
+CREATE TABLE IF NOT EXISTS result(rid INTEGER PRIMARY KEY AUTOINCREMENT,dataid INTEGER,sid INTEGER,atype INTEGER,time INTEGER,content TEXT)
+
+// if publish: dataid = poid?
+// if register: dataid = NULL
+// if utility dataid = NULL
 
 发布内容
 publish  title, keywords, content, expire, frequency
@@ -59,10 +51,6 @@ pub_rel
 
 result
   type, time, id, aid, 
- 
-
-    
-
 
 user    1
 psw     2
@@ -93,10 +81,7 @@ address / coaddress 1114
 mobile  1116
 qq      1117
 
-
-
 注册码 9999() vc
-
 
 380 二手市场
 302 二手市场

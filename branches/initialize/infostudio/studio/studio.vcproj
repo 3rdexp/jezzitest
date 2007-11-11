@@ -767,6 +767,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pubpage.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pubpage.h"
 				>
 			</File>
