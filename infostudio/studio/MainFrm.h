@@ -10,6 +10,7 @@
 class ChildViewBase;
 class BaseData;
 class MutableData;
+class SiteTask;
 class EngineCrank;
 
 #define IDC_TAB     ATL_IDW_CLIENT
@@ -28,6 +29,18 @@ class EngineCrank;
 #define ID_TOOL_PUBLISH_STOP        ID_TOOL_FIRST + 24
 
 #define ID_TOOL_LAST                ID_TOOL_PUBLISH_STOP + 1
+
+
+
+// #ifndef FORWARD_RANGE
+#define FORWARD_COMMAND_RANGE(idFirst, idLast, toWnd) \
+    if(uMsg == WM_COMMAND && LOWORD(wParam) >= idFirst  && LOWORD(wParam) <= idLast) \
+    { \
+		bHandled = TRUE; \
+        lResult = ::SendMessage(toWnd, uMsg, wParam, lParam); \
+		if(bHandled) \
+			return TRUE; \
+	}
 
 
 class CTransTab : public CWindowImpl<CTransTab, CTabCtrl>
@@ -120,7 +133,18 @@ public:
         COMMAND_ID_HANDLER(ID_TOOL_REGISTER_SEL, OnRegisterSel)
         // COMMAND_ID_HANDLER(ID_TOOL_REGISTER_ALL, OnRegisterAll)
 
-        COMMAND_ID_HANDLER(ID_TOOL_PUBLISH_NEW, OnPublishNew)
+        // TODO: foward to subpage
+        // COMMAND_ID_HANDLER(ID_TOOL_PUBLISH_NEW, OnPublishNew)
+        FORWARD_COMMAND_RANGE(ID_TOOL_PUBLISH_NEW, ID_TOOL_PUBLISH_STOP, current_->GetHWND())
+#if 0
+        if(uMsg == WM_COMMAND && LOWORD(wParam) >= ID_TOOL_PUBLISH_NEW  && LOWORD(wParam) <= ID_TOOL_PUBLISH_STOP)
+        {
+		    bHandled = TRUE;
+            lResult = ::SendMessage(current_->GetHWND(), uMsg, wParam, lParam);
+		    if(bHandled)
+			    return TRUE;
+	    }
+#endif
 
         MESSAGE_HANDLER(WM_CREATE, OnCreate)
         MESSAGE_HANDLER(WM_KEYUP, OnKeyUp)

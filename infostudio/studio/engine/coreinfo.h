@@ -129,6 +129,13 @@ private:
     friend class SiteTask;
 };
 
+struct PublishOnce
+{
+    int poid, pubid;
+    time_t start,end;
+    std::wstring name;
+};
+
 struct Publish
 {
     std::wstring title, keywords, content;
@@ -136,14 +143,16 @@ struct Publish
 
     int pubid;
     std::vector<int> sites;
+    std::vector<PublishOnce> pubs;
 
     Publish() : pubid(0) {}
 };
 
+
 struct Result
 {
     int rid;
-    int did; // 附加数据，如Publish pubid
+    int dataid; // 附加数据，如 Publish pubid
 
     int sid;
     ActionType type;
