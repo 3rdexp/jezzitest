@@ -28,7 +28,7 @@ public:
     // Site & Action ...
     // 生成一个 Site，这样做不好！
     // TODO: int sid Add(const Site &);
-    Site* Add(const SiteInfo* si);
+    Site* Add(const Site* si);
     Site* Find(int sid) const;
 
     // 执行某个action后，保存结果

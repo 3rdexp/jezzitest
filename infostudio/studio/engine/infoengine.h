@@ -8,6 +8,59 @@
 #include "../data/mutabledata.h"
 #include "coreinfo.h"
 
+#if 0
+
+struct Worm
+{
+    virtual ~Worm() {}
+    virtual bool Start() {} 
+    virtual void OnResponse() {}
+};
+
+struct NormalRequestTask : public Task
+{
+    Action action;
+    Site & site;
+    virtual int ProcessStart() {
+        new AsyncHttp(this);
+        SendRequest
+        return STATE_BLOCKED;
+    }
+
+    virtual void OnResponse() {
+        if (http correct) {
+            done_ = true;
+            Wake();
+        }
+    }
+};
+
+
+struct VerifyWorm : public ActionWorm
+{
+    virtual bool Start() {
+        Show UI
+    } 
+    virtual void OnResponse() {
+        Notify Parent Task ?
+    }
+};
+
+
+
+
+
+
+
+
+#endif
+
+
+
+
+
+
+
 // ¿‡π§≥ß
 Action * CreateAction(const Action & a);
 

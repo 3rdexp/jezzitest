@@ -27,7 +27,21 @@ public:
         basecon_.close();
     }
 
-public:
+private:
+#if 0
+    Industry indroot_;
+
+    // Industry and Site
+    typedef std::vector<int> sid_coll;
+    typedef std::map<int, sid_coll> siterel_type; // industry.id => site collection
+    siterel_type siterel_;
+
+    // all Site
+    std::list<Site> allsite_;
+    std::map<int, Site*> sidmap_;
+#endif
+
+private:
     sqlite3x::sqlite3_connection basecon_;
     sqlite3x::sqlite3_connection mutablecon_;
 };

@@ -9,7 +9,7 @@
 
 #include "base/sigslot.h"
 #include "engine/coreinfo.h"
-
+#include "data/mutabledata.h"
 
 #include "resource.h"
 #include "mainfrm.h"

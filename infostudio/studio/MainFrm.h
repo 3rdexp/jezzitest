@@ -266,7 +266,7 @@ private:
     void InitViews();
 
     void InitCrank();
-    void Register(std::vector<SiteInfo*> &);
+    void Register(std::vector<Site*> &);
     void Register(Site &);
 
     //////////////////////////////////////////////////////////////////////////

@@ -401,7 +401,7 @@ LRESULT CMainFrame::OnRegisterAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
     ASSERT(bd_);
     CWaitCursor wc;
     {
-        std::vector<SiteInfo*> v = bd_->AllSite();
+        std::vector<Site*> v = bd_->AllSite();
         Register(v);
     }
     return 0;
@@ -414,7 +414,7 @@ LRESULT CMainFrame::OnRegisterSel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
     ATLASSERT(yp);
     CWaitCursor wc;
     {
-        std::vector<SiteInfo*> v;
+        std::vector<Site*> v;
         yp->GetSelectedSite(v);
         Register(v);
     }
@@ -452,12 +452,12 @@ void CMainFrame::Register(Site & site)
     }
 }
 
-void CMainFrame::Register(std::vector<SiteInfo*> & vec)
+void CMainFrame::Register(std::vector<Site*> & vec)
 {
     LOG(LS_VERBOSE) << "start register " << vec.size() << " sites";
-    for(std::vector<SiteInfo*>::const_iterator i = vec.begin(); i != vec.end(); ++i)
+    for(std::vector<Site*>::const_iterator i = vec.begin(); i != vec.end(); ++i)
     {
-        const SiteInfo * si = *i;
+        const Site * si = *i;
         Site *site = md_->Add(si);
         Register(*site);
     }

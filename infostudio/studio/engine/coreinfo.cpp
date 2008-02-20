@@ -2,17 +2,49 @@
 #include <sstream>
 #include "coreinfo.h"
 
-int UserInfo::account_count() const
+int UserInfo::ready() const
 {
-    if (ac_ == 0)
+    const wchar_t* inside_key[] = {
+        L"user", 
+        L"psw",
+        L"ques",
+        L"answer",
+
+        L"name",
+        L"web",
+        L"desc",
+        L"kw",
+
+        L"city",
+        // L"web",
+        L"contract", // ÁªÏµÈË
+        L"email",
+        L"area-code",
+        L"phone",
+        L"ext",
+        L"fax",
+        L"zip",
+        L"province",
+        L"city",
+        L"address",
+        L"title",
+        L"mobile",
+        L"qq"
+    };
+
+    for (int i=0; i<ARRAYSIZE(inside_key); ++i)
     {
-        do {
-            std::wostringstream oss;
-            oss << L"user" << ac_;
-            if (find(oss.str())  == end())
-                break;
-            ac_ ++;
-        } while (true);
+        if (find(inside_key[i]) == end())
+            return false;
     }
-    return ac_;
+
+    return true;
 }
+
+void UserInfo::account_index(int index)
+{
+    ASSERT(index < name_.size());
+    ASSERT(passwd_.size() == name_.size());
+    insert(name_[index], passwd_[index]);
+}
+
