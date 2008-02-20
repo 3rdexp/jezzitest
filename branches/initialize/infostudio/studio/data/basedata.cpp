@@ -175,20 +175,20 @@ void DumpIndustry(std::wostringstream &oss, const std::wstring & prefix, const I
 // 牵扯数据结构太多，不作为类成员函数参数太多
 bool BaseData::LoadSite(sqlite3_connection & con)
 {
-    // list<SiteInfo> map<sid, SiteInfo*>
+    // list<Site> map<sid, Site*>
     {
         sqlite3_command cmd(con, L"SELECT sid, name, homepage FROM site;");
         sqlite3_reader reader = cmd.executereader();
 
         while(reader.read()) {
-            SiteInfo site;
+            Site site;
             site.sid = reader.getint(0);
             site.name = reader.getstring16(1);
             site.homepage = reader.getstring16(2);
 
             allsite_.push_back(site);
-            SiteInfo & ref = allsite_.back();
-            sidmap_.insert(std::map<int, SiteInfo*>::value_type(site.sid, &ref));
+            Site & ref = allsite_.back();
+            sidmap_.insert(std::map<int, Site*>::value_type(site.sid, &ref));
         }
     }
 

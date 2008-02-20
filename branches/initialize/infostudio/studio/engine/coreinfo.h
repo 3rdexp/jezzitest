@@ -19,20 +19,21 @@ public:
     UserInfo() : ac_(0) {}
 
     bool ready() const;
-    int account_count() const;
+    int account_count() const { return name_.size(); }
+    void account_index(int index);
+    void add_account(const std::wstring & name, const std::wstring & passwd)
+    {
+        name_.push_back(name);
+        passwd_.push_back(passwd);
+    }
 
 private:
     UserInfo(const UserInfo&);
     UserInfo& operator=(const UserInfo&);
 
-    // 变通之法
-    // user1= psw1=
-    // user2= psw2=
-    mutable int ac_;    // account count
+    int ac_;    // account count
+    std::vector<std::wstring> name_, passwd_;
 };
-
-struct Action;
-struct SiteInfo;
 
 struct Action
 {
@@ -48,51 +49,29 @@ struct Action
     ActionType type;
 
     std::wstring url;
-    HttpVerb method;        // HV_GET / HV_POST
-    std::wstring content_type;   // always application/x-www-form-urlencoded
+    HttpVerb method;            // HV_GET / HV_POST
+    std::wstring content_type;  // always application/x-www-form-urlencoded
     SiteCharset charset;
-    std::wstring vars;           // key={val}
+    std::wstring vars;          // key={val}
     std::wstring referrer;
     std::wstring checked;
 
     ActionResponseType restype;
-    int timeout;        // in seconds
+    int timeout;                // in seconds
 
-    // 
-    std::wstring result; // HTTP status code
+    std::wstring result;        // HTTP status code
     time_t time;
 };
 
-struct SiteInfo
-{
-    SiteInfo() : sid(0) {}
-    virtual ~SiteInfo() {}
-    int sid;
-    std::wstring name, homepage;
-};
-
-//////////////////////////////////////////////////////////////////////////
-//
-
-class Site;
 class Task;
 
-class Site : public SiteInfo
+class Site
 {
 public:
-    Site() : task_(0) {}
-//     std::vector<Action*> Find(ActionType type) const
-//     {
-//         std::vector<Action*> ret;
-//         for (std::vector<Action>::const_iterator i = actions_.begin();
-//             i != actions_.end(); ++i)
-//         {
-//             const Action * p = &*i;
-//             if (i->type == type)
-//                 ret.push_back(const_cast<Action*>(p));
-//         }
-//         return ret;
-//     }
+    Site() : sid(0)
+        , task_(0)
+    {}
+
     void Add(Action* act)
     {
         actions_.push_back(act);
@@ -104,7 +83,6 @@ public:
     void SetDict(Dictionary & dict)
     {
         dict_ = dict;
-        // dict_.swap(dict);
     }
     void SetTask(Task* task)
     {
@@ -117,49 +95,107 @@ public:
     const Dictionary & dict() const { return dict_; }
 
 private:
+    int sid;
+    std::wstring name, homepage;
+
     std::vector<Action*> actions_;
     Dictionary dict_;
 
     std::wstring username_;
     std::wstring passwd_;
 
-    Task * task_;   // TODO: remove
+    Task * task_;
 
     friend class EngineCrank; // TODO: remove
     friend class SiteTask;
 };
 
-struct PublishOnce
+//////////////////////////////////////////////////////////////////////////
+// 发布的内容
+struct PublishContent
 {
-    int poid, pubid;
-    time_t start,end;
-    std::wstring name;
-};
+    PublishContent() : cid(0) {}
 
-struct Publish
-{
+    int cid;
     std::wstring title, keywords, content;
     int expire, frequency; // in seconds
+    
+    std::vector<int> sites;
+};
+
+// 一次发布中，对某个站点产生的结果
+struct PublishResult
+{
+    PublishResult() : rid(0), site(0) {}
+
+    int rid;
+    Site * site;
+    ActionType type;
+
+    time_t time;
+    std::wstring content; // remove ?
+    bool success;
+};
+
+// 执行一次发布
+struct Publish
+{
+    Publish(PublishContent * c) : content(c), pubid(0)
+        , start(0), end(0)
+    {}
 
     int pubid;
-    std::vector<int> sites;
-    std::vector<PublishOnce> pubs;
+    time_t start,end;
+    std::wstring name;
 
-    Publish() : pubid(0) {}
+    PublishContent * content;
+    std::vector<PublishResult> resutl;
 };
 
 
-struct Result
+struct ActionPunch
 {
-    int rid;
-    int dataid; // 附加数据，如 Publish pubid
-
-    int sid;
-    ActionType type;
+    virtual ~ActionPunch() {}
     
-    time_t time;
-    std::wstring content; // ? remove
-    bool success;
+    Site * site_;
+    Action* action_;
+    UserInfo * user_;
+    
+    virtual void Start(AsyncHttp *)
+    {
+        // QueryMap(action->vars)
+        // QueryMap::Expand(userinfo, site->dict, action->charset)
+        // PrepareGet/Post(action->url, form);
+    }
 
-    Result() : rid(0) {}
+    virtual bool OnResponse(AsyncHttp *)
+    {
+        // ---- Verify image ----
+        // write to file
+        // sigVerifCode ???
+        // return false
+
+        // ---- Register ----
+        // save register info
+
+        // ---- post ----
+        // Action + PublishContent => form
+        // new PublishResult
+        return false;
+    }
 };
+
+struct ActionUtility : public ActionPunch
+{
+};
+
+struct ActionRegister : public ActionPunch
+{
+    ActionRegister(Site * s) : ActionPunch(s) 
+    {}
+};
+
+// 
+// Site + Action + content(userinfo, PublishContent)
+// + Task
+// + Runner in Application Context

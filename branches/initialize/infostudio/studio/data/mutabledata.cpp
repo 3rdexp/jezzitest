@@ -140,11 +140,11 @@ bool UserInfo::ready() const
     return true;
 }
 
-Site* MutableData::Add(const SiteInfo* si)
+Site* MutableData::Add(const Site* si)
 {
     ASSERT(si);
     Site *p = new Site;
-    static_cast<SiteInfo&>(*p) = *si;
+    static_cast<Site&>(*p) = *si;
     sites_.insert(site_map::value_type(si->sid, p));
     return p;
 }

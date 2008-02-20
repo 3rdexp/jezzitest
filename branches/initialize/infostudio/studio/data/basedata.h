@@ -23,17 +23,17 @@ public:
         return indroot_;
     }
 
-    SiteInfo * GetSite(int sid)
+    Site * GetSite(int sid)
     {
-        std::map<int, SiteInfo*>::iterator i = sidmap_.find(sid);
+        std::map<int, Site*>::iterator i = sidmap_.find(sid);
         if (i != sidmap_.end())
             return i->second;
         return 0;
     }
 
-    std::vector<SiteInfo*> FindSite(int cid)
+    std::vector<Site*> FindSite(int cid)
     {
-        std::vector<SiteInfo*> ret;
+        std::vector<Site*> ret;
         siterel_type::iterator i = siterel_.find(cid);
         if (i != siterel_.end())
         {
@@ -41,7 +41,7 @@ public:
             for (sid_coll::iterator j = col.begin();
                 j != col.end(); ++j)
             {
-                SiteInfo* p = GetSite(*j);
+                Site* p = GetSite(*j);
                 ASSERT(p);
                 ret.push_back(p);
             }
@@ -50,11 +50,11 @@ public:
         return ret;
     }
 
-    std::vector<SiteInfo*> AllSite()
+    std::vector<Site*> AllSite()
     {
-        std::vector<SiteInfo*> ret;
+        std::vector<Site*> ret;
         
-        for (std::list<SiteInfo>::iterator i = allsite_.begin();
+        for (std::list<Site>::iterator i = allsite_.begin();
             i != allsite_.end(); ++i)
             ret.push_back(&*i);
 
@@ -70,14 +70,14 @@ private:
 private:
     Industry indroot_;
 
-    // Industry and SiteInfo
+    // Industry and Site
     typedef std::vector<int> sid_coll;
     typedef std::map<int, sid_coll> siterel_type; // industry.id => site collection
     siterel_type siterel_;
 
-    // all SiteInfo
-    std::list<SiteInfo> allsite_;
-    std::map<int, SiteInfo*> sidmap_;
+    // all Site
+    std::list<Site> allsite_;
+    std::map<int, Site*> sidmap_;
 
     sqlite3x::sqlite3_connection & con_;
 };
