@@ -2,8 +2,6 @@
 #include <windows.h>
 #include "base.h"
 
-BEGIN_ENGINE_NAMESPACE
-
 
 uint32 Time() {
     return GetTickCount();
@@ -42,7 +40,5 @@ int32 TimeDiff(uint32 later, uint32 earlier) {
 }
 
 
-
-END_ENGINE_NAMESPACE
 
 

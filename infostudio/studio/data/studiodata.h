@@ -2,48 +2,50 @@
 #define __STUDIO_DATA_H__
 
 #include <string>
+#include <set>
+
 #include "data/sqlite/sqlite3x.hpp"
 
-class StudioData
-{
-public:
-    bool Open(const std::wstring & basefn, const std::wstring & mutablefn)
-    {
-        try {
-            basecon_.open(basefn.c_str());
-            mutablecon_.open(mutablefn.c_str());
-        } catch(sqlite3x::database_error &) {
-            return false;
-        }
-        return true;
-    }
-    void CloseAll()
-    {
-        basecon_.close();
-        mutablecon_.close();
-    }
-    void CloseBase()
-    {
-        basecon_.close();
-    }
+#include "engine/industry.h"
+#include "engine/coreinfo.h"
 
+class StudioData {
+public:
+    ~StudioData() { Close(); }
+    bool Open(const std::wstring & filename);
+    void Close();
+
+    sqlite3x::sqlite3_connection & GetConnection();
+
+    Industry & GetIndustry();
+    Site * GetSite(int sid);
+
+    // action/site
+    
 private:
-#if 0
+    struct orderby_sid : public std::binary_function<Site, Site, bool>
+    {
+        bool operator()(const Site & _Left, const Site & _Right) const
+        {	// apply operator< to operands
+            return (_Left.sid < _Right.sid);
+        }
+    };
+
+
+    // 在内存中保存的项： site, industry
+    std::set<Site, orderby_sid> allsite_;
     Industry indroot_;
 
-    // Industry and Site
-    typedef std::vector<int> sid_coll;
-    typedef std::map<int, sid_coll> siterel_type; // industry.id => site collection
-    siterel_type siterel_;
+public:
+    UserInfo & GetUserInfo() { return userinfo_; }
+    bool UserInfoReady() const { return userinfo_.ready(); }
 
-    // all Site
-    std::list<Site> allsite_;
-    std::map<int, Site*> sidmap_;
-#endif
+    bool SaveUserInfo();
 
 private:
-    sqlite3x::sqlite3_connection basecon_;
-    sqlite3x::sqlite3_connection mutablecon_;
+    UserInfo userinfo_;
+
+    sqlite3x::sqlite3_connection con_;
 };
 
 #endif // __STUDIO_DATA_H__

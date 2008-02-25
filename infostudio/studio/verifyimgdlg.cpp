@@ -27,7 +27,7 @@ LRESULT VerifyImgDlg::OnInput(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
     CString str;
     wnd.GetWindowText(str);
     vi.code = (LPCWSTR)str;
-    vi.task->EnterVerifyCode(vi.code);
+    // vi.task->EnterVerifyCode(vi.code);
     return 0;
 }
 

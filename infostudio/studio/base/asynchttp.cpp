@@ -10,7 +10,7 @@
 #include "asynchttp.h"
 #pragma comment(lib, "wininet.lib")
 
-namespace xnbase {
+// namespace xnbase {
 
 std::string GetStatusText(DWORD dwStatus)
 {
@@ -53,7 +53,7 @@ static void CALLBACK InternetStatusCallback(HINTERNET hInternet, DWORD_PTR dwCon
 {
     AsyncHttp * p = (AsyncHttp*)dwContext;
 
-    XLOG(LS_VERBOSE) << "Callback:" << hInternet
+    LOG(LS_VERBOSE) << "Callback:" << hInternet
         << " AsyncHttp:" << (void*)p 
         << " status:" << GetStatusText(dwInternetStatus);
     Assert(p);
@@ -255,7 +255,7 @@ bool AsyncHttp::PrepareGet(const std::string & url, const std::string & referrer
 
 #ifndef NDEBUG
     url_ = url;
-    XLOG(LS_INFO) << "OpenRequest:" << hRequest_ << " " << url_;
+    LOG(LS_INFO) << "OpenRequest:" << hRequest_ << " " << url_;
 #endif
 
     content_length_ = 0;
@@ -335,7 +335,7 @@ bool AsyncHttp::SendRequest()
         Assert(ret);
     }
 
-    XLOG(LS_INFO) << "SendRequest: " << hRequest_ << " " << (void*)this;
+    LOG(LS_INFO) << "SendRequest: " << hRequest_ << " " << (void*)this;
 
 	char * buffer = (buf_.size() <= 0) ? NULL : &buf_[0];
     ret = HttpSendRequest(hRequest_, NULL, 0, buffer, buf_.size());
@@ -352,13 +352,13 @@ void AsyncHttp::Close()
 
     if (hRequest_)
     {
-        XLOG(LS_VERBOSE) << "call Close: " << hRequest_;
+        LOG(LS_VERBOSE) << "call Close: " << hRequest_;
         InternetCloseHandle(hRequest_);
     }
 
     if (hConn_)
     {
-        XLOG(LS_VERBOSE) << "call Close: " << hConn_;
+        LOG(LS_VERBOSE) << "call Close: " << hConn_;
         InternetCloseHandle(hConn_);
     }
 
@@ -376,12 +376,12 @@ HINTERNET AsyncHttp::CachedConnection(LPCSTR szHost)
 
 void AsyncHttp::HandleCreated(HINTERNET hInet)
 {
-    XLOG(LS_VERBOSE) << "HandleCreated: " << hInet;
+    LOG(LS_VERBOSE) << "HandleCreated: " << hInet;
 }
 
 bool AsyncHttp::NameResolved(LPCSTR pszIpAddress)
 {
-    XLOG(LS_VERBOSE) << "NameResolved: " << pszIpAddress;
+    LOG(LS_VERBOSE) << "NameResolved: " << pszIpAddress;
     // ip_ = inet_addr(pszIpAddress);
     // Assert(ip_ != INADDR_NONE)
     ip_ = pszIpAddress;
@@ -390,7 +390,7 @@ bool AsyncHttp::NameResolved(LPCSTR pszIpAddress)
 
 bool AsyncHttp::HandleClosing(HINTERNET h)
 {
-    XLOG(LS_SENSITIVE) << "HandleClosing cn:" << hConn_ 
+    LOG(LS_SENSITIVE) << "HandleClosing cn:" << hConn_ 
         << " req:" << hRequest_;
     if (hConn_ == h)
         hConn_ = 0;
@@ -417,7 +417,7 @@ bool AsyncHttp::HandleClosing(HINTERNET h)
 
 bool AsyncHttp::Redirect(LPCSTR szUrl, DWORD dwUrlLength)
 {
-    XLOG(LS_VERBOSE) << "Redirect: " << szUrl;
+    LOG(LS_VERBOSE) << "Redirect: " << szUrl;
 
     redirect_url_.assign(szUrl, dwUrlLength);
     redirect_ = true;
@@ -426,7 +426,7 @@ bool AsyncHttp::Redirect(LPCSTR szUrl, DWORD dwUrlLength)
 
 bool AsyncHttp::ResponseReceived(DWORD dwBytes)
 {
-    XLOG(LS_VERBOSE) << "ResponseReceived: " << dwBytes;
+    LOG(LS_VERBOSE) << "ResponseReceived: " << dwBytes;
     return true;
 }
 //////////////////////////////////////////////////////////////////////////
@@ -435,7 +435,7 @@ bool AsyncHttp::ResponseReceived(DWORD dwBytes)
 bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
 {
 #if 1
-    XLOG(LS_VERBOSE) << "RequestComplete: " << dwResult 
+    LOG(LS_VERBOSE) << "RequestComplete: " << dwResult 
         << " Error: " << dwError
        ;
 #endif
@@ -450,7 +450,7 @@ bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
         if (bRet)
             status_ = dwCode;
 
-        XLOG(LS_VERBOSE) << "RequestComplete, status code:" << status_;
+        LOG(LS_VERBOSE) << "RequestComplete, status code:" << status_;
     }
 
     // 可能需?Redirect �后的数据否？
@@ -483,7 +483,7 @@ bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
         ib.dwBufferLength = grow;
         ib.dwBufferTotal = buf_.size();
 
-        XLOG(LS_VERBOSE) << "call InternetReadFileExA once";
+        LOG(LS_VERBOSE) << "call InternetReadFileExA once";
         // (LPARAM)this => (LPARAM)0 �也解决不了问?
         BOOL bOk = InternetReadFileExA(hRequest_, &ib, IRF_NO_WAIT, (LPARAM)0);
         if (bOk)
@@ -529,7 +529,7 @@ bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
     
 #endif
 
-    XLOG(LS_VERBOSE) << "RequestComplete readed: " << buf_.size();
+    LOG(LS_VERBOSE) << "RequestComplete readed: " << buf_.size();
 
     // �通知前必须关闭文件！
     if (out.is_open())
@@ -543,7 +543,7 @@ bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
 
 bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
 {
-	XLOG(LS_VERBOSE) << "RequestComplete: " << dwResult 
+	LOG(LS_VERBOSE) << "RequestComplete: " << dwResult 
 		<< " Error: " << dwError;
 
 	Assert(hRequest_);
@@ -590,7 +590,7 @@ bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
 
             loop = InternetReadFileExA(hRequest_, &ib, IRF_NO_WAIT, (LPARAM)this);
 
-            XLOG(LS_VERBOSE) << "Read once " << hRequest_ << " return:" << loop
+            LOG(LS_VERBOSE) << "Read once " << hRequest_ << " return:" << loop
                 << " readed:" << ib.dwBufferLength;
 
             if (loop)
@@ -611,7 +611,7 @@ bool AsyncHttp::RequestComplete(DWORD dwResult, DWORD dwError)
     if (finished)
     {
 #ifndef NDEBUG
-        XLOG(LS_INFO) << "OnResponse:" << hRequest_
+        LOG(LS_INFO) << "OnResponse:" << hRequest_
             << " status:" << status_
             << " readed:" << readed_;
 #endif
@@ -695,7 +695,7 @@ void AsyncHttp::setContent(const std::string& content_type, std::istream * docum
 
 AutoHttp::~AutoHttp()
 {
-    XLOG(LS_VERBOSE) << "~AutoHttp:" << (void *)this;
+    LOG(LS_VERBOSE) << "~AutoHttp:" << (void *)this;
 }
 
-}
+// }

@@ -4,7 +4,6 @@
 
 #include "httpcomm.h"
 
-BEGIN_ENGINE_NAMESPACE
 
 //////////////////////////////////////////////////////////////////////
 // Enum - TODO: expose globally later?
@@ -263,4 +262,3 @@ bool RequestMap::parse(const std::string & s)
     return true;
 }
 
-END_ENGINE_NAMESPACE

@@ -8,7 +8,6 @@
 #include <string>
 #include "base.h"
 
-BEGIN_ENGINE_NAMESPACE
 
 inline std::string string2utf8(const std::string & text)
 {
@@ -132,7 +131,6 @@ inline std::wstring string2w(const std::string & text)
     return ret;
 }
 
-END_ENGINE_NAMESPACE
 
 #endif // __UNICODE_H__
 

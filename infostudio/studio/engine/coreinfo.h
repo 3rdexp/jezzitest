@@ -8,12 +8,15 @@
 #include "coreconst.h"
 #include "querymap.h"
 
-struct UserInfo : public VariableMap
+// 如何表示多组 user/passwd 呢？是个难题
+// TODO: maybe multimap
+struct UserInfo : public std::multimap<std::wstring, std::wstring>
 {
+    typedef std::multimap<std::wstring, std::wstring> base_t;
 public:
     void insert(const std::wstring & key, const std::wstring & value)
     {
-        VariableMap::insert(value_type(key, value));
+        base_t::insert(value_type(key, value));
     }
 
     UserInfo() : ac_(0) {}
@@ -26,6 +29,8 @@ public:
         name_.push_back(name);
         passwd_.push_back(passwd);
     }
+
+    std::wstring & operator[](const std::wstring & key);
 
 private:
     UserInfo(const UserInfo&);
@@ -63,58 +68,46 @@ struct Action
     time_t time;
 };
 
-class Task;
-
 class Site
 {
 public:
-    Site() : sid(0)
-        , task_(0)
-    {}
+    Site(int sid = 0) : sid(sid) {}
 
-    void Add(Action* act)
+    void AddAction(Action * beg, Action * end)
     {
-        actions_.push_back(act);
+        // std::copy(beg, end, std::back_inserter(actions_));
+        while (beg != end)
+            actions_.push_back(*(beg++));
     }
-    void Add(const std::vector<Action*> & acts)
+    void ClearAction()
     {
-        std::copy(acts.begin(), acts.end(), std::back_inserter(actions_));
+        actions_.clear();
     }
-    void SetDict(Dictionary & dict)
+
+    void SetDict(const Dictionary & dict)
     {
         dict_ = dict;
     }
-    void SetTask(Task* task)
-    {
-        ASSERT(!task_ && task);
-        task_ = task;
-    }
-    std::vector<Action*> & actions() { return actions_; }
-
-    bool action_empty() const { return actions_.empty(); }
+    
+    std::vector<Action> & actions() { return actions_; }
     const Dictionary & dict() const { return dict_; }
 
-private:
+
     int sid;
     std::wstring name, homepage;
 
-    std::vector<Action*> actions_;
+    std::vector<Action> actions_;
     Dictionary dict_;
 
     std::wstring username_;
     std::wstring passwd_;
-
-    Task * task_;
-
-    friend class EngineCrank; // TODO: remove
-    friend class SiteTask;
 };
 
 //////////////////////////////////////////////////////////////////////////
 // 发布的内容
 struct PublishContent
 {
-    PublishContent() : cid(0) {}
+    PublishContent(int cid = 0) : cid(cid) {}
 
     int cid;
     std::wstring title, keywords, content;
@@ -126,10 +119,11 @@ struct PublishContent
 // 一次发布中，对某个站点产生的结果
 struct PublishResult
 {
-    PublishResult() : rid(0), site(0) {}
+    PublishResult(int rid = 0, Site * site = 0) : rid(rid), site(site) {}
 
     int rid;
     Site * site;
+
     ActionType type;
 
     time_t time;
@@ -140,7 +134,7 @@ struct PublishResult
 // 执行一次发布
 struct Publish
 {
-    Publish(PublishContent * c) : content(c), pubid(0)
+    Publish(PublishContent * c = 0) : content(c), pubid(0)
         , start(0), end(0)
     {}
 
@@ -153,49 +147,3 @@ struct Publish
 };
 
 
-struct ActionPunch
-{
-    virtual ~ActionPunch() {}
-    
-    Site * site_;
-    Action* action_;
-    UserInfo * user_;
-    
-    virtual void Start(AsyncHttp *)
-    {
-        // QueryMap(action->vars)
-        // QueryMap::Expand(userinfo, site->dict, action->charset)
-        // PrepareGet/Post(action->url, form);
-    }
-
-    virtual bool OnResponse(AsyncHttp *)
-    {
-        // ---- Verify image ----
-        // write to file
-        // sigVerifCode ???
-        // return false
-
-        // ---- Register ----
-        // save register info
-
-        // ---- post ----
-        // Action + PublishContent => form
-        // new PublishResult
-        return false;
-    }
-};
-
-struct ActionUtility : public ActionPunch
-{
-};
-
-struct ActionRegister : public ActionPunch
-{
-    ActionRegister(Site * s) : ActionPunch(s) 
-    {}
-};
-
-// 
-// Site + Action + content(userinfo, PublishContent)
-// + Task
-// + Runner in Application Context

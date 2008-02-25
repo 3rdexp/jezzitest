@@ -61,16 +61,16 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     // 1 Data
     StudioData cons;
-    bool f = cons.Open(L"data\\tools\\base.db", L"user.db");
+    bool f = cons.Open(L"studio.db");
     ASSERT(f);
 
-    BaseData bd(cons.basecon_);
-    f = bd.Init(cons.basecon_);
-    ASSERT(f);
-
-    MutableData md(cons.mutablecon_);
-    f = md.Init(cons.mutablecon_);
-    ASSERT(f);
+//     BaseData bd(cons.basecon_);
+//     f = bd.Init(cons.basecon_);
+//     ASSERT(f);
+// 
+//     MutableData md(cons.mutablecon_);
+//     f = md.Init(cons.mutablecon_);
+//     ASSERT(f);
 
     // 2 Engine
     CMessageLoop theLoop;
@@ -80,12 +80,12 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     HWND h = wr.Create(0);
     ATLASSERT(h);
 
-    EngineCrank crank(md, &wr);
+    EngineCrank crank;
     // crank.Run(&wr);
 
     // 3 UI
 	CMainFrame wndMain(crank);
-    wndMain.InitData(&bd, &md);
+    // wndMain.InitData(&bd, &md);
 	if(wndMain.CreateEx() == NULL)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));

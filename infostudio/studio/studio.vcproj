@@ -447,19 +447,7 @@
 			Name="data"
 			>
 			<File
-				RelativePath=".\data\basedata.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\data\basedata.h"
-				>
-			</File>
-			<File
-				RelativePath=".\data\mutabledata.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\data\mutabledata.h"
+				RelativePath=".\data\studiodata.cpp"
 				>
 			</File>
 			<File

@@ -5,7 +5,6 @@
 #include "base.h"
 #include "task.h"
 
-BEGIN_ENGINE_NAMESPACE
 
 int32 Task::unique_id_seed_ = 0;
 
@@ -410,4 +409,3 @@ void TaskRunner::RecalcNextTimeout(Task *exclude_task) {
     }
 }
 
-END_ENGINE_NAMESPACE
