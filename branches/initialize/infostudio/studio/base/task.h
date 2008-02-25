@@ -9,7 +9,6 @@
 #include "sigslot.h"
 #include "base.h"
 
-BEGIN_ENGINE_NAMESPACE
 
 class Task;
 class TaskRunner;
@@ -150,6 +149,5 @@ private:
     void RecalcNextTimeout(Task *exclude_task);
 };
 
-END_ENGINE_NAMESPACE
 
 #endif // __TASK_H__

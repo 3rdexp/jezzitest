@@ -2,7 +2,7 @@
 #include <sstream>
 #include "coreinfo.h"
 
-int UserInfo::ready() const
+bool UserInfo::ready() const
 {
     const wchar_t* inside_key[] = {
         L"user", 

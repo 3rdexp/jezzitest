@@ -13,8 +13,20 @@
 #include "infoengine.h"
 
 
+
 //////////////////////////////////////////////////////////////////////////
 // 
+
+#if 1
+
+int NormalRequestTask::ProcessStart() {
+    // new AsyncHttp(this);
+    // SendRequest
+    return STATE_BLOCKED;
+}
+
+
+#else
 
 struct UtilityAction : public Action
 {
@@ -310,3 +322,4 @@ void EngineCrank::OnSiteRegister(Site & site, bool success)
 //    task->site_.username_ = u[L"user"];
 //    task->site_.passwd_ = u[L"psw"];
 }
+#endif

@@ -4,56 +4,66 @@
 #include <set>
 #include <iterator>
 
-#include "../base/asynctask.h"
-#include "../data/mutabledata.h"
+#include "base/task.h"
+#include "data/mutabledata.h"
 #include "coreinfo.h"
 
-#if 0
+#if 1
 
-struct Worm
-{
-    virtual ~Worm() {}
-    virtual bool Start() {} 
-    virtual void OnResponse() {}
+class EnginePump: public TaskRunner {
+public:
+     virtual void WakeTasks();
+     virtual int64 CurrentTime();
 };
 
-struct NormalRequestTask : public Task
-{
+class NormalRequestTask : public Task {
+public:  
+    NormalRequestTask(Task * parent, Site & site) : 
+      Task(parent)
+      , done_(false) 
+      , site_(site)
+      {}
+    virtual int ProcessStart();
+
+    virtual void OnResponse(int status_code, const char * buf, int len) {
+        done_ = true;
+        Wake();
+    }
+private:
     Action action;
-    Site & site;
+    Site & site_;
+    bool done_;
+};
+
+class VerifyTask : public Task {
+public:
+    VerifyTask(Task * parent) 
+        : Task(parent) 
+        , done_(false)
+      {}
     virtual int ProcessStart() {
-        new AsyncHttp(this);
-        SendRequest
+        // Show UI(this);
         return STATE_BLOCKED;
     }
 
-    virtual void OnResponse() {
-        if (http correct) {
-            done_ = true;
-            Wake();
-        }
+    void EnterVerifyCode(const std::string & code) {
+        done_ = true;
+        Wake();
     }
+private:
+    bool done_;
 };
 
 
-struct VerifyWorm : public ActionWorm
-{
-    virtual bool Start() {
-        Show UI
-    } 
-    virtual void OnResponse() {
-        Notify Parent Task ?
-    }
+class EngineCrank {
+public:
 };
 
 
 
 
 
-
-
-
-#endif
+#else
 
 
 
@@ -292,3 +302,5 @@ private:
     std::set<Site*> sites_;
     TaskRunner * runner_;
 };
+
+#endif

@@ -441,9 +441,9 @@ void CMainFrame::Register(Site & site)
     {
         for(std::vector<Action>::const_iterator i=va.begin(); 
             i != va.end(); ++i)
-            site.Add(CreateAction(*i));
+            ; // site.AddAction(CreateAction(*i));
         LOG(LS_VERBOSE) << "add to crank, site:" << site.sid << " action size:" << va.size();
-        crank_.Add(site);
+        // crank_.Add(site);
         LOG(LS_VERBOSE) << "add to crank, site:" << site.sid << " return.";
     }
     else
@@ -458,24 +458,24 @@ void CMainFrame::Register(std::vector<Site*> & vec)
     for(std::vector<Site*>::const_iterator i = vec.begin(); i != vec.end(); ++i)
     {
         const Site * si = *i;
-        Site *site = md_->Add(si);
-        Register(*site);
+        // Site *site = md_->Add(si);
+        // Register(*site);
     }
 }
 
 void CMainFrame::InitCrank()
 {
-    ASSERT(md_);
-    crank_.SigStateChange.connect(this, &CMainFrame::StateChange);
-    crank_.SigVerifyCode.connect(this, &CMainFrame::VerifyCode);
+    // ASSERT(md_);
+    // crank_.SigStateChange.connect(this, &CMainFrame::StateChange);
+    // crank_.SigVerifyCode.connect(this, &CMainFrame::VerifyCode);
 }
 
 void CMainFrame::StateChange(SiteTask * task, int state)
 {
-    LOG(LS_VERBOSE) << "site:" << task->GetSite().sid << " state:" << state;
+    // LOG(LS_VERBOSE) << "site:" << task->GetSite().sid << " state:" << state;
 }
 
 void CMainFrame::VerifyCode(SiteTask* task, const std::wstring & imgfn)
 {
-    LOG(LS_VERBOSE) << "site:" << task->GetSite().sid << " want VerifyCode file:" << w2string(imgfn);
+    // LOG(LS_VERBOSE) << "site:" << task->GetSite().sid << " want VerifyCode file:" << w2string(imgfn);
 }

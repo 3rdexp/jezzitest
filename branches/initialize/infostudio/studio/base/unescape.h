@@ -5,7 +5,6 @@
 #include "base.h"
 #undef max
 
-BEGIN_ENGINE_NAMESPACE
 
 // Escapes characters not in [0-9a-zA-Z.,_:*/~!()-] as %-prefixed hex.
 // Space is encoded as a +.
@@ -83,5 +82,4 @@ inline std::string UrlQueryUnEscape::operator()(const std::string& in) const
     return ret;
 }
 
-END_ENGINE_NAMESPACE
 

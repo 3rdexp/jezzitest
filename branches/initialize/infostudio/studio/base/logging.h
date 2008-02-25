@@ -6,7 +6,6 @@
 
 #include <sstream>
 
-BEGIN_ENGINE_NAMESPACE
 
 // Note that the non-standard LoggingSeverity aliases exist because they are
 // still in broad use.  The meanings of the levels are:
@@ -104,7 +103,6 @@ private:
     static bool is_diagnostic_mode_;
 };
 
-END_ENGINE_NAMESPACE
 
 //////////////////////////////////////////////////////////////////////
 // Macros which automatically disable logging when LOGGING == 0
@@ -123,14 +121,14 @@ END_ENGINE_NAMESPACE
 #if LOGGING
 
 #define LOG(sev) \
-    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
-        ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev).stream()
+    if (LogMessage::Loggable(sev)) \
+        LogMessage(__FILE__, __LINE__, sev).stream()
 
 // The _V version is for when a variable is passed in.  It doesn't do the
 // namespace concatination.
 #define LOG_V(sev) \
-    if (ENGINE_::LogMessage::Loggable(sev)) \
-        ENGINE_::LogMessage(__FILE__, __LINE__, sev).stream()
+    if (LogMessage::Loggable(sev)) \
+        LogMessage(__FILE__, __LINE__, sev).stream()
 
 // The _F version prefixes the message with the current function name.
 #define LOG_F(sev) LOG(sev) << __FUNCTION__ << ": "
@@ -139,9 +137,9 @@ END_ENGINE_NAMESPACE
 // sensitive operations whose sole purpose is to output logging data at the
 // desired level.
 #define LOG_CHECK_LEVEL(sev) \
-    ENGINE_::LogCheckLevel(ENGINE_::sev)
+    LogCheckLevel(sev)
 #define LOG_CHECK_LEVEL_V(sev) \
-    ENGINE_::LogCheckLevel(sev)
+    LogCheckLevel(sev)
 inline bool LogCheckLevel(LoggingSeverity sev) {
     return (LogMessage::GetMinLogSeverity() <= sev);
 }
@@ -150,26 +148,26 @@ inline bool LogCheckLevel(LoggingSeverity sev) {
 // error.  LOG_ERR reads errno directly, so care must be taken to call it before
 // errno is reset.
 #define PLOG(sev, err) \
-    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
-    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
-    ENGINE_::ERRCTX_ERRNO, err).stream()
+    if (LogMessage::Loggable(sev)) \
+    LogMessage(__FILE__, __LINE__, sev, \
+    ERRCTX_ERRNO, err).stream()
 #define LOG_ERR(sev) \
-    if (ENGINE_::LogMessage::Loggable(sev)) \
-    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
-    ENGINE_::ERRCTX_ERRNO, errno).stream()
+    if (LogMessage::Loggable(sev)) \
+    LogMessage(__FILE__, __LINE__, sev, \
+    ERRCTX_ERRNO, errno).stream()
 
 // LOG_GLE(M) attempt to provide a string description of the HRESULT returned
 // by GetLastError.  The second variant allows searching of a dll's string
 // table for the error description.
 #ifdef WIN32
 #define LOG_GLE(sev) \
-    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
-    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
-    ENGINE_::ERRCTX_HRESULT, GetLastError()).stream()
+    if (LogMessage::Loggable(sev)) \
+    LogMessage(__FILE__, __LINE__, sev, \
+    ERRCTX_HRESULT, GetLastError()).stream()
 #define LOG_GLEM(sev, mod) \
-    if (ENGINE_::LogMessage::Loggable(ENGINE_::sev)) \
-    ENGINE_::LogMessage(__FILE__, __LINE__, ENGINE_::sev, \
-    ENGINE_::ERRCTX_HRESULT, GetLastError(), mod) \
+    if (LogMessage::Loggable(sev)) \
+    LogMessage(__FILE__, __LINE__, sev, \
+    ERRCTX_HRESULT, GetLastError(), mod) \
     .stream()
 #endif  // WIN32
 
@@ -181,27 +179,27 @@ inline bool LogCheckLevel(LoggingSeverity sev) {
 // Note: syntax of "1 ? (void)0 : LogMessage" was causing errors in g++,
 //   converted to "while (false)"
 #define LOG(sev) \
-    while (false)ENGINE_:: LogMessage(NULL, 0, ENGINE_::sev).stream()
+    while (false) LogMessage(NULL, 0, sev).stream()
 #define LOG_V(sev) \
-    while (false) ENGINE_::LogMessage(NULL, 0, sev).stream()
+    while (false) LogMessage(NULL, 0, sev).stream()
 #define LOG_F(sev) LOG(sev) << __FUNCTION__ << ": "
 #define LOG_CHECK_LEVEL(sev) \
     false
 #define LOG_CHECK_LEVEL_V(sev) \
     false
 #define PLOG(sev, err) \
-    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-        ENGINE_::ERRCTX_ERRNO, 0).stream()
+    while (false) LogMessage(NULL, 0, sev, \
+        ERRCTX_ERRNO, 0).stream()
 #define LOG_ERR(sev) \
-    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-        ENGINE_::ERRCTX_ERRNO, 0).stream()
+    while (false) LogMessage(NULL, 0, sev, \
+        ERRCTX_ERRNO, 0).stream()
 #ifdef WIN32
 #define LOG_GLE(sev) \
-    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-        ENGINE_::ERRCTX_HRESULT, 0).stream()
+    while (false) LogMessage(NULL, 0, sev, \
+        ERRCTX_HRESULT, 0).stream()
 #define LOG_GLEM(sev, mod) \
-    while (false) ENGINE_::LogMessage(NULL, 0, ENGINE_::sev, \
-        ENGINE_::ERRCTX_HRESULT, 0).stream()
+    while (false) LogMessage(NULL, 0, sev, \
+        ERRCTX_HRESULT, 0).stream()
 #endif  // WIN32
 
 #endif  // !LOGGING

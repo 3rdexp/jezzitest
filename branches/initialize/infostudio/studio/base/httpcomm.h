@@ -4,7 +4,6 @@
 #include <map>
 #include "base.h"
 
-BEGIN_ENGINE_NAMESPACE
 
 //////////////////////////////////////////////////////////////////////
 // Constants
@@ -137,5 +136,4 @@ public:
     std::string build(CHARSET ch = CHARSET_ANSI) const;
 };
 
-END_ENGINE_NAMESPACE
 

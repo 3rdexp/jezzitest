@@ -1,5 +1,6 @@
 #pragma once
 
+#include <windows.h>
 #include <wininet.h>
 
 // 可能占用内存多了一些，不要保存之, sizeof = 4736

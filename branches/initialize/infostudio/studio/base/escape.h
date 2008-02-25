@@ -3,7 +3,6 @@
 
 #include "base.h"
 
-BEGIN_ENGINE_NAMESPACE
 
   // --- ESCAPE FUNCTORS
   // Some commonly-used escape functors.
@@ -28,10 +27,6 @@ BEGIN_ENGINE_NAMESPACE
   // Escapes " \ / <FF> <CR> <LF> <BS> <TAB> to \" \\ \/ \f \r \n \b \t
   struct JsonEscape { std::string operator()(const std::string&) const; };
   
-END_ENGINE_NAMESPACE
-
-
-BEGIN_ENGINE_NAMESPACE
 
 // ----------------------------------------------------------------------
 // HtmlEscape
@@ -176,5 +171,4 @@ inline std::string JsonEscape::operator()(const std::string& in) const {
   return out;
 }
 
-END_ENGINE_NAMESPACE
 

@@ -22,6 +22,8 @@ class PublishInfoDialog : public CDialogImpl<PublishInfoDialog<theID> >
 public:
     enum { IDD = theID};
 
+    PublishInfoDialog() {}
+
     BOOL PreTranslateMessage(MSG* pMsg)
     {
         return CWindow::IsDialogMessage(pMsg);
@@ -56,9 +58,9 @@ public:
 
     LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
     {
-        pub_.content = GetText(GetDlgItem(IDC_CONTENT));
-        pub_.title = GetText(GetDlgItem(IDC_TITLE));
-        pub_.keywords = GetText(GetDlgItem(IDC_KEYWORDS));
+//         pub_.content = GetText(GetDlgItem(IDC_CONTENT));
+//         pub_.title = GetText(GetDlgItem(IDC_TITLE));
+//         pub_.keywords = GetText(GetDlgItem(IDC_KEYWORDS));
         // pub_.title = GetText(GetDlgItem(IDC_TITLE));
 
         EndDialog(wID);
@@ -67,7 +69,7 @@ public:
 
     void Set()
     {
-        GetDlgItem(IDC_CONTENT).SetWindowText(pub_.content.c_str());
+        // GetDlgItem(IDC_CONTENT).SetWindowText(pub_.content.c_str());
     }
 
     Publish pub_;
