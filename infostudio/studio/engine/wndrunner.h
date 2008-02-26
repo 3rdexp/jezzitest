@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "../base/task.h"
-#include "../base/logging.h"
+#include "base/task.h"
+#include "base/logging.h"
 
 #define WM_WAKETASK         WM_USER
 
@@ -13,7 +13,7 @@ class WindowRunner : public TaskRunner
 public:
     virtual void WakeTasks()
     {
-        LOG(LS_INFO) << "WakeTasks";
+        // LOG(LS_INFO) << "WakeTasks";
         PostMessage(WM_WAKETASK);
     }
 

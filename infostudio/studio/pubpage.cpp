@@ -9,7 +9,7 @@
 
 #include "base/sigslot.h"
 #include "engine/coreinfo.h"
-#include "data/mutabledata.h"
+#include "data/studiodata.h"
 
 #include "resource.h"
 #include "mainfrm.h"
@@ -74,12 +74,12 @@ LRESULT SubPublishPage::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     // list contains all sites execute
     // 
 
-    std::vector<Publish> & pubs = md_->GetPublish();
-    for (std::vector<Publish>::const_iterator i=pubs.begin();
-        i!=pubs.end(); ++i)
-    {
-        //
-    }
+//     std::vector<Publish> & pubs = data_->GetPublish();
+//     for (std::vector<Publish>::const_iterator i=pubs.begin();
+//         i!=pubs.end(); ++i)
+//     {
+//         //
+//     }
 
     return 0;
 }

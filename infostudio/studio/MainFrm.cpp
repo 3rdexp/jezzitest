@@ -13,8 +13,7 @@
 
 #include "base/logging.h"
 
-#include "data/basedata.h"
-#include "data/mutabledata.h"
+#include "data/studiodata.h"
 #include "engine/infoengine.h"
 
 #include "resource.h"
@@ -183,7 +182,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
 
     if (type == CV_USERINFO)
     {
-        // SubUserInfo * pv = new SubUserInfo(md_);
+        // SubUserInfo * pv = new SubUserInfo(data_);
         ChildViewT<CPropertyListCtrl> * pv = new ChildViewT<CPropertyListCtrl>();
         HWND h = pv->Create(m_tab, rc, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0); // WS_EX_CLIENTEDGE);
@@ -192,9 +191,9 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
 
         pv->SetColumnWidth(100);
 
-        if (md_)
+        if (data_)
         {
-            UserInfo & u = md_->GetUserInfo();
+            UserInfo & u = data_->GetUserInfo();
             {
                 static string_pair arr[] = {
                     {L"user", L"µÇÂ¼ÓÃ»§Ãû"},
@@ -283,7 +282,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     }
     else if(CV_YELLOWPAGE == type)
     {
-        SubYellowPage * pv = new SubYellowPage(bd_);
+        SubYellowPage * pv = new SubYellowPage(data_);
         HWND h = pv->Create(m_tab, rc, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
         ATLASSERT(h);
@@ -291,7 +290,7 @@ ChildViewBase * CMainFrame::CreateChildView(CV_TYPE type)
     }
     else if(CV_PUBLISH == type)
     {
-        SubPublishPage * pv = new SubPublishPage(md_);
+        SubPublishPage * pv = new SubPublishPage(data_);
         HWND h = pv->Create(m_tab, rc, NULL, WS_CHILD | WS_VISIBLE
             | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
         ATLASSERT(h);
@@ -378,7 +377,7 @@ LRESULT CMainFrame::OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*
         CComVariant v;
         if (nm->prop->GetValue(&v))
         {
-            UserInfo & u = md_->GetUserInfo();
+            UserInfo & u = data_->GetUserInfo();
             u[key] = v.bstrVal;
         }
         else
@@ -390,19 +389,19 @@ LRESULT CMainFrame::OnUserInfoItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*
 LRESULT CMainFrame::OnUserInfoSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
     // TODO:
-    // md_->SaveUserInfo
-    bool f = md_->SaveUserInfo();
+    // data_->SaveUserInfo
+    bool f = data_->SaveUserInfo();
     ASSERT(f);
     return 0;
 }
 
 LRESULT CMainFrame::OnRegisterAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-    ASSERT(bd_);
+    ASSERT(data_);
     CWaitCursor wc;
     {
-        std::vector<Site*> v = bd_->AllSite();
-        Register(v);
+//        std::vector<Site*> v = data_->AllSite();
+//        Register(v);
     }
     return 0;
 }
@@ -436,7 +435,8 @@ LRESULT CMainFrame::OnPublishNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 
 void CMainFrame::Register(Site & site)
 {
-    std::vector<Action> va = bd_->FindAction(site.sid, AT_REGISTER);
+#if 0
+    std::vector<Action> va = data_->FindAction(site.sid, AT_REGISTER);
     if (!va.empty())
     {
         for(std::vector<Action>::const_iterator i=va.begin(); 
@@ -450,6 +450,7 @@ void CMainFrame::Register(Site & site)
     {
         ATLTRACE("empty action site:%S\n", site.name.c_str());
     }
+#endif
 }
 
 void CMainFrame::Register(std::vector<Site*> & vec)
@@ -458,14 +459,14 @@ void CMainFrame::Register(std::vector<Site*> & vec)
     for(std::vector<Site*>::const_iterator i = vec.begin(); i != vec.end(); ++i)
     {
         const Site * si = *i;
-        // Site *site = md_->Add(si);
+        // Site *site = data_->Add(si);
         // Register(*site);
     }
 }
 
 void CMainFrame::InitCrank()
 {
-    // ASSERT(md_);
+    // ASSERT(data_);
     // crank_.SigStateChange.connect(this, &CMainFrame::StateChange);
     // crank_.SigVerifyCode.connect(this, &CMainFrame::VerifyCode);
 }

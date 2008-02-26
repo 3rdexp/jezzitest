@@ -4,7 +4,7 @@
 
 #include "childv.h"
 #include "sitetree.h"
-#include "data/basedata.h"
+#include "data/studiodata.h"
 
 class SubYellowPage : public SiteTreeImpl<SubYellowPage>
     , public ChildViewBase
@@ -13,7 +13,7 @@ public:
     DECLARE_WND_SUPERCLASS(_T("SiteTree"), CTreeViewCtrl::GetWndClassName())
     // DECLARE_WND_CLASS_EX(_T("SiteTree"), 0, -1)
 
-    SubYellowPage(BaseData * bd) : bd_(bd) {}
+    SubYellowPage(StudioData * bd) : bd_(bd) {}
 
     BEGIN_MSG_MAP(SubYellowPage)
         CHAIN_MSG_MAP(SiteTreeImpl<SubYellowPage>)
@@ -44,7 +44,7 @@ public:
     // template function for SiteTreeImpl
     void DrawItem(HDC hdc, RECT * lprc, TreeData* td);
 
-    BaseData * bd_;
+    StudioData * bd_;
 };
 
 

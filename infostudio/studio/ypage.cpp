@@ -3,7 +3,7 @@
 #include "stdafx.h"
 
 #include "ypage.h"
-#include "data/basedata.h"
+#include "data/studiodata.h"
 
 struct IndustryData : public TreeData
 {
@@ -22,7 +22,7 @@ struct SiteInfoData : public TreeData
 
 //////////////////////////////////////////////////////////////////////////
 //
-HTREEITEM RescurInsert(CTreeViewCtrl & tree, BaseData * bd, HTREEITEM parent, HTREEITEM after, const Industry & ind)
+HTREEITEM RescurInsert(CTreeViewCtrl & tree, StudioData * data, HTREEITEM parent, HTREEITEM after, const Industry & ind)
 {
     TVINSERTSTRUCT tvs;
     ZeroMemory(&tvs, sizeof(tvs));
@@ -45,10 +45,10 @@ HTREEITEM RescurInsert(CTreeViewCtrl & tree, BaseData * bd, HTREEITEM parent, HT
     for (Industry::children_type::const_iterator i=ind.children.begin(); 
         i != ind.children.end(); ++i)
     {
-        inner_after = RescurInsert(tree, bd, ret, inner_after, i->second);
+        inner_after = RescurInsert(tree, data, ret, inner_after, i->second);
     }
 
-    std::vector<Site*> sites = bd->FindSite(ind.id);
+    std::vector<Site*> sites = data->FindSite(ind.id);
     
     for (std::vector<Site*>::const_iterator j=sites.begin();
         j != sites.end(); ++j)

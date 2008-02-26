@@ -17,8 +17,9 @@ public:
 
     sqlite3x::sqlite3_connection & GetConnection();
 
-    Industry & GetIndustry();
+    Industry & GetIndustry() { return indroot_; }
     Site * GetSite(int sid);
+    std::vector<Site *> FindSite(int indid) { return std::vector<Site *>(); }
 
     // action/site
     
@@ -40,7 +41,7 @@ public:
     UserInfo & GetUserInfo() { return userinfo_; }
     bool UserInfoReady() const { return userinfo_.ready(); }
 
-    bool SaveUserInfo();
+    bool SaveUserInfo() { return true; }
 
 private:
     UserInfo userinfo_;
