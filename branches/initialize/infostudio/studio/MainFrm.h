@@ -8,8 +8,7 @@
 #include "proplist/PropertyItem.h"
 
 class ChildViewBase;
-class BaseData;
-class MutableData;
+class StudioData;
 class SiteTask;
 class EngineCrank;
 
@@ -91,7 +90,7 @@ public:
 
     CMainFrame(EngineCrank & crank) : crank_(crank)
         , current_(0)
-        , bd_(0), md_(0)
+        , data_(0)
     {
         std::fill_n(children_, size_t(MAX_CHILD), (ChildViewBase*)0);
     }
@@ -188,10 +187,9 @@ public:
     ChildViewBase * CreateChildView(CV_TYPE);
     ChildViewBase * ActiveChildView(CV_TYPE);
 
-    void InitData(BaseData * bd, MutableData * md)
+    void InitData(StudioData * data)
     {
-        bd_ = bd;
-        md_ = md;
+        data_ = data;
     }
 
     // TaskNotify
@@ -271,8 +269,7 @@ private:
 
     //////////////////////////////////////////////////////////////////////////
     // database stuff
-    BaseData * bd_;
-    MutableData * md_;
+    StudioData * data_;
 private:
     EngineCrank & crank_;
 };

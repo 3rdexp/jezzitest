@@ -28,7 +28,7 @@ public:
         return m_hWnd;
     }
 
-    SubPublishPage(MutableData * md) : md_(md) 
+    SubPublishPage(StudioData * d) : data_(d) 
         , tree_(this, 1), list_(this, 2)
     {}
 
@@ -72,7 +72,7 @@ private:
 
     CHorSplitterWindow rsplit_;
 
-    MutableData * md_;
+    StudioData * data_;
 };
 
 #endif // __PUBPAGE_H__

@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "../base/httpcomm.h"
+#include "base/httpcomm.h"
 #include "coreconst.h"
 #include "querymap.h"
 
@@ -30,7 +30,11 @@ public:
         passwd_.push_back(passwd);
     }
 
-    std::wstring & operator[](const std::wstring & key);
+    std::wstring & operator[](const std::wstring & key)
+    {
+        static std::wstring w;
+        return w;
+    }
 
 private:
     UserInfo(const UserInfo&);
