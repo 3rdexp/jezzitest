@@ -2,6 +2,46 @@
 #include "base/logging.h"
 #include "base/unicode.h"
 
+
+/***********************************************************************
+
+
+    ------------          ------------                     ------------
+    | userinfo |          |   site   |                     |  action  |
+    |----------|          |----------|                     |----------|
+    |  key     |          | sid      |                     | aid      |
+    |  value   |          | username |                     | type     | AT_UTILITY/AT_REGISTER/AT_PUBLISH/AT_PUBRESULT
+    |__________|          | passwd   |                     | sid      | 
+                          | time     |                     | paid     |
+                          | laststate| 上次状态            | ......   | 
+                          |__________|                     | ......   | 
+                                                           |__________|
+                                                                
+
+
+    ------------          -----------------
+    | publish  |          | publish_once  |                ------------
+    |----------|          |---------------|                |  result  |
+    | pupbid   |          | poid          |                |----------|
+    | title    |          | pubid         |                | rid      |
+    | keywords |          | start         | time           | aid      |
+    | content  |          | end           | time           | data     | 
+    | expire   |          | name          |                |          |
+    | frequency|          |               |                | time     | 
+    | [create] |          |_______________|                | content  |
+    | ......   |                                           |          | 
+    | ......   |                                           |__________|
+    | ......   |          ----------------     
+    |__________|          | publish_site | 
+                          |--------------| 
+                          |  pubid       |              site_rel
+                          |  sid         |              ind
+                          |______________|              ind_rel
+                                       
+
+
+**************************************************************************/
+
 bool StudioData::Open(const std::wstring & filename) {
     // 尽可能的把所有数据载入内存
     // Industry, Site
@@ -20,16 +60,6 @@ bool StudioData::Open(const std::wstring & filename) {
         // TODO: 快速的检查，确定是否执行如此多的 create
         // 或者不执行？
 
-        // user, site, action
-        con_.executenonquery(L"CREATE TABLE IF NOT EXISTS userinfo(key TEXT PRIMARY KEY, value TEXT)");
-        con_.executenonquery(L"CREATE TABLE IF NOT EXISTS site(sid INTEGER PRIMARY KEY, username TEXT"
-            L", passwd TEXT, time INTEGER, laststate INTEGER)");
-
-        con_.executenonquery(L"CREATE TABLE IF NOT EXISTS action(aid INTEGER PRIMARY KEY AUTOINCREMENT"
-            L", type INTEGER, sid INTEGER, paid INTEGER, entry TEXT, url TEXT, method INTEGER"
-            L", charset INTEGER, vars TEXT, content TEXT, restype INTEGER, referrer TEXT, checked TEXT"
-            L", timeout INTEGER);");
-
         // TODO: 设置 site.sid的起始值，保证和 base.db 不冲突
 
         // publish, result
@@ -45,7 +75,7 @@ bool StudioData::Open(const std::wstring & filename) {
              ,paid INTEGER,entry TEXT,url TEXT,method INTEGER,charset INTEGER,vars TEXT,content TEXT \
              ,restype INTEGER,referrer TEXT,checked TEXT,timeout INTEGER);",
 
-             L"CREATE TABLE IF NOT EXISTS publish(pubid INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,keywords TEXT,content TEXT,expire INTEGER,frequency INTEGER,create INTEGER)",
+             L"CREATE TABLE IF NOT EXISTS publish(pubid INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,keywords TEXT,content TEXT,expire INTEGER,frequency INTEGER,[create] INTEGER)",
              L"CREATE TABLE IF NOT EXISTS publish_once(poid INTEGER PRIMARY KEY AUTOINCREMENT,pubid INTEGER,start INTEGER,end INTEGER, name TEXT)",
 
              L"CREATE TABLE IF NOT EXISTS publish_site(pubid INTEGER,sid INTEGER)",
