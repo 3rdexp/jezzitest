@@ -1,8 +1,6 @@
 #ifndef __CORECONSTANT_H__
 #define __CORECONSTANT_H__
 
-#pragma once
-
 enum ActionType
 {
     AT_UTILITY,     

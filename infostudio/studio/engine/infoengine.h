@@ -1,12 +1,13 @@
-
 #pragma once
 
 #include <set>
 #include <iterator>
 
 #include "base/task.h"
+#include "base/synchttp.h"
 #include "data/mutabledata.h"
 #include "coreinfo.h"
+
 
 #if 1
 
@@ -25,14 +26,14 @@ public:
       {}
     virtual int ProcessStart();
 
-    virtual void OnResponse(int status_code, const char * buf, int len) {
-        done_ = true;
-        Wake();
-    }
+    // void OnResponse(int status_code, const char * buf, int len);
+    void OnResponse();
+
 private:
     Action action;
     Site & site_;
     bool done_;
+    SyncHttp http_;
 };
 
 class VerifyTask : public Task {
@@ -40,7 +41,7 @@ public:
     VerifyTask(Task * parent) 
         : Task(parent) 
         , done_(false)
-      {}
+    {}
     virtual int ProcessStart() {
         // Show UI(this);
         return STATE_BLOCKED;

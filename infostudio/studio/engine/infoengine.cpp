@@ -6,12 +6,13 @@
 #include <iomanip>
 #include <iterator>
 
+#include <boost/bind.hpp>
+
 #include "base/logging.h"
 
 #include "resource.h"
 #include "verifyimgdlg.h"
 #include "infoengine.h"
-
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,10 +22,17 @@
 
 int NormalRequestTask::ProcessStart() {
     // new AsyncHttp(this);
-    // SendRequest
+    // http_.SetCallback(boost::bind(&NormalRequestTask::OnResponse, 0));
+    http_.PrepareGet("");
     return STATE_BLOCKED;
 }
 
+#if 0
+void NormalRequestTask::OnResponse(int status_code, const char * buf, int len) {
+    done_ = true;
+    Wake();
+}
+#endif
 
 #else
 
