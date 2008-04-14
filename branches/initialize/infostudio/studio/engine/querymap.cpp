@@ -17,10 +17,9 @@ std::string QueryMap::Expand(const VariableMap & vm, const Dictionary & dict
     using namespace std;
 
     // split to vector
-    // find value in dict
+    // find, replace...
 
-    stringstream ss;
-    UrlQueryEscape uqe;
+    ostringstream ss;
     
     vector<wstring> v;
     boost::split(v, text_, boost::is_any_of(L"&"));
@@ -66,14 +65,15 @@ std::string QueryMap::Expand(const VariableMap & vm, const Dictionary & dict
              val = domain;
     
         if (charset == SC_ANSI)
-            ss << w2string(key) << "=" << uqe(w2string(val)) << "&";
+            ss << w2string(key) << "=" << UrlQueryEscape()(w2string(val)) << "&";
         else
-            ss << string2utf8(key) << "=" << uqe(string2utf8(val)) << "&";            
+            ss << string2utf8(key) << "=" << UrlQueryEscape()(string2utf8(val)) << "&";            
     }
 
     std::string ret = ss.str();
 
     // remove last &
-    ret.resize(ret.size() - 1);
+    if (ret.size() > 1)
+        ret.resize(ret.size() - 1);
     return ret;
 }

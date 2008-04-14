@@ -11,48 +11,50 @@
 
 #if 1
 
-class EnginePump: public TaskRunner {
-public:
-     virtual void WakeTasks();
-     virtual int64 CurrentTime();
-};
 
-class NormalRequestTask : public Task {
+class GeneralTask : public Task {
 public:  
-    NormalRequestTask(Task * parent, Site & site) : 
-      Task(parent)
-      , done_(false) 
-      , site_(site)
-      {}
-    virtual int ProcessStart();
+    GeneralTask(Task * parent, const std::wstring & url = L"")
+        :  Task(parent)
+        , sent_(false)
+    {}
 
-    // void OnResponse(int status_code, const char * buf, int len);
-    void OnResponse();
+protected:
+    virtual int ProcessStart();
+    virtual int ProcessResponse();
+
+    void OnHttpResponse(int status_code, const char * buf, int len);
+
+    // 
+    virtual void BuildRequest(SyncHttp & http);
+    virtual void GotResponse(int status_code, const char * buf, int len) {}
 
 private:
-    Action action;
-    Site & site_;
-    bool done_;
+    bool sent_;
     SyncHttp http_;
 };
 
-class VerifyTask : public Task {
-public:
-    VerifyTask(Task * parent) 
-        : Task(parent) 
-        , done_(false)
-    {}
-    virtual int ProcessStart() {
-        // Show UI(this);
-        return STATE_BLOCKED;
-    }
+// Site & site, const Action & action, const UserInfo & userinfo
 
-    void EnterVerifyCode(const std::string & code) {
-        done_ = true;
-        Wake();
-    }
+class SiteTask : public GeneralTask {
+public:
+    SiteTask(Task * parent, Site & site, UserInfo & userinfo)
+        : GeneralTask(parent), site_(site), userinfo_(userinfo)
+        , curact_(0)
+    {}
+
+protected:
+    virtual int ProcessResponse();
+
+    virtual void BuildRequest(SyncHttp & http);
+
 private:
-    bool done_;
+    bool PrepareForm(std::ostream & out, const Action & action) const;
+
+private:
+    Site & site_;
+    UserInfo & userinfo_;
+    int curact_;
 };
 
 
@@ -105,7 +107,7 @@ protected:
     virtual int ProcessResponse();
     virtual int Process(int state);
 
-    virtual void OnResponse();
+    virtual void OnHttpResponse();
 
     virtual std::string GetStateName(int state) const;
 

@@ -15,24 +15,92 @@
 #include "infoengine.h"
 
 
+#if 1
 //////////////////////////////////////////////////////////////////////////
 // 
 
-#if 1
+int GeneralTask::ProcessStart() {
+    if (sent_)
+        return STATE_RESPONSE;
 
-int NormalRequestTask::ProcessStart() {
-    // new AsyncHttp(this);
-    // http_.SetCallback(boost::bind(&NormalRequestTask::OnResponse, 0));
-    http_.PrepareGet("");
+    http_.SetCallback(boost::bind(&GeneralTask::OnHttpResponse, this, _1, _2, _3));
+    BuildRequest(http_);
+    
     return STATE_BLOCKED;
 }
 
-#if 0
-void NormalRequestTask::OnResponse(int status_code, const char * buf, int len) {
-    done_ = true;
+int GeneralTask::ProcessResponse() {
+    Assert(sent_);
+    return STATE_DONE;
+}
+
+void GeneralTask::OnHttpResponse(int status_code, const char * buf, int len) {
+    sent_ = true;
+    GotResponse(status_code, buf, len); // here?
     Wake();
 }
-#endif
+
+//////////////////////////////////////////////////////////////////////////
+//
+
+int SiteTask::ProcessResponse() {
+    if (curact_ == site_.actions().size() - 1)
+        return STATE_DONE;
+
+    return STATE_START;
+}
+
+void SiteTask::BuildRequest(SyncHttp & http) {
+    const Action & action_ = site_.actions()[++curact_];
+    switch (action_.method) {
+    case HV_GET :
+        {
+            std::wstring url(action_.url);
+            if (!action_.vars.empty()) {
+                std::ostringstream ss;
+                bool f = PrepareForm(ss, action_);
+                Assert(f);
+                url += L"?";
+                // url += ss.str();
+            }
+            // TODO: url escape
+            bool f = http.PrepareGet(url, action_.referrer);
+            Assert(f);
+        }
+        break;
+    case HV_POST :
+        {
+            Assert(!action_.vars.empty());
+            std::stringstream ss;
+            bool f = PrepareForm(ss, action_);
+            Assert(f);
+            f = http.PreparePost(action_.url, action_.content_type
+                , &ss
+                , action_.referrer);
+            Assert(f);
+        }
+        break;
+    default:
+        Assert(false);
+        break;
+    }
+}
+
+bool SiteTask::PrepareForm(std::ostream & out, const Action & action) const {
+    // userinfo_, action_.vars, charset
+    // site_.passwd username
+
+    VariableMap vm = userinfo_;
+    // Site special data
+    if (!site_.username().empty()) {
+        // vm.insert("", site_.username());
+        // vm.insert("", site_.passwd());
+    }
+
+    QueryMap qm(action.vars);
+    out << qm.Expand(vm, site_.dict(), action.charset);
+    return true;
+}
 
 #else
 
