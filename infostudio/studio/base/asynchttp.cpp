@@ -1,6 +1,7 @@
 ﻿
 #include "urlcomp.h"
 #include "base.h"
+#include "unicode.h"
 #include <fstream>
 
 #include "httpcomm.h"
@@ -176,6 +177,10 @@ bool AsyncHttp::PrepareGet(const std::string & url, const std::string & referrer
     return hRequest_ != NULL;
 }
 
+bool AsyncHttp::PrepareGet(const std::wstring & url, const std::wstring & referrer) {
+    return PrepareGet(w2string(url), w2string(referrer));
+}
+
 bool AsyncHttp::PreparePost(const std::string & url, const std::string &
    content_type, std::istream* request_doc, const std::string & referrer)
 {
@@ -224,6 +229,11 @@ bool AsyncHttp::PreparePost(const std::string & url, const std::string &
     }
 
     return hRequest_ != NULL;
+}
+
+bool AsyncHttp::PreparePost(const std::wstring & url, const std::wstring &
+                            content_type, std::istream* request_doc, const std::wstring & referrer) {
+    return PreparePost(w2string(url), w2string(content_type), request_doc, w2string(referrer));
 }
 
 bool AsyncHttp::SendRequest()

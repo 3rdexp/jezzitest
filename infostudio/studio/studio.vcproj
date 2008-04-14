@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\temp\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -51,7 +51,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\;.\sqlite\;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG;_WIN32_WINNT=0x0501"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -107,8 +107,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\temp\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfATL="0"
@@ -335,14 +335,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\base\asynctask.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\base\asynctask.h"
-				>
-			</File>
-			<File
 				RelativePath=".\base\base.cpp"
 				>
 			</File>
@@ -376,6 +368,14 @@
 			</File>
 			<File
 				RelativePath=".\base\sigslot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\synchttp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\base\synchttp.h"
 				>
 			</File>
 			<File

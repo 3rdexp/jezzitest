@@ -49,7 +49,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     LOG(LS_VERBOSE) << "verbose test";
 
     // env
-    AsyncInet::Init();
+    xnbase::AsyncInet::Init();
 
     // login, config
     //
@@ -102,7 +102,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 	_Module.RemoveMessageLoop();
 
-    AsyncInet::Release();
+    xnbase::AsyncInet::Release();
 	return nRet;
 }
 

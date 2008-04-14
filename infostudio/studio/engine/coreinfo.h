@@ -10,7 +10,7 @@
 
 // 如何表示多组 user/passwd 呢？是个难题
 // TODO: maybe multimap
-struct UserInfo : public std::multimap<std::wstring, std::wstring>
+struct UserInfo : public VariableMap
 {
     typedef std::multimap<std::wstring, std::wstring> base_t;
 public:
@@ -22,7 +22,7 @@ public:
     UserInfo() : ac_(0) {}
 
     bool ready() const;
-    int account_count() const { return name_.size(); }
+    size_t account_count() const { return name_.size(); }
     void account_index(int index);
     void add_account(const std::wstring & name, const std::wstring & passwd)
     {
@@ -77,6 +77,7 @@ class Site
 public:
     Site(int sid = 0) : sid(sid) {}
 
+    void AddAction(Action * a) { actions_.push_back(*a); }
     void AddAction(Action * beg, Action * end)
     {
         // std::copy(beg, end, std::back_inserter(actions_));
@@ -93,10 +94,16 @@ public:
         dict_ = dict;
     }
     
-    std::vector<Action> & actions() { return actions_; }
+    const std::vector<Action> & actions() const { return actions_; }
     const Dictionary & dict() const { return dict_; }
 
+    std::wstring username() const { return username_; }
+    std::wstring passwd() const { return passwd_; }
 
+    void set_username(const std::wstring & username) { username_ = username; }
+    void set_passwd(const std::wstring & passwd) { passwd_ = passwd; }
+
+    // TODO: function access it
     int sid;
     std::wstring name, homepage;
 

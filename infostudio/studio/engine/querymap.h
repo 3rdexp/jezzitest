@@ -8,7 +8,12 @@
 
 #include "coreconst.h"
 
-typedef std::map<std::wstring, std::wstring> VariableMap;
+typedef std::multimap<std::wstring, std::wstring> VariableMap;
+
+//////////////////////////////////////////////////////////////////////////
+// domain   => map
+// sex      => { male:1; female:2; }
+// province => { 安徽:1001; 北京:1002; }
 
 class Dictionary
 {
@@ -28,7 +33,6 @@ public:
         dict_[domain] = vm;
     }
 private:
-    // domain ==> dictionary
     typedef std::map<std::wstring, VariableMap> DictMap;
     DictMap dict_;
 };
@@ -38,19 +42,23 @@ private:
 //
 // for a=b&c={name}&e*= translate
 // usage:
-// text: a=b&c={name}&d={e}
+// QueryMap qm("a=b&c={name}&d={e}");
+// qm.Expand
 
 class QueryMap
 {
 public:
     QueryMap(const std::wstring & text) : text_(text) {}
 
+    // vm: name => domain.key|value
+    // dict: domain => [key, value]
     // TODO: Encoding
     std::string Expand(const VariableMap & vm, const Dictionary & dict
         , SiteCharset charset);
 
 private:
     std::wstring text_;
+    // TODO: 缓存 text_ split 结果
 };
 
 
