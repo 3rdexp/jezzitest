@@ -26,7 +26,7 @@ protected:
     void OnHttpResponse(int status_code, const char * buf, int len);
 
     // 
-    virtual void BuildRequest(SyncHttp & http);
+    virtual void BuildRequest(SyncHttp & http) = 0;
     virtual void GotResponse(int status_code, const char * buf, int len) {}
 
 private:
@@ -47,6 +47,7 @@ protected:
     virtual int ProcessResponse();
 
     virtual void BuildRequest(SyncHttp & http);
+    virtual void GotResponse(int status_code, const char * buf, int len);
 
 private:
     bool PrepareForm(std::ostream & out, const Action & action) const;

@@ -70,8 +70,14 @@ int main(int argc, char* argv[])
 
 #include "engine/infoengine.h"
 #include "engine/wndrunner.h"
+#include "base/logging.h"
 
 int main() {
+
+    LogMessage::LogThreads(true);
+    LogMessage::LogTimestamps(true);
+
+    LogMessage::LogToDebug(LS_VERBOSE);
 
     xnbase::AsyncInet::Init();
 
@@ -113,13 +119,13 @@ int main() {
     userinfo_.insert(L"sex", L"male");
     userinfo_.insert(L"pasw", L"strongpsw");
     userinfo_.insert(L"mail", L"boostguy@gmail.com");
+    userinfo_.insert(L"key", L"xx");
     
     WindowRunner wr;
     HWND h = wr.Create(0);
     ATLASSERT(h);
 
-    GeneralTask * nrt = new NormalRequestTask(&wr, site
-        , site.actions()[1], userinfo_);
+    SiteTask * nrt = new SiteTask(&wr, site, userinfo_);
     nrt->Start();
 
     Wait();
