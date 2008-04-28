@@ -20,8 +20,10 @@
 // 
 
 int GeneralTask::ProcessStart() {
-    if (sent_)
+    LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState());
+    if (sent_) {
         return STATE_RESPONSE;
+    }
 
     http_.SetCallback(boost::bind(&GeneralTask::OnHttpResponse, this, _1, _2, _3));
     BuildRequest(http_);
@@ -30,7 +32,13 @@ int GeneralTask::ProcessStart() {
 }
 
 int GeneralTask::ProcessResponse() {
+    LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState());
     Assert(sent_);
+    
+    sent_ = false;
+    
+    http_.Close();
+
     return STATE_DONE;
 }
 
@@ -42,16 +50,21 @@ void GeneralTask::OnHttpResponse(int status_code, const char * buf, int len) {
 
 //////////////////////////////////////////////////////////////////////////
 //
-
+// ÔÚ STATE_START STATE_RESPONSE Ö®¼äÇÐ»»
 int SiteTask::ProcessResponse() {
+    LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState());
     if (curact_ == site_.actions().size() - 1)
         return STATE_DONE;
+
+    curact_ ++;
+    GeneralTask::ProcessResponse();
 
     return STATE_START;
 }
 
 void SiteTask::BuildRequest(SyncHttp & http) {
-    const Action & action_ = site_.actions()[++curact_];
+    LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState());
+    const Action & action_ = site_.actions()[curact_];
     switch (action_.method) {
     case HV_GET :
         {
@@ -80,10 +93,16 @@ void SiteTask::BuildRequest(SyncHttp & http) {
             Assert(f);
         }
         break;
-    default:
+    default :
         Assert(false);
         break;
     }
+}
+
+void SiteTask::GotResponse(int status_code, const char * buf, int len) {
+    LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState())
+        << " status:" << status_code << " len:" << len
+        << " current: " << curact_;
 }
 
 bool SiteTask::PrepareForm(std::ostream & out, const Action & action) const {
