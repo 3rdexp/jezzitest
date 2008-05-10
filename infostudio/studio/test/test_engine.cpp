@@ -4,11 +4,14 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+#include "base/sigslot.h"
+
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlmisc.h>
 
 using namespace std;
+
 
 void Wait() {
     MSG msg;
@@ -72,6 +75,18 @@ int main(int argc, char* argv[])
 #include "engine/wndrunner.h"
 #include "base/logging.h"
 
+
+struct foo : public sigslot::has_slots<> {
+    void Quit() {
+        PostQuitMessage(0);
+    }
+
+    void OnAction(const Action & act, const HttpResponse & resp) {
+        __asm nop;
+    }
+};
+
+
 int main() {
 
     LogMessage::LogThreads(true);
@@ -105,9 +120,11 @@ int main() {
     {
         Action act;
         act.aid = 1;
+        // http://www.baidu.com/s?wd=sex
         act.url = L"http://www.baidu.com/s";
+        act.referrer = L"http://www.baidu.com/";
         act.method = HV_GET;
-        act.vars = L"wd={key}&aa={sex}";
+        act.vars = L"?wd={key}";
         act.type = AT_UTILITY;
         act.restype = ART_NONE;
         site.AddAction(&act);
@@ -119,16 +136,27 @@ int main() {
     userinfo_.insert(L"sex", L"male");
     userinfo_.insert(L"pasw", L"strongpsw");
     userinfo_.insert(L"mail", L"boostguy@gmail.com");
-    userinfo_.insert(L"key", L"xx");
+    userinfo_.insert(L"key", L"sex");
+
+
+    
+
     
     WindowRunner wr;
     HWND h = wr.Create(0);
     ATLASSERT(h);
 
+    foo bar;
+
     SiteTask * nrt = new SiteTask(&wr, site, userinfo_);
+    nrt->SignalDone.connect(&bar, &foo::Quit);
+    nrt->SignalActionResponse.connect(&bar, &foo::OnAction);
     nrt->Start();
 
     Wait();
+
+    // avoid assert failed
+    ::DestroyWindow(wr.Detach());
 
     xnbase::AsyncInet::Release();
 

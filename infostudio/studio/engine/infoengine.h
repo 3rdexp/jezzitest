@@ -3,13 +3,11 @@
 #include <set>
 #include <iterator>
 
+#include "base/sigslot.h"
 #include "base/task.h"
 #include "base/synchttp.h"
 #include "data/mutabledata.h"
 #include "coreinfo.h"
-
-
-#if 1
 
 
 class GeneralTask : public Task {
@@ -34,14 +32,16 @@ private:
     SyncHttp http_;
 };
 
-// Site & site, const Action & action, const UserInfo & userinfo
-
 class SiteTask : public GeneralTask {
 public:
     SiteTask(Task * parent, Site & site, UserInfo & userinfo)
-        : GeneralTask(parent), site_(site), userinfo_(userinfo)
+        : GeneralTask(parent)
+        , site_(site), userinfo_(userinfo)
         , curact_(0)
     {}
+
+    sigslot::signal0<> SignalDone;
+    sigslot::signal2<const Action &, const HttpResponse &> SignalActionResponse;
 
 protected:
     virtual int ProcessResponse();
@@ -51,6 +51,7 @@ protected:
 
 private:
     bool PrepareForm(std::ostream & out, const Action & action) const;
+    void Done();
 
 private:
     Site & site_;
@@ -67,7 +68,7 @@ public:
 
 
 
-#else
+#if 0
 
 
 

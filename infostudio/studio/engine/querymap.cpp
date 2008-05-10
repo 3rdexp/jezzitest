@@ -9,7 +9,6 @@
 #include "base/unicode.h"
 #include "base/escape.h"
 
-// std::wstring remove_bracket(const std::wstring & t) {}
 
 std::string QueryMap::Expand(const VariableMap & vm, const Dictionary & dict
         , SiteCharset charset)
