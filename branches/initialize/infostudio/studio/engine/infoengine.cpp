@@ -9,13 +9,16 @@
 #include <boost/bind.hpp>
 
 #include "base/logging.h"
+#include "base/unicode.h"
 
 #include "resource.h"
 #include "verifyimgdlg.h"
 #include "infoengine.h"
 
+void OnActionDone(Action & a) {
+    //
+}
 
-#if 1
 //////////////////////////////////////////////////////////////////////////
 // 
 
@@ -27,6 +30,7 @@ int GeneralTask::ProcessStart() {
 
     http_.SetCallback(boost::bind(&GeneralTask::OnHttpResponse, this, _1, _2, _3));
     BuildRequest(http_);
+    sent_ = true;
     
     return STATE_BLOCKED;
 }
@@ -36,14 +40,12 @@ int GeneralTask::ProcessResponse() {
     Assert(sent_);
     
     sent_ = false;
-    
     http_.Close();
 
     return STATE_DONE;
 }
 
 void GeneralTask::OnHttpResponse(int status_code, const char * buf, int len) {
-    sent_ = true;
     GotResponse(status_code, buf, len); // here?
     Wake();
 }
@@ -53,8 +55,10 @@ void GeneralTask::OnHttpResponse(int status_code, const char * buf, int len) {
 // 在 STATE_START STATE_RESPONSE 之间切换
 int SiteTask::ProcessResponse() {
     LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState());
-    if (curact_ == site_.actions().size() - 1)
+    if (curact_ == site_.actions().size() - 1) {
+        Done();
         return STATE_DONE;
+    }
 
     curact_ ++;
     GeneralTask::ProcessResponse();
@@ -66,17 +70,27 @@ void SiteTask::BuildRequest(SyncHttp & http) {
     LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState());
     const Action & action_ = site_.actions()[curact_];
     switch (action_.method) {
-    case HV_GET :
+    case HV_GET : 
         {
+            // if action_.charset == ansi, wstring url
+            // else utf8 ... use string
             std::wstring url(action_.url);
             if (!action_.vars.empty()) {
                 std::ostringstream ss;
                 bool f = PrepareForm(ss, action_);
                 Assert(f);
-                url += L"?";
-                // url += ss.str();
+
+                if (action_.charset == SC_ANSI)
+                {
+                    url += string2w(ss.str());
+                }
+                else if (action_.charset == SC_UTF8)
+                {
+                    std::wstring w;
+                    utf82string(ss.str(), w);
+                    url += w;
+                }
             }
-            // TODO: url escape
             bool f = http.PrepareGet(url, action_.referrer);
             Assert(f);
         }
@@ -103,6 +117,8 @@ void SiteTask::GotResponse(int status_code, const char * buf, int len) {
     LOG_F(LS_VERBOSE) << "state:" << GetStateName(GetState())
         << " status:" << status_code << " len:" << len
         << " current: " << curact_;
+
+    SignalActionResponse(site_.actions()[curact_], HttpResponse(status_code, buf, len));
 }
 
 bool SiteTask::PrepareForm(std::ostream & out, const Action & action) const {
@@ -112,6 +128,7 @@ bool SiteTask::PrepareForm(std::ostream & out, const Action & action) const {
     VariableMap vm = userinfo_;
     // Site special data
     if (!site_.username().empty()) {
+        // TODO: 注册时，备选用户名密码
         // vm.insert("", site_.username());
         // vm.insert("", site_.passwd());
     }
@@ -121,8 +138,11 @@ bool SiteTask::PrepareForm(std::ostream & out, const Action & action) const {
     return true;
 }
 
-#else
+void SiteTask::Done() {
+    SignalDone();
+}
 
+/*
 struct UtilityAction : public Action
 {
     // TODO: 这样写对吗？ 或者有更好的办法
@@ -382,7 +402,7 @@ void EngineCrank::Add(Site & site)
     
     SiteTask * task = new SiteTask(site,  md_.GetUserInfo(),  runner_
         , SigStateChange, SigVerifyCode, SigActionResult);
-    
+
     std::vector<Action*> & a= site.actions();
     ASSERT(!a.empty());
     for (std::vector<Action*>::iterator i=a.begin(); i != a.end(); ++i)
@@ -417,4 +437,4 @@ void EngineCrank::OnSiteRegister(Site & site, bool success)
 //    task->site_.username_ = u[L"user"];
 //    task->site_.passwd_ = u[L"psw"];
 }
-#endif
+*/
