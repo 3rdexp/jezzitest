@@ -45,6 +45,7 @@ public:
     void DrawItem(HDC hdc, RECT * lprc, TreeData* td);
 
     StudioData * bd_;
+    CHeaderCtrl header_; // 
 };
 
 

@@ -73,6 +73,17 @@ HTREEITEM RescurInsert(CTreeViewCtrl & tree, StudioData * data, HTREEITEM parent
 LRESULT SubYellowPage::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
                                 , BOOL& bHandled)
 {
+    header_.Create(m_hWnd, 0, 0, WS_CHILD | WS_BORDER | HDS_BUTTONS | HDS_HORZ);
+
+    CRect rcc; GetClientRect(&rcc);
+    HDLAYOUT hdl; 
+    WINDOWPOS wp;
+    hdl.prc = &rcc; 
+    hdl.pwpos = &wp;
+
+    header_.Layout(&hdl);
+    header_.SetWindowPos(wp.hwndInsertAfter, wp.x, wp.y, wp.cx, wp.cy, wp.flags | SWP_SHOWWINDOW); 
+
     // bHandled = FALSE;
     if (bd_) {
         HTREEITEM parent = TVI_ROOT, after = TVI_FIRST;
