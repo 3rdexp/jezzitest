@@ -148,7 +148,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 //
-class EngineCrank : public sigslot::has_slots<sigslot::multi_threaded_local>
+class EngineCrank : public sigslot::has_slots<>
 {
 public:
     EngineCrank(MutableData & md, TaskRunner * runner) : md_(md)

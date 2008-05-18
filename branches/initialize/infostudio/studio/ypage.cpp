@@ -7,8 +7,9 @@
 
 struct IndustryData : public TreeData
 {
-    IndustryData(int cid) : cid_(cid) {}
+    IndustryData(int cid) : cid_(cid), site_count_(0) {}
     int cid_;
+    int site_count_;
 };
 
 struct SiteInfoData : public TreeData
@@ -152,7 +153,7 @@ void SubYellowPage::GetSelectedSite(std::vector<Site*> & vec, HTREEITEM hti)
     if (!hti)
         hti = GetRootItem();
 
-    if (GetCheckState(hti))
+    if (hti && GetCheckState(hti))
     {
         TreeData * pd = (TreeData *)GetItemData(hti);
         if (pd->mcols())

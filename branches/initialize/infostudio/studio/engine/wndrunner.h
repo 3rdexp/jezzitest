@@ -3,18 +3,26 @@
 
 #include "base/task.h"
 #include "base/logging.h"
+#include "wndpump.h"
 
 #define WM_WAKETASK         WM_USER
 
 
 class WindowRunner : public TaskRunner
-    , public CWindowImpl<WindowRunner, CEdit, CFrameWinTraits>
+    , public WindowPipe
 {
 public:
+    WindowRunner(WindowPump & pump) : pump_(pump) {
+        pump_.Add(this);
+    }
+    ~WindowRunner() {
+        pump_.Remove(this);
+    }
+
     virtual void WakeTasks()
     {
         // LOG(LS_INFO) << "WakeTasks";
-        PostMessage(WM_WAKETASK);
+        pump_.PostMessage(WM_WAKETASK);
     }
 
     virtual int64 CurrentTime()
@@ -22,13 +30,19 @@ public:
         return Time();
     }
 
-    BEGIN_MSG_MAP(WindowRunner)
+    virtual BOOL HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        BOOL bHandled = TRUE;
+        LRESULT lResult;
         MESSAGE_HANDLER(WM_WAKETASK, OnWakeTask)
-    END_MSG_MAP()
+        return FALSE;
+    }
 
     LRESULT OnWakeTask(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     {
         RunTasks();
         return 0;
     }
+private:
+    WindowPump & pump_;
 };
