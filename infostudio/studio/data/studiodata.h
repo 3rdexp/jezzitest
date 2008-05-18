@@ -19,10 +19,8 @@ public:
 
     Industry & GetIndustry() { return indroot_; }
     Site * GetSite(int sid);
-    std::vector<Site *> FindSite(int indid) { return std::vector<Site *>(); }
+    std::vector<Site *> FindSite(int indid);
 
-    // action/site
-    
 private:
     struct orderby_sid : public std::binary_function<Site, Site, bool>
     {
@@ -32,10 +30,21 @@ private:
         }
     };
 
+    bool LoadSite(sqlite3x::sqlite3_connection & con);
 
+public:
+    // action/site
+    typedef std::set<Site, orderby_sid> siteset;
+    siteset & AllSite() { return allsite_; }
+    
+private:
     // 在内存中保存的项： site, industry
-    std::set<Site, orderby_sid> allsite_;
+    siteset allsite_;
     Industry indroot_;
+
+    typedef std::vector<int> sid_coll;
+    typedef std::map<int, sid_coll> siterel_type; // industry.id => site collection
+    siterel_type siterel_;
 
 public:
     UserInfo & GetUserInfo() { return userinfo_; }
@@ -45,7 +54,6 @@ public:
 
 private:
     UserInfo userinfo_;
-
     sqlite3x::sqlite3_connection con_;
 };
 

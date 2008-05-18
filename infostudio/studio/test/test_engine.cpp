@@ -142,9 +142,11 @@ int main() {
     
 
     
-    WindowRunner wr;
-    HWND h = wr.Create(0);
+    WindowPump pump;
+    HWND h = pump.Create(0);
     ATLASSERT(h);
+
+    WindowRunner wr(pump);
 
     foo bar;
 
@@ -156,7 +158,7 @@ int main() {
     Wait();
 
     // avoid assert failed
-    ::DestroyWindow(wr.Detach());
+    ::DestroyWindow(pump.Detach());
 
     xnbase::AsyncInet::Release();
 

@@ -60,32 +60,32 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     // base / mutable 数据库必须分开
 
     // 1 Data
-    StudioData cons;
-    bool f = cons.Open(L"studio.db");
+    StudioData data;
+    bool f = data.Open(L"studio.db");
     ASSERT(f);
 
-//     BaseData bd(cons.basecon_);
-//     f = bd.Init(cons.basecon_);
+//     BaseData bd(data.basecon_);
+//     f = bd.Init(data.basecon_);
 //     ASSERT(f);
 // 
-//     MutableData md(cons.mutablecon_);
-//     f = md.Init(cons.mutablecon_);
+//     MutableData md(data.mutablecon_);
+//     f = md.Init(data.mutablecon_);
 //     ASSERT(f);
 
     // 2 Engine
     CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-    WindowRunner wr;
-    HWND h = wr.Create(0);
+    WindowPump pump;
+    HWND h = pump.Create(0);
     ATLASSERT(h);
 
     EngineCrank crank;
-    // crank.Run(&wr);
+    // crank.Run(&pump);
 
     // 3 UI
 	CMainFrame wndMain(crank);
-    // wndMain.InitData(&bd, &md);
+    wndMain.InitData(&data);
 	if(wndMain.CreateEx() == NULL)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));
@@ -98,7 +98,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     // TODO:
     // crank.Stop();
-    wr.DestroyWindow();
+    pump.DestroyWindow();
 
 	_Module.RemoveMessageLoop();
 

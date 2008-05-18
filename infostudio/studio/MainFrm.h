@@ -70,7 +70,7 @@ public:
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler
-        , public sigslot::has_slots<sigslot::multi_threaded_local>
+        , public sigslot::has_slots<>
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
