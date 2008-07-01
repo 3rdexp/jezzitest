@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="gnotes_overlay.css" type="text/css"?>
+
+<!-- DTD file for locale-specific text -->
+<!DOCTYPE overlay [
+  <!ENTITY % gnotesDTD SYSTEM "chrome://google-gnotes/locale/google-gnotes.dtd" >
+  %gnotesDTD;
+]>
+
+<?xul-overlay 
+  href="chrome://google-gnotes/content/gnotes-base-overlay.xul"?>
+
+<!-- This file is overlayed into the browser chrome -->
+<overlay id="google-gnotes-overlay"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript">
+    var GNOTES_context = Components.classes["@google.com/gnotes/app-context;1"]
+                                   .getService()
+                                   .wrappedJSObject;
+    var GNOTES_overlay = new GNOTES_context.GNOTES_BrowserOverlayCustom(window);
+    window.addEventListener("load", GNOTES_overlay.Init.bind(GNOTES_overlay), false);
+  </script>
+
+  <statusbar id="status-bar">
+    <stringbundle id="gnotes-locale" 
+      src="chrome://google-gnotes/locale/google-gnotes.properties"/>
+
+    <statusbarpanel id="gnotes-statusbar" class="gnotes-statusbar"
+      context="gnotes-status-manage"
+      onmousedown="GNOTES_overlay.StatusCallback(event)">
+      <image style="padding-right: 3px; cursor: pointer;"
+	src="chrome://google-gnotes/content/notebook.png"/>
+      <toolbarbutton id="gnotes-statusbar-lbl"
+	accesskey="&gnotes.accessKey;"
+	class="gnotes-status-button"/>
+      <popup id="gnotes-status-manage" position="before_end">
+	<menuitem id="gnotes-enable-plus" label="&gnotes.enableNoteThis;"
+	  type="checkbox" 
+          onmousedown="event.stopPropagation()"
+	  oncommand="GNOTES_overlay.TogglePlus(event)"/>
+	<menuitem id="gnotes-hide-text" label="&gnotes.hideStatusText;"
+	  type="checkbox" 
+          onmousedown="event.stopPropagation()"
+	  oncommand="GNOTES_overlay.ToggleStatusText(event)"/>
+      </popup>
+    </statusbarpanel>
+  </statusbar>
+
+</overlay>
+

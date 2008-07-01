@@ -1,0 +1,21 @@
+content google-gnotes chrome/chromeFiles/content/
+overlay chrome://browser/content/browser.xul	chrome://google-gnotes/content/google-gnotes-overlay.xul
+locale google-gnotes en-US chrome/chromeFiles/locale/en-US/
+locale google-gnotes da chrome/chromeFiles/locale/da/
+locale google-gnotes de chrome/chromeFiles/locale/de/
+locale google-gnotes en-GB chrome/chromeFiles/locale/en-GB/
+locale google-gnotes es chrome/chromeFiles/locale/es/
+locale google-gnotes fi chrome/chromeFiles/locale/fi/
+locale google-gnotes fr chrome/chromeFiles/locale/fr/
+locale google-gnotes it chrome/chromeFiles/locale/it/
+locale google-gnotes ja chrome/chromeFiles/locale/ja/
+locale google-gnotes ko chrome/chromeFiles/locale/ko/
+locale google-gnotes nl chrome/chromeFiles/locale/nl/
+locale google-gnotes nb chrome/chromeFiles/locale/no/
+locale google-gnotes pl chrome/chromeFiles/locale/pl/
+locale google-gnotes pt-BR chrome/chromeFiles/locale/pt-BR/
+locale google-gnotes ru chrome/chromeFiles/locale/ru/
+locale google-gnotes sv chrome/chromeFiles/locale/sv/
+locale google-gnotes tr chrome/chromeFiles/locale/tr/
+locale google-gnotes zh-CN chrome/chromeFiles/locale/zh-CN/
+locale google-gnotes zh-TW chrome/chromeFiles/locale/zh-TW/

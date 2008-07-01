@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="gnotes_overlay.css" type="text/css"?>
+
+<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
+<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
+
+<!-- DTD file for locale-specific text -->
+<!DOCTYPE overlay [
+   <!ENTITY % gnotesDTD SYSTEM "chrome://google-gnotes/locale/google-gnotes.dtd" >
+  %gnotesDTD;
+]>
+
+<?xul-overlay 
+  href="chrome://google-gnotes/content/gnotes-context-overlay.xul"?>
+
+<!-- This file is overlayed into gnotes-yj-win and gnotes-tearaway -->
+<overlay id="gnotes-standalone-window-overlay"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <box id="gnotes-standalone-window">
+    <script src="chrome://browser/content/browser.js"/>
+    <script src="chrome://global/content/nsTransferable.js"/>
+    <script src="chrome://global/content/nsDragAndDrop.js"/>
+
+    <script type="application/x-javascript">
+      function updateEditingCommands() {
+        goUpdateCommand("cmd_cut");
+        goUpdateCommand("cmd_copy");
+        goUpdateCommand("cmd_paste");
+        goUpdateCommand("cmd_delete");	
+      }
+    </script>
+
+    <commandset id="editMenuCommands"/>
+    <keyset id="editMenuKeys"/>
+  
+    <stringbundle id="gnotes-locale" 
+        src="chrome://google-gnotes/locale/google-gnotes.properties"/>
+
+    <popupset>
+      <tooltip id="aHTMLTooltip" 
+        onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);"/>
+
+      <!-- overlay from another file -->
+      <popup id="gnotes-context-menu"
+        onpopupshowing="updateEditingCommands();"/>
+  
+    </popupset>
+  </box>
+</overlay>

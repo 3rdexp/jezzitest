@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<!-- DTD file for locale-specific text -->
+<!DOCTYPE overlay [
+   <!ENTITY % gnotesDTD SYSTEM "chrome://google-gnotes/locale/google-gnotes.dtd" >
+  %gnotesDTD;
+  <!ENTITY % ctxtMenuDTD SYSTEM "chrome://global/locale/editMenuOverlay.dtd" >
+  %ctxtMenuDTD;
+  <!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd" >
+  %browserDTD;
+]>
+
+<!-- This file is overlayed into google-gnotes-overlay and gnotes-tearaway -->
+<overlay id="google-gnotes-context-overlay"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <popup id="gnotes-context-menu">
+    <menuitem id="gnotes-context-openlink" 
+      label="&openLinkCmd.label;"
+      accesskey="&openLinkCmd.accesskey;"/>
+    <menuitem id="gnotes-context-openlinkintab" 
+      label="&openLinkCmdInTab.label;"
+      accesskey="&openLinkCmdInTab.accesskey;"/>
+
+    <menuseparator id="gnotes-context-sep-open"/>
+
+    <!-- standard editing commands -->
+    <menuitem id="gnotes-context-cut" label="&cutCmd.label;"
+      key="key_cut" accesskey="&cutCmd.accesskey;"
+      command="cmd_cut"/>
+    <menuitem id="gnotes-context-copy" label="&copyCmd.label;"
+      key="key_copy" accesskey="&copyCmd.accesskey;"
+      command="cmd_copy"/>
+    <menuitem id="gnotes-context-paste-new" label="&gnotes.pasteNewNote;"
+      accesskey="&gnotes.pasteNewNoteAccessKey;"/>
+    <menuitem id="gnotes-context-paste" label="&pasteCmd.label;"
+      key="key_paste" accesskey="&pasteCmd.accesskey;"
+      command="cmd_paste"/>
+    <menuitem id="gnotes-context-delete" label="&deleteCmd.label;"
+      key="key_delete" accesskey="&deleteCmd.accesskey;"
+      command="cmd_delete"/>
+  </popup>
+</overlay>

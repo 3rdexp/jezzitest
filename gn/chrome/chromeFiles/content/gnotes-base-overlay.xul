@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="gnotes_overlay.css" type="text/css"?>
+
+<!-- DTD file for locale-specific text -->
+<!DOCTYPE overlay [
+  <!ENTITY % gnotesDTD SYSTEM "chrome://google-gnotes/locale/google-gnotes.dtd" >
+  %gnotesDTD;
+]>
+
+<?xul-overlay 
+  href="chrome://google-gnotes/content/gnotes-context-overlay.xul"?>
+
+<!-- This file is overlayed into the browser chrome. It contains UI elements
+  common to both Firetools and Gnotes extensions. Particularly it doesn't
+  contain statusbar overlay. -->
+<overlay id="gnotes-base-overlay"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <window id="main-window">
+    <vbox id="gnotes-overlay" class="gnotes-overlay" 
+          hidden="true" pack="center" >
+      <browser id="gnotes-ifr" src="" flex="1" type="content"
+        style="width: 100%; height: 100%;"
+        context="gnotes-context-menu"
+        tooltip="aHTMLTooltip"/>
+    </vbox>
+
+    <popupset>
+      <!-- overlay from another file -->
+      <popup id="gnotes-context-menu"/>
+    </popupset>
+  </window>
+
+  <popup id="contentAreaContextMenu">
+    <menuitem id="gnotes-contextmenu-add" label="&gnotes.noteThis;"
+      oncommand="GNOTES_overlay.ContextCallback(event)" 
+      accesskey="&gnotes.accessKey;"
+      insertbefore="#context-sep-paste"/>
+  </popup>
+</overlay>
+
