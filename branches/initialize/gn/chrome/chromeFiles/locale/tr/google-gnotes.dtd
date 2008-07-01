@@ -1,0 +1,52 @@
+<!-- @doc 
+     Copyright 2006 and onwards, Google
+     Author: Nick Santos (nicksantos)
+
+     This is the definitions file for messages
+     in the Google Notebook firefox extension that need to
+     be translated by the Translation Console.
+  
+     Inspired by the wiki at 
+     http://wiki.corp.google.com/twiki/bin/view/Main/FireToolsLocalization 
+
+     NOTE: Translators will not see the extension, so put please comments
+     above each ENTITY label. The translators will see any comment
+     that is not prefaced with "@doc".
+-->
+
+<!-- The short name of the extension -->
+<!ENTITY gnotes.shortName "Google Not Defteri">
+
+<!-- A menu label for letting the user enable/disable the note pop-up -->
+<!ENTITY gnotes.enableNoteThis "'Bunu Not Et' Düğmesini Etkinleştir">
+
+<!-- The label on the note pop-up, 
+     which copies text from a web page to notebook -->
+<!ENTITY gnotes.noteThis "Bunu not et (Google Not Defteri)">
+
+<!-- When Alt-[this key] is pressed, the notebook is opened. 
+     It *should* correspond to the first letter in "Notebook,"
+     and *must* correspond to some letter in notebook.        -->
+<!ENTITY gnotes.accessKey "d">
+
+<!-- Takes whatever's on the user's clipboard, and makes a new note with it.-->
+<!ENTITY gnotes.pasteNewNote "Yeni Notu Yapıştır">
+
+<!-- The access key for the "Paste New Note" button. 
+     Note that this used to select from an open menu, 
+     it is *not* the shortcut key.                    -->
+<!ENTITY gnotes.pasteNewNoteAccessKey "y">
+
+<!-- Title for the "cannot connect to notebook" message -->
+<!ENTITY gnotes.offline "Bağlantı Başarısız Oldu">
+
+<!-- Message indicating that there were connection problems -->
+<!ENTITY gnotes.connectionProblems "Google Not Defteri bağlantısı sırasında sorun oluştu. Çevrimdışı olabilirsiniz.">
+
+<!-- When connection fails, this link appears to let the user try the connection again -->
+<!ENTITY gnotes.tryConnectAgain "Yeniden bağlanmak için tıklayın">
+
+<!-- Label on a checkbox option that allows the user to hide the text in the status bar. -->
+<!ENTITY gnotes.hideStatusText "Yalnızca Resim">
+
+

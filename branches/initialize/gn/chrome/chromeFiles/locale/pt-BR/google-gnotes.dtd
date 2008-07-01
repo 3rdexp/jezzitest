@@ -1,0 +1,52 @@
+<!-- @doc 
+     Copyright 2006 and onwards, Google
+     Author: Nick Santos (nicksantos)
+
+     This is the definitions file for messages
+     in the Google Notebook firefox extension that need to
+     be translated by the Translation Console.
+  
+     Inspired by the wiki at 
+     http://wiki.corp.google.com/twiki/bin/view/Main/FireToolsLocalization 
+
+     NOTE: Translators will not see the extension, so put please comments
+     above each ENTITY label. The translators will see any comment
+     that is not prefaced with "@doc".
+-->
+
+<!-- The short name of the extension -->
+<!ENTITY gnotes.shortName "Google Notas">
+
+<!-- A menu label for letting the user enable/disable the note pop-up -->
+<!ENTITY gnotes.enableNoteThis "Ativar botão 'Anotar isto'">
+
+<!-- The label on the note pop-up, 
+     which copies text from a web page to notebook -->
+<!ENTITY gnotes.noteThis "Anotar isto (Google Notas)">
+
+<!-- When Alt-[this key] is pressed, the notebook is opened. 
+     It *should* correspond to the first letter in "Notebook,"
+     and *must* correspond to some letter in notebook.        -->
+<!ENTITY gnotes.accessKey "n">
+
+<!-- Takes whatever's on the user's clipboard, and makes a new note with it.-->
+<!ENTITY gnotes.pasteNewNote "Colar nova nota">
+
+<!-- The access key for the "Paste New Note" button. 
+     Note that this used to select from an open menu, 
+     it is *not* the shortcut key.                    -->
+<!ENTITY gnotes.pasteNewNoteAccessKey "p">
+
+<!-- Title for the "cannot connect to notebook" message -->
+<!ENTITY gnotes.offline "Falha na conexão">
+
+<!-- Message indicating that there were connection problems -->
+<!ENTITY gnotes.connectionProblems "Houve problemas durante a conexão ao Google Notas. Você pode estar off-line.">
+
+<!-- When connection fails, this link appears to let the user try the connection again -->
+<!ENTITY gnotes.tryConnectAgain "Tente se conectar novamente">
+
+<!-- Label on a checkbox option that allows the user to hide the text in the status bar. -->
+<!ENTITY gnotes.hideStatusText "Somente imagem">
+
+

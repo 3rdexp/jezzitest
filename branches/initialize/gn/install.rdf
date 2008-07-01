@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+  <RDF:Description about="urn:mozilla:install-manifest">
+
+  <em:id>notebook@google.com</em:id>
+  <em:version>1.0.0.20</em:version>
+  <em:targetApplication>
+    <RDF:Description>
+      <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+      <em:minVersion>1.5</em:minVersion>
+      <em:maxVersion>3.0.*</em:maxVersion>
+    </RDF:Description>
+  </em:targetApplication>
+
+  <em:name>Google Notebook</em:name>
+
+  <em:description>Allows notetaking while browsing</em:description>
+
+  <em:creator>Google, Inc.</em:creator>
+
+  <em:homepageURL>http://www.google.com/notebook</em:homepageURL>
+  <em:updateURL><![CDATA[https://tools.google.com/firefox/update?guid=%ITEM_ID%&version=%ITEM_VERSION%&application=%APP_ID%&appversion=%APP_VERSION%&dist=google]]></em:updateURL>
+  <em:iconURL>chrome://google-gnotes/content/notebook32.png</em:iconURL>
+  
+  </RDF:Description>      
+</RDF:RDF>
+

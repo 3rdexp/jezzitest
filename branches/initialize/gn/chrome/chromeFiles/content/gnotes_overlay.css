@@ -1,0 +1,43 @@
+.gnotes-status-button {
+  margin: 0px;
+  padding: 0;
+  border: none !important;
+  -moz-appearance: none !important;
+}
+
+.gnotes-statusbar:hover .gnotes-status-button {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.gnotes-overlay {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  width: 1px;
+  height: 1px;
+  color: #CC0000;
+  background-color: white;
+  z-index: 20;
+}
+
+.gnotes-window {
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  color: #CC0000;
+  background-color: white;
+}
+
+#gnotes-add-to-note {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  width: 1px;
+  height: 200px;
+  color: #CC0000;
+  background-color: #FFFFCC;
+  z-index: 20;
+  border: 1px solid black;
+}
