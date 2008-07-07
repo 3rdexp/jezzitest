@@ -30,7 +30,7 @@ class Greeting(db.Model):
   date = db.DateTimeProperty(auto_now_add=True)
 
 """
-uri
+google.appengine.ext.webapp.Request
   Properties:
     uri: the complete URI requested by the user
     scheme: 'http' or 'https'
@@ -50,8 +50,12 @@ class MainPage(webapp.RequestHandler):
     if self.request.path.startswith('/hot'):
       url += self.request.path[len('/hot'):]
       
+    if self.request.query:
+      url += "?" + self.request.query
+      
     # self.response.out.write(url)
-    logging.debug('url: %s', url)
+    # logging.info('url: %s', url)
+    logging.info('q: %s', type(self.request))
     
     # result = urlfetch.fetch(url, headers=self.request.parameters)
     #if result.status_code == 200:
