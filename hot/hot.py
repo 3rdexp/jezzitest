@@ -29,6 +29,8 @@ class Greeting(db.Model):
   content = db.StringProperty(multiline=True)
   date = db.DateTimeProperty(auto_now_add=True)
 
+
+
 """
 google.appengine.ext.webapp.Request
   Properties:
@@ -39,7 +41,9 @@ google.appengine.ext.webapp.Request
     parameters: the part of the URL between the ';' and the '?', if any
     query: the part of the URL after the '?'
 """
-    
+
+
+
 class MainPage(webapp.RequestHandler):
   def get(self):
     url = "http://www.google.com"
@@ -55,7 +59,9 @@ class MainPage(webapp.RequestHandler):
       
     # self.response.out.write(url)
     # logging.info('url: %s', url)
-    logging.info('q: %s', type(self.request))
+    # logging.info('q: %s', type(self.request))
+    
+    
     
     # result = urlfetch.fetch(url, headers=self.request.parameters)
     #if result.status_code == 200:
