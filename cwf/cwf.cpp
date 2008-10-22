@@ -12,7 +12,7 @@ void Connection::Start() {
         boost::asio::placeholders::bytes_transferred)));
 }
 
-ProcessHeader(FCGI_Header &header) {
+void ProcessHeader(FCGI_Header &header) {
     // 1 check version
     // 2 request_id == FCGI_NULL_REQUEST_ID, get param
     // 3 request_id = FCGI_BEGIN_REQUEST, begin request
