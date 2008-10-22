@@ -3,8 +3,8 @@
 
 #include <string>
 
-namespace cwf {
+namespace cwf { namespace http {
 // enum for header, reply...
-}
+} } // cwf::http
 
 #endif // CWF_HTTP_HPP__
