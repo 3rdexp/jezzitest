@@ -34,7 +34,7 @@ public:
         Handler& handler) : strand_(io_service)
         , socket_(io_service)
         , request_handler_(handler)
-        , got_header_(false) {}
+        , got_header_(false) , readed_(false) {}
 
     /// Get the socket associated with the connection.
     boost::asio::ip::tcp::socket& socket();
@@ -57,6 +57,8 @@ private:
 
     /// The handler used to process the incoming request.
     Handler& request_handler_;
+
+    std::size_t readed_;
 
     /// Buffer for incoming data.
     boost::array<char, 8192> buffer_;

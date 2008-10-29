@@ -9,26 +9,26 @@ namespace cwf { namespace http {
    /**
     * See http://tools.ietf.org/html/rfc2616#section-10
     */
-   enum status_code {
-     /// Informational codes
-     continue_                      = 100, // note the trailing underscore
-     switching_protocols,
-     processing,
+	enum status_code {
+		/// Informational codes
+		continue_                      = 100, // note the trailing underscore
+		switching_protocols,
+		processing,
 
-     /// Success codes
-     ok                             = 200,
-     created,
-     accepted,
-     non_authorative_information,
-     no_content,
-     reset_content,
-     partial_content,
-     multi_status,
+		/// Success codes
+		ok                             = 200,
+		created,
+		accepted,
+		non_authorative_information,
+		no_content,
+		reset_content,
+		partial_content,
+		multi_status,
 
-     /// Redirect codes
-     multiple_choices               = 300,
-     moved_permanently,
-     found,
+		/// Redirect codes
+		multiple_choices               = 300,
+		moved_permanently,
+		found,
      see_other,
      not_modified,
      use_proxy,

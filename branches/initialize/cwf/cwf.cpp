@@ -1,10 +1,10 @@
 #include <boost/bind.hpp>
+#include "cwf/fcgi_spec.hpp"
 #include "cwf/cwf.h"
 
 namespace cwf {
 
 void Connection::Start() {
-    got_header_ = false;
     socket_.async_read_some(boost::asio::buffer(buffer_),
         strand_.wrap(
         boost::bind(&connection::handle_read, shared_from_this(),
@@ -12,11 +12,32 @@ void Connection::Start() {
         boost::asio::placeholders::bytes_transferred)));
 }
 
-void ProcessHeader(FCGI_Header &header) {
-    // 1 check version
-    // 2 request_id == FCGI_NULL_REQUEST_ID, get param
-    // 3 request_id = FCGI_BEGIN_REQUEST, begin request
+void Connection::ProcessHeader(fcgi::Header &header) {
+  // 1 check version
+  // 2 request_id == FCGI_NULL_REQUEST_ID, get param
+  // 3 request_id = FCGI_BEGIN_REQUEST, begin request
+	
+	if (header.version() != fcgi::VERSION_1){
+		return; // "version-not-supported";
+	}
 
+	int type = header.type();
+	switch (type){
+	case fcgi::BEGIN_REQUEST:
+		break;
+	case fcgi::PARAMS:
+		break;
+	case fcgi::STDIN:
+	default:
+		break;
+	}
+	
+	int request_id = header.request_id();
+	int content_length = header.content_length();
+
+
+	// from fcgi devkit
+	/*
     int requestId;
     if(header.version != FCGI_VERSION_1) {
         return FCGX_UNSUPPORTED_VERSION;
@@ -39,27 +60,31 @@ void ProcessHeader(FCGI_Header &header) {
         return FCGX_PROTOCOL_ERROR;
     }
     return STREAM_RECORD;
+	*/
 }
 
+
 void Connection::HandleRead(const boost::system::error_code& e,
-        std::size_t bytes_transferred) {
+														std::size_t bytes_transferred) {
+	// If an error occurs then no new asynchronous operations are started. This
+	// means that all shared_ptr references to the connection object will
+	// disappear and the object will be destroyed automatically after this
+	// handler returns. The connection class's destructor closes the socket.
+	if (e)
+		return;
 
-  // If an error occurs then no new asynchronous operations are started. This
-  // means that all shared_ptr references to the connection object will
-  // disappear and the object will be destroyed automatically after this
-  // handler returns. The connection class's destructor closes the socket.
-    if (e)
-        return;
+	readed_ += bytes_transferred;
 
-    if (!got_header_) {
-        // Parse
-        if (bytes_transferred < sizeof(FCGI_Header))
-            ; // read more
+	if (!got_header_) {
+		// Parse
+		if (readed_ < sizeof(fcgi::Header))
+			; // read more
 
-        FCGI_Header fcgi_header;
-        ProcessHeader(fcgi_header);
-    }
-
+		fcgi::Header *h = buffer_.data();
+		bytes_transferred						// 
+		ProcessHeader(fcgi_header);
+	}
+	
   if (!e) {
     boost::tribool result;
     boost::tie(result, boost::tuples::ignore) = request_parser_.parse(
