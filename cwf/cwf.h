@@ -8,6 +8,11 @@
 // 3 
 
 #include <boost/asio.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/logic/tribool.hpp>
+#include <boost/tuple/tuple.hpp>
+
+#include "cwf/fcgi_spec.hpp"
 
 namespace cwf {
 
@@ -15,29 +20,53 @@ class Request;
 class Reply;
 class Connection;
 
+class Request {
+public:    
+  // header, body, address
+};
+
+class Reply {
+public:
+  // ostringstream?
+  // gzip stream
+};
+
 class Handler {
 public:
-    explicit Handler(const std::string &doc_root);
-    void Render(const Request &, Reply &);
+  explicit Handler(const std::string &doc_root) 
+    : doc_root_(doc_root) {}
+
+  template <typename InputIterator>
+  boost::tuple<boost::tribool, InputIterator> Parse(Request &
+    , InputIterator begin, std::size_t length, Reply &reply) {
+      boost::tribool result = boost::indeterminate;
+      if (length >= sizeof(fcgi::Header)) {
+        fcgi::Header *h =  reinterpret_cast<fcgi::Header *>(buffer_.data());
+        result = Process(h, reply);
+      }
+      return boost::make_tuple(result, begin);
+  }
+
+  bool Process(const fcgi::Header &header, Reply &reply);
 
 private:
     const std::string doc_root_;
-
-    /// Templates
 };
 
 class Connection 
     : public boost::enable_shared_from_this<Connection>
     , private boost::noncopyable {
 public:
-    explicit connection(boost::asio::io_service& io_service,
+    explicit Connection(boost::asio::io_service& io_service,
         Handler& handler) : strand_(io_service)
         , socket_(io_service)
         , request_handler_(handler)
         , got_header_(false) , readed_(false) {}
 
     /// Get the socket associated with the connection.
-    boost::asio::ip::tcp::socket& socket();
+    boost::asio::ip::tcp::socket& socket() {
+      return socket_;
+    }
 
     /// Start the first asynchronous operation for the connection.
     void Start();
@@ -48,6 +77,8 @@ private:
 
     /// Handle completion of a write operation.
     void HandleWrite(const boost::system::error_code& e);
+
+    
 
     /// Strand to ensure the connection's handlers are not called concurrently.
     boost::asio::io_service::strand strand_;
@@ -67,7 +98,7 @@ private:
     Request request_;
 
     /// The parser for the incoming request.
-    request_parser request_parser_;
+    // request_parser request_parser_;
 
     /// The reply to be sent back to the client.
     Reply reply_;
@@ -75,21 +106,16 @@ private:
     bool got_header_;
 };
 
-class Request {
-public:    
-    // header, body, address
-};
-
-class Reply {
-public:
-    // ostringstream?
-    // gzip stream
-};
-
 class Server {
 public:
     explicit Server(const std::string& address, const std::string& port,
-        const std::string& doc_root, std::size_t thread_pool_size);
+        const std::string& doc_root, std::size_t thread_pool_size) 
+        : thread_pool_size_(thread_pool_size)
+        , address_(address), port_(port)
+        , acceptor_(io_service_)
+        , request_handler_(doc_root)  {}
+
+    bool Init();
 
     /// run the io_service loop:
     /// Wait fastcgi connection
@@ -110,6 +136,8 @@ private:
     /// The number of threads that will call io_service::run().
     std::size_t thread_pool_size_;
 
+    std::string address_, port_;
+
     /// The io_service used to perform asynchronous operations.
     boost::asio::io_service io_service_;
 
@@ -117,10 +145,12 @@ private:
     boost::asio::ip::tcp::acceptor acceptor_;
 
     /// The next connection to be accepted.
-    connection_ptr new_connection_;
+    // connection_ptr new_connection_;
+    boost::shared_ptr<Connection> new_connection_;
 
     /// The handler for all incoming requests.
     Handler request_handler_;
+    
 };
 
 //////////////////////////////////////////////////////////////////////////
