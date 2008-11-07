@@ -14,6 +14,7 @@ void Connection::Start() {
     boost::asio::placeholders::bytes_transferred)));
 }
 
+#if 0
 bool Handler::ProcessHeader(const fcgi::Header &header) {
   // 1 check version
   // 2 request_id == FCGI_NULL_REQUEST_ID, get param
@@ -64,7 +65,7 @@ bool Handler::ProcessHeader(const fcgi::Header &header) {
     return STREAM_RECORD;
 	*/
 }
-
+#endif
 
 void Connection::HandleRead(const boost::system::error_code& e,
 														std::size_t bytes_transferred) {
@@ -77,8 +78,8 @@ void Connection::HandleRead(const boost::system::error_code& e,
 
   Reply reply;
   boost::tribool result;
-  boost::tie(result, boost::tuples::ignore) = request_handler_.Parse(
-    request_, buffer_.data(), bytes_transferred, reply);
+  boost::tie(result, boost::tuples::ignore) = parser_.Parse(
+    request_, buffer_.data(), bytes_transferred);
 
 #if 0
 	readed_ += bytes_transferred;
