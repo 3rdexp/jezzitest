@@ -31,26 +31,33 @@ public:
   // gzip stream
 };
 
-class Handler {
+class Parser {
 public:
-  explicit Handler(const std::string &doc_root) 
-    : doc_root_(doc_root) {}
+  Parser() {}
 
   template <typename InputIterator>
   boost::tuple<boost::tribool, InputIterator> Parse(Request &
-    , InputIterator begin, std::size_t length, Reply &reply) {
+    , InputIterator begin, std::size_t length) {
       boost::tribool result = boost::indeterminate;
       if (length >= sizeof(fcgi::Header)) {
         fcgi::Header *h =  reinterpret_cast<fcgi::Header *>(buffer_.data());
-        result = Process(h, reply);
+        // result = Process(h, reply);
       }
       return boost::make_tuple(result, begin);
   }
 
-  bool Process(const fcgi::Header &header, Reply &reply);
+  // bool Process(const fcgi::Header &header, Reply &reply);
+};
+
+class Handle {
+public:
+  Handle(const std::string &doc_root) : doc_root_(doc_root) {}
+  bool Render(const Request &req, Reply &reply) {
+    return true;
+  }
 
 private:
-    const std::string doc_root_;
+  std::string doc_root_;
 };
 
 class Connection 
@@ -58,7 +65,7 @@ class Connection
     , private boost::noncopyable {
 public:
     explicit Connection(boost::asio::io_service& io_service,
-        Handler& handler) : strand_(io_service)
+        Handle& handler) : strand_(io_service)
         , socket_(io_service)
         , request_handler_(handler)
         , got_header_(false) , readed_(false) {}
@@ -78,16 +85,16 @@ private:
     /// Handle completion of a write operation.
     void HandleWrite(const boost::system::error_code& e);
 
-    
-
     /// Strand to ensure the connection's handlers are not called concurrently.
     boost::asio::io_service::strand strand_;
 
     /// Socket for the connection.
     boost::asio::ip::tcp::socket socket_;
 
+    Parser parser_;
+
     /// The handler used to process the incoming request.
-    Handler& request_handler_;
+    Handle& request_handler_;
 
     std::size_t readed_;
 
@@ -120,8 +127,8 @@ public:
     /// run the io_service loop:
     /// Wait fastcgi connection
     /// Generate Request
-    /// url map ===>  Handler
-    /// Handler.Render(Request)
+    /// url map ===>  Handle
+    /// Handle.Render(Request)
     void Run();
 
     void Stop();
@@ -130,7 +137,7 @@ public:
     int set_thread_pool_size(std::size_t thread_pool_size);
 
 private:
-    /// Handler completion of an asynchronous accept operation.
+    /// Handle completion of an asynchronous accept operation.
     void HandleAccept(const boost::system::error_code& e);
 
     /// The number of threads that will call io_service::run().
@@ -149,8 +156,7 @@ private:
     boost::shared_ptr<Connection> new_connection_;
 
     /// The handler for all incoming requests.
-    Handler request_handler_;
-    
+    Handle request_handler_;    
 };
 
 //////////////////////////////////////////////////////////////////////////
