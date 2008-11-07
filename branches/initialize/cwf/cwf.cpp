@@ -6,13 +6,34 @@
 
 namespace cwf {
 
-void Connection::Start() {
-  socket_.async_read_some(boost::asio::buffer(buffer_),
-    strand_.wrap(
-    boost::bind(&Connection::HandleRead, shared_from_this(),
-    boost::asio::placeholders::error,
-    boost::asio::placeholders::bytes_transferred)));
+bool Parser::Process(const char *, std::size_t length, Request &request) {
+  using namespace fcgi;
+
+  if (length >= sizeof(fcgi::Header)) {
+    fcgi::Header *h =  reinterpret_cast<fcgi::Header *>(begin);
+
+  // SCRIPT_FILENAME
+  boost::uint16_t request_id = header.request_id();
+  if (header.version() < fcgi::VERSION_1)
+    return false;
+  if (header.type() == BEGIN_REQUEST) {
+    const BeginRequestBody * request_body = reinterpret_cast<const BeginRequestBody*>(buf);
+    int name_len = 
+  }
+  return true;
 }
+
+// bool Parser::ProcessBeginRecord() {
+//  return false;
+//}
+
+void Connection::Start() {
+    socket_.async_read_some(boost::asio::buffer(buffer_),
+      strand_.wrap(
+        boost::bind(&Connection::HandleRead, shared_from_this(),
+        boost::asio::placeholders::error,
+        boost::asio::placeholders::bytes_transferred)));
+  }
 
 #if 0
 bool Handler::ProcessHeader(const fcgi::Header &header) {
@@ -75,11 +96,25 @@ void Connection::HandleRead(const boost::system::error_code& e,
 	// handler returns. The Connection class's destructor closes the socket.
 	if (e)
 		return;
-
-  Reply reply;
+  
   boost::tribool result;
   boost::tie(result, boost::tuples::ignore) = parser_.Parse(
     request_, buffer_.data(), bytes_transferred);
+
+  if (result) {
+    Reply reply;
+    if (request_handler_.Render(request_, reply))
+      ; // Write reply
+
+    
+  }
+  else if (!result) {
+    // bad_request
+  } else {
+    // do nothing
+  }
+
+  // read more
 
 #if 0
 	readed_ += bytes_transferred;
@@ -99,7 +134,7 @@ void Connection::HandleRead(const boost::system::error_code& e,
       // 
     }
 	}
-  // SCRIPT_FILENAME
+  
 #endif
 
 #if 0	
@@ -136,6 +171,8 @@ void Connection::HandleRead(const boost::system::error_code& e,
 #endif
 }
 
+//////////////////////////////////////////////////////////////////////////
+//
 bool Server::Init() {
   new_connection_.reset(new Connection(io_service_, request_handler_));
 

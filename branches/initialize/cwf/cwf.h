@@ -36,17 +36,15 @@ public:
   Parser() {}
 
   template <typename InputIterator>
-  boost::tuple<boost::tribool, InputIterator> Parse(Request &
-    , InputIterator begin, std::size_t length) {
+  boost::tuple<boost::tribool, InputIterator> Parse(
+          InputIterator begin, std::size_t length, Request & request) {
       boost::tribool result = boost::indeterminate;
-      if (length >= sizeof(fcgi::Header)) {
-        fcgi::Header *h =  reinterpret_cast<fcgi::Header *>(buffer_.data());
-        // result = Process(h, reply);
-      }
+      result = Process(reinterpret_cast<const char *>(begin), length, request);
+      
       return boost::make_tuple(result, begin);
   }
 
-  // bool Process(const fcgi::Header &header, Reply &reply);
+  bool Process(const char *, std::size_t length, Request &request);
 };
 
 class Handle {
