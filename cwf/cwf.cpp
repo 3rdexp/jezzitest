@@ -6,26 +6,27 @@
 
 namespace cwf {
 
-bool Parser::Process(const char *, std::size_t length, Request &request) {
+bool Parser::Process(const char *buffer, std::size_t length, Request &request) {
   using namespace fcgi;
 
-  if (length >= sizeof(fcgi::Header)) {
-    fcgi::Header *h =  reinterpret_cast<fcgi::Header *>(begin);
-
-  // SCRIPT_FILENAME
-  boost::uint16_t request_id = header.request_id();
-  if (header.version() < fcgi::VERSION_1)
-    return false;
-  if (header.type() == BEGIN_REQUEST) {
-    const BeginRequestBody * request_body = reinterpret_cast<const BeginRequestBody*>(buf);
-    int name_len = 
+  if (length >= sizeof(BeginRequestRecord)) {
+    const BeginRequestRecord *brr =  reinterpret_cast<const BeginRequestRecord *>(buffer);
+    
+    boost::uint16_t request_id = brr->header_.request_id();
+    if (brr->header_.version() < VERSION_1)
+      return false;
   }
+
+  // name-value pair
+  // SCRIPT_FILENAME
   return true;
 }
 
-// bool Parser::ProcessBeginRecord() {
-//  return false;
-//}
+bool Handle::Render(const Request &req, Reply &reply) {
+  return true;
+}
+
+
 
 void Connection::Start() {
     socket_.async_read_some(boost::asio::buffer(buffer_),
@@ -99,12 +100,15 @@ void Connection::HandleRead(const boost::system::error_code& e,
   
   boost::tribool result;
   boost::tie(result, boost::tuples::ignore) = parser_.Parse(
-    request_, buffer_.data(), bytes_transferred);
+    buffer_.data(), bytes_transferred, request_);
 
   if (result) {
-    Reply reply;
-    if (request_handler_.Render(request_, reply))
-      ; // Write reply
+    reply_ = Reply(request_.request_id(), fcgi::REQUEST_COMPLETE);
+    if (request_handler_.Render(request_, reply_))
+      boost::asio::async_write(socket_, reply_.to_buffers(),
+        strand_.wrap(
+          boost::bind(&Connection::HandleWrite, shared_from_this(),
+          boost::asio::placeholders::error)));
 
     
   }
@@ -169,6 +173,19 @@ void Connection::HandleRead(const boost::system::error_code& e,
     }
   }
 #endif
+}
+
+void Connection::HandleWrite(const boost::system::error_code& e) {
+  if (!e) {
+    // Initiate graceful connection closure.
+    boost::system::error_code ignored_ec;
+    socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+  }
+
+  // No new asynchronous operations are started. This means that all shared_ptr
+  // references to the connection object will disappear and the object will be
+  // destroyed automatically after this handler returns. The connection class's
+  // destructor closes the socket.
 }
 
 //////////////////////////////////////////////////////////////////////////

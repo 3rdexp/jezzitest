@@ -23,12 +23,26 @@ class Connection;
 class Request {
 public:    
   // header, body, address
+  int request_id() const { return record_.header_.request_id(); }
+  
+private:
+  fcgi::BeginRequestRecord record_;
 };
 
 class Reply {
 public:
-  // ostringstream?
-  // gzip stream
+  Reply() : record_(-1, 0, fcgi::REQUEST_COMPLETE) {}
+  Reply(int request_id, fcgi::status_t status, int app = 0) 
+    : record_(request_id, app, status) {}
+
+  std::vector<boost::asio::const_buffer> to_buffers() const {
+    std::vector<boost::asio::const_buffer> buffers;
+    buffers.push_back(boost::asio::const_buffer(&record_, sizeof(record_)));
+    return buffers;
+  }
+  
+private:
+  fcgi::EndRequestRecord record_;
 };
 
 class Parser {
@@ -50,9 +64,7 @@ public:
 class Handle {
 public:
   Handle(const std::string &doc_root) : doc_root_(doc_root) {}
-  bool Render(const Request &req, Reply &reply) {
-    return true;
-  }
+  bool Render(const Request &req, Reply &reply);
 
 private:
   std::string doc_root_;
