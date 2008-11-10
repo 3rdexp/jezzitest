@@ -6,22 +6,90 @@
 
 namespace cwf {
 
-bool Parser::Process(const char *buffer, std::size_t length, Request &request) {
+struct NestedStream {
+  NestedStream(const char *stream, std::size_t length) 
+    : stream_(stream), length_(length), next_(next) 
+  {}  
+
+  int ReadChar() {
+    if (next_ != stream + length)
+      return *next_++;
+
+    return EOF;
+  }
+  int ReadBuffer(char *buffer, int buffer_length) {
+    if (next_ + buffer_length <= stream_ + length_) {
+      memcpy(buffer, next_, buffer_length);
+      next_ += buffer_length;
+      return buffer_length;
+    }
+
+    // read more?
+    return 0;
+  }
+
+private:
+  const char *stream_;
+  std::size_t length_;
+  const char *next_;
+};
+
+bool Parser::Process(const char *stream, std::size_t length, Request &request) {
   using namespace fcgi;
 
   if (length >= sizeof(BeginRequestRecord)) {
-    const BeginRequestRecord *brr =  reinterpret_cast<const BeginRequestRecord *>(buffer);
+    const BeginRequestRecord *brr =  reinterpret_cast<const BeginRequestRecord *>(stream);
     
     boost::uint16_t request_id = brr->header_.request_id();
     if (brr->header_.version() < VERSION_1)
       return false;
   }
 
+  NestedStream ns(stream + sizeof(BeginRequestRecord),
+      length - sizeof(BeginRequestRecord));
+  
   // name-value pair
-  // SCRIPT_FILENAME
+  // translate from fcgiapp.c
+  unsigned char lens[3] = {0};
+  int name_len = 0;
+  while ((name_len = ns.ReadChar(length)) != EOF) {
+    if ((name_len & 0x80) !=0 ) {
+      if (3 != ns.ReadBuffer(lens, 3))
+        return false; // read params error
+    }
+
+    name_len = ((name_len & 0x7f) << 24) + (lens[0] << 16)
+      + (lens[1] << 8) + lens[2];
+
+    int value_len = ns.ReadChar();
+    if (value_len == EOF)
+      return false;
+
+    if ((value_len & 0x80) != 0) {
+      if (3 != ns.ReadBuffer(lens, 3))
+        return false;
+
+      value_len = ((value_len & 0x7f) << 24) + (lens[0] << 16)
+        + (lens[1] << 8) + lens[2];
+    }
+
+    std::vector<char> nameval(name_len + value_len);
+    if (name_len != ns.ReadBuffer(&nameval[0], name_len))
+      return false;
+
+    if (value_len != ns.ReadBuffer(&nameval[name_len], value_len))
+      return false;
+
+    request.PutParam(
+      std::string(&nameval[0], name_len), 
+      std::string(&nameval[name_len], value_len)
+      );
+  }
   return true;
 }
 
+// map
+// 
 bool Handle::Render(const Request &req, Reply &reply) {
   return true;
 }
@@ -29,65 +97,12 @@ bool Handle::Render(const Request &req, Reply &reply) {
 
 
 void Connection::Start() {
-    socket_.async_read_some(boost::asio::buffer(buffer_),
-      strand_.wrap(
-        boost::bind(&Connection::HandleRead, shared_from_this(),
-        boost::asio::placeholders::error,
-        boost::asio::placeholders::bytes_transferred)));
-  }
-
-#if 0
-bool Handler::ProcessHeader(const fcgi::Header &header) {
-  // 1 check version
-  // 2 request_id == FCGI_NULL_REQUEST_ID, get param
-  // 3 request_id = FCGI_BEGIN_REQUEST, begin request
-	
-	if (header.version() != fcgi::VERSION_1){
-		return false; // "version-not-supported";
-	}
-
-	int type = header.type();
-	switch (type){
-	case fcgi::BEGIN_REQUEST:
-		break;
-	case fcgi::PARAMS:
-		break;
-	case fcgi::STDIN:
-	default:
-		break;
-	}
-	
-	int request_id = header.request_id();
-	int content_length = header.content_length();
-
-
-	// from fcgi devkit
-	/*
-    int requestId;
-    if(header.version != FCGI_VERSION_1) {
-        return FCGX_UNSUPPORTED_VERSION;
-    }
-    requestId =        (header.requestIdB1 << 8)
-        + header.requestIdB0;
-    data->contentLen = (header.contentLengthB1 << 8)
-        + header.contentLengthB0;
-    data->paddingLen = header.paddingLength;
-    if(header.type == FCGI_BEGIN_REQUEST) {
-        return ProcessBeginRecord(requestId, stream);
-    }
-    if(requestId  == FCGI_NULL_REQUEST_ID) {
-        return ProcessManagementRecord(header.type, stream);
-    }
-    if(requestId != data->reqDataPtr->requestId) {
-        return SKIP;
-    }
-    if(header.type != data->type) {
-        return FCGX_PROTOCOL_ERROR;
-    }
-    return STREAM_RECORD;
-	*/
+  socket_.async_read_some(boost::asio::buffer(buffer_),
+    strand_.wrap(
+    boost::bind(&Connection::HandleRead, shared_from_this(),
+    boost::asio::placeholders::error,
+    boost::asio::placeholders::bytes_transferred)));
 }
-#endif
 
 void Connection::HandleRead(const boost::system::error_code& e,
 														std::size_t bytes_transferred) {
@@ -119,60 +134,6 @@ void Connection::HandleRead(const boost::system::error_code& e,
   }
 
   // read more
-
-#if 0
-	readed_ += bytes_transferred;
-
-	if (!got_header_) {
-		// Parse
-		if (readed_ < sizeof(fcgi::Header))
-			; // read more
-
-		fcgi::Header *h =  reinterpret_cast<fcgi::Header *>(buffer_.data());
-		// bytes_transferred						// 
-		got_header_ = ProcessHeader(*h);
-
-    if (!got_header_) {
-      // write not support?
-    } else {
-      // 
-    }
-	}
-  
-#endif
-
-#if 0	
-  if (!e) {
-    boost::tribool result;
-    boost::tie(result, boost::tuples::ignore) = request_parser_.parse(
-        request_, buffer_.data(), buffer_.data() + bytes_transferred);
-
-    if (result)
-    {
-      request_handler_.handle_request(request_, reply_);
-      boost::asio::async_write(socket_, reply_.to_buffers(),
-          strand_.wrap(
-            boost::bind(&Connection::HandleWrite, shared_from_this(),
-              boost::asio::placeholders::error)));
-    }
-    else if (!result)
-    {
-      reply_ = reply::stock_reply(reply::bad_request);
-      boost::asio::async_write(socket_, reply_.to_buffers(),
-          strand_.wrap(
-            boost::bind(&Connection::HandleWrite, shared_from_this(),
-              boost::asio::placeholders::error)));
-    }
-    else
-    {
-      socket_.async_read_some(boost::asio::buffer(buffer_),
-          strand_.wrap(
-            boost::bind(&Connection::HandleRead, shared_from_this(),
-              boost::asio::placeholders::error,
-              boost::asio::placeholders::bytes_transferred)));
-    }
-  }
-#endif
 }
 
 void Connection::HandleWrite(const boost::system::error_code& e) {
@@ -235,6 +196,5 @@ void Server::HandleAccept(const boost::system::error_code& e) {
       boost::asio::placeholders::error));
   }
 }
-
 
 }

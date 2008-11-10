@@ -21,12 +21,15 @@ class Reply;
 class Connection;
 
 class Request {
-public:    
-  // header, body, address
+public:
   int request_id() const { return record_.header_.request_id(); }
+  void PutParam(const std::string &key, const std::string &val) {
+      params_.push_back(key, val);
+  }
   
 private:
   fcgi::BeginRequestRecord record_;
+  std::list<std::string, std::string> params_; // multi_map ?
 };
 
 class Reply {
@@ -58,7 +61,8 @@ public:
       return boost::make_tuple(result, begin);
   }
 
-  bool Process(const char *, std::size_t length, Request &request);
+private:
+  bool Process(const char *stream, std::size_t length, Request &request);
 };
 
 class Handle {
