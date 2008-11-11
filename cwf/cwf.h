@@ -7,6 +7,8 @@
 // 2 fcgi host, test => fcgi client
 // 3 
 
+#include <string>
+#include <map>
 #include <boost/asio.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/logic/tribool.hpp>
@@ -24,28 +26,25 @@ class Request {
 public:
   int request_id() const { return record_.header_.request_id(); }
   void PutParam(const std::string &key, const std::string &val) {
-      params_.push_back(key, val);
+    params_.insert(std::make_pair(key, val));
   }
   
 private:
   fcgi::BeginRequestRecord record_;
-  std::list<std::string, std::string> params_; // multi_map ?
+  typedef std::multimap<std::string, std::string> ParamMap;
+  ParamMap params_;
 };
 
 class Reply {
 public:
-  Reply() : record_(-1, 0, fcgi::REQUEST_COMPLETE) {}
-  Reply(int request_id, fcgi::status_t status, int app = 0) 
-    : record_(request_id, app, status) {}
+  Reply() : header_(fcgi::STDOUT, 0, 0) {}
+  Reply(fcgi::request_t type, int request_id, int length) 
+    : header_(type, request_id, length) {}
 
-  std::vector<boost::asio::const_buffer> to_buffers() const {
-    std::vector<boost::asio::const_buffer> buffers;
-    buffers.push_back(boost::asio::const_buffer(&record_, sizeof(record_)));
-    return buffers;
-  }
+  std::vector<boost::asio::const_buffer> to_buffers() const;
   
 private:
-  fcgi::EndRequestRecord record_;
+  fcgi::Header header_;
 };
 
 class Parser {
