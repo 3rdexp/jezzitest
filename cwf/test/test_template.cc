@@ -2,6 +2,8 @@
 
 int main() {
   using google::TemplateDictionary;
+
+  // -------------------------------------------------
   TemplateDictionary* dict = new TemplateDictionary("section example");
   const char* username = GetUsername();   // returns "" for no user
   if (username[0] != '\0') {
@@ -31,6 +33,16 @@ int main() {
     }
   }
 
+  // -------------------------------------------------
+  TemplateDictionary* dict = new TemplateDictionary("include example");
+  GetResults(results, &num_results);
+  for (int i = 0; i < num_results; ++i) {
+    TemplateDictionary* sub_dict = dict->AddIncludeDictionary("RESULT_TEMPLATE");
+    sub_dict->SetFilename("results.tpl");
+    FillResultsTemplate(sub_dict, results[i]);
+  }
+
+  // -------------------------------------------------
   google::Template* tpl = google::Template::GetTemplate(<filename>, google::STRIP_WHITESPACE);
   google::TemplateDictionary dict("debug-name");
   FillDictionary(&dict, ...);
