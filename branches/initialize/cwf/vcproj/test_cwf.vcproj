@@ -188,6 +188,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\http.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\http.hpp"
 			>
 		</File>

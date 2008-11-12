@@ -15,6 +15,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "cwf/fcgi_spec.hpp"
+#include "cwf/http.hpp"
 
 namespace cwf {
 
@@ -38,13 +39,16 @@ private:
 class Reply {
 public:
   Reply() : header_(fcgi::STDOUT, 0, 0) {}
-  Reply(fcgi::request_t type, int request_id, int length) 
-    : header_(type, request_id, length) {}
+  Reply(fcgi::request_t type, int request_id) 
+    : header_(type, request_id, 0) {}
 
   std::vector<boost::asio::const_buffer> to_buffers() const;
+  void SetHttpHeader();
   
 private:
   fcgi::Header header_;
+  http::HttpData data_;
+  // content_
 };
 
 class Parser {

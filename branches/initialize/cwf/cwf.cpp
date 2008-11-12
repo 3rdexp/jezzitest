@@ -121,6 +121,7 @@ bool Handle::Render(const Request &req, Reply &reply) {
 std::vector<boost::asio::const_buffer> Reply::to_buffers() const {
   std::vector<boost::asio::const_buffer> buffers;
   buffers.push_back(boost::asio::const_buffer(&header_, sizeof(header_)));
+  // buffers.push_back(boost::asio::const_buffer(&buffer_[0], buffer_.size()));
   return buffers;
 }
 
@@ -146,7 +147,7 @@ void Connection::HandleRead(const boost::system::error_code& e,
     buffer_.data(), bytes_transferred, request_);
 
   if (result) {
-    reply_ = Reply(fcgi::STDOUT, request_.request_id(), 0);
+    reply_ = Reply(fcgi::STDOUT, request_.request_id());
     if (request_handler_.Render(request_, reply_))
       boost::asio::async_write(socket_, reply_.to_buffers(),
         strand_.wrap(
