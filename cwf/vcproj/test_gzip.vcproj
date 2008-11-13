@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="test_cwf"
-	ProjectGUID="{C3B638DB-AF24-4245-A34F-4CD2C27D4ACF}"
-	RootNamespace="test_cwf"
+	Name="test_gzip"
+	ProjectGUID="{C31638DB-AF24-3245-A34F-4CE2C27D4ACE}"
+	RootNamespace="test_gzip"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="temp\$(ConfigurationName)\$(TargetName)"
+			IntermediateDirectory="temp\$(TargetName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets=".\win.vsprops"
 			UseOfMFC="0"
@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PLATFORM_WIN32;flagUSEMALLOC;WIN32_LEAN_AND_MEAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -176,27 +176,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\cwf.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\cwf.h"
-			>
-		</File>
-		<File
-			RelativePath="..\fcgi_spec.hpp"
-			>
-		</File>
-		<File
-			RelativePath="..\http.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\http.hpp"
-			>
-		</File>
-		<File
-			RelativePath="..\winmain.cpp"
+			RelativePath=".\test_gzip.cc"
 			>
 		</File>
 	</Files>
