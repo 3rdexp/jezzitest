@@ -4,7 +4,7 @@
 {{/CHANGE_USER}}
 
 Last five searches:<ol>
-{{#PREV_SEARCHES}
+{{#PREV_SEARCHES}}
 <li> {{PREV_SEARCH}}
 {{/PREV_SEARCHES}}
 </ol>
