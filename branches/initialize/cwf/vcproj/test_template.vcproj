@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="test_cwf"
-	ProjectGUID="{C3B638DB-AF24-4245-A34F-4CD2C27D4ACF}"
-	RootNamespace="test_cwf"
+	Name="test_template"
+	ProjectGUID="{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}"
+	RootNamespace="test_template"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -42,8 +42,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN"
+				AdditionalIncludeDirectories="C:\w\fcgi\ctemplate.newest\src\windows"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN;CTEMPLATE_DLL_DECL="
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -63,8 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ctemplate.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="bin"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -176,27 +177,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\cwf.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\cwf.h"
-			>
-		</File>
-		<File
-			RelativePath="..\fcgi_spec.hpp"
-			>
-		</File>
-		<File
-			RelativePath="..\http.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\http.hpp"
-			>
-		</File>
-		<File
-			RelativePath="..\winmain.cpp"
+			RelativePath="..\test\test_template.cc"
 			>
 		</File>
 	</Files>
