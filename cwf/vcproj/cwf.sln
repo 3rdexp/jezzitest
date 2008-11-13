@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_cwf", "test_cwf.vcproj", "{C3B638DB-AF24-4245-A34F-4CD2C27D4ACF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ctemplate", "ctemplate.vcproj", "{B7C5FB94-D93A-446B-A0F9-3029F0ACD2F2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_template", "test_template.vcproj", "{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C3B638DB-AF24-4245-A34F-4CD2C27D4ACF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C3B638DB-AF24-4245-A34F-4CD2C27D4ACF}.Debug|Win32.Build.0 = Debug|Win32
+		{C3B638DB-AF24-4245-A34F-4CD2C27D4ACF}.Release|Win32.ActiveCfg = Release|Win32
+		{C3B638DB-AF24-4245-A34F-4CD2C27D4ACF}.Release|Win32.Build.0 = Release|Win32
+		{B7C5FB94-D93A-446B-A0F9-3029F0ACD2F2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B7C5FB94-D93A-446B-A0F9-3029F0ACD2F2}.Debug|Win32.Build.0 = Debug|Win32
+		{B7C5FB94-D93A-446B-A0F9-3029F0ACD2F2}.Release|Win32.ActiveCfg = Release|Win32
+		{B7C5FB94-D93A-446B-A0F9-3029F0ACD2F2}.Release|Win32.Build.0 = Release|Win32
+		{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}.Debug|Win32.Build.0 = Debug|Win32
+		{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}.Release|Win32.ActiveCfg = Release|Win32
+		{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
