@@ -48,6 +48,7 @@ int main() {
     TemplateDictionary* sub_dict = dict->AddIncludeDictionary("RESULT_TEMPLATE");
     sub_dict->SetFilename("results.t");
     // FillResultsTemplate(sub_dict, results[i]);
+    // sub_dict
   }
 #endif
 
