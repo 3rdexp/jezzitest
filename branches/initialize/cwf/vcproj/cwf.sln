@@ -7,6 +7,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ctemplate", "ctemplate.vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_template", "test_template.vcproj", "{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unittest_dict", "unittest_dict.vcproj", "{B11638DB-AE23-3245-A34E-4CE2E27D4ACF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unittest_template", "unittest_template.vcproj", "{B11638DB-A023-3135-A34E-4DE2E27D4ACF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +29,14 @@ Global
 		{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}.Debug|Win32.Build.0 = Debug|Win32
 		{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}.Release|Win32.ActiveCfg = Release|Win32
 		{B11638DB-AF24-3245-A34E-4CE2C27D4ACE}.Release|Win32.Build.0 = Release|Win32
+		{B11638DB-AE23-3245-A34E-4CE2E27D4ACF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B11638DB-AE23-3245-A34E-4CE2E27D4ACF}.Debug|Win32.Build.0 = Debug|Win32
+		{B11638DB-AE23-3245-A34E-4CE2E27D4ACF}.Release|Win32.ActiveCfg = Release|Win32
+		{B11638DB-AE23-3245-A34E-4CE2E27D4ACF}.Release|Win32.Build.0 = Release|Win32
+		{B11638DB-A023-3135-A34E-4DE2E27D4ACF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B11638DB-A023-3135-A34E-4DE2E27D4ACF}.Debug|Win32.Build.0 = Debug|Win32
+		{B11638DB-A023-3135-A34E-4DE2E27D4ACF}.Release|Win32.ActiveCfg = Release|Win32
+		{B11638DB-A023-3135-A34E-4DE2E27D4ACF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
