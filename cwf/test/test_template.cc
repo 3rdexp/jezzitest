@@ -53,7 +53,7 @@ int main() {
 #endif
 
   // -------------------------------------------------
-  google::Template* tpl = google::Template::GetTemplate("foo.t", google::STRIP_WHITESPACE);
+  google::Template* tpl = google::Template::GetTemplate("foo.t", google::NUM_STRIPS);
   // google::TemplateDictionary dict("debug-name");
   // FillDictionary(&dict, ...);
   std::string output;
