@@ -11,6 +11,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unittest_dict", "unittest_d
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unittest_template", "unittest_template.vcproj", "{B11638DB-A023-3135-A34E-4DE2E27D4ACF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "regtest", "rettest.vcproj", "{B12338DB-AE21-3245-A34E-4CE2E27D4ACA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_http", "test_http.vcproj", "{C3B638DB-AF24-4245-A45F-4CD2C27D4ADA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -37,6 +41,14 @@ Global
 		{B11638DB-A023-3135-A34E-4DE2E27D4ACF}.Debug|Win32.Build.0 = Debug|Win32
 		{B11638DB-A023-3135-A34E-4DE2E27D4ACF}.Release|Win32.ActiveCfg = Release|Win32
 		{B11638DB-A023-3135-A34E-4DE2E27D4ACF}.Release|Win32.Build.0 = Release|Win32
+		{B12338DB-AE21-3245-A34E-4CE2E27D4ACA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B12338DB-AE21-3245-A34E-4CE2E27D4ACA}.Debug|Win32.Build.0 = Debug|Win32
+		{B12338DB-AE21-3245-A34E-4CE2E27D4ACA}.Release|Win32.ActiveCfg = Release|Win32
+		{B12338DB-AE21-3245-A34E-4CE2E27D4ACA}.Release|Win32.Build.0 = Release|Win32
+		{C3B638DB-AF24-4245-A45F-4CD2C27D4ADA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C3B638DB-AF24-4245-A45F-4CD2C27D4ADA}.Debug|Win32.Build.0 = Debug|Win32
+		{C3B638DB-AF24-4245-A45F-4CD2C27D4ADA}.Release|Win32.ActiveCfg = Release|Win32
+		{C3B638DB-AF24-4245-A45F-4CD2C27D4ADA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

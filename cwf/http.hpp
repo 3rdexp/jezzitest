@@ -13,67 +13,67 @@ namespace cwf { namespace http {
     * See http://tools.ietf.org/html/rfc2616#section-10
     */
 enum HttpStatusCode {
-	/// informational codes
-	HC_CONTINUE                      = 100, // note the trailing underscore
-	HC_SWITCHING_PROTOCOLS,
-	HC_PROCESSING,
+  /// informational codes
+  HC_CONTINUE                      = 100, // note the trailing underscore
+  HC_SWITCHING_PROTOCOLS,
+  HC_PROCESSING,
 
-	/// success codes
-	HC_OK                             = 200,
-	HC_CREATED,
-	HC_ACCEPTED,
-	HC_NON_AUTHORATIVE_INFORMATION,
-	HC_NO_CONTENT,
-	HC_RESET_CONTENT,
-	HC_PARTIAL_CONTENT,
-	HC_MULTI_STATUS,
+  /// success codes
+  HC_OK                             = 200,
+  HC_CREATED,
+  HC_ACCEPTED,
+  HC_NON_AUTHORATIVE_INFORMATION,
+  HC_NO_CONTENT,
+  HC_RESET_CONTENT,
+  HC_PARTIAL_CONTENT,
+  HC_MULTI_STATUS,
 
-	/// redirect codes
-	HC_MULTIPLE_CHOICES               = 300,
-	HC_MOVED_PERMANENTLY,
-	HC_FOUND,
-   HC_SEE_OTHER,
-   HC_NOT_MODIFIED,
-   HC_USE_PROXY,
-   HC_SWITCH_PROXY,
-   HC_TEMPORARY_REDIRECT,
+  /// redirect codes
+  HC_MULTIPLE_CHOICES               = 300,
+  HC_MOVED_PERMANENTLY,
+  HC_FOUND,
+  HC_SEE_OTHER,
+  HC_NOT_MODIFIED,
+  HC_USE_PROXY,
+  HC_SWITCH_PROXY,
+  HC_TEMPORARY_REDIRECT,
 
-   /// domain error codes
-   HC_BAD_REQUEST                    = 400,
-   HC_UNAUTHORIZED,
-   HC_PAYMENT_REQUIRED,
-   HC_FORBIDDEN,
-   HC_NOT_FOUND,
-   HC_METHOD_NOT_ALLOWED,
-   HC_NOT_ACCEPTABLE,
-   HC_PROXY_AUTHENTICATION_REQUIRED,
-   HC_REQUEST_TIMEOUT,
-   HC_CONFLICT,
-   HC_GONE,
-   HC_LENGTH_REQUIRED,
-   HC_PRECONDITION_FAILED,
-   HC_REQUEST_ENTITY_TOO_LARGE,
-   HC_REQUEST_URI_TOO_LONG,
-   HC_UNSUPPORTED_MEDIA_TYPE,
-   HC_REQUEST_RANGE_NOT_SATISFIABLE,
-   HC_EXPECTATION_FAILED,
-   HC_UNPROCESSABLE_ENTITY           = 422,
-   HC_LOCKED,
-   HC_FAILED_DEPENDENCY,
-   HC_UNORDERED_COLLECTION,
-   HC_UPGRADE_REQUIRED,
-   HC_RETRY_WITH                     = 449,
+  /// domain error codes
+  HC_BAD_REQUEST                    = 400,
+  HC_UNAUTHORIZED,
+  HC_PAYMENT_REQUIRED,
+  HC_FORBIDDEN,
+  HC_NOT_FOUND,
+  HC_METHOD_NOT_ALLOWED,
+  HC_NOT_ACCEPTABLE,
+  HC_PROXY_AUTHENTICATION_REQUIRED,
+  HC_REQUEST_TIMEOUT,
+  HC_CONFLICT,
+  HC_GONE,
+  HC_LENGTH_REQUIRED,
+  HC_PRECONDITION_FAILED,
+  HC_REQUEST_ENTITY_TOO_LARGE,
+  HC_REQUEST_URI_TOO_LONG,
+  HC_UNSUPPORTED_MEDIA_TYPE,
+  HC_REQUEST_RANGE_NOT_SATISFIABLE,
+  HC_EXPECTATION_FAILED,
+  HC_UNPROCESSABLE_ENTITY           = 422,
+  HC_LOCKED,
+  HC_FAILED_DEPENDENCY,
+  HC_UNORDERED_COLLECTION,
+  HC_UPGRADE_REQUIRED,
+  HC_RETRY_WITH                     = 449,
 
-   /// internal error codes
-   HC_INTERNAL_SERVER_ERROR          = 500,
-   HC_NOT_IMPLEMENTED,
-   HC_BAD_GATEWAY,
-   HC_SERVICE_UNAVAILABLE,
-   HC_GATEWAY_TIMEOUT,
-   HC_HTTP_VERSION_NOT_SUPPORTED,
-   HC_INSUFFICIENT_STORAGE,
-   HC_BANDWIDTH_LIMIT_EXCEEDED       = 509
- };
+  /// internal error codes
+  HC_INTERNAL_SERVER_ERROR          = 500,
+  HC_NOT_IMPLEMENTED,
+  HC_BAD_GATEWAY,
+  HC_SERVICE_UNAVAILABLE,
+  HC_GATEWAY_TIMEOUT,
+  HC_HTTP_VERSION_NOT_SUPPORTED,
+  HC_INSUFFICIENT_STORAGE,
+  HC_BANDWIDTH_LIMIT_EXCEEDED       = 509
+};
 
 enum HttpVersion {
   HVER_1_0, HVER_1_1,
@@ -171,13 +171,13 @@ public:
   HttpVersion version;
   enum HeaderCombine { HC_YES, HC_NO, HC_AUTO, HC_REPLACE, HC_NEW };
   void changeHeader(const std::string& name, const std::string& value,
-    HeaderCombine combine);
+                    HeaderCombine combine);
   inline void addHeader(const std::string& name, const std::string& value,
-    bool append = true) {
+                    bool append = true) {
       changeHeader(name, value, append ? HC_AUTO : HC_NO);
   }
   inline void setHeader(const std::string& name, const std::string& value,
-    bool overwrite = true) {
+                    bool overwrite = true) {
       changeHeader(name, value, overwrite ? HC_REPLACE : HC_NEW);
   }
   void clearHeader(const std::string& name);
@@ -187,15 +187,15 @@ public:
 
   // Convenience methods using HttpHeader
   inline void changeHeader(HttpHeader header, const std::string& value,
-    HeaderCombine combine) {
+                      HeaderCombine combine) {
       changeHeader(ToString(header), value, combine);
   }
   inline void addHeader(HttpHeader header, const std::string& value,
-    bool append = true) {
+                      bool append = true) {
       addHeader(ToString(header), value, append);
   }
   inline void setHeader(HttpHeader header, const std::string& value,
-    bool overwrite = true) {
+                      bool overwrite = true) {
       setHeader(ToString(header), value, overwrite);
   }
   inline void clearHeader(HttpHeader header) {
@@ -204,9 +204,48 @@ public:
   inline bool hasHeader(HttpHeader header, std::string* value) const {
     return hasHeader(ToString(header), value);
   }
+
+  virtual size_t formatLeader(char* buffer, size_t size) = 0;
+  virtual bool parseLeader(const char* line, size_t len) = 0;
+
+protected:
+  virtual ~HttpData() {}
+  void clear();
+
 private:
   typedef std::multimap<std::string, std::string, detail::iless> HeaderMap;
   HeaderMap m_headers;
+};
+
+struct HttpRequestData : public HttpData {
+  HttpVerb verb;
+  std::string path;
+
+  HttpRequestData() : verb(HV_GET) { }
+
+  void clear();
+
+  virtual size_t formatLeader(char* buffer, size_t size);
+  virtual bool parseLeader(const char* line, size_t len);
+};
+
+struct HttpResponseData : public HttpData {
+  uint32 scode;
+  std::string message;
+
+  HttpResponseData() : scode(HC_INTERNAL_SERVER_ERROR) { }
+  void clear();
+
+  // Convenience methods
+  void set_success(uint32 scode = HC_OK);
+//  void set_success(const std::string& content_type, StreamInterface* document,
+//    uint32 scode = HC_OK);
+  void set_redirect(const std::string& location, 
+                    uint32 scode = HC_MOVED_PERMANENTLY);
+  void set_error(uint32 scode);
+
+  virtual size_t formatLeader(char* buffer, size_t size);
+  virtual bool parseLeader(const char* line, size_t len);
 };
 
 } } // cwf::http
