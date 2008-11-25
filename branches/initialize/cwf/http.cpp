@@ -1,4 +1,5 @@
 #include <time.h> // mktime, timezone
+#include <stdarg.h> // va_end
 #include "cwf/http.hpp"
 
 #ifndef ASSERT
@@ -177,100 +178,100 @@ bool HttpShouldKeepAlive(const HttpData& data) {
 
 namespace {
 
-  inline bool IsEndOfAttributeName(size_t pos, size_t len, const char * data) {
-    if (pos >= len)
+inline bool IsEndOfAttributeName(size_t pos, size_t len, const char * data) {
+  if (pos >= len)
+    return true;
+  if (isspace(static_cast<unsigned char>(data[pos])))
+    return true;
+  // The reason for this complexity is that some attributes may contain trailing
+  // equal signs (like base64 tokens in Negotiate auth headers)
+  if ((pos+1 < len) && (data[pos] == '=') &&
+    !isspace(static_cast<unsigned char>(data[pos+1])) &&
+    (data[pos+1] != '=')) {
       return true;
-    if (isspace(static_cast<unsigned char>(data[pos])))
-      return true;
-    // The reason for this complexity is that some attributes may contain trailing
-    // equal signs (like base64 tokens in Negotiate auth headers)
-    if ((pos+1 < len) && (data[pos] == '=') &&
-      !isspace(static_cast<unsigned char>(data[pos+1])) &&
-      (data[pos+1] != '=')) {
-        return true;
-    }
-    return false;
   }
+  return false;
+}
 
 }  // anonymous namespace
 
 void HttpParseAttributes(const char * data, size_t len, 
                          HttpAttributeList& attributes) {
-                           size_t pos = 0;
-                           while (true) {
-                             // Skip leading whitespace
-                             while ((pos < len) && isspace(static_cast<unsigned char>(data[pos]))) {
-                               ++pos;
-                             }
+   size_t pos = 0;
+   while (true) {
+     // Skip leading whitespace
+     while ((pos < len) && isspace(static_cast<unsigned char>(data[pos]))) {
+       ++pos;
+     }
 
-                             // End of attributes?
-                             if (pos >= len)
-                               return;
+     // End of attributes?
+     if (pos >= len)
+       return;
 
-                             // Find end of attribute name
-                             size_t start = pos;
-                             while (!IsEndOfAttributeName(pos, len, data)) {
-                               ++pos;
-                             }
+     // Find end of attribute name
+     size_t start = pos;
+     while (!IsEndOfAttributeName(pos, len, data)) {
+       ++pos;
+     }
 
-                             HttpAttribute attribute;
-                             attribute.first.assign(data + start, data + pos);
+     HttpAttribute attribute;
+     attribute.first.assign(data + start, data + pos);
 
-                             // Attribute has value?
-                             if ((pos < len) && (data[pos] == '=')) {
-                               ++pos; // Skip '='
-                               // Check if quoted value
-                               if ((pos < len) && (data[pos] == '"')) {
-                                 while (++pos < len) {
-                                   if (data[pos] == '"') {
-                                     ++pos;
-                                     break;
-                                   }
-                                   if ((data[pos] == '\\') && (pos + 1 < len))
-                                     ++pos;
-                                   attribute.second.append(1, data[pos]);
-                                 }
-                               } else {
-                                 while ((pos < len) &&
-                                   !isspace(static_cast<unsigned char>(data[pos])) &&
-                                   (data[pos] != ',')) {
-                                     attribute.second.append(1, data[pos++]);
-                                 }
-                               }
-                             }
+     // Attribute has value?
+     if ((pos < len) && (data[pos] == '=')) {
+       ++pos; // Skip '='
+       // Check if quoted value
+       if ((pos < len) && (data[pos] == '"')) {
+         while (++pos < len) {
+           if (data[pos] == '"') {
+             ++pos;
+             break;
+           }
+           if ((data[pos] == '\\') && (pos + 1 < len))
+             ++pos;
+           attribute.second.append(1, data[pos]);
+         }
+       } else {
+         while ((pos < len) &&
+           !isspace(static_cast<unsigned char>(data[pos])) &&
+           (data[pos] != ',')) {
+             attribute.second.append(1, data[pos++]);
+         }
+       }
+     }
 
-                             attributes.push_back(attribute);
-                             if ((pos < len) && (data[pos] == ',')) ++pos; // Skip ','
-                           }
+     attributes.push_back(attribute);
+     if ((pos < len) && (data[pos] == ',')) ++pos; // Skip ','
+   }
 }
 
 bool HttpHasAttribute(const HttpAttributeList& attributes,
                       const std::string& name,
                       std::string* value) {
-                        for (HttpAttributeList::const_iterator it = attributes.begin();
-                          it != attributes.end(); ++it) {
-                            if (it->first == name) {
-                              if (value) {
-                                *value = it->second;
-                              }
-                              return true;
-                            }
-                        }
-                        return false;
+  for (HttpAttributeList::const_iterator it = attributes.begin();
+    it != attributes.end(); ++it) {
+      if (it->first == name) {
+        if (value) {
+          *value = it->second;
+        }
+        return true;
+      }
+  }
+  return false;
 }
 
 bool HttpHasNthAttribute(HttpAttributeList& attributes,
                          size_t index, 
                          std::string* name,
                          std::string* value) {
-                           if (index >= attributes.size())
-                             return false;
+  if (index >= attributes.size())
+    return false;
 
-                           if (name)
-                             *name = attributes[index].first;
-                           if (value)
-                             *value = attributes[index].second;
-                           return true;
+  if (name)
+    *name = attributes[index].first;
+  if (value)
+    *value = attributes[index].second;
+  return true;
 }
 
 bool HttpDateToSeconds(const std::string& date, unsigned long* seconds) {
@@ -335,6 +336,194 @@ bool HttpDateToSeconds(const std::string& date, unsigned long* seconds) {
 #endif
   return true;
 }
+
+//////////////////////////////////////////////////////////////////////
+// HttpData
+//////////////////////////////////////////////////////////////////////
+
+void
+HttpData::clear() {
+  m_headers.clear();
+}
+
+void
+HttpData::changeHeader(const std::string& name, const std::string& value,
+                       HeaderCombine combine) {
+  if (combine == HC_AUTO) {
+    HttpHeader header;
+    // Unrecognized headers are collapsible
+    combine = !FromString(header, name) || HttpHeaderIsCollapsible(header)
+              ? HC_YES : HC_NO;
+  } else if (combine == HC_REPLACE) {
+    m_headers.erase(name);
+    combine = HC_NO;
+  }
+  // At this point, combine is one of (YES, NO, NEW)
+  if (combine != HC_NO) {
+    HeaderMap::iterator it = m_headers.find(name);
+    if (it != m_headers.end()) {
+      if (combine == HC_YES) {
+        it->second.append(",");
+        it->second.append(value);
+	  }
+      return;
+	}
+  }
+  m_headers.insert(HeaderMap::value_type(name, value));
+}
+
+void
+HttpData::clearHeader(const std::string& name) {
+  m_headers.erase(name);
+}
+
+bool
+HttpData::hasHeader(const std::string& name, std::string* value) const {
+  HeaderMap::const_iterator it = m_headers.find(name);
+  if (it == m_headers.end()) {
+    return false;
+  } else if (value) {
+    *value = it->second;
+  }
+  return true;
+}
+
+template<class CTYPE>
+size_t vsprintfn(CTYPE* buffer, size_t buflen, const CTYPE* format,
+                 va_list args) {
+  int len = vsnprintf(buffer, buflen, format, args);
+  if ((len < 0) || (static_cast<size_t>(len) >= buflen)) {
+    len = static_cast<int>(buflen - 1);
+    buffer[len] = 0;
+  }
+  return len;
+}
+
+template<class CTYPE>
+size_t sprintfn(CTYPE* buffer, size_t buflen, const CTYPE* format, ...) {
+  va_list args;
+  va_start(args, format);
+  size_t len = vsprintfn(buffer, buflen, format, args);
+  va_end(args);
+  return len;
+}
+
+
+//
+// HttpRequestData
+//
+
+void
+HttpRequestData::clear() {
+  HttpData::clear();
+  verb = HV_GET;
+  path.clear();
+}
+
+size_t
+HttpRequestData::formatLeader(char* buffer, size_t size) {
+  ASSERT(path.find(' ') == std::string::npos);
+  return sprintfn(buffer, size, "%s %.*s HTTP/%s", ToString(verb), path.size(),
+                  path.data(), ToString(version));
+}
+
+bool
+HttpRequestData::parseLeader(const char* line, size_t len) {
+  (len);
+  uint32 vmajor, vminor;
+  int vend, dstart, dend;
+  if ((sscanf(line, "%*s%n %n%*s%n HTTP/%lu.%lu", &vend, &dstart, &dend,
+              &vmajor, &vminor) != 2)
+      || (vmajor != 1)) {
+    return false; // HE_PROTOCOL;
+  }
+  if (vminor == 0) {
+    version = HVER_1_0;
+  } else if (vminor == 1) {
+    version = HVER_1_1;
+  } else {
+    return false; // HE_PROTOCOL;
+  }
+  std::string sverb(line, vend);
+  if (!FromString(verb, sverb.c_str())) {
+    return false; // HE_PROTOCOL; // !?! HC_METHOD_NOT_SUPPORTED?
+  }
+  path.assign(line + dstart, line + dend);
+  return false; // HE_NONE;
+}
+
+//
+// HttpResponseData
+//
+
+void
+HttpResponseData::clear() {
+  HttpData::clear();
+  scode = HC_INTERNAL_SERVER_ERROR;
+  message.clear();
+}
+
+void
+HttpResponseData::set_success(uint32 scode) {
+  this->scode = scode;
+  message.clear();
+  setHeader(HH_CONTENT_LENGTH, "0");
+}
+
+// void
+// HttpResponseData::set_success(const std::string& content_type,
+//                               StreamInterface* document,
+//                               uint32 scode) {
+//   this->scode = scode;
+//   message.erase(message.begin(), message.end());
+//   setContent(content_type, document);
+// }
+
+void
+HttpResponseData::set_redirect(const std::string& location, uint32 scode) {
+  this->scode = scode;
+  message.clear();
+  setHeader(HH_LOCATION, location);
+  setHeader(HH_CONTENT_LENGTH, "0");
+}
+
+void
+HttpResponseData::set_error(uint32 scode) {
+  this->scode = scode;
+  message.clear();
+  setHeader(HH_CONTENT_LENGTH, "0");
+}
+
+size_t
+HttpResponseData::formatLeader(char* buffer, size_t size) {
+  size_t len = sprintfn(buffer, size, "HTTP/%s %lu", ToString(version), scode);
+  if (!message.empty()) {
+    len += sprintfn(buffer + len, size - len, " %.*s",
+                    message.size(), message.data());
+  }
+  return len;
+}
+
+bool
+HttpResponseData::parseLeader(const char* line, size_t len) {
+  size_t pos = 0;
+  uint32 vmajor, vminor;
+  if ((sscanf(line, "HTTP/%lu.%lu %lu%n", &vmajor, &vminor, &scode, &pos) != 3)
+      || (vmajor != 1)) {
+    return false; // HE_PROTOCOL;
+  }
+  if (vminor == 0) {
+    version = HVER_1_0;
+  } else if (vminor == 1) {
+    version = HVER_1_1;
+  } else {
+    return false; // HE_PROTOCOL;
+  }
+  while ((pos < len) && isspace(static_cast<unsigned char>(line[pos]))) ++pos;
+  message.assign(line + pos, len - pos);
+  return false; // HE_NONE;
+}
+
 
 } } // cwf::http
 
