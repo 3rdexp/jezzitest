@@ -86,6 +86,7 @@ static const char* kHttpHeaders[HH_LAST+1] = {
   "Proxy-Authorization",
   "Proxy-Connection",
   "Range",
+  "Server",
   "Set-Cookie",
   "TE",
   "Trailers",
@@ -343,7 +344,7 @@ bool HttpDateToSeconds(const std::string& date, unsigned long* seconds) {
 
 void
 HttpData::clear() {
-  m_headers.clear();
+  headers_.clear();
 }
 
 void
@@ -355,13 +356,13 @@ HttpData::changeHeader(const std::string& name, const std::string& value,
     combine = !FromString(header, name) || HttpHeaderIsCollapsible(header)
               ? HC_YES : HC_NO;
   } else if (combine == HC_REPLACE) {
-    m_headers.erase(name);
+    headers_.erase(name);
     combine = HC_NO;
   }
   // At this point, combine is one of (YES, NO, NEW)
   if (combine != HC_NO) {
-    HeaderMap::iterator it = m_headers.find(name);
-    if (it != m_headers.end()) {
+    HeaderMap::iterator it = headers_.find(name);
+    if (it != headers_.end()) {
       if (combine == HC_YES) {
         it->second.append(",");
         it->second.append(value);
@@ -369,18 +370,18 @@ HttpData::changeHeader(const std::string& name, const std::string& value,
       return;
 	}
   }
-  m_headers.insert(HeaderMap::value_type(name, value));
+  headers_.insert(HeaderMap::value_type(name, value));
 }
 
 void
 HttpData::clearHeader(const std::string& name) {
-  m_headers.erase(name);
+  headers_.erase(name);
 }
 
 bool
 HttpData::hasHeader(const std::string& name, std::string* value) const {
-  HeaderMap::const_iterator it = m_headers.find(name);
-  if (it == m_headers.end()) {
+  HeaderMap::const_iterator it = headers_.find(name);
+  if (it == headers_.end()) {
     return false;
   } else if (value) {
     *value = it->second;
@@ -470,14 +471,11 @@ HttpResponseData::set_success(uint32 scode) {
   setHeader(HH_CONTENT_LENGTH, "0");
 }
 
-// void
-// HttpResponseData::set_success(const std::string& content_type,
-//                               StreamInterface* document,
-//                               uint32 scode) {
-//   this->scode = scode;
-//   message.erase(message.begin(), message.end());
-//   setContent(content_type, document);
-// }
+void 
+HttpResponseData::set_success(uint32 scode, const std::string& message) {
+  this->scode = scode;
+  this->message = message;  
+}
 
 void
 HttpResponseData::set_redirect(const std::string& location, uint32 scode) {
@@ -488,9 +486,9 @@ HttpResponseData::set_redirect(const std::string& location, uint32 scode) {
 }
 
 void
-HttpResponseData::set_error(uint32 scode) {
+HttpResponseData::set_error(uint32 scode, const std::string& message) {
   this->scode = scode;
-  message.clear();
+  this->message = message;
   setHeader(HH_CONTENT_LENGTH, "0");
 }
 
@@ -524,6 +522,20 @@ HttpResponseData::parseLeader(const char* line, size_t len) {
   return false; // HE_NONE;
 }
 
+const std::string kCRLF("\r\n");
+
+bool HttpResponseData::dump(std::ostream &out) const {
+  out << "HTTP" << ToString(version) << " " << scode << " " << message
+      << kCRLF;
+
+  for(HeaderMap::const_iterator i = headers_.begin();
+          i != headers_.end(); ++i) {
+    out << i->first << ": " << i->second << kCRLF;
+  }
+  return true;
+}
+
+// bool ToString(const HttpResponseData &rep, std::ostream &out) {}
 
 } } // cwf::http
 
