@@ -106,6 +106,7 @@ enum HttpHeader {
   HH_PROXY_AUTHORIZATION,
   HH_PROXY_CONNECTION,
   HH_RANGE,
+  HH_SERVER,
   HH_SET_COOKIE,
   HH_TE,
   HH_TRAILERS,
@@ -208,13 +209,14 @@ public:
   virtual size_t formatLeader(char* buffer, size_t size) = 0;
   virtual bool parseLeader(const char* line, size_t len) = 0;
 
+  // virtual bool ToString(std::ostream &out) const = 0;
 protected:
+  HttpData() : version(HVER_1_1) {}
   virtual ~HttpData() {}
   void clear();
 
-private:
   typedef std::multimap<std::string, std::string, detail::iless> HeaderMap;
-  HeaderMap m_headers;
+  HeaderMap headers_;
 };
 
 struct HttpRequestData : public HttpData {
@@ -227,6 +229,10 @@ struct HttpRequestData : public HttpData {
 
   virtual size_t formatLeader(char* buffer, size_t size);
   virtual bool parseLeader(const char* line, size_t len);
+
+  // virtual bool ToString(std::ostream &out) const {
+  //  return false;
+  //}
 };
 
 struct HttpResponseData : public HttpData {
@@ -238,15 +244,18 @@ struct HttpResponseData : public HttpData {
 
   // Convenience methods
   void set_success(uint32 scode = HC_OK);
-//  void set_success(const std::string& content_type, StreamInterface* document,
-//    uint32 scode = HC_OK);
+  void set_success(uint32 scode = HC_OK, const std::string& message = "OK");
   void set_redirect(const std::string& location, 
                     uint32 scode = HC_MOVED_PERMANENTLY);
-  void set_error(uint32 scode);
+  void set_error(uint32 scode, const std::string& message = "");
 
   virtual size_t formatLeader(char* buffer, size_t size);
   virtual bool parseLeader(const char* line, size_t len);
+
+  virtual bool dump(std::ostream &out) const;
 };
+
+// bool ToString(const HttpResponseData &rep, std::ostream &out);
 
 } } // cwf::http
 

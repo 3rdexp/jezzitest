@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <cassert>
 #include "cwf/http.hpp"
 
@@ -74,7 +75,16 @@ Connection: keep-alive
 Cookie: rememberme=true; PREF=ID=f1d4f9a634068eb2:TB=2:TM=1221895237:LM=1221956840:DV=AA:GM=1:S=NZy4WXaoJCPlbBGp; NID=17=kmfnhBr0V0q_qbnbi20vtUDJQCV7IVYqpnyongrSePYpnFAF2ImFuXvUSb_kLi49NHnbPGA-MFctkugCw_s1_D70CmFLpa1jGjG0B3O8alO7RIoRCc_SxpOiE3n4nqHP; SID=DQAAAIQAAAAReXbBVU69lY1N_sipdxcdE8uHqbVVCGfcZqVmetWHYV0Khl3a0caSDYn8lSJRuySeA_RR8MC1Kmj1z8qkMu1nZ2jBQPLZo4GYzy8lERtbnEFMAn5WSSB8K5HOeBZkHyaMLPGDgI8fL4ps5rYWROFPjVWVjMC6d_7yaHQDvKVTADHx41-m83u9SS82V5WSGA0; SS=DQAAAIYAAAAB5tX1QLvZ_CfcKOuWN4DxzPmvxSojmkznfxCE9ec7wkaNxawau8B_TZsZvxu34SYr8Yq8ITJsh-0gF0TD6esznpQr9hDqMx0GJNxuB4Wi2DSYwMCq3NqfEsC3mSMnKZ8WWsTQ5tRdcns3OKU7dpPLUXo-NEAJhYIYpM2BT6yeEvmv1_eZNOLPeiYy6hyf4aw; TZ=-480
 #endif
 
-  HttpRequestData response;
+  HttpResponseData response;
+  response.set_success(HC_FOUND, "REDIRECT");
+  response.setHeader(HH_CACHE_CONTROL, "private, max-age=0");
+  response.setHeader(HH_DATE, "25 Nov 2008 14:54:00 GMT");
+  response.setHeader(HH_CONTENT_TYPE, "text/html; charset=ISO-8859-1");
+  response.setHeader(HH_SERVER, "gws");
+  response.setHeader(HH_CONTENT_LENGTH, "0");
+  response.dump(std::cout);
+
+  
 
 #if 0
 HTTP/1.x 200 OK
