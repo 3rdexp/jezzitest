@@ -106,7 +106,6 @@ enum HttpHeader {
   HH_PROXY_AUTHORIZATION,
   HH_PROXY_CONNECTION,
   HH_RANGE,
-  HH_SERVER,
   HH_SET_COOKIE,
   HH_TE,
   HH_TRAILERS,
@@ -140,8 +139,8 @@ bool HttpCodeIsCacheable(uint32 code);
 bool HttpHeaderIsEndToEnd(HttpHeader header);
 bool HttpHeaderIsCollapsible(HttpHeader header);
 
-class HttpData;
-bool HttpShouldKeepAlive(const HttpData& data);
+class HttpHeader;
+bool HttpShouldKeepAlive(const HttpHeader& data);
 
 typedef std::pair<std::string, std::string> HttpAttribute;
 typedef std::vector<HttpAttribute> HttpAttributeList;
@@ -170,92 +169,74 @@ namespace detail {
 class HttpData {
 public:  
   HttpVersion version;
-  enum HeaderCombine { HC_YES, HC_NO, HC_AUTO, HC_REPLACE, HC_NEW };
-  void changeHeader(const std::string& name, const std::string& value,
-                    HeaderCombine combine);
-  inline void addHeader(const std::string& name, const std::string& value,
-                    bool append = true) {
-      changeHeader(name, value, append ? HC_AUTO : HC_NO);
-  }
-  inline void setHeader(const std::string& name, const std::string& value,
-                    bool overwrite = true) {
-      changeHeader(name, value, overwrite ? HC_REPLACE : HC_NEW);
-  }
-  void clearHeader(const std::string& name);
 
-  // keep in mind, this may not do what you want in the face of multiple headers
-  bool hasHeader(const std::string& name, std::string* value) const;
+  typedef std::pair<HttpHeader, std::string> header_pair;
+  std::list<header_pair> headers_;
 
-  // Convenience methods using HttpHeader
-  inline void changeHeader(HttpHeader header, const std::string& value,
-                      HeaderCombine combine) {
-      changeHeader(ToString(header), value, combine);
-  }
-  inline void addHeader(HttpHeader header, const std::string& value,
-                      bool append = true) {
-      addHeader(ToString(header), value, append);
-  }
-  inline void setHeader(HttpHeader header, const std::string& value,
-                      bool overwrite = true) {
-      setHeader(ToString(header), value, overwrite);
-  }
-  inline void clearHeader(HttpHeader header) {
-    clearHeader(ToString(header));
-  }
-  inline bool hasHeader(HttpHeader header, std::string* value) const {
-    return hasHeader(ToString(header), value);
+  typedef std::list<header_pair>::iterator iterator; 
+  typedef std::list<header_pair>::const_iterator const_iterator; 
+
+  iterator begin();
+  iterator end();
+
+  const_iterator begin() const;
+  const_iterator end() const;
+
+  inline void addHeader(HttpHeader header, const std::string& value) {
+    headers_.push_back(std::make_pair(header, value));
   }
 
-  virtual size_t formatLeader(char* buffer, size_t size) = 0;
-  virtual bool parseLeader(const char* line, size_t len) = 0;
+  void HttpData::clear() {
+      headers_.clear();
+  }
 
-  // virtual bool ToString(std::ostream &out) const = 0;
-protected:
-  HttpData() : version(HVER_1_1) {}
-  virtual ~HttpData() {}
-  void clear();
-
-  typedef std::multimap<std::string, std::string, detail::iless> HeaderMap;
-  HeaderMap headers_;
+  ~HttpHeader() {}
 };
 
-struct HttpRequestData : public HttpData {
+struct HttpRequest : public HttpData {
   HttpVerb verb;
   std::string path;
+  // buffer body;
+  // socket's property
 
-  HttpRequestData() : verb(HV_GET) { }
-
-  void clear();
-
-  virtual size_t formatLeader(char* buffer, size_t size);
-  virtual bool parseLeader(const char* line, size_t len);
-
-  // virtual bool ToString(std::ostream &out) const {
-  //  return false;
-  //}
+  HttpRequest() : verb(HV_GET) {}
 };
 
-struct HttpResponseData : public HttpData {
+struct HttpResponse : public HttpData {
   uint32 scode;
   std::string message;
 
-  HttpResponseData() : scode(HC_INTERNAL_SERVER_ERROR) { }
+  HttpResponse() : scode(HC_INTERNAL_SERVER_ERROR) {}
   void clear();
 
   // Convenience methods
   void set_success(uint32 scode = HC_OK);
-  void set_success(uint32 scode = HC_OK, const std::string& message = "OK");
+//  void set_success(const std::string& content_type, StreamInterface* document,
+//    uint32 scode = HC_OK);
   void set_redirect(const std::string& location, 
                     uint32 scode = HC_MOVED_PERMANENTLY);
-  void set_error(uint32 scode, const std::string& message = "");
-
-  virtual size_t formatLeader(char* buffer, size_t size);
-  virtual bool parseLeader(const char* line, size_t len);
-
-  virtual bool dump(std::ostream &out) const;
+  void set_error(uint32 scode);
 };
 
-// bool ToString(const HttpResponseData &rep, std::ostream &out);
+#if 0
+const std::string kCRLF("\r\n");
+
+bool HttpResponseData::dump(std::ostream &out) const {
+  out << "HTTP" << ToString(version) << " " << scode << " " << message
+    << kCRLF;
+
+  for(HeaderMap::const_iterator i = headers_.begin();
+    i != headers_.end(); ++i) {
+      out << i->first << ": " << i->second << kCRLF;
+  }
+  return true;
+}
+#endif
+
+std::ostream & operator<<(std::ostream &out, const HttpResponse &rep) {
+  out << scode << " " << 
+  return out;
+}
 
 } } // cwf::http
 

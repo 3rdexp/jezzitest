@@ -86,7 +86,6 @@ static const char* kHttpHeaders[HH_LAST+1] = {
   "Proxy-Authorization",
   "Proxy-Connection",
   "Range",
-  "Server",
   "Set-Cookie",
   "TE",
   "Trailers",
@@ -344,7 +343,7 @@ bool HttpDateToSeconds(const std::string& date, unsigned long* seconds) {
 
 void
 HttpData::clear() {
-  headers_.clear();
+  m_headers.clear();
 }
 
 void
@@ -356,13 +355,13 @@ HttpData::changeHeader(const std::string& name, const std::string& value,
     combine = !FromString(header, name) || HttpHeaderIsCollapsible(header)
               ? HC_YES : HC_NO;
   } else if (combine == HC_REPLACE) {
-    headers_.erase(name);
+    m_headers.erase(name);
     combine = HC_NO;
   }
   // At this point, combine is one of (YES, NO, NEW)
   if (combine != HC_NO) {
-    HeaderMap::iterator it = headers_.find(name);
-    if (it != headers_.end()) {
+    HeaderMap::iterator it = m_headers.find(name);
+    if (it != m_headers.end()) {
       if (combine == HC_YES) {
         it->second.append(",");
         it->second.append(value);
@@ -370,18 +369,18 @@ HttpData::changeHeader(const std::string& name, const std::string& value,
       return;
 	}
   }
-  headers_.insert(HeaderMap::value_type(name, value));
+  m_headers.insert(HeaderMap::value_type(name, value));
 }
 
 void
 HttpData::clearHeader(const std::string& name) {
-  headers_.erase(name);
+  m_headers.erase(name);
 }
 
 bool
 HttpData::hasHeader(const std::string& name, std::string* value) const {
-  HeaderMap::const_iterator it = headers_.find(name);
-  if (it == headers_.end()) {
+  HeaderMap::const_iterator it = m_headers.find(name);
+  if (it == m_headers.end()) {
     return false;
   } else if (value) {
     *value = it->second;
@@ -414,128 +413,34 @@ size_t sprintfn(CTYPE* buffer, size_t buflen, const CTYPE* format, ...) {
 // HttpRequestData
 //
 
-void
-HttpRequestData::clear() {
-  HttpData::clear();
-  verb = HV_GET;
-  path.clear();
-}
-
-size_t
-HttpRequestData::formatLeader(char* buffer, size_t size) {
-  ASSERT(path.find(' ') == std::string::npos);
-  return sprintfn(buffer, size, "%s %.*s HTTP/%s", ToString(verb), path.size(),
-                  path.data(), ToString(version));
-}
-
-bool
-HttpRequestData::parseLeader(const char* line, size_t len) {
-  (len);
-  uint32 vmajor, vminor;
-  int vend, dstart, dend;
-  if ((sscanf(line, "%*s%n %n%*s%n HTTP/%lu.%lu", &vend, &dstart, &dend,
-              &vmajor, &vminor) != 2)
-      || (vmajor != 1)) {
-    return false; // HE_PROTOCOL;
-  }
-  if (vminor == 0) {
-    version = HVER_1_0;
-  } else if (vminor == 1) {
-    version = HVER_1_1;
-  } else {
-    return false; // HE_PROTOCOL;
-  }
-  std::string sverb(line, vend);
-  if (!FromString(verb, sverb.c_str())) {
-    return false; // HE_PROTOCOL; // !?! HC_METHOD_NOT_SUPPORTED?
-  }
-  path.assign(line + dstart, line + dend);
-  return false; // HE_NONE;
-}
 
 //
-// HttpResponseData
+// HttpResponse
 //
 
 void
-HttpResponseData::clear() {
-  HttpData::clear();
-  scode = HC_INTERNAL_SERVER_ERROR;
-  message.clear();
-}
-
-void
-HttpResponseData::set_success(uint32 scode) {
+HttpResponse::set_success(uint32 scode) {
   this->scode = scode;
   message.clear();
-  setHeader(HH_CONTENT_LENGTH, "0");
+  addHeader(HH_CONTENT_LENGTH, "0");
 }
 
-void 
-HttpResponseData::set_success(uint32 scode, const std::string& message) {
-  this->scode = scode;
-  this->message = message;  
-}
+// void
+// HttpResponse::set_success(const std::string& content_type,
+//                               StreamInterface* document,
+//                               uint32 scode) {
+//   this->scode = scode;
+//   message.erase(message.begin(), message.end());
+//   setContent(content_type, document);
+// }
 
 void
-HttpResponseData::set_redirect(const std::string& location, uint32 scode) {
+HttpResponse::set_redirect(const std::string& location, uint32 scode) {
   this->scode = scode;
   message.clear();
-  setHeader(HH_LOCATION, location);
-  setHeader(HH_CONTENT_LENGTH, "0");
+  addHeader(HH_LOCATION, location);
+  addHeader(HH_CONTENT_LENGTH, "0");
 }
-
-void
-HttpResponseData::set_error(uint32 scode, const std::string& message) {
-  this->scode = scode;
-  this->message = message;
-  setHeader(HH_CONTENT_LENGTH, "0");
-}
-
-size_t
-HttpResponseData::formatLeader(char* buffer, size_t size) {
-  size_t len = sprintfn(buffer, size, "HTTP/%s %lu", ToString(version), scode);
-  if (!message.empty()) {
-    len += sprintfn(buffer + len, size - len, " %.*s",
-                    message.size(), message.data());
-  }
-  return len;
-}
-
-bool
-HttpResponseData::parseLeader(const char* line, size_t len) {
-  size_t pos = 0;
-  uint32 vmajor, vminor;
-  if ((sscanf(line, "HTTP/%lu.%lu %lu%n", &vmajor, &vminor, &scode, &pos) != 3)
-      || (vmajor != 1)) {
-    return false; // HE_PROTOCOL;
-  }
-  if (vminor == 0) {
-    version = HVER_1_0;
-  } else if (vminor == 1) {
-    version = HVER_1_1;
-  } else {
-    return false; // HE_PROTOCOL;
-  }
-  while ((pos < len) && isspace(static_cast<unsigned char>(line[pos]))) ++pos;
-  message.assign(line + pos, len - pos);
-  return false; // HE_NONE;
-}
-
-const std::string kCRLF("\r\n");
-
-bool HttpResponseData::dump(std::ostream &out) const {
-  out << "HTTP" << ToString(version) << " " << scode << " " << message
-      << kCRLF;
-
-  for(HeaderMap::const_iterator i = headers_.begin();
-          i != headers_.end(); ++i) {
-    out << i->first << ": " << i->second << kCRLF;
-  }
-  return true;
-}
-
-// bool ToString(const HttpResponseData &rep, std::ostream &out) {}
 
 } } // cwf::http
 
