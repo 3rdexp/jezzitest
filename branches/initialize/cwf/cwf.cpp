@@ -8,6 +8,28 @@
 #define Assert(x) if (!(x)) __asm int 3;
 #endif
 
+/*
+
+Request
+ headers
+ socket_address ...
+ file?
+
+Response
+ headers
+ body
+
+HttpHeader
+   ^
+  / \
+   |
+   |
+HttpHeaderMap
+
+
+
+*/
+
 namespace cwf {
 
 struct NestedStream {
@@ -127,10 +149,10 @@ std::vector<boost::asio::const_buffer> Reply::to_buffers() const {
 
 void Connection::Start() {
   socket_.async_read_some(boost::asio::buffer(buffer_),
-    strand_.wrap(
-    boost::bind(&Connection::HandleRead, shared_from_this(),
-    boost::asio::placeholders::error,
-    boost::asio::placeholders::bytes_transferred)));
+  strand_.wrap(
+  boost::bind(&Connection::HandleRead, shared_from_this(),
+  boost::asio::placeholders::error,
+  boost::asio::placeholders::bytes_transferred)));
 }
 
 void Connection::HandleRead(const boost::system::error_code& e,
@@ -144,22 +166,22 @@ void Connection::HandleRead(const boost::system::error_code& e,
   
   boost::tribool result;
   boost::tie(result, boost::tuples::ignore) = parser_.Parse(
-    buffer_.data(), bytes_transferred, request_);
+  buffer_.data(), bytes_transferred, request_);
 
   if (result) {
-    reply_ = Reply(fcgi::STDOUT, request_.request_id());
-    if (request_handler_.Render(request_, reply_))
-      boost::asio::async_write(socket_, reply_.to_buffers(),
-        strand_.wrap(
-          boost::bind(&Connection::HandleWrite, shared_from_this(),
-          boost::asio::placeholders::error)));
+  reply_ = Reply(fcgi::STDOUT, request_.request_id());
+  if (request_handler_.Render(request_, reply_))
+    boost::asio::async_write(socket_, reply_.to_buffers(),
+    strand_.wrap(
+      boost::bind(&Connection::HandleWrite, shared_from_this(),
+      boost::asio::placeholders::error)));
 
-    
+  
   }
   else if (!result) {
-    // bad_request
+  // bad_request
   } else {
-    // do nothing
+  // do nothing
   }
 
   // read more
@@ -167,9 +189,9 @@ void Connection::HandleRead(const boost::system::error_code& e,
 
 void Connection::HandleWrite(const boost::system::error_code& e) {
   if (!e) {
-    // Initiate graceful connection closure.
-    boost::system::error_code ignored_ec;
-    socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+  // Initiate graceful connection closure.
+  boost::system::error_code ignored_ec;
+  socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
   }
 
   // No new asynchronous operations are started. This means that all shared_ptr
@@ -192,8 +214,8 @@ bool Server::Init() {
   acceptor_.bind(endpoint);
   acceptor_.listen();
   acceptor_.async_accept(new_connection_->socket(),
-    boost::bind(&Server::HandleAccept, this,
-    boost::asio::placeholders::error));
+  boost::bind(&Server::HandleAccept, this,
+  boost::asio::placeholders::error));
   return true;
 }
 
@@ -202,14 +224,14 @@ void Server::Run() {
   std::vector<boost::shared_ptr<boost::thread> > threads;
   for (std::size_t i = 0; i < thread_pool_size_; ++i)
   {
-    boost::shared_ptr<boost::thread> thread(new boost::thread(
-      boost::bind(&boost::asio::io_service::run, &io_service_)));
-    threads.push_back(thread);
+  boost::shared_ptr<boost::thread> thread(new boost::thread(
+    boost::bind(&boost::asio::io_service::run, &io_service_)));
+  threads.push_back(thread);
   }
 
   // Wait for all threads in the pool to exit.
   for (std::size_t i = 0; i < threads.size(); ++i)
-    threads[i]->join();
+  threads[i]->join();
 }
 
 void Server::Stop() {
@@ -218,11 +240,11 @@ void Server::Stop() {
 
 void Server::HandleAccept(const boost::system::error_code& e) {
   if (!e) {
-    new_connection_->Start();
-    new_connection_.reset(new Connection(io_service_, request_handler_));
-    acceptor_.async_accept(new_connection_->socket(),
-      boost::bind(&Server::HandleAccept, this,
-      boost::asio::placeholders::error));
+  new_connection_->Start();
+  new_connection_.reset(new Connection(io_service_, request_handler_));
+  acceptor_.async_accept(new_connection_->socket(),
+    boost::bind(&Server::HandleAccept, this,
+    boost::asio::placeholders::error));
   }
 }
 
