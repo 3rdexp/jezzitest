@@ -8,28 +8,6 @@
 #define Assert(x) if (!(x)) __asm int 3;
 #endif
 
-/*
-
-Request
- headers
- socket_address ...
- file?
-
-Response
- headers
- body
-
-HttpHeader
-   ^
-  / \
-   |
-   |
-HttpHeaderMap
-
-
-
-*/
-
 namespace cwf {
 
 struct NestedStream {

@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="bin"
-			IntermediateDirectory="temp\$(TargetName)\$(ConfigurationName)"
+			IntermediateDirectory="temp\$(ConfigurationName)\$(TargetName)"
 			ConfigurationType="4"
 			InheritedPropertySheets=".\win.vsprops"
 			CharacterSet="1"
@@ -255,11 +255,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ctemplate.newest\src\windows\google\template_modifiers.h"
+				RelativePath="..\..\ctemplate.newest\src\template_modifiers.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ctemplate.newest\src\template_modifiers.h"
+				RelativePath="..\..\ctemplate.newest\src\windows\google\template_modifiers.h"
 				>
 			</File>
 			<File

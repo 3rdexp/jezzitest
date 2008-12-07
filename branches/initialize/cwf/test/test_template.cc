@@ -64,3 +64,15 @@ int main() {
   std::cout << output << std::endl;
   return 0;
 }
+
+
+void Render(const Request)
+
+class Forge {
+public:
+  // host + url ==> request ==> Render
+  // 
+private:
+  // hash_map<name, so>
+  // template
+};

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <list>
 #include <boost/cstdint.hpp>
 
 namespace cwf { namespace http {
@@ -106,6 +106,7 @@ enum HttpHeader {
   HH_PROXY_AUTHORIZATION,
   HH_PROXY_CONNECTION,
   HH_RANGE,
+  HH_SERVER,
   HH_SET_COOKIE,
   HH_TE,
   HH_TRAILERS,
@@ -139,8 +140,8 @@ bool HttpCodeIsCacheable(uint32 code);
 bool HttpHeaderIsEndToEnd(HttpHeader header);
 bool HttpHeaderIsCollapsible(HttpHeader header);
 
-class HttpHeader;
-bool HttpShouldKeepAlive(const HttpHeader& data);
+class HttpData;
+bool HttpShouldKeepAlive(const HttpData& data);
 
 typedef std::pair<std::string, std::string> HttpAttribute;
 typedef std::vector<HttpAttribute> HttpAttributeList;
@@ -171,16 +172,14 @@ public:
   HttpVersion version;
 
   typedef std::pair<HttpHeader, std::string> header_pair;
-  std::list<header_pair> headers_;
-
   typedef std::list<header_pair>::iterator iterator; 
   typedef std::list<header_pair>::const_iterator const_iterator; 
 
-  iterator begin();
-  iterator end();
+  iterator begin() { return headers_.begin(); }
+  iterator end() { return headers_.end(); }
 
-  const_iterator begin() const;
-  const_iterator end() const;
+  const_iterator begin() const { return headers_.begin(); }
+  const_iterator end() const { return headers_.end(); }
 
   inline void addHeader(HttpHeader header, const std::string& value) {
     headers_.push_back(std::make_pair(header, value));
@@ -190,7 +189,10 @@ public:
       headers_.clear();
   }
 
-  ~HttpHeader() {}
+protected:
+  std::list<header_pair> headers_;
+  HttpData() : version(HVER_1_1) {}
+  virtual ~HttpData() {}
 };
 
 struct HttpRequest : public HttpData {
@@ -210,7 +212,7 @@ struct HttpResponse : public HttpData {
   void clear();
 
   // Convenience methods
-  void set_success(uint32 scode = HC_OK);
+  void set_success(uint32 scode = HC_OK, const std::string &message = "OK");
 //  void set_success(const std::string& content_type, StreamInterface* document,
 //    uint32 scode = HC_OK);
   void set_redirect(const std::string& location, 
@@ -218,25 +220,8 @@ struct HttpResponse : public HttpData {
   void set_error(uint32 scode);
 };
 
-#if 0
-const std::string kCRLF("\r\n");
+std::ostream & operator<<(std::ostream &out, const HttpResponse &rep);
 
-bool HttpResponseData::dump(std::ostream &out) const {
-  out << "HTTP" << ToString(version) << " " << scode << " " << message
-    << kCRLF;
-
-  for(HeaderMap::const_iterator i = headers_.begin();
-    i != headers_.end(); ++i) {
-      out << i->first << ": " << i->second << kCRLF;
-  }
-  return true;
-}
-#endif
-
-std::ostream & operator<<(std::ostream &out, const HttpResponse &rep) {
-  out << scode << " " << 
-  return out;
-}
 
 } } // cwf::http
 
