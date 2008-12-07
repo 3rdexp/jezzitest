@@ -176,15 +176,71 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\http.cpp"
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\connection.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\http.hpp"
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\connection.hpp"
 			>
 		</File>
 		<File
-			RelativePath="..\test\test_header.cc"
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\header.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\io_service_pool.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\io_service_pool.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\mime_types.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\mime_types.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\reply.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\reply.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\request.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\request_handler.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\request_handler.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\request_parser.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\request_parser.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\server.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\server.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\boost_1_36_0\libs\asio\example\http\server2\win_main.cpp"
 			>
 		</File>
 	</Files>

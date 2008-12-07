@@ -86,6 +86,7 @@ static const char* kHttpHeaders[HH_LAST+1] = {
   "Proxy-Authorization",
   "Proxy-Connection",
   "Range",
+  "Server",
   "Set-Cookie",
   "TE",
   "Trailers",
@@ -168,11 +169,11 @@ bool HttpHeaderIsCollapsible(HttpHeader header) {
 }
 
 bool HttpShouldKeepAlive(const HttpData& data) {
-  std::string connection;
-  if ((data.hasHeader(HH_PROXY_CONNECTION, &connection)
-    || data.hasHeader(HH_CONNECTION, &connection))) {
-      return (_stricmp(connection.c_str(), "Keep-Alive") == 0);
-  }
+//   std::string connection;
+//   if ((data.hasHeader(HH_PROXY_CONNECTION, &connection)
+//     || data.hasHeader(HH_CONNECTION, &connection))) {
+//       return (_stricmp(connection.c_str(), "Keep-Alive") == 0);
+//   }
   return (data.version >= HVER_1_1);
 }
 
@@ -341,6 +342,7 @@ bool HttpDateToSeconds(const std::string& date, unsigned long* seconds) {
 // HttpData
 //////////////////////////////////////////////////////////////////////
 
+#if 0
 void
 HttpData::clear() {
   m_headers.clear();
@@ -407,6 +409,7 @@ size_t sprintfn(CTYPE* buffer, size_t buflen, const CTYPE* format, ...) {
   va_end(args);
   return len;
 }
+#endif
 
 
 //
@@ -419,9 +422,9 @@ size_t sprintfn(CTYPE* buffer, size_t buflen, const CTYPE* format, ...) {
 //
 
 void
-HttpResponse::set_success(uint32 scode) {
+HttpResponse::set_success(uint32 scode, const std::string &message) {
   this->scode = scode;
-  message.clear();
+  this->message = message;
   addHeader(HH_CONTENT_LENGTH, "0");
 }
 
@@ -442,5 +445,20 @@ HttpResponse::set_redirect(const std::string& location, uint32 scode) {
   addHeader(HH_CONTENT_LENGTH, "0");
 }
 
-} } // cwf::http
+const std::string kCRLF("\r\n");
 
+std::ostream & operator<<(std::ostream &out, const HttpResponse &rep) {
+  // HTTP/1.1 200 OK
+  out << "HTTP/" << ToString(rep.version) 
+    <<  " " << rep.scode 
+    << " " << rep.message << kCRLF;
+
+  for(HttpData::const_iterator i = rep.begin();
+    i != rep.end(); ++i) {
+      out << ToString(i->first) << ": " << i->second << kCRLF;
+  }
+  out << kCRLF;
+  return out;
+}
+
+} } // cwf::http
