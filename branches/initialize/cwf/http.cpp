@@ -1,5 +1,7 @@
 #include <time.h> // mktime, timezone
 #include <stdarg.h> // va_end
+#include <functional>
+#include <algorithm>
 #include "cwf/http.hpp"
 
 #ifndef ASSERT
@@ -413,9 +415,14 @@ size_t sprintfn(CTYPE* buffer, size_t buflen, const CTYPE* format, ...) {
 
 
 //
-// HttpRequestData
+// HttpRequest
 //
-
+const std::string & HttpRequest::hasHeader(HttpHeader hh) const {
+  for(const_iterator i = headers_.begin(); i != headers_.end(); i++)
+      if (i->first == hh)
+        return i->second;
+  return "";
+}
 
 //
 // HttpResponse
@@ -443,6 +450,12 @@ HttpResponse::set_redirect(const std::string& location, uint32 scode) {
   message.clear();
   addHeader(HH_LOCATION, location);
   addHeader(HH_CONTENT_LENGTH, "0");
+}
+
+// OK, Continue
+void HttpResponse::set_error(uint32 scode) {
+  this->scode = scode;
+  message = ""; // TODO:
 }
 
 const std::string kCRLF("\r\n");

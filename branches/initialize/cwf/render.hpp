@@ -9,18 +9,24 @@ class HostInfo {
 public:
   // server name
   // address
-  // docucment root
+  // document root
+  // config
 };
+
 class RequestInfo {
 public:
   // ip, ...
 };
 
-typedef bool(*RenderFunction)(const http::HttpRequest *request, http::HttpResponse *response);
+typedef bool(*RenderFunction)(const HostInfo *, const RequestInfo *
+    , const http::HttpRequest *, http::HttpResponse *);
 
-bool NullRender(const http::HttpRequest *request, http::HttpResponse *response);
-bool ServerErrorRender(const http::HttpRequest *request, http::HttpResponse *response);
-bool StaticRender(const http::HttpRequest *request, http::HttpResponse *response);
+bool NullRender(const HostInfo *, const RequestInfo *
+    , const http::HttpRequest *, http::HttpResponse *);
+bool ServerErrorRender(const HostInfo *, const RequestInfo *
+    , const http::HttpRequest *, http::HttpResponse *);
+bool StaticRender(const HostInfo *, const RequestInfo *
+    , const http::HttpRequest *, http::HttpResponse *);
 
 }
 #endif // CWF_RENDER_HPP_
