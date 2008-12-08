@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <list>
 #include <boost/cstdint.hpp>
 
 namespace cwf { namespace http {
@@ -172,8 +171,8 @@ public:
   HttpVersion version;
 
   typedef std::pair<HttpHeader, std::string> header_pair;
-  typedef std::list<header_pair>::iterator iterator; 
-  typedef std::list<header_pair>::const_iterator const_iterator; 
+  typedef std::vector<header_pair>::iterator iterator; 
+  typedef std::vector<header_pair>::const_iterator const_iterator; 
 
   iterator begin() { return headers_.begin(); }
   iterator end() { return headers_.end(); }
@@ -190,8 +189,10 @@ public:
   }
 
 protected:
-  std::list<header_pair> headers_;
-  HttpData() : version(HVER_1_1) {}
+  std::vector<header_pair> headers_;
+  HttpData() : version(HVER_1_1) {
+    headers_.reserve(8); // HTTP header average length ?
+  }
   virtual ~HttpData() {}
 };
 
@@ -200,6 +201,8 @@ struct HttpRequest : public HttpData {
   std::string path;
   // buffer body;
   // socket's property
+
+  const std::string & hasHeader(HttpHeader hh) const;
 
   HttpRequest() : verb(HV_GET) {}
 };
