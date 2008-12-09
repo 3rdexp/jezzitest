@@ -68,6 +68,10 @@ static const char* kHttpVerbs[HV_LAST+1] = {
 ENUM(HttpVerb, kHttpVerbs);
 
 static const char* kHttpHeaders[HH_LAST+1] = {
+  "Accept",
+  "Accept-Charset",
+  "Accept-Encoding",
+  "Accept-Language",
   "Age",
   "Cache-Control",
   "Connection",
