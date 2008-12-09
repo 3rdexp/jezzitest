@@ -4,23 +4,24 @@
 // google::TemplateDictionary * dict);
 namespace cwf {
 
-bool NullRender(const HostInfo *, const RequestInfo *
-    , const http::HttpRequest *, http::HttpResponse *response) {
+RenderResult NullRender(const HostInfo *, const RequestInfo *
+    , const http::HttpRequest *, http::HttpResponse *response, ResponsePipe *) {
   response->set_success();
-  return true;
+  return RR_SUCCEEDED;
 }
 
-bool ServerErrorRender(const HostInfo *, const RequestInfo *
-    , const http::HttpRequest *, http::HttpResponse *response) {
+RenderResult ServerErrorRender(const HostInfo *, const RequestInfo *
+    , const http::HttpRequest *, http::HttpResponse *response, ResponsePipe *) {
   response->set_error(http::HC_SERVICE_UNAVAILABLE);
-  return true;
+  return RR_SUCCEEDED;
 }
 
-bool StaticRender(const HostInfo *, const RequestInfo *
-    , const http::HttpRequest *, http::HttpResponse *response) {
+RenderResult StaticRender(const HostInfo *, const RequestInfo *
+    , const http::HttpRequest *request, http::HttpResponse *response, ResponsePipe *) {
   // load file, doc_root?
   // gzip
-  return true;
+  std::string accepted = request->hasHeader(http::HH_ACCEPT_ENCODING);
+  return RR_SUCCEEDED;
 }
 
 }
