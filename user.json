@@ -1,0 +1,76 @@
+社区数据设计
+
+db.user
+# 基本信息
+# 用户感兴趣的范围，可以对多个区域感兴趣
+{
+  name:'张山', loc:2, head:'/p/head.jpg'
+    , token:{k:'alsdfjlsejrwae', expire:'2010/10/10 12:23:33'},
+  focus:[{center, radius}]
+}
+
+批量查询
+http://www.mongodb.org/display/DOCS/Advanced+Queries#AdvancedQueries-ConditionalOperator%3A%24in
+db.user.find({uid:{$in :[1,2]}})
+
+
+db.q
+小区信息，中心，半径 [lat, long]
+{lid:2,name:' 虎跑泉小区', loc:[40.739037, 73.992964], radius:1000}
+
+city, district, community
+{city_name:'beijing', district:[
+{name:'东城', community:[
+{name:'虎跑泉小区'}
+]},
+{name:'西城'},
+{name:'蓝城'},
+{name:'背城'}
+]}
+
+http://www.mongodb.org/display/DOCS/Geospatial+Indexing
+
+db.feed
+{
+fid:10001, time:123, owner:1,
+body:'blah blah blah blah blah <img src="/p/a.jpg"',
+title:'', comments:[
+uid:2, time:124, body:'bushit', share:3
+],
+# 发生地点
+where: {center, radius}
+}
+
+产生一条 feed时，设置传播范围，找到在范围内的人，对 db.feedlist 添加一条 fid
+
+db.feedlist
+{uid:1, feed_list:[10001,10002]}
+ 
+ 
+{
+fid:10001, time:123, owner:1,
+body:'blah blah blah blah blah <img src="/p/a.jpg"',
+title:'', comments:[
+    {uid:2, time:124, body:'bushit', share:3}
+  ],
+where: {center:[100,200], radius:300}
+}
+
+{
+fid:10002, time:123, owner:1,
+body:'2nd feed',
+title:'', comments:[
+    {uid:2, time:124, body:'u are right', share:1}
+  ],
+where: {center:[100,200], radius:300}
+}
+
+import pymongo
+db = pymongo.Connection('localhost', 27017).square
+u=db.user.save({
+  'n':u'张山', 'l':[1,2], 'h':''
+  #, 't':{'k':'alsdfjlsejrwae', 'e':'2010/10/10 12:23:33'}
+  , 'f':[{'c':[1,2], 'r':3}]
+})
+
+ObjectId('4c6fa3753758980abc000000')

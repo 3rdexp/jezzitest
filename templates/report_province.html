@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link rel="stylesheet" type="text/css" href="static/style.css" />
+</head>
+
+<body>
+<table class="server_table" border="0" cellpadding="3" cellspacing="3">
+    <tr>
+      <th>区域</th>
+      <th>访问次数</th>
+      <th>平均响应时间(毫秒)</th>
+    </tr>   
+    {% for r in result %}
+      <tr>
+        <td>{{r.name}}</td>
+        <td>{{r.count}}</td>
+        <td>{{r.count and r.time/r.count or 0}}</td>
+      </tr>
+    {% end %}
+</table>
+
+</body>
+</html>

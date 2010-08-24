@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>.block { 
+   background-color: blue; 
+   width: 150px; 
+   height: 70px;
+   margin: 10px; 
+}</style>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+	<button id="go">&raquo; Run</button>
+
+<div class="block"></div>
+
+<script>$.getScript("http://dev.jquery.com/view/trunk/plugins/color/jquery.color.js", function(){
+  $("#go").click(function(){
+    $(".block").animate( { backgroundColor: 'pink' }, 1000)
+      .animate( { backgroundColor: 'blue' }, 1000);
+  });
+});</script>
+
+</body>
+</html>

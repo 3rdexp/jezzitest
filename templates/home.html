@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block left %}
+<br />
+<ul>
+<li><a href="/">新鲜事</a></li>
+<li><a href="">站内信</a></li>
+<li><a href="">活动</a></li>
+<li><a href="">好友</a></li>
+</ul>
+{% end %}
+
+{% block right %}
+<form action="/publish/" method="post">
+  <input type="text" size="50" name="content" />
+  <input type="submit" />
+</form>
+<br />
+
+<ul>
+{% for f in feeds %}
+<li>{{ escape(f['body'] or '') }} {{ f['time'] }}</li>
+{% end %}
+</ul>
+
+{% end %}

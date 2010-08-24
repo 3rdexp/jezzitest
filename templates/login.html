@@ -1,0 +1,17 @@
+{% extends "base2.html" %}
+
+{% block body %}
+<form action='/auth/login' method='post'>
+  user name: <input name="name" type="text" /><br />
+  or <br />
+  email: <input name="email" type="text" /><br />
+  password: <input name="passwd" type="password" /><br />
+
+  {% if captcha %}
+  <input type='hidden' name='captcha' value='{{captcha.id}}' />
+  <img src='/captcha/{{captcha.id}}' width='' height='' /><br />
+  <input type='text' name='check' />
+  {% end %}
+  <input type='submit' />
+</form>
+{% end %}
