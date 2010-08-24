@@ -1,0 +1,47 @@
+﻿<!--
+mapabc 注册信息
+pedia/222012
+
+http://localhost/
+f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e
+
+http://60.28.218.223/
+e74e8164a532b7de781dccaaa7762031003514fed16f5ec889c8b3d65f7b53e34333d8be6a1d7925
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>单击地图获取地图坐标</title>
+<script type="text/javascript" src="http://app.mapabc.com/apis?&t=ajaxmap&v=2.1.2&key=f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e"></script>
+<script type="text/javascript">
+var mapObj=null;
+function mapInit() {
+	var mapOptions = new MMapOptions();//构建地图辅助类
+	mapOptions.zoom=13;//要加载的地图的缩放级别
+	// 回龙观
+	// 116.34412714235, 40.083411296333
+	// 缺省位置
+	// 116.397428,39.90923
+	mapOptions.center=new MLngLat(116.34412714235, 40.083411296333);//要加载的地图的中心点经纬度坐标
+	mapOptions.toolbar = DEFAULT;//设置地图初始化工具条
+	mapOptions.toolbarPos = new MPoint(15,15); //设置工具条在地图上的显示位置
+	mapOptions.overviewMap = SHOW; //设置鹰眼地图的状态，SHOW:显示，HIDE:隐藏（默认）
+	mapOptions.scale = SHOW; //设置地图初始化比例尺状态，SHOW:显示（默认），HIDE:隐藏。
+	mapOptions.returnCoordType = COORD_TYPE_OFFSET;//返回偏移明码坐标
+	mapOptions.zoomBox = true;//鼠标滚轮缩放和双击放大时是否有红框动画效果。
+	mapObj=new MMap("map",mapOptions); //地图初始化
+	mapObj.addEventListener(mapObj,MOUSE_CLICK,MclickMouse);//鼠标点击事件
+}
+function MclickMouse(param){
+	document.getElementById("mapX").value=param.eventX;
+	document.getElementById("mapY").value=param.eventY;
+}
+</script>
+</head>
+<body onload="mapInit();">
+<div id="map" style="width:500px; height:400px"></div>
+在地图上单击及可获取地图坐标:<br>
+X：<input type="text" name="mapX" id="mapX" value="">Y：</td><td width="86%"><input type="text" name="mapY" id="mapY" value="">
+</body>
+</html>

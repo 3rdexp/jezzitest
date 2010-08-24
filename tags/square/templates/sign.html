@@ -1,0 +1,70 @@
+{% extends "base2.html" %}
+
+{% block body %}
+<form action='/sign/' method='post'>
+  user name: <input name="name" type="text" /><br />
+  email: <input name="email" type="text" /><br />
+  password: <input name="passwd" type="password" /><br />
+  
+  <input type='hidden' name='captcha' value='{{captcha.id}}' />
+  <img src='/captcha/{{captcha.id}}' width='' height='' /> <br />
+  <input type='text' name='check' />
+
+<div id="map" style="width:500px; height:400px"></div>
+在地图上单击及可获取地图坐标:<br>
+X：<input type="text" name="lat" id="mapX" value="">
+Y：<input type="text" name="lng" id="mapY" value="">
+<br />
+<input type='submit' />
+</form>
+{% end %}
+
+
+{% block head %}
+<script type="text/javascript" src="/s/jquery.min.js"></script>
+<!--
+<script type="text/javascript" src="http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e"></script>
+<script type="text/javascript" src="http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=e74e8164a532b7de781dccaaa7762031003514fed16f5ec889c8b3d65f7b53e34333d8be6a1d7925"></script>
+-->
+<script type="text/javascript" src="http://app.mapabc.com/apis?&t=ajaxmap&v=2.1.2&key=d515fccce16a17c80c045883a580f271f0eaa2b8678ce0b699a069a93b60125fe01e511dde74d935"></script>
+{% end %}
+
+{% block bottom %}
+<script type="text/javascript">
+var map_=null;
+function mapInit() {
+	var mapOptions = new MMapOptions();//构建地图辅助类
+	mapOptions.zoom=13;//要加载的地图的缩放级别
+	// 回龙观
+	// 116.34412714235, 40.083411296333
+	// 缺省位置
+	// 116.397428,39.90923
+	mapOptions.center=new MLngLat(116.34412714235, 40.083411296333);//要加载的地图的中心点经纬度坐标
+	mapOptions.toolbar = DEFAULT;//设置地图初始化工具条
+	mapOptions.toolbarPos = new MPoint(15,15); //设置工具条在地图上的显示位置
+	mapOptions.overviewMap = SHOW; //设置鹰眼地图的状态，SHOW:显示，HIDE:隐藏（默认）
+	mapOptions.scale = SHOW; //设置地图初始化比例尺状态，SHOW:显示（默认），HIDE:隐藏。
+	mapOptions.returnCoordType = COORD_TYPE_OFFSET;//返回偏移明码坐标
+	mapOptions.zoomBox = true;//鼠标滚轮缩放和双击放大时是否有红框动画效果。
+	map_=new MMap("map",mapOptions); //地图初始化
+	map_.addEventListener(map_,MOUSE_CLICK,GotMouseClick);//鼠标点击事件
+}
+function GotMouseClick(e){
+	document.getElementById("mapX").value=e.eventX;
+	document.getElementById("mapY").value=e.eventY;
+}
+
+$(document).ready(function() {
+  mapInit();
+  var keys_ = {
+    'localhost': 'f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e',
+    '60.28.218.223': 'e74e8164a532b7de781dccaaa7762031003514fed16f5ec889c8b3d65f7b53e34333d8be6a1d7925',
+    '10.2.18.202': 'd515fccce16a17c80c045883a580f271f0eaa2b8678ce0b699a069a93b60125fe01e511dde74d935'
+  }
+  var u = 'http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=' + keys_[document.domain];
+  // $.getScript(u, function() {});
+  // document.appendChild('')
+  // 几乎就不可能被jQuery加载
+});
+</script>
+{% end %}

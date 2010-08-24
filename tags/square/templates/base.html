@@ -1,0 +1,85 @@
+<html>
+<head>
+  <style type="text/css">
+    body
+    {
+      background: #999;
+      text-align: center;
+      color: #333;
+      font-family: Arial, Verdana, Sans-serif;
+    }
+    #header
+    {
+      width: 776px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0px;
+      background: #eee;
+      height: 60px; /* text-align: center; */
+    }
+    #container
+    {
+      margin-left: auto;
+      margin-right: auto;
+      width: 776px;
+    }
+    #mainbg
+    {
+      width: 776px;
+      padding: 0px;
+      background: red;
+      float: left;
+      text-align: left;
+    }
+    #right
+    {
+      float: right;
+      margin: 2px 0px 2px 0px;
+      padding: 0px;
+      width: 574px;
+      background: #ccd2de; /* text-align: left; */
+    }
+    #left
+    {
+      float: left;
+      margin: 2px 2px 0px 0px;
+      padding: 0px;
+      background: #f2f3f7;
+      width: 200px; /* text-align: left; */
+    }
+    #footer
+    {
+      clear: both;
+      width: 776px;
+      margin-right: auto;
+      margin-left: auto;
+      padding: 0px;
+      background: #eee;
+      height: 60px;
+    }
+    .text
+    {
+      margin: 0px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+  <div style="text-align:right">{{modules.UserModule(user)}}</div>
+    </div>
+  <div id="container">
+    <div id="mainbg">
+      <div id="right">
+        {% block right %}{% end %}
+      </div>
+      <div id="left">
+        <!-- modules.MenuModule(user) -->
+        {% block left %}{% end %}
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    footer</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+<span>{% if user %}
+  {{ escape(user.name) }} | <a href="/auth/logout">loout</a> | <a href="/auth/setting">setting</a>
+{% else %}
+  <a href="/auth/login">login</a>
+{% end %}&nbsp;&nbsp;</span>
