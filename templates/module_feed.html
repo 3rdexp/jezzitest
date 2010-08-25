@@ -1,0 +1,12 @@
+<div>
+<a href="/u/{{feed.owner}}"><img src="" />{{ escape(feed.name) }}</a>
+&nbsp;{{ escape(feed.body) }} {{feed.time}}
+{% for c in feed.comments %}
+<p>{{c['owner']}} said: {{c['body']}}</p>
+{% end %}
+<form method="post" action="/feed/comment">
+  <input type="text" name="c" />
+  <input type="hidden" name="fid" value="{{feed._id}}" />
+  <input type="submit" />
+</form>
+</div>
