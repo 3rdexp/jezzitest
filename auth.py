@@ -47,8 +47,14 @@ class SignHandler(base.BaseHandler):
     self._render_get()
 
   def post(self):
-    id = self.get_argument("captcha", None)
-    check = self.get_argument("check", None)
+    if self.settings.get('sign_captcha'):
+      id = self.get_argument("captcha", None)
+      check = self.get_argument("check", None)
+      
+      if not id or not check or not antispam.Check(id, check):
+        self._render_get()
+        return
+      
     goto = self.get_argument("goto", '/')
     
     name = self.get_argument("name", None)
@@ -59,32 +65,34 @@ class SignHandler(base.BaseHandler):
     center = [float(self.get_argument("lat", None)) * 1000
       , float(self.get_argument("lng", None)) * 1000]
     radius = 3000   # TODO: 合适的单位是什么?
-   
-    if id and check and antispam.Check(id, check):
-      # TODO: 检查重复
-      # TODO: email 不是必须的
-      # new user
-      uid=self.db.user.save({
-          'n':name
-          , 'l':[1,2], 'h':''
-          , 'e': email
-          , 'p' : passwd     # TODO: hash it
-          # TODO: save ticket
-          #, 't':{'k':'alsdfjlsejrwae', 'e':'2010/10/10 12:23:33'}
-          #, 'f' : {'c' : center, 'r':radius}
-          , 'c' : center, 'r' : radius
-        })
-      if uid:
-        self.set_secure_cookie('u', str(uid))
-        self.redirect(goto)
-        
-        ugc.CreateFeedList(self.db, uid)
-        return
+
+    # TODO: 检查重复
+    # TODO: email 不是必须的
+    # new user
+    uid=self.db.user.save({
+        'n':name
+        , 'l':[1,2], 'h':''
+        , 'e': email
+        , 'p' : passwd     # TODO: hash it
+        # TODO: save ticket
+        #, 't':{'k':'alsdfjlsejrwae', 'e':'2010/10/10 12:23:33'}
+        #, 'f' : {'c' : center, 'r':radius}
+        , 'c' : center, 'r' : radius
+      })
+    if uid:
+      # TODO: User.xxx
+      self.set_secure_cookie('u', str(uid))
+      self.redirect(goto)
+      
+      ugc.CreateFeedList(self.db, uid)
+      return
     
     self._render_get()
 
   def _render_get(self):
-    c = antispam.NewCaptcha()
+    c = None
+    if self.settings.get('sign_captcha'):
+      c = antispam.NewCaptcha()
     self.render('sign.html', captcha=c)
 
 class UserModule(tornado.web.UIModule):

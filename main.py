@@ -58,9 +58,9 @@ class HomeHandler(base.BaseHandler):
       fids = d['fid']
       # print 'fids', fids
       if fids:
-        feeds = self.db.feed.find({'_id' : {'$in': fids}}).limit(40).sort(u'time', pymongo.DESCENDING)
-        # for i in feeds:
-        #  print i['body']
+        ds = self.db.feed.find({'_id' : {'$in': fids}}).limit(40).sort(u'time', pymongo.DESCENDING)
+        for d in ds:
+          feeds.append(base.PlainDict(d))
       
     self.render('home.html', feeds=feeds, user=user)
 
@@ -68,6 +68,8 @@ class Square(tornado.web.Application):
   def __init__(self):
     handlers = [
       (r'/', HomeHandler),
+      
+      (r'/feed/comment', ugc.FeedHandler),
       
       (r'/auth/login',    auth.AuthLoginHandler),
       (r'/auth/logout',   auth.AuthLogoutHandler),
@@ -82,9 +84,15 @@ class Square(tornado.web.Application):
       debug = True,
       cookie_secret='daydayup',
       static_url_prefix = '/s/',
+      
       template_path=os.path.join(os.path.dirname(__file__), "templates"),
       static_path=os.path.join(os.path.dirname(__file__), "static"),
-      ui_modules = {'UserModule' : auth.UserModule}
+      
+      sign_captcha = False,
+      
+      ui_modules = {'UserModule' : auth.UserModule,
+          'FeedModule' : ugc.FeedModule
+        },
     )
     tornado.web.Application.__init__(self, handlers, **settings)
 

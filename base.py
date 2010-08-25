@@ -74,6 +74,9 @@ class User(object):
       return self.__dict__[ self.imp_dict[name] ]
     return object.__getattr__(self, name)
 
+class PlainDict(object):
+  def __init__(self, d):
+    self.__dict__.update(d)
 
 if __name__ == "__main__":
   import doctest

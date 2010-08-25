@@ -19,14 +19,14 @@ class PublishHandler(base.BaseHandler):
   def post(self):
     user = self.current_user
     if not user:
-      raise tornado.web.HTTPError(405)
+      raise tornado.web.HTTPError(403)
 
     text = self.get_argument('content', None)
     
     # 1 html parse
     # 2 save to db
     # 3 publish it
-    
+
     fid = self.db.feed.save(dict(
         time= datetime.datetime.now(),
         owner= user.id,
@@ -79,6 +79,34 @@ def PostPublish(db, who, fid, where):
       {'$push': {'fid': fid}},
       upsert = True, multi = True
     )
+
+
+class FeedModule(tornado.web.UIModule):
+  def render(self, feed):
+    return self.render_string('module_feed.html', feed=feed)
+
+
+class FeedHandler(base.BaseHandler):
+  # TODO: use @tornado.web.authenticated
+  def post(self):
+    user = self.current_user
+    if not user:
+      raise tornado.web.HTTPError(403)
+
+    comment_text = self.get_argument('c', None)
+    fid = self.get_argument('fid', None)
+    # TODO: name, head?
+    
+    # 1 html parse
+    # 2 save to db
+    # 3 publish it again
+
+    print 'comment fid', fid
+    fid = self.db.feed.update({'_id' : pymongo.objectid.ObjectId(fid)}
+      , {'$push':{'comments':{'owner':user.id, 'body':comment_text}}}
+      )
+
+    self.redirect(self.get_argument("next", "/"))
 
 if __name__ == "__main__":
   pass
