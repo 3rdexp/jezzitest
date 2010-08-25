@@ -5,10 +5,11 @@
   user name: <input name="name" type="text" /><br />
   email: <input name="email" type="text" /><br />
   password: <input name="passwd" type="password" /><br />
-  
-  <input type='hidden' name='captcha' value='{{captcha.id}}' />
-  <img src='/captcha/{{captcha.id}}' width='' height='' /> <br />
-  <input type='text' name='check' />
+  {% if captcha %}
+    <input type='hidden' name='captcha' value='{{captcha.id}}' />
+    <img src='/captcha/{{captcha.id}}' width='' height='' /> <br />
+    <input type='text' name='check' />
+  {% end %}
 
 <div id="map" style="width:500px; height:400px"></div>
 在地图上单击及可获取地图坐标:<br>
@@ -25,8 +26,35 @@ Y：<input type="text" name="lng" id="mapY" value="">
 <!--
 <script type="text/javascript" src="http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e"></script>
 <script type="text/javascript" src="http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=e74e8164a532b7de781dccaaa7762031003514fed16f5ec889c8b3d65f7b53e34333d8be6a1d7925"></script>
--->
 <script type="text/javascript" src="http://app.mapabc.com/apis?&t=ajaxmap&v=2.1.2&key=d515fccce16a17c80c045883a580f271f0eaa2b8678ce0b699a069a93b60125fe01e511dde74d935"></script>
+-->
+
+<script type="text/javascript">
+var keys_ = {
+  'localhost': 'f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e',
+  '60.28.218.223': 'e74e8164a532b7de781dccaaa7762031003514fed16f5ec889c8b3d65f7b53e34333d8be6a1d7925',
+  '10.2.18.202': 'd515fccce16a17c80c045883a580f271f0eaa2b8678ce0b699a069a93b60125fe01e511dde74d935'
+}
+// var u = 'http://app.mapabc.com/apis?&t=ajaxmap&v=2.1.2&key=' + keys_[document.domain];
+var u = 'http://api.mapabc.com/ajaxmap/2.1.2/js/ame.js?key=' + keys_[document.domain];
+function loadjscssfile(filename, filetype) {
+ if (filetype=="js"){
+  var fileref=document.createElement('script')
+  fileref.setAttribute("type","text/javascript")
+  fileref.setAttribute("src", filename)
+ }
+ else if (filetype=="css"){
+  var fileref=document.createElement("link")
+  fileref.setAttribute("rel", "stylesheet")
+  fileref.setAttribute("type", "text/css")
+  fileref.setAttribute("href", filename)
+ }
+ if (typeof fileref!="undefined")
+  document.getElementsByTagName("head")[0].appendChild(fileref)
+}
+
+loadjscssfile(u, 'js')
+</script>
 {% end %}
 
 {% block bottom %}

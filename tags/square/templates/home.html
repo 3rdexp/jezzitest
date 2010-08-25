@@ -17,8 +17,8 @@
 <br />
 
 <ul>
-{% for f in feeds %}
-<li>{{ escape(f['body'] or '') }} {{ f['time'] }}</li>
+{% for feed in feeds %}
+<li>{{modules.FeedModule(feed)}}</li>
 {% end %}
 </ul>
 
