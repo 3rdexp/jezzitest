@@ -81,9 +81,11 @@ def PostPublish(db, who, fid, where):
     )
 
 
+
 class FeedModule(tornado.web.UIModule):
   def render(self, feed):
-    return self.render_string('module_feed.html', feed=feed)
+    return self.render_string('module_feed.html', feed=feed, FormatTime=FormatTime)
+
 
 
 class FeedHandler(base.BaseHandler):
@@ -103,10 +105,30 @@ class FeedHandler(base.BaseHandler):
 
     print 'comment fid', fid
     fid = self.db.feed.update({'_id' : pymongo.objectid.ObjectId(fid)}
-      , {'$push':{'comments':{'owner':user.id, 'body':comment_text}}}
+        , {'$push':{'comments':{'owner':user.id, 'name': user.name, 'body':comment_text}}}
       )
 
     self.redirect(self.get_argument("next", "/"))
+
+
+
+def FormatTime(when):
+  assert isinstance(when, datetime.datetime)
+  diff = datetime.datetime.now() - when
+
+  if diff.days:
+    return "%d天前" % diff.days
+
+  diff_minutes = diff.seconds / 60
+  if diff_minutes <= 0:
+    return "刚刚更新"
+  elif diff_minutes < 60:
+    return "%d分钟前" % diff_minutes
+  elif diff_minutes < 24 * 60:
+    return "%d小时前" % (diff_minutes / 60)
+
+  return when.strftime(u"%m-%d %H:%M")
+  
 
 if __name__ == "__main__":
   pass
