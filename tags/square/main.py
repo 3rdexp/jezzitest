@@ -50,18 +50,12 @@ class HomeHandler(base.BaseHandler):
       self.render('home.html', feeds=[], user=user)
       return
 
-    # print user.name, user.id
-    
-    d = self.db.feedlist.find_one(dict(owner=user.id))
+    ds = ugc.Feed.Read(self.db, user)
     feeds = []
-    if d:
-      fids = d['fid']
-      # print 'fids', fids
-      if fids:
-        ds = self.db.feed.find({'_id' : {'$in': fids}}).limit(40).sort(u'time', pymongo.DESCENDING)
-        for d in ds:
-          feeds.append(base.PlainDict(d))
-      
+    if ds:
+      for d in ds:
+        feeds.append(base.PlainDict(d))
+    #for f in feeds: print f
     self.render('home.html', feeds=feeds, user=user)
 
 class Square(tornado.web.Application):
@@ -108,7 +102,7 @@ class Square(tornado.web.Application):
     if not self.db_:
       self.db_ = pymongo.Connection('localhost', 27017).square
 
-tornado.options.define("port", default=5222, help="run on the given port", type=int)
+tornado.options.define("port", default=80, help="run on the given port", type=int)
 
 def main():
   tornado.options.parse_command_line()

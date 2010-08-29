@@ -1,85 +1,61 @@
-a { color:#0092e8; text-decoration:none; }
-
-.server_table {
-  background-color: #EDF1F3;
-  empty-cells:show;
+body
+{
+  background: #999;
+  text-align: center;
+  color: #333;
+  font-family: Arial, Verdana, Sans-serif;
 }
-ul { margin-left: -30px; }
-.server_table td { background-color: white; font-size: 14px; }
-.server_table th { background-color: #D8D8D8; font-size: 14px; }
-
-// copy from http://css-tricks.com/examples/PerfectFluidWidthLayout/
-* {
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-size: 62.5%;
-  background: url(stripe.png) repeat;
-}
-
-p, li {
-  font: 1.2em/1.8em Tahoma, sans-serif;
-  margin-bottom: 10px;
-}
-
-h1 {
-  font: 2.0em Tahoma, sans-serif;
-  color: white;
-  height: 0px;
-}
-
-h2 {
-  font: 1.8em Tahoma, sans-serif;
-  color: green;
-  margin-bottom: 10px;
-}
-
-h3 {
-  font: 1.4em Tahoma, sans-serif;
-  color: red;
-  margin-bottom: 10px;
-}
-
-img {
-  border: none;
-}
-
-#page-wrap {
+#header
+{
+  width: 776px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px;
   background: white;
-  min-width: 780px;
-  max-width: 1260px;
-  margin: 10px auto;
+  height: 60px; /* text-align: center; */
 }
-#page-wrap #inside {
-  margin: 10px 10px 0px 10px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+#container
+{
+  margin-left: auto;
+  margin-right: auto;
+  width: 776px;
 }
-
-#main-content {
-  padding-left: 230px;
-  padding-top: 20px;
-}
-
-#header {
-  background: #267f23;
-  text-align: center;
-}
-
-#left-sidebar {
-  background: url(left-sidebar.gif) repeat-y white;
-  width: 250px;
+#mainbg
+{
+  width: 776px;
+  padding: 0px;
+  background: lightblue;
   float: left;
-  padding-left: 15px;
-  padding-top: 20px;
+  text-align: left;
 }
-
-#footer {
-  background: #267f23;
-  text-align: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  color: white;
+#right
+{
+  float: right;
+  margin: 2px 0px 2px 0px;
+  padding: 0px;
+  width: 574px;
+  background: white; /* text-align: left; */
+}
+#left
+{
+  float: left;
+  margin: 2px 2px 0px 0px;
+  padding: 0px;
+  background: white;
+  width: 200px; /* text-align: left; */
+}
+#footer
+{
+  clear: both;
+  width: 776px;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 0px;
+  background: white;
+  height: 60px;
+}
+.text
+{
+  margin: 0px;
+  padding: 20px;
 }
