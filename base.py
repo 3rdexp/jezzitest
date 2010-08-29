@@ -45,7 +45,7 @@ class async(object):
   """
   def __init__(self, method):
     self.m_ = method
-    
+
   def __call__(self, *args, **kwargs):
     t = threading.Thread(target = self.m_, args=args, kwargs=kwargs)
     t.start()
@@ -67,7 +67,8 @@ class User(object):
         id = '_id',
         email = 'e',
         passwd = 'p',
-    )
+        head = 'h',
+      )
 
   def __getattr__(self, name):
     if name in self.imp_dict:
@@ -77,6 +78,9 @@ class User(object):
 class PlainDict(object):
   def __init__(self, d):
     self.__dict__.update(d)
+    
+  def __str__(self):
+    return str(self.__dict__)
 
 if __name__ == "__main__":
   import doctest

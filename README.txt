@@ -72,3 +72,7 @@ publish:
 
 建立索引
 db.user.ensureIndex({c : '2d', n : 1}, {min:-180000, max:180000})
+
+
+头像可以使用
+http://brandonmathis.com/projects/fancy-avatars/demo/

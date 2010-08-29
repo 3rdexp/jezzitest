@@ -9,6 +9,11 @@ db.user
   focus:[{center, radius}]
 }
 
+{"_id" : ObjectId("4c73ddc03758980d9c000001"), 
+"c" : [116338.29065553, 40088.533342922], "e" : null, "h" : "", 
+"l" :[1, 2], "n" : "名字", "p" : "h", "r" : 3000}
+
+
 批量查询
 http://www.mongodb.org/display/DOCS/Advanced+Queries#AdvancedQueries-ConditionalOperator%3A%24in
 db.user.find({uid:{$in :[1,2]}})
@@ -31,22 +36,26 @@ city, district, community
 http://www.mongodb.org/display/DOCS/Geospatial+Indexing
 
 db.feed
-{
-fid:10001, time:123, owner:1,
-body:'blah blah blah blah blah <img src="/p/a.jpg"',
-title:'', comments:[
-uid:2, time:124, body:'bushit', share:3
-],
-# 发生地点
-where: {center, radius}
-}
+{ "_id" : ObjectId("4c75311437589802f4000002"), "body" : "第一条消息?, "comments" : [
+        {
+                "owner" : ObjectId("4c73ddc03758980d9c000001"),
+                "body" : "1",
+                "name" : "回复人名字"
+        },
+        {
+                "owner" : ObjectId("4c73ddc03758980d9c000001"),
+                "body" : "2",
+                "name" : "回复人名字"
+        },
+        {
+                "owner" : ObjectId("4c73ddc03758980d9c000001"),
+                "body" : "<gt",
+                "name" : "回复人名字"
+        }
+], "name" : "发布人名字", "owner" : ObjectId("4c73ddc03758980d9c000001"),
+"time" : "Thu Aug 26 2010 07:04:52 GMT+0800 (China Standard Time)",
+"title" : "", "where" : [ 116338.29065553, 40088.533342922 ] }
 
-产生一条 feed时，设置传播范围，找到在范围内的人，对 db.feedlist 添加一条 fid
-
-db.feedlist
-{uid:1, feed_list:[10001,10002]}
- 
- 
 {
 fid:10001, time:123, owner:1,
 body:'blah blah blah blah blah <img src="/p/a.jpg"',
@@ -55,6 +64,20 @@ title:'', comments:[
   ],
 where: {center:[100,200], radius:300}
 }
+
+产生一条 feed时，设置传播范围，找到在范围内的人，对 db.feedlist 添加一条 fid
+
+db.feedlist
+{ "_id" : ObjectId("4c73ddc03758980d9c000002"), "fid" : [
+        ObjectId("4c73ddd23758980d9c000003"),
+        ObjectId("4c73de8b3758980d9c000004"),
+        ObjectId("4c752c0337589802f4000000"),
+        ObjectId("4c752f4437589802f4000001"),
+        ObjectId("4c75311437589802f4000002")
+], "owner" : ObjectId("4c73ddc03758980d9c000001") }
+
+ 
+
 
 {
 fid:10002, time:123, owner:1,

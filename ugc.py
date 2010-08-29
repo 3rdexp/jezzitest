@@ -14,7 +14,7 @@ class PublishHandler(base.BaseHandler):
   # @tornado.web.addslash
   def get(self):
     raise tornado.web.HTTPError(405)
-  
+
   # @tornado.web.authenticated
   def post(self):
     user = self.current_user
@@ -26,19 +26,15 @@ class PublishHandler(base.BaseHandler):
     # 1 html parse
     # 2 save to db
     # 3 publish it
-
-    fid = self.db.feed.save(dict(
-        time= datetime.datetime.now(),
-        owner= user.id,
-        name= user.name,
-        body= text,
-        title= '',
-        comments= [],
-        where= user.center,
-      ))
-    PostPublish(self.db, user, fid, user.center)
-
-    self.redirect(self.get_argument("next", "/"))
+    
+    Feed.New(self.db, user, text, user.center)
+    
+    #~ self.redirect(self.get_argument("next", "/"))
+    ds = Feed.Read(self.db, user)
+    feeds = []
+    for d in ds:
+      feeds.append(base.PlainDict(d))
+    self.render('home.html', feeds=feeds, user=user)
 
 class UploadHandler(base.BaseHandler):
   # @tornado.web.addslash
@@ -55,31 +51,6 @@ def CreateFeedList(db, uid):
   """
   print 'CreateFeedList', uid
   db.feedlist.save({'owner' : uid, 'fid' : []})
-
-@base.async
-def PostPublish(db, who, fid, where):
-  # db.user.find $near where
-  # db.user.update owner, $push fid
-  
-  assert isinstance(where, list)
-  
-  # 给自己发新鲜事挺好的
-  """db.feedlist.update({'owner': who.id},
-      {'$push': {'fid': fid}},
-      upsert = True
-    )"""
-
-  # 更新感兴趣的人的 feedlist
-  # TODO: 确定 maxDistance 的精确度
-  where.append(5)
-  users = db.user.find({'c' : {'$near' : where}}, {'_id':1, 'c':1, 'r':1})
-  uids = [u['_id'] for u in users]
-  # print 'publish to', uids
-  db.feedlist.update({'owner' : {'$in' : uids}},
-      {'$push': {'fid': fid}},
-      upsert = True, multi = True
-    )
-
 
 
 class FeedModule(tornado.web.UIModule):
@@ -130,6 +101,122 @@ def FormatTime(when):
   return when.strftime(u"%m-%d %H:%M")
   
 
+class Feed(object):
+  def __init__(self, d = None):
+    if not d:
+      self.__dict__.update(d)
+
+  @staticmethod
+  def New(db, user, text, where=None):
+    now = datetime.datetime.now()
+    fid = db.feed.save(dict(
+        time= now,
+        last_modify=now,
+        owner= user.id,
+        name= user.name,
+        head = user.head,
+        body= text,
+        title= '',
+        comments= [],
+        where= user.center,
+      ))
+      
+    # publish
+    # 更新感兴趣的人的 feedlist
+    # TODO: 确定 maxDistance=5 的精确度
+    if not isinstance(where, list):
+      return fid      
+    where.append(5)
+    users = db.user.find({'c' : {'$near' : where}}, {'_id':1, 'c':1, 'r':1})
+
+    uids = [u['_id'] for u in users]
+    print 'publish', fid, 'to', uids
+
+    ret = db.feedlist.update({'_id' : {'$in' : uids}},
+          {'$push': {'fid': fid}},
+          safe =True, upsert = False, multi = True
+        )
+        
+    # print 'update ret:', ret
+    # 如果更新失败or部分失败，则低效的挨个更新
+    if not ret['updatedExisting'] or ret['n'] != len(uids):
+      for uid in uids:
+        try:
+          r = db.feedlist.insert({'_id': uid, 'fid':[]}, safe=True)
+        except pymongo.errors.DuplicateKeyError:
+          continue
+        ret = db.feedlist.update({'_id' : uid},
+            {'$push': {'fid': fid}},
+            safe=True, upsert=False, multi=False
+          )
+        # print 'update 2nd ret:', ret
+    return fid
+
+  # index: index of parent comment
+  @staticmethod
+  def Comment(db, fid, owner, body, index=None):
+    # 貌似一次不能同时执行 $push 和 $set
+    db.feed.update({'_id': fid}
+        , {'$push': {'comments':{'owner': owner.id, 'name': owner.name, 'body': body, 'p' : index}}
+#            , '$set': {'last_modify': datetime.datetime.now()}
+          }
+      )
+    db.feed.update({'_id': fid}, {'$set': {'last_modify': datetime.datetime.now()}})
+
+  @staticmethod
+  def Read(db, owner, skip=0, limit=40):
+    # print 'read:', owner.id
+    d = db.feedlist.find_one(dict(_id=owner.id))
+    if not d:
+      return None
+
+    fids = d['fid']
+    # 按时间倒序
+    # p=None
+    return db.feed.find({'_id' : {'$in': fids}}).limit(limit).sort(u'time', pymongo.DESCENDING)
+
+
+import unittest
+class FeedTestCase(unittest.TestCase):
+  def setUp(self):
+    self.db = pymongo.Connection('localhost', 27017).square
+    self.user = base.User(self.db.user.find_one())
+    self.text = 'test text'
+    self.remove_feed = []
+
+  def tearDown(self):
+    pass
+    #for fid in self.remove_feed:
+    #  self.db.feed.remove({'_id':fid})
+
+  def testNew(self):
+    fid = Feed.New(self.db, self.user, self.text, self.user.center)
+
+    fd = self.db.feed.find_one(dict(_id=fid))
+    print 'after create, last_modify:', fd['last_modify']
+
+    # add a group of comments
+    Feed.Comment(self.db, fid, self.user, 'first comment')
+    Feed.Comment(self.db, fid, self.user, 'comment to 0', 0)
+    Feed.Comment(self.db, fid, self.user, '2nd comment')
+    Feed.Comment(self.db, fid, self.user, 'comment to 2', 2)
+    Feed.Comment(self.db, fid, self.user, 'comment to 2 again', 2)
+    Feed.Comment(self.db, fid, self.user, '3rd comment')
+    Feed.Comment(self.db, fid, self.user, '4th comment')
+
+    fd = self.db.feed.find_one(dict(_id=fid))
+    print 'after 6 comment, last_modify:', fd['last_modify']
+
+    allfeed = Feed.Read(self.db, self.user)
+    # for af in allfeed: print af
+    
+    ret = []
+    for a in allfeed:
+      if not a['p']:
+        
+
 if __name__ == "__main__":
-  pass
-  # TODO: how  to test a Handler
+  import unittest
+  unittest.main()
+  
+  

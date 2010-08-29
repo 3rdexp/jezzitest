@@ -1,9 +1,13 @@
 <div>
-<a href="/u/{{feed.owner}}"><img class="fh" src="" />{{ escape(feed.name) }}</a>
+<a href="/u/{{feed.owner}}"><img class="fh" src="{{feed.head}}" />{{ escape(feed.name) }}</a>
 &nbsp;{{ escape(feed.body) }} {{FormatTime(feed.time)}} 
   <a href="javascript:">分享</a><span class="fs">|</span><a href="javascript:">回复</a>
 {% for c in feed.comments %}
+{% if not c['p'] %}
 <p><a href="/u/{{c['owner']}}">{{ escape(c['name']) }}</a>: {{ escape(c['body']) }}</p>
+{% else %}
+<p><a href="/u/{{c['owner']}}">{{ escape(c['name']) }}</a>: {{ escape(c['body']) }}</p>
+{% end %}
 {% end %}
 <form method="post" action="/feed/comment">
   <input type="text" name="c" />
