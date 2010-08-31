@@ -44,20 +44,17 @@ class UploadHandler(base.BaseHandler):
   def post(self):
     pass
 
-@base.async
-def CreateFeedList(db, uid):
-  """对于 $push，如果数据不存在是不会成功的，所以建立一条空数据
-  db.feedlist.save({owner:ObjectId('4c7343ec58fb5e4024000001'), fid:[]})
-  """
-  print 'CreateFeedList', uid
-  db.feedlist.save({'owner' : uid, 'fid' : []})
-
 
 class FeedModule(tornado.web.UIModule):
   def render(self, feed):
-    return self.render_string('module_feed.html', feed=feed, FormatTime=FormatTime)
+    return self.render_string('module_feed.html', feed=feed
+      , FormatTime=FormatTime)
 
-
+class FeedCommentModule(tornado.web.UIModule):
+  def render(self, comment):
+    return self.render_string('module_feedcomment.html', comment=comment
+      , FormatTime=FormatTime)
+      
 
 class FeedHandler(base.BaseHandler):
   # TODO: use @tornado.web.authenticated
@@ -68,16 +65,14 @@ class FeedHandler(base.BaseHandler):
 
     comment_text = self.get_argument('c', None)
     fid = self.get_argument('fid', None)
-    # TODO: name, head?
-    
+    p = self.get_argument('p', None) # parent comment
+
     # 1 html parse
     # 2 save to db
     # 3 publish it again
 
-    print 'comment fid', fid
-    fid = self.db.feed.update({'_id' : pymongo.objectid.ObjectId(fid)}
-        , {'$push':{'comments':{'owner':user.id, 'name': user.name, 'body':comment_text}}}
-      )
+    fid = Feed.Comment(self.db, pymongo.objectid.ObjectId(fid)
+        , user, comment_text, index=p)
 
     self.redirect(self.get_argument("next", "/"))
 
@@ -155,12 +150,14 @@ class Feed(object):
   # index: index of parent comment
   @staticmethod
   def Comment(db, fid, owner, body, index=None):
+    d = {'$push': 
+        {'comments':{'owner': owner.id, 'name': owner.name, 'body': body}}
+      }
+    # key不存在 和 =None 是有些不同的
+    if index:
+      d['$push']['p'] = p
+    db.feed.update({'_id': fid}, d)
     # 貌似一次不能同时执行 $push 和 $set
-    db.feed.update({'_id': fid}
-        , {'$push': {'comments':{'owner': owner.id, 'name': owner.name, 'body': body, 'p' : index}}
-#            , '$set': {'last_modify': datetime.datetime.now()}
-          }
-      )
     db.feed.update({'_id': fid}, {'$set': {'last_modify': datetime.datetime.now()}})
 
   @staticmethod
@@ -213,7 +210,7 @@ class FeedTestCase(unittest.TestCase):
     ret = []
     for a in allfeed:
       if not a['p']:
-        
+        pass
 
 if __name__ == "__main__":
   import unittest
