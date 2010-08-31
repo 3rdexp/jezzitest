@@ -55,7 +55,9 @@ class HomeHandler(base.BaseHandler):
     if ds:
       for d in ds:
         feeds.append(base.PlainDict(d))
-    #for f in feeds: print f
+    for f in feeds:
+      for c in f.comments:
+        print c
     self.render('home.html', feeds=feeds, user=user)
 
 class Square(tornado.web.Application):
@@ -85,7 +87,8 @@ class Square(tornado.web.Application):
       sign_captcha = False,
       
       ui_modules = {'UserModule' : auth.UserModule,
-          'FeedModule' : ugc.FeedModule
+          'FeedModule' : ugc.FeedModule,
+          'FeedCommentModule' : ugc.FeedCommentModule
         },
     )
     tornado.web.Application.__init__(self, handlers, **settings)
