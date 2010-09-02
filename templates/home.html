@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block left %}
-<br />
+<a class="f_actor_a" href="/u/{{user.id}}" tabindex="-1">
+<img class="head" src="{{user.head}}" />
+</a>
+
+<div class="blockcontent">
+<a class="name" href="/u/{{user.id}}">{{user.name}}</a><br />
+Edit My Profile<br />
+</div>
+<br /><br />
+
 <ul>
 <li><a href="/">新鲜事</a></li>
 <li><a href="">站内信</a></li>
@@ -10,16 +19,26 @@
 {% end %}
 
 {% block right %}
-<form action="/publish/" method="post">
-  <input type="text" size="50" name="content" />
-  <input type="submit" value="发布"/>
-</form>
+<div class="inputshadow">
+  <div id="universal_input" contenteditable="true">
+    <br />
+  </div>
+</div>
+
+<div id="universal_input_buttons">
+  <ul class="uib_items">
+    <li><a class=""><i class="spritemap_0"></i><span>Photos</span></a></li>
+    <li><a class=""><i class="spritemap_0"></i><span>Photos</span></a></li>
+  </ul>
+</div>
 <br />
 
-<ul>
-{% for feed in feeds %}
+<ul>{% for feed in feeds %}
 <li>{{modules.FeedModule(feed)}}</li>
-{% end %}
-</ul>
+{% end %}</ul>
 
+<script type="text/javascript">
+$(document).ready(function() {  
+})
+</script>
 {% end %}

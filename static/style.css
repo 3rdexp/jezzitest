@@ -73,7 +73,7 @@ h1, h2, h3, h4, h5, h6{font-size:13px;color:#333;margin:0;padding:0}
   padding: 2px 4px 3px;
   border-top: 1px solid #E8E8E8;
 }
-.universal_input {
+#universal_input {
   background-color:#FFFFFF;
   border:medium none;
   cursor:text;
@@ -87,6 +87,8 @@ h1, h2, h3, h4, h5, h6{font-size:13px;color:#333;margin:0;padding:0}
   padding:0;
   width:100%;
 }
+.uib_items li{float:left;}
+
 .head { width: 50px; height:50px; }
 .timestamp { color:#808080; }
 .placeholder { height: 22px; min-height: 14px; width:387px; }
@@ -98,6 +100,7 @@ h1, h2, h3, h4, h5, h6{font-size:13px;color:#333;margin:0;padding:0}
   *width:auto;
   *zoom:1;
 }
+.name { font-weight: bold; }
 
 .f_form_ul {
   width: 405px; 
