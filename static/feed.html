@@ -1,0 +1,59 @@
+﻿<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link type="text/css" rel="stylesheet" href="/s/style.css">
+</head>
+<body>
+  <div id="header">
+    <div style="text-align:right">{{modules.UserModule(user)}}</div>
+  </div>
+  <div id="container">
+    <div id="mainbg">
+      <div id="right">
+<ul><li>
+<div style="display:block">
+
+<a class="f_actor_a" href="/u/{{feed.owner}}" tabindex="-1">
+<img class="head" src="/s/a.jpg" />
+</a>
+
+<div class="f_right">
+<h6 class="f_body">
+<a class="f_actor_name">{{ feed.name }}</a>{{ feed.body }}  The first-ever sci-fi film--A Trip to the Moon (aka Le Voyage dans la lune)--was released today in 1902 &amp; features ground-breaking FX that thrilled audiences 100 years ago. Today, it makes for a nice lunchtime movie break. Bacon popcorn, anyone?<br />
+</h6>
+<div class="f_attach"></div>
+
+<form method="post" action="/feed/comment">
+  <input type="hidden" name="fid" value="{{feed._id}}" />
+  
+<abbr class="timestamp" title="Thursday, September 2, 2010 at 4:32am">{{FormatTime(feed.time)}}</abbr>
+<span class="f_action">
+<label class="f_action_link" title="Leave a comment" onclick="return false;">Comment</label> · 
+<label class="f_action_link" title="Leave a comment" onclick="return false;">Like</label> · 
+<label class="f_action_link" title="Leave a comment" onclick="return false;">特殊操作</label> · 
+</span>
+
+<ul class="f_form_ul">
+<li class="f_form_item">xxx people like this.</li>
+<li class="f_form_item">view all xxx comments</li>
+<li class="f_form_item"><textarea class="placeholder" name="c" onfocus=""  placeholder="Write a comment...">Write a comment...</textarea>
+</li>
+</ul>
+  <input type="submit" />
+</form>
+</div>
+</div>
+
+</li>
+</ul>
+      </div>
+      <div id="left">
+        <!-- modules.MenuModule(user) -->
+        {% block left %}{% end %}
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    footer</div>
+</body>
+</html>
