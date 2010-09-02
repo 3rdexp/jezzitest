@@ -1,2 +1,2 @@
 {% if 'p' in comment %}--&gt;{% end %}
-<a href="/u/{{comment['owner']}}">{{ escape(comment['name']) }}</a>: {{ escape(comment['body']) }}</p>
+<a href="/u/{{comment['owner']}}">{{ comment['name'] }}</a>: {{ comment['body'] }}</p>

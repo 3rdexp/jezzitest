@@ -1,7 +1,7 @@
 {% extends "base2.html" %}
 
 {% block body %}
-<form action='/sign/' method='post'>
+<form action='/sign/' method='post' enctype="multipart/form-data">
   user name: <input name="name" type="text" /><br />
   email: <input name="email" type="text" /><br />
   password: <input name="passwd" type="password" /><br />
@@ -16,6 +16,10 @@
 X：<input type="text" name="lat" id="mapX" value="">
 Y：<input type="text" name="lng" id="mapY" value="">
 <br />
+
+<input type="file" name="head" />
+<br />
+
 <input type='submit' />
 </form>
 {% end %}
