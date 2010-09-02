@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #coding:utf-8
 
+__pychecker__ = 'no-callinit no-classattr'
+
 import os
 
 import tornado.web
@@ -105,7 +107,7 @@ class Square(tornado.web.Application):
     if not self.db_:
       self.db_ = pymongo.Connection('localhost', 27017).square
 
-tornado.options.define("port", default=80, help="run on the given port", type=int)
+tornado.options.define("port", default=1026, help="run on the given port", type=int)
 
 def main():
   tornado.options.parse_command_line()

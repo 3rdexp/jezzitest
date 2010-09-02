@@ -50,4 +50,4 @@ if __name__ == "__main__":
   # cf = Captcha.Factory()
   # c = cf.new(Captcha.Visual.Tests.PseudoGimpy)
   # print c.__class__.__name__, c.id
-  print NewCapcha().id
+  print NewCaptcha().id
