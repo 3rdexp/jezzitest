@@ -10,14 +10,20 @@
   <div id="container">
     <div id="mainbg">
       <div id="right">
-<ul><li>
-<div style="display:block">
 
+<div class="inputshadow">
+<div class="universal_input" contenteditable="true">
+<br />
+</div>
+</div>
+
+<ul><li>
+<div>
 <a class="f_actor_a" href="/u/{{feed.owner}}" tabindex="-1">
 <img class="head" src="/s/a.jpg" />
 </a>
 
-<div class="f_right">
+<div class="blockcontent">
 <h6 class="f_body">
 <a class="f_actor_name">{{ feed.name }}</a>{{ feed.body }}  The first-ever sci-fi film--A Trip to the Moon (aka Le Voyage dans la lune)--was released today in 1902 &amp; features ground-breaking FX that thrilled audiences 100 years ago. Today, it makes for a nice lunchtime movie break. Bacon popcorn, anyone?<br />
 </h6>
@@ -48,12 +54,19 @@
 </ul>
       </div>
       <div id="left">
-        <!-- modules.MenuModule(user) -->
+<a class="f_actor_a" href="/u/{{feed.owner}}" tabindex="-1">
+<img class="head" src="/s/a.jpg" />
+</a>
+
+<div>
+Ken<br />
+Edit My Profile<br />
+</div>
+
         {% block left %}{% end %}
       </div>
     </div>
   </div>
-  <div id="footer">
-    footer</div>
+  <div id="footer">footer</div>
 </body>
 </html>
