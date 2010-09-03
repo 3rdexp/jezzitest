@@ -4,12 +4,29 @@
 import datetime
 
 import tornado.web
+import tornado.escape
 
 import pymongo
 
 import base
 import antispam
 
+class JsonHandler(base.BaseHandler):
+  def post(self, cate):
+    print cate, self.get_argument("content")
+    user = self.current_user
+    
+    fid = Feed.New(self.db, user, self.get_argument("content"), user.center)
+    d = self.db.feed.find_one(dict(_id=fid))
+    feed = base.PlainDict(d)
+    
+    fm = FeedModule(self)
+    html = fm.render(feed)
+    print html
+    
+    res = dict(error=0, payload=html.decode('utf-8'))
+    self.write(res) # TODO: is right?
+    
 class PublishHandler(base.BaseHandler):
   # @tornado.web.addslash
   def get(self):
@@ -54,7 +71,7 @@ class FeedCommentModule(tornado.web.UIModule):
   def render(self, comment):
     return self.render_string('module_feedcomment.html', comment=comment
       , FormatTime=FormatTime)
-      
+
 
 class FeedHandler(base.BaseHandler):
   # TODO: use @tornado.web.authenticated

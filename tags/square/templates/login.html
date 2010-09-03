@@ -2,6 +2,7 @@
 
 {% block body %}
 <form action='/auth/login' method='post'>
+  {{ xsrf_form_html() }}
   user name: <input name="name" type="text" /><br />
   or <br />
   email: <input name="email" type="text" /><br />
