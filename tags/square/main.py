@@ -18,6 +18,7 @@ import base
 import antispam
 import auth
 import ugc
+import list2tree
 
 """
 第一批实现的 url
@@ -56,10 +57,12 @@ class HomeHandler(base.BaseHandler):
     feeds = []
     if ds:
       for d in ds:
-        feeds.append(base.PlainDict(d))
-    for f in feeds:
-      for c in f.comments:
-        print c
+        feed = base.PlainDict(d)
+        t = list2tree.BuildTree(feed.comments)
+        feed.comments = t
+        feeds.append(feed)
+        print feed
+
     self.render('home.html', feeds=feeds, user=user)
 
 class Square(tornado.web.Application):
