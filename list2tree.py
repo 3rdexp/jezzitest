@@ -40,21 +40,21 @@ def BuildTree(arr):
     if 'p' not in a:
       tree.append(a)
     else:
-      if len(tree) < a['p']: # 处理诡异情形
+       # 处理诡异情形
+      if len(tree) < a['p'] or not isinstance(a['p'], int):
         continue
-        
+  
       p = arr[a['p']]
       if 'child' not in p:
         p['child'] = []
 
       p['child'].append(a)
-
   return tree
       
-def DumpTree(t, indent=0):
+def DumpTree(t, indent=0, f=lambda item: item['i']):
   for i in t:
-    print "%s%d" % (' ' * indent, i['i'])
-    
+    print "%s%s" % (' ' * indent, f(i))
+
     if 'child' in i:
       DumpTree(i['child'], 1+indent)
 
