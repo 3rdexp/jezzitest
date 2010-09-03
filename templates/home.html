@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block left %}
-<a class="f_actor_a" href="/u/{{user.id}}" tabindex="-1">
+{% if user %}
+<a class="f_actor_a" href="/u/{{user.id}}">
 <img class="head" src="{{user.head}}" />
 </a>
 
@@ -8,6 +9,7 @@
 <a class="name" href="/u/{{user.id}}">{{user.name}}</a><br />
 Edit My Profile<br />
 </div>
+{% end %}
 <br /><br />
 
 <ul>
@@ -20,9 +22,7 @@ Edit My Profile<br />
 
 {% block right %}
 <div class="inputshadow">
-  <div id="universal_input" contenteditable="true">
-    <br />
-  </div>
+  <div id="universal_input" contenteditable="false" ajaxify="/j/publish"></div>
 </div>
 
 <div id="universal_input_buttons">
@@ -33,12 +33,63 @@ Edit My Profile<br />
 </div>
 <br />
 
-<ul>{% for feed in feeds %}
-<li>{{modules.FeedModule(feed)}}</li>
+<ul id="story">{% for feed in feeds %}
+<li class="f_list_item">{{modules.FeedModule(feed)}}</li>
 {% end %}</ul>
 
 <script type="text/javascript">
-$(document).ready(function() {  
+function UniversalEditInit() {
+  var ue = $('#universal_input');
+  ue.keypress(UniversalEditSubmit);
+}
+function UniversalEditSubmit(e) {
+  console.log('INFO:', e);
+  if ('13' == e.which && !e.shiftKey) {
+    e.preventDefault();
+    var url = $(this).attr('ajaxify');
+    $.postJSON(url, {content: $(this).html() }, UniversalEditResponse);
+  }
+}
+function UniversalEditResponse(res) {
+  if (0 != res.error) return;
+  $('#story').prepend('<li>' + res.payload + '</li>');
+  var ue = $('#universal_input');
+  ue.html('');
+}
+
+function getCookie(name) {
+  var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
+  return r ? r[1] : undefined;
+}
+jQuery.postJSON = function(url, args, callback) {
+  args._xsrf = getCookie("_xsrf");
+  $.ajax({ url: url, data: $.param(args), dataType: "text", type: "POST",
+    success: function(response) {
+      if (callback) callback(eval("(" + response + ")"));
+    }, error: function(response) {
+      console.log("ERROR:", response)
+    }
+  });
+};
+
+function PlaceBlur(e) {
+  var jo = $(this);
+  if (jo.html() == '')
+    jo.html(jo.attr('placeholder'));
+}
+function PlaceFocus(obj, e) {
+  var jo=$(obj);
+  jo.html('');
+  jo.blur(PlaceBlur);
+}
+
+$(document).ready(function() {
+  // var a = '334\xe4\xb8\xad\xe6\x96\x87\u4e2d\u6587'; alert(a);
+  if (!window.console) window.console = {};
+  if (!window.console.log) window.console.log = function() {};
+  
+  UniversalEditInit();
 })
 </script>
+<div id="log" style="border:1px solid red;">log:</div>
 {% end %}

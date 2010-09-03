@@ -63,6 +63,7 @@ class HomeHandler(base.BaseHandler):
         feeds.append(feed)
         print feed
 
+    self.set_header("Expires", "-1")
     self.render('home.html', feeds=feeds, user=user)
 
 class Square(tornado.web.Application):
@@ -78,13 +79,15 @@ class Square(tornado.web.Application):
       
       (r'/captcha/([^/]+)', antispam.CaptchaHandler),
       
-      (r'/publish/',  ugc.PublishHandler),
-      (r'/upload/',   ugc.UploadHandler),
+      (r'/publish/?',  ugc.PublishHandler),
+      (r'/upload/?',   ugc.UploadHandler),
+      (r'/j/([^/]+)',  ugc.JsonHandler),
     ]
     settings = dict(
       debug = True,
       cookie_secret='daydayup',
       static_url_prefix = '/s/',
+      xsrf_cookies=True,
       
       template_path=os.path.join(os.path.dirname(__file__), "templates"),
       static_path=os.path.join(os.path.dirname(__file__), "static"),
