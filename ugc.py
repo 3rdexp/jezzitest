@@ -15,23 +15,19 @@ class JsonHandler(base.BaseHandler):
   def post(self, cate):
     print cate, self.get_argument("content")
     user = self.current_user
-    
+
     fid = Feed.New(self.db, user, self.get_argument("content"), user.center)
     d = self.db.feed.find_one(dict(_id=fid))
     feed = base.PlainDict(d)
-    
+
     fm = FeedModule(self)
     html = fm.render(feed)
     print html
-    
+
     res = dict(error=0, payload=html.decode('utf-8'))
     self.write(res) # TODO: is right?
-    
+  
 class PublishHandler(base.BaseHandler):
-  # @tornado.web.addslash
-  def get(self):
-    raise tornado.web.HTTPError(405)
-
   # @tornado.web.authenticated
   def post(self):
     user = self.current_user
@@ -117,6 +113,11 @@ class Feed(object):
   def __init__(self, d = None):
     if not d:
       self.__dict__.update(d)
+  
+  def ShowComment(self):
+    # 时间较近，数目不是太多的，显示全部Comments，还有输入框
+    # 当天，< 100
+    return True
 
   @staticmethod
   def New(db, user, text, where=None):
@@ -186,7 +187,6 @@ class Feed(object):
 
     fids = d['fid']
     # 按时间倒序
-    # p=None
     return db.feed.find({'_id' : {'$in': fids}}).limit(limit).sort(u'time', pymongo.DESCENDING)
 
 

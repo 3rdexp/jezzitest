@@ -10,29 +10,32 @@
 </h6>
 <div class="f_attach"></div>
 
-<form method="post" action="/feed/comment">
+<form method="post" action="/feed/comment" ajaxify="/j/action">
+  {{ xsrf_form_html() }}
   <input type="hidden" name="fid" value="{{feed._id}}" />
+  <input type="hidden" name="action" value="" />
+  <input type="hidden" name="p" value="-1" />
   
 <abbr class="timestamp" title="{{feed.time.strftime('%x %X')}}">{{FormatTime(feed.time)}}</abbr>
 <span class="f_action">
-<label class="f_action_link" title="Leave a comment" onclick="return false;">Comment</label> · 
-<label class="f_action_link" title="Leave a comment" onclick="return false;">Like</label> · 
+<label class="f_action_link" title="Leave a comment" onclick="ShowCommnet(this);return false;">Comment</label> · 
+<label class="f_action_link" title="Leave a comment" onclick="Like(this);return false;">Like</label> · 
 <label class="f_action_link" title="Leave a comment" onclick="return false;">特殊操作</label> · 
 </span>
 
-{% if len(feed.comments) %}
 <ul class="f_form_ul">
-<li class="f_form_item">xxx people like this.</li>
-<li class="f_form_item">view all xxx comments
+<li class="f_form_item {%if True%}hide{%end%}">xxx people like this.</li>
+<li class="f_form_item {%if not len(feed.comments) %}hide{%end%}">view all xxx comments
   <ul>{% for c in feed.comments %}
-  <li>{{modules.FeedCommentModule(c)}}</li>
-  {% end %}</ul>
+  <li>{{modules.FeedCommentModule(c)}}</li>{% end %}
+</ul>
 </li>
-<li class="f_form_item"><textarea class="placeholder" name="c" 
-  onfocus="return PlaceFocus(this, event);" placeholder="Write a comment...">Write a comment...</textarea>
+<li class="f_form_item {%if not len(feed.comments) %}hide{%end%}">
+ <textarea class="placeholder" name="c" onfocus="return PlaceFocus(this, event);" placeholder="Write a comment...">Write a comment...</textarea>
+ <label class="uibutton uibutton_confirm f_form_confirm"><input type="submit" value="Comment"></label>
 </li>
 </ul>
-{% end %}
+
 </form>
 </div>
 </div>

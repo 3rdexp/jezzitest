@@ -11,10 +11,6 @@ class BaseHandler(tornado.web.RequestHandler):
     self.user_ = None
     self.user_checked_ = False # 是否从数据库中读取记录，验证过 cookie 是否合法
 
-  def get(self):
-    print 'BaseHandler.get'
-    self.write('BaseHandler.get')
-
   @property
   def db(self):
     return self.application.db
@@ -47,12 +43,11 @@ class async(object):
     self.m_ = method
 
   def __call__(self, *args, **kwargs):
-    t = threading.Thread(target = self.m_, args=args, kwargs=kwargs)
+    t = threading.Thread(target=self.m_, args=args, kwargs=kwargs)
     t.start()
 
 class User(object):
-  """改变缩写带来的麻烦，可以直接写 User.name，而不用写 User['n']
-  TODO: 继续支持 ['n'] 的访问，如何重载 [] 操作
+  """改变dict访问方式的不便;mongodb缩写带来的理解问题，可以直接写 User.name，而不用写 User['n']
   >>> u = User(dict(c=1, n='foo'))
   >>> u.name
   'foo'
@@ -78,7 +73,7 @@ class User(object):
 class PlainDict(object):
   def __init__(self, d):
     self.__dict__.update(d)
-    
+
   def __str__(self):
     return str(self.__dict__)
 

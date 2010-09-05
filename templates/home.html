@@ -22,7 +22,7 @@ Edit My Profile<br />
 
 {% block right %}
 <div class="inputshadow">
-  <div id="universal_input" contenteditable="false" ajaxify="/j/publish"></div>
+  <div id="universal_input" contenteditable="true" ajaxify="/j/publish">123</div>
 </div>
 
 <div id="universal_input_buttons">
@@ -44,7 +44,7 @@ function UniversalEditInit() {
 }
 function UniversalEditSubmit(e) {
   console.log('INFO:', e);
-  if ('13' == e.which && !e.shiftKey) {
+  if (false && '13' == e.which && !e.shiftKey) {
     e.preventDefault();
     var url = $(this).attr('ajaxify');
     $.postJSON(url, {content: $(this).html() }, UniversalEditResponse);
@@ -83,6 +83,16 @@ function PlaceFocus(obj, e) {
   jo.blur(PlaceBlur);
 }
 
+function ShowCommnet(obj) {
+  var form = $(obj).parent().parent();
+  var lis = form.find('.f_form_ul li');
+  $(lis[1]).removeClass('hide');
+  $(lis[2]).removeClass('hide');
+}
+function Like(obj) {
+  console.log('INFO:', 'TODO')
+}
+
 $(document).ready(function() {
   // var a = '334\xe4\xb8\xad\xe6\x96\x87\u4e2d\u6587'; alert(a);
   if (!window.console) window.console = {};
@@ -91,5 +101,4 @@ $(document).ready(function() {
   UniversalEditInit();
 })
 </script>
-<div id="log" style="border:1px solid red;">log:</div>
 {% end %}
