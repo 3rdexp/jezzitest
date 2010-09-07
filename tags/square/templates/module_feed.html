@@ -1,4 +1,4 @@
-<div style="display:block">
+<div>
 <a class="f_actor_a" href="/u/{{feed.owner}}">
 <img class="head" src="/s/a.jpg" />
 </a>
@@ -10,7 +10,7 @@
 </h6>
 <div class="f_attach"></div>
 
-<form method="post" action="/feed/comment" ajaxify="/j/action">
+<form method="post" ajaxify="/j/action" data="{{feed._id}}">
   {{ xsrf_form_html() }}
   <input type="hidden" name="fid" value="{{feed._id}}" />
   <input type="hidden" name="action" value="" />
@@ -25,14 +25,15 @@
 
 <ul class="f_form_ul">
 <li class="f_form_item {%if True%}hide{%end%}">xxx people like this.</li>
-<li class="f_form_item {%if not len(feed.comments) %}hide{%end%}">view all xxx comments
-  <ul>{% for c in feed.comments %}
+<li class="f_form_item {%if not len(feed.comments) %}hide{%end%}">view all xxx comments</li>
+<li class="f_form_item {%if not len(feed.comments) %}hide{%end%}">
+  <ul class="f_c_ul">{% for c in feed.comments %}
   <li>{{modules.FeedCommentModule(c)}}</li>{% end %}
 </ul>
 </li>
 <li class="f_form_item {%if not len(feed.comments) %}hide{%end%}">
  <textarea class="placeholder" name="c" onfocus="return PlaceFocus(this, event);" placeholder="Write a comment...">Write a comment...</textarea>
- <label class="uibutton uibutton_confirm f_form_confirm"><input type="submit" value="Comment"></label>
+ <label class="to_right"><input type="submit" value="Comment" onclick="Comment(this, event);return false;"></label>
 </li>
 </ul>
 

@@ -82,3 +82,10 @@ http://valums.com/ajax-upload/
 
 压缩js
 http://code.google.com/closure/compiler/docs/compilation_levels.html
+
+http://www.dailycoding.com/Posts/default_text_fields_using_simple_jquery_trick.aspx
+
+
+json decode
+http://code.google.com/p/jspickle/
+http://www.undefined.org/python/

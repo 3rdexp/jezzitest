@@ -61,7 +61,7 @@ class HomeHandler(base.BaseHandler):
         t = list2tree.BuildTree(feed.comments)
         feed.comments = t
         feeds.append(feed)
-        print feed
+        # print feed._id, len(t)
 
     self.set_header("Expires", "-1")
     self.render('home.html', feeds=feeds, user=user)
