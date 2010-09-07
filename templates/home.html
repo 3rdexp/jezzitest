@@ -20,17 +20,26 @@ Edit My Profile<br />
 </ul>
 {% end %}
 
+
 {% block right %}
+<input type="submit" class="matte" value="Click Me" />
+<button class="matte">Click Me</button>
+<button disabled="" class="matte">Click Me</button>
+
 <div class="inputshadow">
-  <div id="universal_input" contenteditable="true" ajaxify="/j/publish">123</div>
+  <div id="universal_input" contenteditable="true" ajaxify="/j/publish"></div>
 </div>
 
-<div id="universal_input_buttons">
+<div id="universal_input_buttons" class="hide">
   <ul class="uib_items">
     <li><a class=""><i class="spritemap_0"></i><span>Photos</span></a></li>
     <li><a class=""><i class="spritemap_0"></i><span>Photos</span></a></li>
   </ul>
+  <label class="to_right">
+    <input type="submit" value="Share" onclick="UniversalEditSubmit(event)">
+  </label>
 </div>
+<br />
 <br />
 
 <ul id="story">{% for feed in feeds %}
@@ -40,19 +49,25 @@ Edit My Profile<br />
 <script type="text/javascript">
 function UniversalEditInit() {
   var ue = $('#universal_input');
-  ue.keypress(UniversalEditSubmit);
+  ue.focus(function() {
+    $('#universal_input_buttons').removeClass('hide');
+  });
+  ue.blur(function() {
+    if (ue.html() == '')
+      $('#universal_input_buttons').addClass('hide');
+  });
 }
 function UniversalEditSubmit(e) {
   console.log('INFO:', e);
-  if (false && '13' == e.which && !e.shiftKey) {
-    e.preventDefault();
-    var url = $(this).attr('ajaxify');
-    $.postJSON(url, {content: $(this).html() }, UniversalEditResponse);
-  }
+  e.preventDefault();
+  
+  var ue = $('#universal_input');
+  var url = ue.attr('ajaxify');
+  $.postJSON(url, {content: ue.html()}, UniversalEditResponse);
 }
 function UniversalEditResponse(res) {
   if (0 != res.error) return;
-  $('#story').prepend('<li>' + res.payload + '</li>');
+  $('#story').prepend('<li class="f_list_item">' + res.payload + '</li>');
   var ue = $('#universal_input');
   ue.html('');
 }
@@ -71,6 +86,19 @@ jQuery.postJSON = function(url, args, callback) {
     }
   });
 };
+jQuery.fn.formToDict = function() {
+  var fields = this.serializeArray();
+  var json = {}
+  for (var i = 0; i < fields.length; i++) {
+    json[fields[i].name] = fields[i].value;
+  }
+  if (json.next) delete json.next;
+  return json;
+};
+jQuery.fn.disable = function() {
+  this.enable(false);
+  return this;
+};
 
 function PlaceBlur(e) {
   var jo = $(this);
@@ -88,9 +116,44 @@ function ShowCommnet(obj) {
   var lis = form.find('.f_form_ul li');
   $(lis[1]).removeClass('hide');
   $(lis[2]).removeClass('hide');
+
+  var t = form.find('.placeholder');
+  t.focus();
 }
 function Like(obj) {
-  console.log('INFO:', 'TODO')
+  console.log('Like:', obj);
+}
+
+function Comment(obj, e) {
+  e.preventDefault();
+
+  var form = $(obj).parentsUntil('form').parent();
+
+  var disabled = form.find("input[type=submit]");
+  disabled.attr('disabled', 'disabled');
+
+  var action = form.find("input[name=action]");
+  action.attr('value', 'comment');
+  
+  var url = form.attr('ajaxify');
+  var to_submit = form.formToDict();
+  
+  $.postJSON(url, to_submit, CommentResponse);
+}
+
+function CommentResponse(res) {
+  console.log('comment res:', res);
+  // find the form
+  var form = $('form[data=' + res.fid + ']');
+
+  var disabled = form.find("input[type=submit]");
+  console.log('find submit:', disabled);
+  disabled.removeAttr('disabled');
+
+  // find li which contained this feed
+  var ul = form.find('.f_c_ul');
+  console.log('find ul:', ul.get(0));
+  ul.append('<li>' + res.payload + '</li>');
 }
 
 $(document).ready(function() {

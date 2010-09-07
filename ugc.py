@@ -2,6 +2,7 @@
 #coding:utf-8
 
 import datetime
+import simplejson
 
 import tornado.web
 import tornado.escape
@@ -13,19 +14,42 @@ import antispam
 
 class JsonHandler(base.BaseHandler):
   def post(self, cate):
-    print cate, self.get_argument("content")
+    print cate
     user = self.current_user
 
-    fid = Feed.New(self.db, user, self.get_argument("content"), user.center)
-    d = self.db.feed.find_one(dict(_id=fid))
-    feed = base.PlainDict(d)
+    if 'publish' == cate:
+      content = self.get_argument("content", None)
+      if not content:
+        raise tornado.web.HTTPError(409) # Conflict
+      fid = Feed.New(self.db, user, content, user.center)
+      d = self.db.feed.find_one(dict(_id=fid))
+      feed = base.PlainDict(d)
 
-    fm = FeedModule(self)
-    html = fm.render(feed)
-    print html
-
-    res = dict(error=0, payload=html.decode('utf-8'))
-    self.write(res) # TODO: is right?
+      fm = FeedModule(self)
+      html = fm.render(feed)
+      self.write(simplejson.dumps(dict(error=0, payload=html)))
+    elif 'action' == cate:
+      # comment, like
+      fid = self.get_argument("fid", None)
+      action = self.get_argument("action", None)
+      body = self.get_argument("c", None)
+      p = self.get_argument("p", None)
+      print 'action:', action, 'fid:', fid
+      
+      # TODO: 强检测参数
+      if -1 == p: p = None
+      fid = pymongo.objectid.ObjectId(fid)
+      
+      if 'comment' == action:
+        Feed.Comment(self.db, fid, user, body, index=p)
+      
+      d = self.db.feed.find_one(dict(_id=fid))
+      c = d['comments'].pop()
+      
+      # TODO: 如何找到刚更新的 comment 呢？
+      fc = FeedCommentModule(self)
+      html = fc.render(c)
+      self.write(simplejson.dumps(dict(error=0, fid=str(fid), payload=html)))
   
 class PublishHandler(base.BaseHandler):
   # @tornado.web.authenticated
@@ -147,7 +171,7 @@ class Feed(object):
 
     ret = db.feedlist.update({'_id' : {'$in' : uids}},
           {'$push': {'fid': fid}},
-          safe =True, upsert = False, multi = True
+          safe=True, upsert=False, multi=True
         )
         
     # print 'update ret:', ret
@@ -171,10 +195,10 @@ class Feed(object):
     d = {'$push': 
         {'comments':{'owner': owner.id, 'name': owner.name, 'body': body}}
       }
-    # key不存在 和 =None 是有些不同的
+    # key 不存在 和 =None 是有些不同的，使用不存在来表示第一级
     if index:
-      d['$push']['p'] = p
-    db.feed.update({'_id': fid}, d)
+      d['$push']['p'] = index
+    db.feed.update({'_id': fid}, d, safe=True)
     # 貌似一次不能同时执行 $push 和 $set
     db.feed.update({'_id': fid}, {'$set': {'last_modify': datetime.datetime.now()}})
 
