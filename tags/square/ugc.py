@@ -213,6 +213,9 @@ class Feed(object):
     # 按时间倒序
     return db.feed.find({'_id' : {'$in': fids}}).limit(limit).sort(u'time', pymongo.DESCENDING)
 
+  @staticmethod
+  def Around(db, center, radius):
+    pass
 
 import unittest
 class FeedTestCase(unittest.TestCase):
