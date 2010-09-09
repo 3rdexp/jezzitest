@@ -114,9 +114,11 @@ function PlaceFocus(obj, e) {
 
 function ShowCommnet(obj) {
   var form = $(obj).parent().parent();
-  var lis = form.find('.f_form_ul li');
-  $(lis[1]).removeClass('hide');
-  $(lis[2]).removeClass('hide');
+  // var lis = 
+  form.find('li').removeClass('hide');
+  // lis.each(function(i, o) { o.removeClass('hide'); })
+  // $(lis[1]).removeClass('hide');
+  // $(lis[2]).removeClass('hide');
 
   var t = form.find('.placeholder');
   t.focus();
