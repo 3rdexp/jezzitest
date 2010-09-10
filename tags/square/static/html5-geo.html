@@ -1,0 +1,30 @@
+<html>
+<head> 
+    <meta charset="UTF-8"> 
+
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&language=zh-CN"></script>
+
+<button id="show_position">显示你的位置</button> 
+<div id="content" style="height: 280px"></div> 
+
+<script> 
+document.getElementById('show_position').addEventListener('click', function() {
+  if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition);
+      // also monitor position as it changes
+      navigator.geolocation.watchPosition(showPosition);
+  } else {
+    console.log("no geolocation support");
+  }
+
+  function showPosition(position) {
+    var lat = position.coords.latitude;
+    var lng = position.coords.longitude;
+    var options = { zoom: 13, center: new google.maps.LatLng(lat, lng), mapTypeId: google.maps.MapTypeId.ROADMAP }
+    var map = new google.maps.Map(document.getElementById("content"), options);
+    var marker = new google.maps.Marker({ position: new google.maps.LatLng(lat, lng) });
+    marker.setMap(map);
+  }
+}, false);
+</script> 
+</html>
