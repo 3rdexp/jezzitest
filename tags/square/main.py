@@ -111,12 +111,25 @@ class Square(tornado.web.Application):
     
   def InitDatabase(self):
     if not self.db_:
-      self.db_ = pymongo.Connection('localhost', 27017).square
+      # self.db_ = pymongo.Connection('localhost', 27017).square
+      self.db_ = pymongo.Connection(options.dbhost,  options.dbport).square
 
 tornado.options.define("port", default=1026, help="run on the given port", type=int)
+tornado.options.define("dbhost", default='localhost', help="mongodb host", type=str)
+tornado.options.define("dbport", default=27017, help="mongodb port", type=int)
+
+def init():
+  db = pymongo.Connection(options.dbhost,  options.dbport).square
+  # db.user.ensureIndex({c : '2d', n : 1}, {min:-180000, max:180000})
+  
+  db.user.ensure_index('c', pymongo.GEO2D, min=-180000, max=180000, unique=False)
+  db.user.ensure_index('n', unique=True)
 
 def main():
   tornado.options.parse_command_line()
+  
+  init()
+  
   ws = tornado.httpserver.HTTPServer(Square())
   ws.listen(options.port)
   tornado.ioloop.IOLoop.instance().start()
