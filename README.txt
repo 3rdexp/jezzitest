@@ -67,12 +67,11 @@ publish:
 
 改变位置后，可以添加对新位置的关注
 
-# latitude 度能到110开幕km
+# latitude 度能到110 km
 # longtitude 能到0-111 km
 
 建立索引
 db.user.ensureIndex({c : '2d', n : 1}, {min:-180000, max:180000})
-
 
 头像可以使用
 http://brandonmathis.com/projects/fancy-avatars/demo/
@@ -82,10 +81,16 @@ http://valums.com/ajax-upload/
 
 压缩js
 http://code.google.com/closure/compiler/docs/compilation_levels.html
+http://code.google.com/closure/compiler/docs/api-ref.html
 
+jquery default text
 http://www.dailycoding.com/Posts/default_text_fields_using_simple_jquery_trick.aspx
-
 
 json decode
 http://code.google.com/p/jspickle/
 http://www.undefined.org/python/
+
+# email
+一直摇摆不定，是使用email作为用户名呢，还是不用
+不用，作为一个土站，使用名字
+能让人改名么？只有不让改名了
