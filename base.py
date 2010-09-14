@@ -70,8 +70,10 @@ class User(object):
       return self.__dict__[ self.imp_dict[name] ]
     return object.__getattr__(self, name)
 
+# TODO: 对dict成员也做处理
 class PlainDict(object):
   def __init__(self, d):
+    assert(isinstance(d,  dict))
     self.__dict__.update(d)
 
   def __str__(self):
