@@ -63,7 +63,7 @@ class HomeHandler(base.BaseHandler):
         feeds.append(feed)
         # print feed._id, len(t)
 
-    self.set_header("Expires", "-1")
+    # self.set_header("Expires", "-1")
     self.render('home.html', feeds=feeds, user=user)
 
 class Square(tornado.web.Application):
