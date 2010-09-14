@@ -21,7 +21,7 @@ class UniParser(HTMLParser):
 
     self.Emit('<%s' % tag)
     for p in attrs:
-      if self.SafeAttr(p[0]):
+      if self.SafeAttr(p[0],  p[1]):
         self.Emit(' %s=\"%s\"' % (p[0],  p[1]))
     self.Emit('>')
 
@@ -33,9 +33,16 @@ class UniParser(HTMLParser):
     self.Emit(data)
   
   @staticmethod
-  def SafeAttr(attr):
-    return attr in UniParser.SafeAttrTable
+  def SafeAttr(attr,  value):
+    exist = attr in UniParser.SafeAttrTable
+    if exist and 'href' == attr:
+      return UniParser.SafeAnchor(value)
+    return exist
     
+  @staticmethod
+  def SafeAnchor(url):
+    return url.startswith('http') or url.startswith('/');
+  
   @staticmethod
   def SafeTag(tag):
     return tag in UniParser.SafeTagTable
@@ -94,4 +101,4 @@ if __name__ == "__main__":
     p = UniParser()
     p.Parse(i)
     print p.html
-    
+
