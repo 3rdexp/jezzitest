@@ -11,6 +11,7 @@ import pymongo
 
 import base
 import antispam
+import unihtml
 
 class JsonHandler(base.BaseHandler):
   def post(self, cate):
@@ -21,7 +22,12 @@ class JsonHandler(base.BaseHandler):
       content = self.get_argument("content", None)
       if not content:
         raise tornado.web.HTTPError(409) # Conflict
-      fid = Feed.New(self.db, user, content, user.center)
+      
+      p = unihtml.UniParser()
+      p.Parse(content)
+      print content,  p.html
+    
+      fid = Feed.New(self.db, user, p.html, user.center)
       d = self.db.feed.find_one(dict(_id=fid))
       feed = base.PlainDict(d)
 
@@ -62,8 +68,14 @@ class PublishHandler(base.BaseHandler):
     
     # 1 html parse
     # 2 save to db
-    # 3 publish it
     
+    # 1 
+    p = unihtml.UniParser()
+    p.Parse(text)
+    text = p.html
+    print text
+    
+    # 2
     Feed.New(self.db, user, text, user.center)
     
     #~ self.redirect(self.get_argument("next", "/"))
