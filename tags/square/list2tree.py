@@ -50,7 +50,8 @@ def BuildTree(arr):
 
       p['child'].append(a)
   return tree
-      
+
+
 def DumpTree(t, indent=0, f=lambda item: item['i']):
   for i in t:
     print "%s%s" % (' ' * indent, f(i))
