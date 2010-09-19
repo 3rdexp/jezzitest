@@ -31,6 +31,17 @@ class BaseHandler(tornado.web.RequestHandler):
         self.user_ = User(d)
     return self.user_
 
+# save files => urls
+def Post(request):
+  us = []
+  for file in request.files['file']:
+    filename = ''
+    f = open(filename, 'a')
+    f.write(file['body'])
+    f.close()
+    
+    us.push(filename)
+  return us
 
 import threading
 
