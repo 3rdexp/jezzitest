@@ -11,15 +11,19 @@ import pymongo
 from tornado.options import define, options
 
 import base
+import upload
 import ugc
 import antispam
+
+class UserModule(tornado.web.UIModule):
+  def render(self, user):
+    return self.render_string('module_user.html', user=user)
 
 class AuthLogoutHandler(base.BaseHandler):
   # @tornado.web.addslash
   def get(self):
     self.clear_cookie('u')
     self.redirect(self.get_argument("next", "/"))
-
 
 class AuthLoginHandler(base.BaseHandler):
   # @tornado.web.addslash
@@ -43,7 +47,14 @@ class AuthLoginHandler(base.BaseHandler):
     # TODO: 在 Application 中记录该用户的所有请求都必须要进行验证
     c = antispam.NewCaptcha()
     self.render('login.html', captcha=c)
-    
+
+
+class NameCheckHandler(base.BaseHandler):
+  def get(self,  name):
+    d = self.db.user.find_one({'n':name})
+    if d:
+      self.write('{"":""}')
+
 class SignHandler(base.BaseHandler):
   @tornado.web.addslash
   def get(self):
@@ -79,12 +90,8 @@ class SignHandler(base.BaseHandler):
     # %f Microsecond as a decimal number [0,999999], zero-padded on the left
     
     # 3
-    filename = 'h/%s.jpg' % (datetime.datetime.now().strftime('%W/%f'))
-    head_url = "/s/%s" % filename
-    # 前面加 / 会导致 os.path.join 错误
-    head_filename = os.path.join(os.path.dirname(__file__), "static", filename)
-    # print filename, head_url, head_filename
-    if not GenHead(head_filename, self.request.files['head'][0]):
+    head_filepath,  head_url = upload.GenFileName()
+    if not GenHead(head_filepath, self.request.files['head'][0]):
       self.write('TODO')
       return
 
@@ -117,23 +124,7 @@ class SignHandler(base.BaseHandler):
       c = antispam.NewCaptcha()
     self.render('sign.html', captcha=c)
 
-class UserModule(tornado.web.UIModule):
-  def render(self, user):
-    return self.render_string('module_user.html', user=user)
-
-def Dump(fs):
-    s = StringIO.StringIO()
-    print >>s, "root %s len:%d" % (type(fs), len(fs))
-    for af in fs:
-        print >>s, "%s -> %s, len:%d" % (af, type(fs[af]),len(fs[af]))
-        for d in fs[af]:
-            print >>s, "   %s" % (type(d))
-            for i in d:
-                print >>s, "    %s, len:%d" %(i, len(d[i]))
-    print >>s, fs
-    print s.getvalue()
-
-
+# TODO: move in upload.py
 def GenHead(filepath, file):
   dir = os.path.dirname(filepath)
   if not os.path.exists(dir):

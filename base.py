@@ -31,17 +31,6 @@ class BaseHandler(tornado.web.RequestHandler):
         self.user_ = User(d)
     return self.user_
 
-# save files => urls
-def Post(request):
-  us = []
-  for file in request.files['file']:
-    filename = ''
-    f = open(filename, 'a')
-    f.write(file['body'])
-    f.close()
-    
-    us.push(filename)
-  return us
 
 import threading
 
@@ -56,6 +45,7 @@ class async(object):
   def __call__(self, *args, **kwargs):
     t = threading.Thread(target=self.m_, args=args, kwargs=kwargs)
     t.start()
+
 
 class User(object):
   """改变dict访问方式的不便;mongodb缩写带来的理解问题，可以直接写 User.name，而不用写 User['n']
@@ -81,7 +71,7 @@ class User(object):
       return self.__dict__[ self.imp_dict[name] ]
     return object.__getattr__(self, name)
 
-# TODO: 对dict成员也做处理
+# TODO: 对dict中的值也做类似处理
 class PlainDict(object):
   def __init__(self, d):
     assert(isinstance(d,  dict))

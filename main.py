@@ -76,6 +76,7 @@ class Square(tornado.web.Application):
       
       (r'/auth/login',    auth.AuthLoginHandler),
       (r'/auth/logout',   auth.AuthLogoutHandler),
+      (r'/auth/name/([^/]+)',   auth.NameCheckHandler),
       (r'/sign/?',        auth.SignHandler),
       
       (r'/captcha/([^/]+)', antispam.CaptchaHandler),
