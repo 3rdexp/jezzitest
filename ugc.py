@@ -156,7 +156,7 @@ class Feed(object):
     return True
 
   @staticmethod
-  def New(db, user, text, where=None):
+  def New(db, user, text, title='', where=None):
     now = datetime.datetime.now()
     fid = db.feed.save(dict(
         time= now,
@@ -165,7 +165,7 @@ class Feed(object):
         name= user.name,
         head = user.head,
         body= text,
-        title= '',
+        title= title, # two title is correct
         comments= [],
         where= user.center,
       ))

@@ -1,21 +1,28 @@
 #!/usr/bin/python
 #coding:utf-8
 
-import os
+import os,  time
 import tornado.web
 
 def GenFileName(prefix = 'h',  ext = 'jpg'):
   """按日期生成文件名，早期可以用星期，后期量大时改为按天
-  path: .../static/prefix/Week/Microsecond.ext
+  path: ..../static/prefix/Week/Microsecond.ext
   url: /s/prefix/Week/Microsecond.ext
-  TODO: Week 能按年增长
+  *Week: 从1970年起的星期数
+  h: head
+  p: normal photo
+  t: thumbnail
   """
-  part = '%s/%s.%s' % (prefix, (datetime.datetime.now().strftime('%W/%f')),  ext)
+  
+  millisec = int(time.time() * 1000)
+  week = 7 * 24 * 3600
+
+  part = '%s/%s/%d.%s' % (prefix, millisec/week, millisec%week, ext)
   url = "/s/%s" % part
   # 前面加 / 会导致 os.path.join 错误
   # 实际路径为 .../static/h/...
   filepath = os.path.join(os.path.dirname(__file__), "static", part)
-  return (filepath,  url)
+  return (filepath, url)
 
 # TODO: 保存在独立的文件 upload.py 中
 # TODO: 图像处理
