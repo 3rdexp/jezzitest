@@ -36,11 +36,11 @@ class CaptchaHandler(base.BaseHandler):
     # http://htaccess.wordpress.com/2009/09/22/x-content-type-options-nosniff-header/
     self.set_header("X-Content-Type-Options", "nosniff")
     
-    # TODO: Expires
+    # TODO: Expires 立即过期
 
     img = StringIO.StringIO()
     c.render(_DefaultSize).save(img, "JPEG")
-    
+
     self.write(img.getvalue())
 
 if __name__ == "__main__":

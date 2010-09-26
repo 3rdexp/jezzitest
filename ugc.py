@@ -3,6 +3,7 @@
 
 import datetime
 import simplejson
+import logging
 
 import tornado.web
 import tornado.escape
@@ -13,9 +14,12 @@ import base
 import antispam
 import unihtml
 
+# for ajax response json
+# /j/publish?content=
+# /j/action?fid=&action=&c=&p=
 class JsonHandler(base.BaseHandler):
   def post(self, cate):
-    print cate
+    logging.debug('JsonHandler cate:%s' % cate)
     user = self.current_user
 
     if 'publish' == cate:
@@ -25,7 +29,7 @@ class JsonHandler(base.BaseHandler):
       
       p = unihtml.UniParser()
       p.Parse(content)
-      print content,  p.html
+      logging.debug('JsonHandler publish content:%s parsed:%s' %(content, p.html))
     
       fid = Feed.New(self.db, user, p.html, user.center)
       d = self.db.feed.find_one(dict(_id=fid))
@@ -35,12 +39,13 @@ class JsonHandler(base.BaseHandler):
       html = fm.render(feed)
       self.write(simplejson.dumps(dict(error=0, payload=html)))
     elif 'action' == cate:
-      # comment, like
+      # action: comment, like
+      # p for parent, c for content
       fid = self.get_argument("fid", None)
       action = self.get_argument("action", None)
       body = self.get_argument("c", None)
       p = self.get_argument("p", None)
-      print 'action:', action, 'fid:', fid
+      logging.debug('action: %s, fid: %s' % (action, fid))
       
       # TODO: 强检测参数
       if -1 == p: p = None
@@ -56,7 +61,7 @@ class JsonHandler(base.BaseHandler):
       fc = FeedCommentModule(self)
       html = fc.render(c)
       self.write(simplejson.dumps(dict(error=0, fid=str(fid), payload=html)))
-  
+
 class PublishHandler(base.BaseHandler):
   # @tornado.web.authenticated
   def post(self):
@@ -73,7 +78,7 @@ class PublishHandler(base.BaseHandler):
     p = unihtml.UniParser()
     p.Parse(text)
     text = p.html
-    print text
+    logging.debug('PublishHandler parsed:%s' % text)
     
     # 2
     Feed.New(self.db, user, text, user.center)
@@ -179,14 +184,14 @@ class Feed(object):
     users = db.user.find({'c' : {'$near' : where}}, {'_id':1, 'c':1, 'r':1})
 
     uids = [u['_id'] for u in users]
-    print 'publish', fid, 'to', uids
+    logging.debug('Feed.New publish feed fid: %s to users:' % (fid, uids))
 
     ret = db.feedlist.update({'_id' : {'$in' : uids}},
           {'$push': {'fid': fid}},
           safe=True, upsert=False, multi=True
         )
         
-    # print 'update ret:', ret
+
     # 如果更新失败or部分失败，则低效的挨个更新
     if not ret['updatedExisting'] or ret['n'] != len(uids):
       for uid in uids:
@@ -194,11 +199,11 @@ class Feed(object):
           r = db.feedlist.insert({'_id': uid, 'fid':[]}, safe=True)
         except pymongo.errors.DuplicateKeyError:
           continue
+        logging.warning('publish feed list slow, fid:%s to user:%s' % (fid,  uid))
         ret = db.feedlist.update({'_id' : uid},
             {'$push': {'fid': fid}},
             safe=True, upsert=False, multi=False
           )
-        # print 'update 2nd ret:', ret
     return fid
 
   # index: index of parent comment
@@ -216,7 +221,6 @@ class Feed(object):
 
   @staticmethod
   def Read(db, owner, skip=0, limit=40):
-    # print 'read:', owner.id
     d = db.feedlist.find_one(dict(_id=owner.id))
     if not d:
       return None
@@ -261,8 +265,7 @@ class FeedTestCase(unittest.TestCase):
     print 'after 6 comment, last_modify:', fd['last_modify']
 
     allfeed = Feed.Read(self.db, self.user)
-    # for af in allfeed: print af
-    
+
     ret = []
     for a in allfeed:
       if not a['p']:
@@ -271,5 +274,3 @@ class FeedTestCase(unittest.TestCase):
 if __name__ == "__main__":
   import unittest
   unittest.main()
-  
-  
