@@ -83,6 +83,7 @@ class Square(tornado.web.Application):
       
       (r'/publish/?',  ugc.PublishHandler),
       (r'/upload/?',   ugc.UploadHandler),
+      
       (r'/j/([^/]+)',  ugc.JsonHandler),
     ]
     settings = dict(

@@ -1,20 +1,20 @@
 #!/usr/bin/python
 #coding:utf-8
 
-import os,  time
+import os,  time,  StringIO
 import tornado.web
 
 def GenFileName(prefix = 'h',  ext = 'jpg'):
   """按日期生成文件名，早期可以用星期，后期量大时改为按天
   path: ..../static/prefix/Week/Microsecond.ext
   url: /s/prefix/Week/Microsecond.ext
-  *Week: 从1970年起的星期数
+  *Week: 从 1285511836(2010/09/26) 起的星期数
   h: head
   p: normal photo
   t: thumbnail
   """
   
-  millisec = int(time.time() * 1000)
+  millisec = int((time.time() - 1285511836) * 1000)
   week = 7 * 24 * 3600
 
   part = '%s/%s/%d.%s' % (prefix, millisec/week, millisec%week, ext)
