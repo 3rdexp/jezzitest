@@ -14,6 +14,8 @@ import base
 import antispam
 import unihtml
 
+# TODO: rename to feed.py
+
 # for ajax response json
 # /j/publish?content=
 # /j/action?fid=&action=&c=&p=
@@ -240,13 +242,16 @@ class FeedTestCase(unittest.TestCase):
     self.user = base.User(self.db.user.find_one())
     self.text = 'test text'
     self.remove_feed = []
+    # new user A B C
 
   def tearDown(self):
+    # remove the users, feedlist
     pass
     #for fid in self.remove_feed:
     #  self.db.feed.remove({'_id':fid})
 
   def testNew(self):
+    # new feed
     fid = Feed.New(self.db, self.user, self.text, self.user.center)
 
     fd = self.db.feed.find_one(dict(_id=fid))
@@ -272,5 +277,4 @@ class FeedTestCase(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-  import unittest
   unittest.main()

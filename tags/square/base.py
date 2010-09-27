@@ -5,9 +5,7 @@ import tornado.web
 import pymongo
 
 class BaseHandler(tornado.web.RequestHandler):
-  def __init__(self,application, request, transforms=None):
-    tornado.web.RequestHandler.__init__(self,application, request, transforms)
-
+  def initialize(self):
     self.user_ = None
     self.user_checked_ = False # 是否从数据库中读取记录，验证过 cookie 是否合法
 
