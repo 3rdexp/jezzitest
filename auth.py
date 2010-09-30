@@ -75,10 +75,36 @@ class SignHandler(base.BaseHandler):
     email = self.get_argument("email", None)
     passwd = self.get_argument("passwd", None)
     
-    # 扩大 1000 倍，提高mongodb里比较的精度
-    center = [float(self.get_argument("lat", None)) * 1000
-      , float(self.get_argument("lng", None)) * 1000]
-    radius = 3000 # TODO: 合适的单位是什么?
+    # http://en.wikipedia.org/wiki/Latitude
+    # 地球半径为 6356752.3142 m
+    # Latitude	        Town	              Degree	    Minute	    Second	±0.0001°
+    # 60°	            Saint Petersburg	55.65 km	0.927 km	15.42m	5.56m
+    # 51° 28' 38" N	Greenwich	        69.29 km	1.155 km	19.24m	6.93m
+    # 45°	            Bordeaux	          78.7 km	  1.31 km	  21.86m	7.87m
+    # 30°	            New Orleans	      96.39 km	1.61 km	  26.77m	9.63m
+    # 0°	              Quito	                111.3 km	1.855 km	30.92m	11.13m
+    
+    # Latitude	| N-S radius of curvature | Surface distance per 1° change in latitude
+    #         | E-W radius of curvature | Surface distance per 1° change  in longitude
+    # 0°	  6335.44 km	110.574 km		6378.14 km	111.320 km
+    # 15°	6339.70 km	110.649 km		6379.57 km	107.551 km
+    # 30°	6351.38 km	110.852 km		6383.48 km	96.486 km
+    # 45°	6367.38 km	111.132 km		6388.84 km	78.847 km
+    # 60°	6383.45 km	111.412 km		6394.21 km	55.800 km
+    # 75°	6395.26 km	111.618 km		6398.15 km	28.902 km
+    # 90°	6399.59 km	111.694 km		6399.59 km	0.000 km
+    
+    # 对于中国，经度1度大致为 111 km，纬度1度大致为 78 km
+    
+    # 经纬度要乘以 60 * 1000，然后直接运算相当于单位为 m
+    # 
+    
+    # google map
+    # (建議放大級數: 大城市15, 小型城市或鄉鎮12 , 郊區8, 大陸或海洋6)
+    
+    center = [float(self.get_argument("lat", None)) * 60000
+      , float(self.get_argument("lng", None)) * 60000]
+    radius = 3000 # 单位是 m
     
     # 1 判断各种输入合法性
     # 2 检查名字, email 是否重复

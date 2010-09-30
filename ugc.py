@@ -163,9 +163,9 @@ class Feed(object):
     return True
 
   @staticmethod
-  def New(db, user, text, title='', where=None):
+  def New(db, user, text, title='', where=None,  radius=0):
     now = datetime.datetime.now()
-    fid = db.feed.save(dict(
+    fid = db.feed.insert(dict(
         time= now,
         last_modify=now,
         owner= user.id,
@@ -175,13 +175,14 @@ class Feed(object):
         title= title, # two title is correct
         comments= [],
         where= user.center,
-      ))
+      ),  safe=True)
+    print 'feed.insert', fid
       
     # publish
     # 更新感兴趣的人的 feedlist
     # TODO: 确定 maxDistance=5 的精确度
     if not isinstance(where, list):
-      return fid      
+      return fid
     where.append(5)
     users = db.user.find({'c' : {'$near' : where}}, {'_id':1, 'c':1, 'r':1})
 
@@ -239,18 +240,52 @@ import unittest
 class FeedTestCase(unittest.TestCase):
   def setUp(self):
     self.db = pymongo.Connection('localhost', 27017).square
-    self.user = base.User(self.db.user.find_one())
-    self.text = 'test text'
-    self.remove_feed = []
+    
+    # a --1000-- b
+    # 
+    # c
+    
+    factor = 60000
+    
+    self.usera = self.NewUser('testa',  (126*factor, 50*factor),  3000)
+    self.userb = self.NewUser('testb',  (126*factor, 49*factor),  1000) # near a
+    self.userc = self.NewUser('testc',  (126*factor, 46*factor),  1000) # faraway a
+    
+    self.feeds_ = []
     # new user A B C
 
   def tearDown(self):
-    # remove the users, feedlist
-    pass
-    #for fid in self.remove_feed:
-    #  self.db.feed.remove({'_id':fid})
+    # remove the users, feeds
+    print 'removed user', self.usera.id,  self.userb.id
+    self.db.user.remove({'_id':self.usera.id})
+    self.db.user.remove({'_id':self.userb.id})
+    self.db.user.remove({'_id':self.userc.id})
+    
+    self.db.feedlist.remove({'_id':self.usera.id})
+    self.db.feedlist.remove({'_id':self.userb.id})
+    self.db.feedlist.remove({'_id':self.userc.id})
 
-  def testNew(self):
+    for fid in self.feeds_:
+      self.db.feed.remove({'_id':fid})
+    
+  def testPrint(self):
+    print 'in testPrint', self.usera
+    
+  def testPublish(self):
+    fid = Feed.New(self.db,  self.usera,  'demo feed',  self.usera.center)
+    self.assertFalse(fid != None)
+    if fid:
+      self.feeds_.append(fid)
+    print 'new feed', fid
+    
+    fs = Feed.Read(self.db, self.userb)
+    print 'feed:', fs
+    
+  def NewUser(self,  name,  focus,  radius):
+    uid = self.db.user.insert(dict(n=name,  h='/s/af.png',  c=focus,  r=radius),  safe=True)
+    return base.User(self.db.user.find_one({'_id':uid}))
+
+  def _testNew(self):
     # new feed
     fid = Feed.New(self.db, self.user, self.text, self.user.center)
 
