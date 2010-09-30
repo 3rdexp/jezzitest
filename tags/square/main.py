@@ -127,10 +127,10 @@ def init():
   db = pymongo.Connection(options.dbhost,  options.dbport).square
   # db.user.ensureIndex({c : '2d', n : 1}, {min:-180000, max:180000})
   
-  db.user.ensure_index([('c', pymongo.GEO2D)], unique=False, ttl=300,  min=-180000, max=180000)
+  db.user.ensure_index([('c', pymongo.GEO2D)], unique=False, ttl=300,  min=-180*60000, max=180*60000)
   db.user.ensure_index('n', unique=True)
   
-  db.feed.ensure_index([('where', pymongo.GEO2D)], unique=False, ttl=300,  min=-180000, max=180000)
+  db.feed.ensure_index([('where', pymongo.GEO2D)], unique=False, ttl=300,  min=-180*60000, max=180*60000)
   db.feed.ensure_index('time', unique=False)
   
 
