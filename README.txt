@@ -39,11 +39,10 @@ simple_example.py
 * 生成图时，会读入底图文件，消耗太大?
 
 
+# simplejson系统安装的版本可能有 c module
 
-
-PYTHONPATH=pymongo:pycaptcha
-
-set PYTHONPATH=pymongo;pycaptcha
+PYTHONPATH=pymongo:pycaptcha:simplejson
+set PYTHONPATH=pymongo;pycaptcha;simplejson
 
 
 # 位置信息设置
@@ -56,7 +55,6 @@ http://code.mapabc.com/class.html
 
 2 从地图上选择一个位置
 先使用 mapabc 的 API
-
 
 # 
 发布信息时，找到感兴趣的人，给每个人的 feedlist push 一条记录
@@ -90,7 +88,28 @@ json decode
 http://code.google.com/p/jspickle/
 http://www.undefined.org/python/
 
+
 # email
-一直摇摆不定，是使用email作为用户名呢，还是不用
-不用，作为一个土站，使用名字
-能让人改名么？只有不让改名了
+一直摇摆不定，是使用 email 作为用户名呢，还是不用
+
+== user table
+name: 登录名称，不可更改
+nick: 显示名字，可以更改的
+email: 属性之一
+email_verified:
+passwd: 
+
+== focus table
+uid, [x, y], radius
+
+== feed
+== feedlist
+
+
+TODO:
+拆分 focus 表
+  class User
+    staticmethod New/Remove
+能添加感兴趣的地点，多个
+完成注册
+

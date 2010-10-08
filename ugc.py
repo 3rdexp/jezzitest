@@ -163,7 +163,8 @@ class Feed(object):
     return True
 
   @staticmethod
-  def New(db, user, text, title='', where=None,  radius=0):
+  def New(db, user, text, title='', where=None,  radius=None):
+    center = where or user.center
     now = datetime.datetime.now()
     fid = db.feed.insert(dict(
         time= now,
@@ -174,20 +175,19 @@ class Feed(object):
         body= text,
         title= title, # two title is correct
         comments= [],
-        where= user.center,
+        where= center,
       ),  safe=True)
     print 'feed.insert', fid
-      
+
     # publish
     # 更新感兴趣的人的 feedlist
-    # TODO: 确定 maxDistance=5 的精确度
-    if not isinstance(where, list):
-      return fid
-    where.append(5)
-    users = db.user.find({'c' : {'$near' : where}}, {'_id':1, 'c':1, 'r':1})
+    # TODO: 确定 maxDistance=1000 的精确度
+    cond = [center,  radius or 1000]
+    
+    users = db.user.find({'c' : {'$within' : {'$center':cond}}}, {'_id':1, 'c':1, 'r':1})
 
     uids = [u['_id'] for u in users]
-    logging.debug('Feed.New publish feed fid: %s to users:' % (fid, uids))
+    logging.debug('Feed.New publish feed fid: %s to users:%s' % (str(fid), str(uids)))
 
     ret = db.feedlist.update({'_id' : {'$in' : uids}},
           {'$push': {'fid': fid}},
@@ -241,6 +241,10 @@ class FeedTestCase(unittest.TestCase):
   def setUp(self):
     self.db = pymongo.Connection('localhost', 27017).square
     
+    self.db.user.remove({'n':'testa'})
+    self.db.user.remove({'n':'testb'})
+    self.db.user.remove({'n':'testc'})
+    
     # a --1000-- b
     # 
     # c
@@ -248,11 +252,16 @@ class FeedTestCase(unittest.TestCase):
     factor = 60000
     
     self.usera = self.NewUser('testa',  (126*factor, 50*factor),  3000)
-    self.userb = self.NewUser('testb',  (126*factor, 49*factor),  1000) # near a
-    self.userc = self.NewUser('testc',  (126*factor, 46*factor),  1000) # faraway a
+    self.userb = self.NewUser('testb',  (126*factor, 50*factor+1000),  1000) # near a
+    self.userc = self.NewUser('testc',  (126*factor - 3000, 50*factor),  1000) # faraway a
+    
+    try:
+      self.userd = self.NewUser('testd',  (126*factor, 50*factor+1200),  1000) # near a
+      self.db.feedlist.insert({'_id':self.userd.id,  fid:[]})
+    except:
+      self.userd = base.User(self.db.user.find_one({'n':'testd'}))
     
     self.feeds_ = []
-    # new user A B C
 
   def tearDown(self):
     # remove the users, feeds
@@ -268,18 +277,29 @@ class FeedTestCase(unittest.TestCase):
     for fid in self.feeds_:
       self.db.feed.remove({'_id':fid})
     
-  def testPrint(self):
+  def _testPrint(self):
     print 'in testPrint', self.usera
     
   def testPublish(self):
-    fid = Feed.New(self.db,  self.usera,  'demo feed',  self.usera.center)
-    self.assertFalse(fid != None)
+    fid = Feed.New(self.db,  self.usera,  'demo feed',  where=self.usera.center, radius=1500)
+    self.assertTrue(fid != None)
     if fid:
       self.feeds_.append(fid)
-    print 'new feed', fid
+    print 'the new feed', fid
     
     fs = Feed.Read(self.db, self.userb)
-    print 'feed:', fs
+    self.assertNotEqual(None,  fs)
+    ids = [f['_id'] for f in fs]
+    self.assertTrue(len(ids) > 0)
+    self.assertTrue(fid in ids)
+    
+    fs = Feed.Read(self.db, self.userc)
+    self.assertEqual(None,  fs)
+    
+    fs = Feed.Read(self.db, self.userd)
+    self.assertNotEqual(None,  fs)
+    ids = [f['_id'] for f in fs]
+    self.assertTrue(fid in ids)
     
   def NewUser(self,  name,  focus,  radius):
     uid = self.db.user.insert(dict(n=name,  h='/s/af.png',  c=focus,  r=radius),  safe=True)
