@@ -115,6 +115,7 @@ class Square(tornado.web.Application):
   def InitDatabase(self):
     if not self.db_:
       # self.db_ = pymongo.Connection('localhost', 27017).square
+      # 内部有连接池，数目为 10
       self.db_ = pymongo.Connection(options.dbhost,  options.dbport).square
 
 
@@ -129,6 +130,8 @@ def init():
   
   db.user.ensure_index([('c', pymongo.GEO2D)], unique=False, ttl=300,  min=-180*60000, max=180*60000)
   db.user.ensure_index('n', unique=True)
+  
+  db.focus.ensure_index([('center', pymongo.GEO2D)], unique=False, ttl=300,  min=-180*60000, max=180*60000)
   
   db.feed.ensure_index([('where', pymongo.GEO2D)], unique=False, ttl=300,  min=-180*60000, max=180*60000)
   db.feed.ensure_index('time', unique=False)
