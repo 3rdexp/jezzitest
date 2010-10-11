@@ -93,9 +93,8 @@ http://www.undefined.org/python/
 一直摇摆不定，是使用 email 作为用户名呢，还是不用
 
 == user table
-name: 登录名称，不可更改
+email: 登录名称，不可更改
 nick: 显示名字，可以更改的
-email: 属性之一
 email_verified:
 passwd: 
 

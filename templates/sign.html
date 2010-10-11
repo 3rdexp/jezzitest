@@ -2,7 +2,6 @@
 
 {% block body %}
 <form action='/sign/' method='post' enctype="multipart/form-data">{{ xsrf_form_html() }}
-  user name: <input name="name" type="text" /><br />
   email: <input name="email" type="text" /><br />
   password: <input name="passwd" type="password" /><br />
   {% if captcha %}

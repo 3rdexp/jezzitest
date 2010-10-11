@@ -32,15 +32,14 @@ class AuthLoginHandler(base.BaseHandler):
     self.render('login.html', captcha=None)
     
   def post(self):
-    name = self.get_argument("name", None)
-    # email = self.get_argument("email", None)
+    email = self.get_argument("email", None)
     passwd = self.get_argument("passwd", None)
     
-    if name and passwd:
-      d = self.db.user.find_one({'n': name, 'p': passwd})
-      if d:
+    if email and passwd:
+      u = User.CheckLogin(db, email,  passwd)
+      if u is not None:
         # TODO: setting['expires_days']
-        self.set_secure_cookie('u', str(d['_id']), expires_days=30)
+        self.set_secure_cookie('u', str(u.id), expires_days=30)
         self.redirect(self.get_argument("next", "/"))
       return
 
@@ -50,8 +49,8 @@ class AuthLoginHandler(base.BaseHandler):
 
 
 class NameCheckHandler(base.BaseHandler):
-  def get(self,  name):
-    d = self.db.user.find_one({'n':name})
+  def get(self,  nick):
+    d = self.db.user.find_one({'nick':nick})
     if d:
       self.write('{"":""}')
 
@@ -71,8 +70,8 @@ class SignHandler(base.BaseHandler):
       
     goto = self.get_argument("goto", '/')
     
-    name = self.get_argument("name", None)
     email = self.get_argument("email", None)
+    nick = self.get_argument("nick", None)
     passwd = self.get_argument("passwd", None)
     
     # http://en.wikipedia.org/wiki/Latitude
@@ -124,21 +123,11 @@ class SignHandler(base.BaseHandler):
     # TODO: 使用索引检查重复
     # TODO: email 不是必须的，对于中国用户来说
     # new user
-    uid=self.db.user.save({
-        'n':name
-        , 'l':[1,2], 'h':head_url
-        , 'e': email
-        , 'p' : passwd     # TODO: hash it
-        # TODO: save ticket
-        #, 't':{'k':'alsdfjlsejrwae', 'e':'2010/10/10 12:23:33'}
-        #, 'f' : {'c' : center, 'r':radius}
-        , 'c' : center, 'r' : radius
-      }, safe=True)
-    print 'new uid:', uid
-    
-    if uid:
-      # TODO: User.xxx
-      self.set_secure_cookie('u', str(uid))
+    u=base.User.New(email=email,  head=head_url, passwd=passwd)
+    if u is not None:
+      u.AddFocus(self.db, center, radius)
+      
+      self.set_secure_cookie('u', str(u.id))
       self.redirect(goto)
       return
     
