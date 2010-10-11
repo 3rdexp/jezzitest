@@ -38,7 +38,11 @@ class PlainDict(object):
   1
   """
   def __init__(self, d, name_table={}):
-    assert(isinstance(d,  dict))
+    self.name_table_ = name_table
+    
+    if not isinstance(d,  dict):
+      return
+
     # self.__dict__.update(d)
     for a, b in d.items():
       if isinstance(b, (list, tuple)):
@@ -46,8 +50,6 @@ class PlainDict(object):
       else:
         setattr(self, a, PlainDict(b) if isinstance(b, dict) else b)
 
-    self.name_table_ = name_table
-    
     # 针对mongodb特殊处理，省去 _id/id 不分之苦
     if '_id' in d and 'id' not in d:
       self.name_table_['id'] = '_id'
@@ -62,24 +64,43 @@ class PlainDict(object):
 
 class User(PlainDict):
   """
-  >>> d={'name':'ken', 'passwd':'k', 'nick':'old dog', 'head':'/s/am.png'}
+  >>> d={'email':'ken', 'passwd':'k', 'nick':'old dog', 'head':'/s/am.png'}
   >>> u = User(d)
-  >>> u.name
+  >>> u.email
   'ken'
+  
   >>> db = pymongo.Connection('localhost', 27017).square
-  >>> db.user.remove({'name':'ken'})
+  >>> db.user.remove({'email':'ken'})
   >>> v = User.New(db, **d)
-  >>> v.name
+  >>> v.email
   u'ken'
   >>> type(v.id)
   <class 'pymongo.objectid.ObjectId'>
   >>> len(str(v.id))
   24
-  >>> v.AddFocus(db, [1,2], 3)
-  >>> focus = v.GetFocus(db)
-  >>> type(focus)
-  'dict'
   
+  >>> f0 = v.GetFocus(db)
+  >>> a0 = 0 or f0 and len([i for i in f0])
+  >>>
+  >>> v.AddFocus(db, [1,2], 3)
+  >>> f1 = v.GetFocus(db)
+  >>> a1 = 0 or f1 and len([i for i in f1])
+  >>> a1 == a0 + 1
+  True
+  
+  >>> User.CheckAvailable(db, email='ken')
+  False
+  >>> User.CheckAvailable(db, nick='old dog')
+  False
+  >>> User.CheckAvailable(db, email='ken3')
+  True
+  
+  >>> u = User.CheckLogin(db, email='ken', passwd='k')
+  >>> len(str(u.id))
+  24
+  ### return None 居然在 doctest 中是 got nothing
+  >>> User.CheckLogin(db, email='ken', passwd='k2')
+  >>> User.CheckLogin(db, email='ken1000', passwd='k')
   """
   def __init__(self, d):
     PlainDict.__init__(self, d)
@@ -94,38 +115,30 @@ class User(PlainDict):
   @staticmethod
   def New(db, **kwargs):
     """
-    name, passwd, nick
+    email, passwd, nick
     """
     try:
-      name = kwargs['name']
+      email = kwargs['email']
       passwd = kwargs['passwd']
       nick = kwargs['nick']
       head = kwargs['head']
     except KeyError:
       logging.error('User.New parameter error, with %r',  kwargs)
-      
-    email = 'email' in kwargs and kwargs['email'] or ''
-    
-    uid = db.user.save({'name':name, 
-                         'passwd':passwd, 
-                         'nick':nick, 
-                         'email':email, 
-                         'email_verified':False, 
+
+    uid = db.user.save({'email':email, 
+                         'passwd':passwd,
+                         'nick':nick,
+                         'email_verified':False,
                          'head':head},  safe=True)
     u = db.user.find_one({'_id':uid})
     return User(u)
-  
-  @staticmethod
-  def CheckName(self, db, name):
-    d = db.user.find_one({'name':name})
-    return d is None
 
   @staticmethod
-  def Remove(self, db, id=None, name=None, with_data=True):
+  def Remove(self, db, id=None, email=None, with_data=True):
     if id is not None:
       q = {'_id':id}
-    elif name is not None:
-      q = {'name':name}
+    elif email is not None:
+      q = {'email':email}
     else:
       return False
 
@@ -136,6 +149,22 @@ class User(PlainDict):
       db.feed.remove({'owner':id})
 
     return True
+    
+  @staticmethod
+  def CheckLogin(db, email, passwd):
+    d = db.user.find_one({'email': email, 'passwd': passwd})
+    if d:
+      return User(d)
+    return None
+    
+  @staticmethod
+  def CheckAvailable(db, nick=None,  email=None):
+    if nick is not None:
+      q = {'nick':nick}
+    elif email is not None:
+      q = {'email':email}
+    d = db.user.find_one(q)
+    return d is None
 
 class BaseHandler(tornado.web.RequestHandler):
   def initialize(self):
@@ -154,10 +183,7 @@ class BaseHandler(tornado.web.RequestHandler):
     self.user_checked_ = True
     uid = self.get_secure_cookie('u')
     if uid and len(uid) == len('4c6fc6bc3758980f08000000'):
-      # TODO: class User, now it's a dict
-      # {u'h': u'', u'_id': ObjectId('4c6fc6bc3758980f08000000'), u'l': [1, 2], u'n': u'ken', u'f': [{u'c': [1, 2], u'r': 3}]}
       d = self.db.user.find_one({'_id': pymongo.objectid.ObjectId(uid)})
-      # print 'find_one result:', d, 'uid:', uid
       if d:
         self.user_ = User(d)
     return self.user_
