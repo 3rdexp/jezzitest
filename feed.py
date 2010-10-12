@@ -33,7 +33,9 @@ class JsonHandler(base.BaseHandler):
       p.Parse(content)
       logging.debug('JsonHandler publish content:%s parsed:%s' %(content, p.html))
     
-      fid = Feed.New(self.db, user, p.html, user.center)
+      focus = base.PlainDict(user.GetFocus(self.db)[0])
+    
+      fid = Feed.New(self.db, user, p.html, where=focus.center, radius=focus.radius)
       d = self.db.feed.find_one(dict(_id=fid))
       feed = base.PlainDict(d)
 
@@ -349,5 +351,5 @@ class FeedTestCase(unittest.TestCase):
       print c['body']
 
 if __name__ == "__main__":
-  logging.getLogger('').setLevel(logging.DEBUG)
+  logging.getLogger('').setLevel(logging.INFO)
   unittest.main()
