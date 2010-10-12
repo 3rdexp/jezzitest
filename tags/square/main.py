@@ -57,10 +57,10 @@ class HomeHandler(base.BaseHandler):
     feeds = []
     if ds:
       for d in ds:
-        feed = base.PlainDict(d)
-        t = list2tree.BuildTree(feed.comments)
-        feed.comments = t
-        feeds.append(feed)
+        af = base.PlainDict(d)
+        t = list2tree.BuildTree(af.comments)
+        af.comments = t
+        feeds.append(af)
         # print feed._id, len(t)
 
     # self.set_header("Expires", "-1")

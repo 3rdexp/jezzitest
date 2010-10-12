@@ -36,7 +36,7 @@ class AuthLoginHandler(base.BaseHandler):
     passwd = self.get_argument("passwd", None)
     
     if email and passwd:
-      u = User.CheckLogin(db, email,  passwd)
+      u = base.User.CheckLogin(self.db, email,  passwd)
       if u is not None:
         # TODO: setting['expires_days']
         self.set_secure_cookie('u', str(u.id), expires_days=30)
