@@ -80,11 +80,11 @@ class User(PlainDict):
   24
   
   >>> f0 = v.GetFocus(db)
-  >>> a0 = 0 or f0 and len([i for i in f0])
+  >>> a0 = len(f0)
   >>>
   >>> v.AddFocus(db, [1,2], 3)
   >>> f1 = v.GetFocus(db)
-  >>> a1 = 0 or f1 and len([i for i in f1])
+  >>> a1 = len(f1)
   >>> a1 == a0 + 1
   True
   
@@ -98,6 +98,7 @@ class User(PlainDict):
   >>> u = User.CheckLogin(db, email='ken', passwd='k')
   >>> len(str(u.id))
   24
+  
   ### return None 居然在 doctest 中是 got nothing
   >>> User.CheckLogin(db, email='ken', passwd='k2')
   >>> User.CheckLogin(db, email='ken1000', passwd='k')
@@ -110,7 +111,9 @@ class User(PlainDict):
     # update self.focus? No
     
   def GetFocus(self, db):
-    return db.focus.find({'uid':self.id})
+    d = db.focus.find({'uid':self.id})
+    self.focus = d is None and [] or [i for i in d]
+    return self.focus
 
   @staticmethod
   def New(db, **kwargs):
@@ -134,13 +137,15 @@ class User(PlainDict):
     return User(u)
 
   @staticmethod
-  def Remove(self, db, id=None, email=None, with_data=True):
+  def Remove(db, id=None, email=None, with_data=True):
     if id is not None:
       q = {'_id':id}
     elif email is not None:
       q = {'email':email}
     else:
       return False
+      
+    logging.info("user Remove by:%r",  q)
 
     db.user.remove(q, safe=True)
 
