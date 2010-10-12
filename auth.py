@@ -12,7 +12,7 @@ from tornado.options import define, options
 
 import base
 import upload
-import ugc
+import feed
 import antispam
 
 class UserModule(tornado.web.UIModule):
