@@ -170,7 +170,7 @@ class Feed(object):
         time= now,
         last_modify=now,
         owner= user.id,
-        name= user.name,
+        name= user.nick,
         head = user.head,
         body= text,
         title= title, # two title is correct
@@ -184,9 +184,9 @@ class Feed(object):
     # TODO: 确定 maxDistance=1000 的精确度
     cond = [center,  radius or 1000]
     
-    users = db.user.find({'c' : {'$within' : {'$center':cond}}}, {'_id':1, 'c':1, 'r':1})
+    c = db.focus.find({'center' : {'$within' : {'$center':cond}}}, {'uid':1, 'center':1, 'radius':1})
 
-    uids = [u['_id'] for u in users]
+    uids = [u['uid'] for u in c]
     logging.debug('Feed.New publish feed fid: %s to users:%s' % (str(fid), str(uids)))
 
     ret = db.feedlist.update({'_id' : {'$in' : uids}},
@@ -202,7 +202,7 @@ class Feed(object):
           r = db.feedlist.insert({'_id': uid, 'fid':[]}, safe=True)
         except pymongo.errors.DuplicateKeyError:
           continue
-        logging.warning('publish feed list slow, fid:%s to user:%s' % (fid,  uid))
+        logging.warning('feed slow publish, fid:%s to user:%s' % (fid,  uid))
         ret = db.feedlist.update({'_id' : uid},
             {'$push': {'fid': fid}},
             safe=True, upsert=False, multi=False
@@ -213,7 +213,7 @@ class Feed(object):
   @staticmethod
   def Comment(db, fid, owner, body, index=None):
     d = {'$push': 
-        {'comments':{'owner': owner.id, 'name': owner.name, 'body': body}}
+        {'comments':{'owner': owner.id, 'name': owner.nick, 'body': body}}
       }
     # key 不存在 和 =None 是有些不同的，使用不存在来表示第一级
     if index:
@@ -241,9 +241,10 @@ class FeedTestCase(unittest.TestCase):
   def setUp(self):
     self.db = pymongo.Connection('localhost', 27017).square
     
-    self.db.user.remove({'n':'testa'})
-    self.db.user.remove({'n':'testb'})
-    self.db.user.remove({'n':'testc'})
+    base.User.Remove(self.db, email='testa')
+    base.User.Remove(self.db, email='testb')
+    base.User.Remove(self.db, email='testc')
+    base.User.Remove(self.db, email='testd')
     
     # a --1000-- b
     # 
@@ -259,20 +260,16 @@ class FeedTestCase(unittest.TestCase):
       self.userd = self.NewUser('testd',  (126*factor, 50*factor+1200),  1000) # near a
       self.db.feedlist.insert({'_id':self.userd.id,  fid:[]})
     except:
-      self.userd = base.User(self.db.user.find_one({'n':'testd'}))
+      self.userd = base.User.CheckLogin (self.db, 'testd', 'p')
     
     self.feeds_ = []
 
   def tearDown(self):
     # remove the users, feeds
-    print 'removed user', self.usera.id,  self.userb.id
-    self.db.user.remove({'_id':self.usera.id})
-    self.db.user.remove({'_id':self.userb.id})
-    self.db.user.remove({'_id':self.userc.id})
-    
-    self.db.feedlist.remove({'_id':self.usera.id})
-    self.db.feedlist.remove({'_id':self.userb.id})
-    self.db.feedlist.remove({'_id':self.userc.id})
+    base.User.Remove(self.db, id=self.usera.id, with_data=True)
+    base.User.Remove(self.db, id=self.userb.id, with_data=True)
+    base.User.Remove(self.db, id=self.userc.id, with_data=True)
+    base.User.Remove(self.db, id=self.userd.id, with_data=True)
 
     for fid in self.feeds_:
       self.db.feed.remove({'_id':fid})
@@ -281,7 +278,9 @@ class FeedTestCase(unittest.TestCase):
     print 'in testPrint', self.usera
     
   def testPublish(self):
-    fid = Feed.New(self.db,  self.usera,  'demo feed',  where=self.usera.center, radius=1500)
+    focus = base.PlainDict(self.usera.focus[0])
+    print 'usera focus:', focus
+    fid = Feed.New(self.db,  self.usera,  'demo feed',  where=focus.center, radius=focus.radius)
     self.assertTrue(fid != None)
     if fid:
       self.feeds_.append(fid)
@@ -301,9 +300,11 @@ class FeedTestCase(unittest.TestCase):
     ids = [f['_id'] for f in fs]
     self.assertTrue(fid in ids)
     
-  def NewUser(self,  name,  focus,  radius):
-    uid = self.db.user.insert(dict(n=name,  h='/s/af.png',  c=focus,  r=radius),  safe=True)
-    return base.User(self.db.user.find_one({'_id':uid}))
+  def NewUser(self,  email,  focus,  radius):
+    u = base.User.New(self.db, email=email, passwd='p', nick='email', head='/s/am.png')
+    u.AddFocus(self.db, focus, radius)
+    u.GetFocus(self.db)
+    return u
 
   def _testNew(self):
     # new feed
@@ -332,4 +333,5 @@ class FeedTestCase(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
+  logging.getLogger('').setLevel(logging.INFO)
   unittest.main()
