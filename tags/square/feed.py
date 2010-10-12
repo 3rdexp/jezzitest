@@ -177,15 +177,20 @@ class Feed(object):
         comments= [],
         where= center,
       ),  safe=True)
-    print 'feed.insert', fid
 
     # publish
     # 更新感兴趣的人的 feedlist
     # TODO: 确定 maxDistance=1000 的精确度
     cond = [center,  radius or 1000]
-    
-    c = db.focus.find({'center' : {'$within' : {'$center':cond}}}, {'uid':1, 'center':1, 'radius':1})
+    logging.debug('condition: %r', cond)
 
+    c = db.focus.find({'center' : {'$within' : {'$center':cond}}}, {'uid':1, 'center':1, 'radius':1})
+    if not c.alive:
+      logging.debug('nobody got the feed? condition: %r', cond)
+      return
+      
+    logging.debug([i for i in c])
+      
     uids = [u['uid'] for u in c]
     logging.debug('Feed.New publish feed fid: %s to users:%s' % (str(fid), str(uids)))
 
@@ -216,8 +221,9 @@ class Feed(object):
         {'comments':{'owner': owner.id, 'name': owner.nick, 'body': body}}
       }
     # key 不存在 和 =None 是有些不同的，使用不存在来表示第一级
-    if index:
-      d['$push']['p'] = index
+    if index is not None:
+      d['$push']['comments']['p'] = index
+    # print 'push', index, d
     db.feed.update({'_id': fid}, d, safe=True)
     # 貌似一次不能同时执行 $push 和 $set
     db.feed.update({'_id': fid}, {'$set': {'last_modify': datetime.datetime.now()}})
@@ -241,10 +247,10 @@ class FeedTestCase(unittest.TestCase):
   def setUp(self):
     self.db = pymongo.Connection('localhost', 27017).square
     
-    base.User.Remove(self.db, email='testa')
-    base.User.Remove(self.db, email='testb')
-    base.User.Remove(self.db, email='testc')
-    base.User.Remove(self.db, email='testd')
+    # base.User.Remove(self.db, email='testa')
+    # base.User.Remove(self.db, email='testb')
+    # base.User.Remove(self.db, email='testc')
+    # base.User.Remove(self.db, email='testd')
     
     # a --1000-- b
     # 
@@ -252,19 +258,16 @@ class FeedTestCase(unittest.TestCase):
     
     factor = 60000
     
-    self.usera = self.NewUser('testa',  (126*factor, 50*factor),  3000)
-    self.userb = self.NewUser('testb',  (126*factor, 50*factor+1000),  1000) # near a
-    self.userc = self.NewUser('testc',  (126*factor - 3000, 50*factor),  1000) # faraway a
+    self.usera = self.TryUser('testa',  (126*factor, 50*factor),  3000)
+    self.userb = self.TryUser('testb',  (126*factor, 50*factor+1000),  1000) # near a
+    self.userc = self.TryUser('testc',  (126*factor - 3000, 50*factor),  1000) # faraway a
     
-    try:
-      self.userd = self.NewUser('testd',  (126*factor, 50*factor+1200),  1000) # near a
-      self.db.feedlist.insert({'_id':self.userd.id,  fid:[]})
-    except:
-      self.userd = base.User.CheckLogin (self.db, 'testd', 'p')
+    self.userd = self.TryUser('testd',  (126*factor, 50*factor+1200),  1000) # near a
+    # self.db.feedlist.insert({'_id':self.userd.id,  fid:[]})
     
     self.feeds_ = []
 
-  def tearDown(self):
+  def _tearDown(self):
     # remove the users, feeds
     base.User.Remove(self.db, id=self.usera.id, with_data=True)
     base.User.Remove(self.db, id=self.userb.id, with_data=True)
@@ -273,65 +276,78 @@ class FeedTestCase(unittest.TestCase):
 
     for fid in self.feeds_:
       self.db.feed.remove({'_id':fid})
-    
-  def _testPrint(self):
-    print 'in testPrint', self.usera
-    
-  def testPublish(self):
-    focus = base.PlainDict(self.usera.focus[0])
-    print 'usera focus:', focus
-    fid = Feed.New(self.db,  self.usera,  'demo feed',  where=focus.center, radius=focus.radius)
+      
+  def CheckPublish(self, u, center, radius, got=[], notgot=[]):
+    fid = Feed.New(self.db,  u,  'demo feed',  where=center, radius=radius)
     self.assertTrue(fid != None)
     if fid:
       self.feeds_.append(fid)
-    print 'the new feed', fid
+      
+    for i in got:
+      fs = Feed.Read(self.db, i)
+      self.assertNotEqual(None,  fs)
+      ids = [f['_id'] for f in fs]
+      self.assertTrue(len(ids) > 0)
+      self.assertTrue(fid in ids)
+      
+    for i in notgot:
+      fs = Feed.Read(self.db, i)
+      if fs is not None:
+        ids = [f['_id'] for f in fs]
+        self.assertTrue(fid not in ids)
+
+  def _testPublish(self):
+    logging.debug('usera focus: %s', self.usera.focus)
+    focus = base.PlainDict(self.usera.focus[0])
+    logging.debug('first focus: %s, %s', focus.center,  focus.radius)
+    self.CheckPublish(self.usera, focus.center, focus.radius, got=[self.usera, self.userb, self.userc, self.userd])
     
-    fs = Feed.Read(self.db, self.userb)
-    self.assertNotEqual(None,  fs)
-    ids = [f['_id'] for f in fs]
-    self.assertTrue(len(ids) > 0)
-    self.assertTrue(fid in ids)
+    self.CheckPublish(self.usera, focus.center, 1000, got=[self.usera, self.userb], notgot=[self.userc, self.userd])
     
-    fs = Feed.Read(self.db, self.userc)
-    self.assertEqual(None,  fs)
-    
-    fs = Feed.Read(self.db, self.userd)
-    self.assertNotEqual(None,  fs)
-    ids = [f['_id'] for f in fs]
-    self.assertTrue(fid in ids)
-    
+    self.CheckPublish(self.usera, focus.center, 1200, got=[self.usera, self.userb, self.userd], notgot=[self.userc])
+
   def NewUser(self,  email,  focus,  radius):
-    u = base.User.New(self.db, email=email, passwd='p', nick='email', head='/s/am.png')
+    u = base.User.New(self.db, email=email, passwd='p', nick=email, head='/s/am.png')
     u.AddFocus(self.db, focus, radius)
     u.GetFocus(self.db)
     return u
+    
+  def TryUser(self,  email,  focus,  radius):
+    try:
+      u = self.NewUser('testd',  focus,  radius)
+    except:
+      u = base.User.CheckLogin (self.db, email, 'p')
+      u.GetFocus(self.db)
+    return u
 
-  def _testNew(self):
+  def testNew(self):
     # new feed
-    fid = Feed.New(self.db, self.user, self.text, self.user.center)
+    fid = Feed.New(self.db, self.usera, 'fake body', where=[100, 200], radius=100)
+    print 'check comment fid:', fid
 
     fd = self.db.feed.find_one(dict(_id=fid))
-    print 'after create, last_modify:', fd['last_modify']
+    logging.debug('after create, last_modify: %s', fd['last_modify'])
 
     # add a group of comments
-    Feed.Comment(self.db, fid, self.user, 'first comment')
-    Feed.Comment(self.db, fid, self.user, 'comment to 0', 0)
-    Feed.Comment(self.db, fid, self.user, '2nd comment')
-    Feed.Comment(self.db, fid, self.user, 'comment to 2', 2)
-    Feed.Comment(self.db, fid, self.user, 'comment to 2 again', 2)
-    Feed.Comment(self.db, fid, self.user, '3rd comment')
-    Feed.Comment(self.db, fid, self.user, '4th comment')
+    Feed.Comment(self.db, fid, self.usera, 'first comment')
+    Feed.Comment(self.db, fid, self.usera, 'comment to 0', 0)
+    Feed.Comment(self.db, fid, self.usera, '2nd comment')
+    Feed.Comment(self.db, fid, self.usera, 'comment to 2', 2)
+    Feed.Comment(self.db, fid, self.usera, 'comment to 2 again', 2)
+    Feed.Comment(self.db, fid, self.usera, '3rd comment')
+    Feed.Comment(self.db, fid, self.usera, '4th comment')
 
     fd = self.db.feed.find_one(dict(_id=fid))
-    print 'after 6 comment, last_modify:', fd['last_modify']
+    logging.debug('after 6 comment, last_modify: %s', fd['last_modify'])
 
-    allfeed = Feed.Read(self.db, self.user)
+    allfeed = Feed.Read(self.db, self.usera, limit=1000)
 
-    ret = []
-    for a in allfeed:
-      if not a['p']:
-        pass
+    for c in fd['comments']:
+      #print c
+      if 'p' in c:
+        print c['p'], 
+      print c['body']
 
 if __name__ == "__main__":
-  logging.getLogger('').setLevel(logging.INFO)
+  logging.getLogger('').setLevel(logging.DEBUG)
   unittest.main()

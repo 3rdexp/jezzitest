@@ -17,7 +17,7 @@ from tornado.options import define, options
 import base
 import antispam
 import auth
-import ugc
+import feed
 import list2tree
 
 """
@@ -53,7 +53,7 @@ class HomeHandler(base.BaseHandler):
       self.render('home.html', feeds=[], user=user)
       return
 
-    ds = ugc.Feed.Read(self.db, user)
+    ds = feed.Feed.Read(self.db, user)
     feeds = []
     if ds:
       for d in ds:
@@ -72,7 +72,7 @@ class Square(tornado.web.Application):
     handlers = [
       (r'/', HomeHandler),
       
-      (r'/feed/comment', ugc.FeedHandler),
+      (r'/feed/comment', feed.FeedHandler),
       
       (r'/auth/login',    auth.AuthLoginHandler),
       (r'/auth/logout',   auth.AuthLogoutHandler),
@@ -81,10 +81,10 @@ class Square(tornado.web.Application):
       
       (r'/captcha/([^/]+)', antispam.CaptchaHandler),
       
-      (r'/publish/?',  ugc.PublishHandler),
-      (r'/upload/?',   ugc.UploadHandler),
+      (r'/publish/?',  feed.PublishHandler),
+      (r'/upload/?',   feed.UploadHandler),
       
-      (r'/j/([^/]+)',  ugc.JsonHandler),
+      (r'/j/([^/]+)',  feed.JsonHandler),
     ]
     settings = dict(
       debug = True,
@@ -98,8 +98,8 @@ class Square(tornado.web.Application):
       sign_captcha = False,
       
       ui_modules = {'UserModule' : auth.UserModule,
-          'FeedModule' : ugc.FeedModule,
-          'FeedCommentModule' : ugc.FeedCommentModule
+          'FeedModule' : feed.FeedModule,
+          'FeedCommentModule' : feed.FeedCommentModule
         },
     )
     tornado.web.Application.__init__(self, handlers, **settings)
