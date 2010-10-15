@@ -31,19 +31,25 @@ def BuildTree(arr):
   >>> DumpTree(t)
   0
   2
+  >>> arr = [{u'name': u'testa', u'p': u'-1'}, {u'body': u'2.a', u'name': u'testa', u'p': u'-1'}]
+  >>> BuildTree(arr)
+  []
   """
   
   tree = []
   for i in range(0, len(arr)):
     a = arr[i]
     a['i'] = i
-    if 'p' not in a:
+    if 'p' not in a or ('p' in a and '-1' == a['p']):
       tree.append(a)
+      # print 'root', i
     else:
        # 处理诡异情形
       if len(tree) < a['p'] or not isinstance(a['p'], int):
         continue
   
+      # print 'c', i
+      
       p = arr[a['p']]
       if 'child' not in p:
         p['child'] = []
