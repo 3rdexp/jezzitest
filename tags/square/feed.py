@@ -63,7 +63,7 @@ class JsonHandler(base.BaseHandler):
       
       # TODO: 如何找到刚更新的 comment 呢？
       fc = FeedCommentModule(self)
-      html = fc.render(c)
+      html = fc.render(base.PlainDict(c))
       self.write(simplejson.dumps(dict(error=0, fid=str(fid), payload=html)))
 
 class PublishHandler(base.BaseHandler):
@@ -190,9 +190,7 @@ class Feed(object):
     if not c.alive:
       logging.debug('nobody got the feed? condition: %r', cond)
       return
-      
-    logging.debug([i for i in c])
-      
+    
     uids = [u['uid'] for u in c]
     logging.debug('Feed.New publish feed fid: %s to users:%s' % (str(fid), str(uids)))
 
@@ -316,9 +314,9 @@ class FeedTestCase(unittest.TestCase):
     
   def TryUser(self,  email,  focus,  radius):
     try:
-      u = self.NewUser('testd',  focus,  radius)
+      u = self.NewUser(email,  focus,  radius)
     except:
-      u = base.User.CheckLogin (self.db, email, 'p')
+      u = base.User.CheckLogin(self.db, email, 'p')
       u.GetFocus(self.db)
     return u
 

@@ -1,2 +1,2 @@
-{% if 'p' in comment %}--&gt;{% end %}
-<a class="f_actor_name name" href="/u/{{comment['owner']}}">{{ comment['name'] }}</a> {{ comment['body'] }}
+{% if comment.p %} {% end %}
+<a class="f_actor_name name" href="/u/{{comment.owner}}">{{ comment.name }}</a> {{ comment.body }}

@@ -138,6 +138,12 @@ class SignHandler(base.BaseHandler):
     if self.settings.get('sign_captcha'):
       c = antispam.NewCaptcha()
     self.render('sign.html', captcha=c)
+    
+    
+class SettingHandler(base.BaseHandler):
+  @tornado.web.removeslash
+  def get(self):
+    self.write('setting')
 
 # TODO: move in upload.py
 def GenHead(filepath, file):

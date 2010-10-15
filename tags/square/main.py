@@ -4,6 +4,7 @@
 __pychecker__ = 'no-callinit no-classattr'
 
 import os
+import logging
 
 import tornado.web
 import tornado.options
@@ -57,11 +58,12 @@ class HomeHandler(base.BaseHandler):
     feeds = []
     if ds:
       for d in ds:
-        af = base.PlainDict(d)
-        t = list2tree.BuildTree(af.comments)
-        af.comments = t
-        feeds.append(af)
-        # print feed._id, len(t)
+        t = list2tree.BuildTree(d['comments'])
+        # print 'comments dict:', d['comments']
+        d['comments'] = t
+        feeds.append(base.PlainDict(d))
+        #print 'comments tree:', t
+        #print d
 
     # self.set_header("Expires", "-1")
     self.render('home.html', feeds=feeds, user=user)
@@ -78,6 +80,7 @@ class Square(tornado.web.Application):
       (r'/auth/logout',   auth.AuthLogoutHandler),
       (r'/auth/name/([^/]+)',   auth.NameCheckHandler),
       (r'/sign/?',        auth.SignHandler),
+      (r'/auth/setting/?', auth.SettingHandler), 
       
       (r'/captcha/([^/]+)', antispam.CaptchaHandler),
       
