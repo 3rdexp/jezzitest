@@ -8,8 +8,6 @@ import datetime
 import tornado.web
 import pymongo
 
-from tornado.options import define, options
-
 import base
 import upload
 import feed
