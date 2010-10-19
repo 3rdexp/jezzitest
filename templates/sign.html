@@ -25,7 +25,6 @@ Y：<input type="text" name="lng" id="mapY" value="">
 
 
 {% block head %}
-<script type="text/javascript" src="/s/jquery.min.js"></script>
 <!--
 <script type="text/javascript" src="http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e"></script>
 <script type="text/javascript" src="http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=e74e8164a532b7de781dccaaa7762031003514fed16f5ec889c8b3d65f7b53e34333d8be6a1d7925"></script>
@@ -39,7 +38,7 @@ var keys_ = {
   '10.2.18.202': 'd515fccce16a17c80c045883a580f271f0eaa2b8678ce0b699a069a93b60125fe01e511dde74d935'
 }
 // var u = 'http://app.mapabc.com/apis?&t=ajaxmap&v=2.1.2&key=' + keys_[document.domain];
-var u = 'http://api.mapabc.com/ajaxmap/2.1.2/js/ame.js?key=' + keys_[document.domain];
+var u =    'http://api.mapabc.com/ajaxmap/2.1.2/js/ame.js?key=d515fccce16a17c80c045883a580f271f0eaa2b8678ce0b699a069a93b60125fe01e511dde74d935';
 function loadjscssfile(filename, filetype) {
  if (filetype=="js"){
   var fileref=document.createElement('script')
@@ -56,7 +55,7 @@ function loadjscssfile(filename, filetype) {
   document.getElementsByTagName("head")[0].appendChild(fileref)
 }
 
-loadjscssfile(u, 'js')
+// loadjscssfile(u, 'js')
 </script>
 {% end %}
 
@@ -86,16 +85,7 @@ function GotMouseClick(e){
 }
 
 $(document).ready(function() {
-  mapInit();
-  var keys_ = {
-    'localhost': 'f6c97a7f64063cfee7c2dc2157847204d4dbf093612d4b2947b0874339dfc295669caa7b4e38254e',
-    '60.28.218.223': 'e74e8164a532b7de781dccaaa7762031003514fed16f5ec889c8b3d65f7b53e34333d8be6a1d7925',
-    '10.2.18.202': 'd515fccce16a17c80c045883a580f271f0eaa2b8678ce0b699a069a93b60125fe01e511dde74d935'
-  }
-  var u = 'http://app.mapabc.com/apis?&t=flashmap&v=2.2&key=' + keys_[document.domain];
-  // $.getScript(u, function() {});
-  // document.appendChild('')
-  // 几乎就不可能被jQuery加载
+  $.getScript(u, function() {alert(u); mapInit();});
 });
 </script>
 {% end %}
