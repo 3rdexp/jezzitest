@@ -14,8 +14,6 @@ import base
 import antispam
 import unihtml
 
-# TODO: rename to feed.py
-
 # for ajax response json
 # /j/publish?content=
 # /j/action?fid=&action=&c=&p=

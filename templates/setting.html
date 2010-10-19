@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block left %}
+{% if user %}
+<a class="f_actor_a" href="/u/{{user.id}}">
+<img class="head" src="{{user.head}}" />
+</a>
+
+<div class="blockcontent">
+<a class="name" href="/u/{{user.id}}">{{user.nick}}</a><br />
+Edit My Profile<br />
+</div>
+{% end %}
+<br /><br />
+
+<ul>
+<li><a href="/">新鲜事</a></li>
+<li><a href="">站内信</a></li>
+<li><a href="">活动</a></li>
+<li><a href="">好友</a></li>
+</ul>
+{% end %}
+
+
+{% block right %}
+{% end %}
