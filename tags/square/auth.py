@@ -143,7 +143,11 @@ class SignHandler(base.BaseHandler):
 class SettingHandler(base.BaseHandler):
   @tornado.web.removeslash
   def get(self):
-    self.write('setting')
+    self.current_user.GetFocus(self.db)
+    self.render('setting.html', user=self.current_user)
+    
+  def post(self):
+    pass
 
 # TODO: move in upload.py
 def GenHead(filepath, file):
