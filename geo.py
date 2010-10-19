@@ -3,6 +3,8 @@
 
 import math
 
+"""经纬度和度分秒(dms)转换"""
+
 def todms(afloat):
   """
   >>> print '%d %d %.2f' % todms(116.34412714235)
