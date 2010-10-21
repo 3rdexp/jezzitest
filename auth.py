@@ -137,7 +137,15 @@ class SignHandler(base.BaseHandler):
       c = antispam.NewCaptcha()
     self.render('sign.html', captcha=c)
     
-    
+# 从地址获取经纬度
+# convert addresses to latitude/longitude pairs
+# http://code.google.com/apis/maps/faq.html#geocoder_exists
+
+# js
+# http://code.google.com/apis/maps/documentation/javascript/services.html#GeocodingRequests
+# REST
+# http://code.google.com/apis/maps/documentation/geocoding/index.html
+
 class SettingHandler(base.BaseHandler):
   @tornado.web.removeslash
   def get(self):
