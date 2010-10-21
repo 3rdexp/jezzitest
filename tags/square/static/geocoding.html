@@ -29,8 +29,12 @@ function initialize() {
   
   google.maps.event.addListener(map, "click", function(event){
     alert('clicked: ' + event);
-    geocoder.geocode({'latLng': event.latLng}, function(result,status){
-      alert('geocode return: ' + result + status);
+    geocoder.geocode({'latLng': event.latLng}, function(results,status){
+      var s = '';
+      for (var i=0; i<results.legth; i++) {
+        s += results[i] + '\n';
+      }
+      alert('geocode return: ' + s);
       if (status == google.maps.GeocoderStatus.OK) {
         if (results[1]) {
           marker = new google.maps.Marker({
