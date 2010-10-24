@@ -6,7 +6,7 @@ body {background:#fff;
   text-align: center;
 }
 #header {
-  width: 776px;
+  width: 996px;
   margin-left: auto;
   margin-right: auto;
   padding: 0px;
@@ -16,10 +16,10 @@ body {background:#fff;
 #container {
   margin-left: auto;
   margin-right: auto;
-  width: 776px;
+  width: 996px;
 }
 #mainbg {
-  width: 776px;
+  width: 996px;
   padding: 0px;
   /* background: lightblue; */
   float: left;
@@ -29,7 +29,7 @@ body {background:#fff;
   float: right;
   margin: 2px 0px 2px 0px;
   padding: 0px;
-  width: 574px;
+  width: 850px;
   background: white; /* text-align: left; */
 }
 #left {
@@ -37,7 +37,7 @@ body {background:#fff;
   margin: 2px 2px 0px 0px;
   padding: 0px;
   background: white;
-  width: 200px; /* text-align: left; */
+  width: 140px; /* text-align: left; */
 }
 #footer {
   clear: both;

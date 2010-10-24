@@ -20,6 +20,7 @@ import antispam
 import auth
 import feed
 import list2tree
+import testtmpl
 
 """
 第一批实现的 url
@@ -88,6 +89,7 @@ class Square(tornado.web.Application):
       (r'/upload/?',   feed.UploadHandler),
       
       (r'/j/([^/]+)',  feed.JsonHandler),
+      (r'/test/([^/]+)', testtmpl.TestMustacheHandler),
     ]
     settings = dict(
       debug = True,
@@ -145,6 +147,7 @@ def main():
   tornado.options.parse_command_line()
   
   init()
+  logging.debug('hello')
   
   ws = tornado.httpserver.HTTPServer(Square())
   ws.listen(options.port)
