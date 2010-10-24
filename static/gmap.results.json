@@ -1,0 +1,91 @@
+[ {
+    "types": [ "bus_station", "transit_station" ],
+    "formatted_address": "中国北京市昌平区龙锦苑二区站",
+    "address_components": [ {
+      "long_name": "龙锦苑二区站",
+      "short_name": "龙锦苑二区站",
+      "types": [ "bus_station", "transit_station" ]
+    }, {
+      "long_name": "昌平区",
+      "short_name": "昌平区",
+      "types": [ "sublocality", "political" ]
+    }, {
+      "long_name": "北京",
+      "short_name": "北京",
+      "types": [ "locality", "political" ]
+    }, {
+      "long_name": "北京市",
+      "short_name": "北京市",
+      "types": [ "administrative_area_level_1", "political" ]
+    }, {
+      "long_name": "中国",
+      "short_name": "CN",
+      "types": [ "country", "political" ]
+    } ],
+    "geometry": {
+      "location": {
+        "lat": 40.0869830,
+        "lng": 116.3571070
+      },
+      "location_type": "APPROXIMATE",
+      "viewport": {
+        "southwest": {
+          "lat": 40.0838354,
+          "lng": 116.3539594
+        },
+        "northeast": {
+          "lat": 40.0901306,
+          "lng": 116.3602546
+        }
+      }
+    },
+    "partial_match": true
+  }, 
+  {
+    "types": [ "point_of_interest", "establishment" ],
+    "formatted_address": "中国北京昌平区龙锦二街龙锦苑二区",
+    "address_components": [ {
+      "long_name": "龙锦苑二区",
+      "short_name": "龙锦苑二区",
+      "types": [ "point_of_interest", "establishment" ]
+    }, {
+      "long_name": "龙锦二街",
+      "short_name": "龙锦二街",
+      "types": [ "route" ]
+    }, {
+      "long_name": "昌平区",
+      "short_name": "昌平区",
+      "types": [ "sublocality", "political" ]
+    }, {
+      "long_name": "北京",
+      "short_name": "北京",
+      "types": [ "locality", "political" ]
+    }, {
+      "long_name": "北京市",
+      "short_name": "北京市",
+      "types": [ "administrative_area_level_1", "political" ]
+    }, {
+      "long_name": "中国",
+      "short_name": "CN",
+      "types": [ "country", "political" ]
+    } ],
+    "geometry": {
+      "location": {
+        "lat": 40.0885430,
+        "lng": 116.3570420
+      },
+      "location_type": "APPROXIMATE",
+      "viewport": {
+        "southwest": {
+          "lat": 40.0853954,
+          "lng": 116.3538944
+        },
+        "northeast": {
+          "lat": 40.0916906,
+          "lng": 116.3601896
+        }
+      }
+    },
+    "partial_match": true
+  }
+]
