@@ -110,5 +110,8 @@ TODO:
   class User
     staticmethod New/Remove
 能添加感兴趣的地点，多个
-完成注册
 
+
+完成注册 
+google oauth
+renren oauth
