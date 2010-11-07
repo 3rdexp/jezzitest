@@ -142,6 +142,10 @@ def init():
   db.feed.ensure_index([('where', pymongo.GEO2D)], unique=False, ttl=300,  min=-180*60000, max=180*60000)
   db.feed.ensure_index('time', unique=False)
   
+  # _id, where, name, 按 距离*频率 排序
+  # {where:[], name:''}
+  # db.place.ensure_index('where', unique=True)
+  
 
 def main():
   tornado.options.parse_command_line()

@@ -33,7 +33,7 @@ Edit My Profile<br />
 var geocoder;
 var map;
 var gr;
-function initialize() {
+function Init() {
   geocoder = new google.maps.Geocoder();
   var latlng = new google.maps.LatLng(40.083411296333,116.34412714235);
   var myOptions = {
@@ -44,24 +44,36 @@ function initialize() {
   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 }
 
-function index(array) {
-	return $.inArray( this.data, array );
-}
-
-function ResultHtml(r) {
-  var ht = ["<li><span>",
+function ResultHtml(r, index) {
+  var html = ['<li><button onclick="SelectResult(',
+    index,
+    ')">select</button><span>',
     r.address_components[0].long_name,
-    "</span><span></span><span></span></li>"
+    '</span><div><span>',
+    r.formatted_address,
+    '</span><span></span></div></li>'
   ];
   
-  return ''.join(ht);
+  return html.join('');
 }
 
-function showAddress(q, city) {
+function SelectResult(index) {
+  console.dir(gr[index]);
+  $('#candidate').parent().hide();
+}
+
+// json struct
+// [{address_components:[#1],formatted_address,geometry:{#2},types:[#3]}]
+// #1 long_name:,short_name:,types:[#3]
+// #2 location:{b,c},location_type:'APPROXIMATE',viewport:{M,S}
+// #3 ["bus_station", "transit_station"]
+function ShowAddress(form) {
+  q = form.q.value;
+  city = form.city.value;
   gr = null;
   $('#candidate').empty();
   
-  if (!geocoder) initialize();
+  if (!geocoder) Init();
   var address = q + ',' + city;
   
   geocoder.geocode( { 'address': address}, function(results, status) {
@@ -70,7 +82,7 @@ function showAddress(q, city) {
       var ul = $('<ul></ul>');
       for (var i in results) {
         var r = results[i];
-        ul.append(ResultHtml(r));
+        ul.append(ResultHtml(r, i));
         
         var marker = new google.maps.Marker({
           map: map, 
@@ -81,28 +93,41 @@ function showAddress(q, city) {
           });
       }
       $('#candidate').append(ul);
-      
       map.setCenter(results[0].geometry.location);
     } else {
       alert("Geocode was not successful for the following reason: " + status);
     }
   });
 }
+
+function NewAddress() {
+  var c = $('#tmpl_input').clone();
+  $('#all_address').append(c);
+}
 </script>
 
-<form action="#" onsubmit="showAddress(this.q.value, this.city.value); return false">
-对哪里感兴趣：<br />
-<input name="q" type="text" value="龙锦苑二区" />
-<input name="city" type="text" value="北京" />
-<input type="submit" value="search"><br />
+感兴趣的地方:
+<ul id="all_address">
+<li>昌平区龙锦二街龙锦苑二区 <button>删除</button></li>
+<li>昌平区回龙观 <button>删除</button></li>
+</ul>
 
-<div style="width:800px;height:300px">
-<div style="float:left;width:380px;height:300px" id="candidate">候选项</div>
-<div style="float:right;width:380px;height:300px" id="map_canvas"></div>
+<a onclick="NewAddress()">添加地址</a>
+
+<div style="display:none">
+<form id="tmpl_input" onsubmit="ShowAddress(this); return false">
+  <input name="q" type="text" value="龙锦苑二区" />
+  <input name="city" type="text" value="北京" />
+  <input type="submit" value="search"><br />
+</form>
 </div>
-<br />
 
-<a>添加地址</a>
+<form name="save" style="display:none">
+<input type="submit" value="保存">
+<div style="width:800px;height:300px;display:none">
+  <div style="float:left;width:380px;height:300px" id="candidate">候选项</div>
+  <div style="float:right;width:380px;height:300px" id="map_canvas"></div>
+</div>
 </form>
 
 {% end %}
