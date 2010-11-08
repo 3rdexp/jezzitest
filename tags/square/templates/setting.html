@@ -33,7 +33,7 @@ Edit My Profile<br />
 var geocoder;
 var map;
 var gr;
-function Init() {
+function Init(form) {
   geocoder = new google.maps.Geocoder();
   var latlng = new google.maps.LatLng(40.083411296333,116.34412714235);
   var myOptions = {
@@ -45,7 +45,7 @@ function Init() {
 }
 
 function ResultHtml(r, index) {
-  var html = ['<li><button onclick="SelectResult(',
+  var html = ['<li><button onclick="SelectResult(this,',
     index,
     ')">select</button><span>',
     r.address_components[0].long_name,
@@ -57,9 +57,17 @@ function ResultHtml(r, index) {
   return html.join('');
 }
 
-function SelectResult(index) {
-  console.dir(gr[index]);
-  $('#candidate').parent().hide();
+function SelectResult(b,index) {
+  // return action to fake
+  // replace form as normal line
+  // show save form
+  
+  // TODO: here, how to get parent
+  var form = $(b).parent('form');
+  console.log('button parent:', form);
+  
+  $('#candidate').empty();
+  $('#action').detach().appendTo('#fake');
 }
 
 // json struct
@@ -68,15 +76,26 @@ function SelectResult(index) {
 // #2 location:{b,c},location_type:'APPROXIMATE',viewport:{M,S}
 // #3 ["bus_station", "transit_station"]
 function ShowAddress(form) {
+  $('#anew').attr("disabled","disabled");
   q = form.q.value;
   city = form.city.value;
-  gr = null;
-  $('#candidate').empty();
   
-  if (!geocoder) Init();
+  form = $(form);
+  
+  // 1 move #fake>#action here, and show search result
+  // 2 geocoding
+  
+  var va = $('#fake>#action');
+  // $('#candidate').empty();
+  
+  va.detach().appendTo(form);
+
+  if (!geocoder)
+    Init(form);
+    
   var address = q + ',' + city;
   
-  geocoder.geocode( { 'address': address}, function(results, status) {
+  geocoder.geocode({'address': address}, function(results, status) {
     if (status == google.maps.GeocoderStatus.OK) {
       gr = results;
       var ul = $('<ul></ul>');
@@ -92,7 +111,7 @@ function ShowAddress(form) {
           // TODO: 鼠标悬停 li 时，改变 marker
           });
       }
-      $('#candidate').append(ul);
+      ul.appendTo('#candidate');
       map.setCenter(results[0].geometry.location);
     } else {
       alert("Geocode was not successful for the following reason: " + status);
@@ -101,33 +120,37 @@ function ShowAddress(form) {
 }
 
 function NewAddress() {
-  var c = $('#tmpl_input').clone();
+  var c = $('#fake > li').clone();
   $('#all_address').append(c);
 }
 </script>
 
 感兴趣的地方:
 <ul id="all_address">
-<li>昌平区龙锦二街龙锦苑二区 <button>删除</button></li>
-<li>昌平区回龙观 <button>删除</button></li>
+TODO: read from db<br>
+<li>昌平区龙锦二街龙锦苑二区 <button>x 删除</button></li>
+<li>昌平区回龙观 <button>x 删除</button></li>
 </ul>
 
-<a onclick="NewAddress()">添加地址</a>
+<a id="anew" onclick="NewAddress()">添加地址</a>
 
-<div style="display:none">
-<form id="tmpl_input" onsubmit="ShowAddress(this); return false">
-  <input name="q" type="text" value="龙锦苑二区" />
-  <input name="city" type="text" value="北京" />
-  <input type="submit" value="search"><br />
-</form>
+<div id="fake" style="display:none">
+  <li>
+    <form onsubmit="ShowAddress(this); return false;">
+      <input name="q" type="text" value="龙锦苑二区" />
+      <input name="city" type="text" value="北京" />
+      <input type="submit" value="search"><br />
+    </form>
+  </li>
+  
+  <div id="action" style="width:800px;height:300px;">
+    <div style="float:left;width:380px;height:300px" id="candidate">候选项</div>
+    <div style="float:right;width:380px;height:300px" id="map_canvas"></div>
+  </div>
 </div>
 
 <form name="save" style="display:none">
 <input type="submit" value="保存">
-<div style="width:800px;height:300px;display:none">
-  <div style="float:left;width:380px;height:300px" id="candidate">候选项</div>
-  <div style="float:right;width:380px;height:300px" id="map_canvas"></div>
-</div>
 </form>
 
 {% end %}
