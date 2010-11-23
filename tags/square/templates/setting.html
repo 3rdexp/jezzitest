@@ -2,8 +2,7 @@
 
 {% block base_head %}
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&language=zh-CN"></script>
-<script type="text/javascript" src="/s/mustache.js"></script>
-<script type="text/javascript" src="/s/tmpl.js"></script>
+<script type="text/javascript" src="/s/json2.js"></script>
 {% end %}
 
 {% block left %}
@@ -57,14 +56,21 @@ function ResultHtml(r, index) {
   return html.join('');
 }
 
+var topost = []
+
 function SelectResult(b,index) {
   // return action to fake
   // replace form as normal line
   // show save form
   
-  // TODO: here, how to get parent
-  var form = $(b).parent('form');
+  var form = $(b).parents('form');
   console.log('button parent:', form);
+  console.log('q', form[0].q.value)
+  console.log('city', form[0].city.value)
+  
+  $('form[name="save"]').children(':input[name="q"]').val({q:form[0].q.value, city:form[0].city.value});
+  
+  // form.parent().
   
   $('#candidate').empty();
   $('#action').detach().appendTo('#fake');
@@ -134,7 +140,7 @@ TODO: read from db<br>
 
 <a id="anew" onclick="NewAddress()">添加地址</a>
 
-<div id="fake" style="display:none">
+<div id="fake" style="display:">
   <li>
     <form onsubmit="ShowAddress(this); return false;">
       <input name="q" type="text" value="龙锦苑二区" />
@@ -149,7 +155,8 @@ TODO: read from db<br>
   </div>
 </div>
 
-<form name="save" style="display:none">
+<form name="save" style="display:">
+<input name="q" type="text" />
 <input type="submit" value="保存">
 </form>
 

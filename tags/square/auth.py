@@ -149,8 +149,13 @@ class SignHandler(base.BaseHandler):
 class SettingHandler(base.BaseHandler):
   @tornado.web.removeslash
   def get(self):
-    self.current_user.GetFocus(self.db)
-    self.render('setting.html', user=self.current_user)
+    if self.current_user:
+      self.current_user.GetFocus(self.db)
+      user=self.current_user
+    user=base.User({'head':'/p/am.png'
+                    , 'id':'None', 'nick':'陌生人'
+      })
+    self.render('setting.html', user=user)
     
   def post(self):
     pass
