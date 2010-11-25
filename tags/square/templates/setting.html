@@ -60,15 +60,16 @@ var topost = []
 
 function SelectResult(b,index) {
   // return action to fake
-  // replace form as normal line
-  // show save form
+  // fill save form
+  // show save button
   
   var form = $(b).parents('form');
   console.log('button parent:', form);
   console.log('q', form[0].q.value)
   console.log('city', form[0].city.value)
-  
-  $('form[name="save"]').children(':input[name="q"]').val({q:form[0].q.value, city:form[0].city.value});
+
+  var text = JSON.stringify({q:form[0].q.value, city:form[0].city.value});
+  $('form[name="save"]').children(':input[name="q"]').val(obj);
   
   // form.parent().
   
